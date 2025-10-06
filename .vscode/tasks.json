@@ -1,0 +1,82 @@
+// See Auth's tasks.json for more info
+
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Server [Nodemon]",
+			"type": "shell",
+			"command": "/bin/zsh -c \"printf 'Run: npm run nodemon'\" && /bin/zsh",
+			"runOptions": {
+				"runOn": "folderOpen"
+			},
+			"options": {
+				"cwd": "Server"
+			},
+			"isBackground": true,
+			"presentation": {
+				"echo": false
+			}
+		},
+		{
+			"label": "Server",
+			"type": "shell",
+			"command": "/bin/zsh",
+			"runOptions": {
+				"runOn": "folderOpen"
+			},
+			"options": {
+				"cwd": "Server"
+			},
+			"isBackground": true,
+			"presentation": {
+				"echo": false
+			}
+		},
+		{
+			"label": "WebApp [Dev]",
+			"type": "shell",
+			"command": "/bin/zsh -c \"printf 'Run: npm run dev'\" && /bin/zsh",
+			"runOptions": {
+				"runOn": "folderOpen"
+			},
+			"options": {
+				"cwd": "WebApp"
+			},
+			"isBackground": true,
+			"presentation": {
+				"echo": false
+			}
+		},
+		{			
+			"label": "WebApp [BuildWatch]",
+			"type": "shell",
+			"command": "/bin/zsh -c \"printf 'Run: npm run build-watch'\" && /bin/zsh",
+			"runOptions": {
+				"runOn": "folderOpen"
+			},
+			"options": {
+				"cwd": "WebApp"
+			},
+			"isBackground": true,
+			"presentation": {
+				"echo": false
+			}
+		},		
+		{
+			"label": "WebApp",
+			"type": "shell",
+			"command": "/bin/zsh",
+			"runOptions": {
+				"runOn": "folderOpen"
+			},
+			"options": {
+				"cwd": "WebApp"
+			},
+			"isBackground": true,
+			"presentation": {
+				"echo": false
+			}
+		}
+	]
+}

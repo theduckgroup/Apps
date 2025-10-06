@@ -1,0 +1,12 @@
+{
+  // "compilerOptions": {
+  //   "jsx": "react-jsx",
+  //   "baseUrl": "."
+  // },
+  // "include": ["src", "postcss.config.cjs"],
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
+}

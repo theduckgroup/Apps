@@ -1,0 +1,19 @@
+{
+	"folders": [
+		{
+			"name": "Quiz",
+			"path": "."
+		},
+		{
+			"path": "../Miroservices"
+		},
+		{
+			"path": "../Common"
+		},
+		{
+			"path": "../README"
+		}
+	],
+	"settings": {
+	}
+}
