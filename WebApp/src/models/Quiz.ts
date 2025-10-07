@@ -7,6 +7,7 @@ export interface Quiz {
 
 export namespace Quiz {
   export type Item = ListItem | SelectedResponseItem | TextInputItem
+  export type ItemKind = Item['kind']
 
   export interface ListItem {
     id: string

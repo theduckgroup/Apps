@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { Button, Modal, Select, Stack, Textarea } from "@mantine/core"
+import { Button, Group, Modal, Select, Stack, Textarea } from "@mantine/core"
 import { Quiz } from 'src/models/Quiz'
 
 import ListItemEditor from './ListItemEditor'
@@ -9,150 +9,70 @@ import TextInputItemEditor from './TextInputItemEditor'
 export default function EditItemModal({ opened, close, options }: {
   opened: boolean,
   close: () => void,
+  options: EditItemModalOptions | null
+}) {
+  if (options) {
+    return <EditItemModalImpl opened={opened} close={close} options={options} />
+  } else {
+    return null
+  }
+}
+
+function EditItemModalImpl({ opened, close, options }: {
+  opened: boolean,
+  close: () => void,
   options: EditItemModalOptions
 }) {
-  interface ItemKind {
-    value: Quiz.Item['kind']
-    label: string
-  }
+  const [item, setItem] = useState<Quiz.Item>(options.item)
 
-  const itemKinds: ItemKind[] = [
-    {
-      value: 'selectedResponseItem',
-      label: 'Multiple Choice'
-    },
-    {
-      value: 'textInputItem',
-      label: 'Text Input'
-    },
-    {
-      value: 'listItem',
-      label: 'List'
-    },
-  ]
-
-  type Option = Quiz.SelectedResponseItem['data']['options'][number]
-
-  const [itemKind, setItemKind] = useState<ItemKind>(itemKinds[0])
-  const [prompt, setPrompt] = useState('')
-  const [subitems, setSubitems] = useState<Quiz.Item[]>([])
-  const [srOptions, setSROptions] = useState<Option[]>([]) // SR = Selected response
-  const promptRef = useRef<HTMLTextAreaElement | null>(null)
-
-  useEffect(() => {
-    setTimeout(() => {
-      if (promptRef.current && opened) {
-        promptRef.current?.focus()
-      }
-    }, 50)
-
-  }, [opened])
-
-  function handleSubmit() {
-    close()
-
-    switch (itemKind.value) {
-      case 'listItem': {
-        const item: EditItemModalData = {
-          kind: itemKind.value,
-          data: {
-            prompt,
-            items: [] as Quiz.Item[]
-          }
-        }
-
-        options.onChange(item)
-
-        break
-      }
-
-      case 'selectedResponseItem': {
-        const item: EditItemModalData = {
-          kind: itemKind.value,
-          data: {
-            prompt,
-            options: srOptions,
-            optionsPerRow: 1
-          }
-        }
-
-        options.onChange(item)
-
-        break
-      }
-
-      case 'textInputItem': {
-        const item: EditItemModalData = {
-          kind: itemKind.value,
-          data: {
-            prompt
-          }
-        }
-
-        options.onChange(item)
-
-        break
-      }
+  const title = (() => {
+    switch (item.kind) {
+      case 'selectedResponseItem': return 'Multiple Choice Item'
+      case 'textInputItem': return 'Text Input Item'
+      case 'listItem': return 'List Item'
     }
+  })()
+
+  function handleSave() {
+    close()
+    options.onSave(item)
   }
 
   return (
     <Modal
       opened={opened}
       onClose={close}
-      title={options?.title}
+      title={title}
       size='lg'
       returnFocus={false}
       closeOnClickOutside={false}
     >
-      <form onSubmit={e => { e.preventDefault(); handleSubmit() }}>
-        <Stack gap='sm'>
-          <Select
-            label='Type'
-            value={itemKind.value}
-            onChange={value => setItemKind(itemKinds.find(x => x.value == value)!)}
-            data={itemKinds}
-            allowDeselect={false}
-          />
-          <Textarea
-            label='Prompt'
-            autosize
-            value={prompt}
-            onChange={e => setPrompt(e.currentTarget.value)}
-          />
-          {
-            (() => {
-              switch (itemKind.value) {
-                case 'listItem':
-                  return <ListItemEditor items={subitems} setItems={setSubitems} />
+      <Stack>
+        {
+          (() => {
+            switch (item.kind) {
+              case 'listItem':
+                return <ListItemEditor item={item} onChange={setItem} />
 
-                case 'selectedResponseItem':
-                  return <SelectedResponseItemEditor options={srOptions} setOptions={setSROptions} />
+              case 'selectedResponseItem':
+                return <SelectedResponseItemEditor item={item} onChange={setItem} />
 
-                case 'textInputItem':
-                  return <TextInputItemEditor />
-              }
-            })()
-          }
-          <Button type='submit' ml='auto'>Save</Button>
-        </Stack>
-      </form>
+              case 'textInputItem':
+                return <TextInputItemEditor item={item} onChange={setItem} />
+            }
+          })()
+        }
+        <Group gap='sm' ml='auto'>
+          <Button variant='default' w='6rem' onClick={close}>Cancel</Button>
+          <Button type='submit' w='6rem' onClick={handleSave}>Save</Button>
+        </Group>
+      </Stack>
     </Modal>
   )
 }
 
 export interface EditItemModalOptions {
   title: string
-  data: EditItemModalData | null
-  onChange: (data: EditItemModalData) => void
-}
-
-export type EditItemModalData = Omit<Quiz.ListItem, 'id'> | Omit<Quiz.SelectedResponseItem, 'id'> | Omit<Quiz.TextInputItem, 'id'>
-
-export namespace EditItemModalOptions {
-  export const empty: EditItemModalOptions = {
-    title: '',
-    data: null,
-    onChange: () => { }
-  }
+  item: Quiz.Item
+  onSave: (_: Quiz.Item) => void
 }

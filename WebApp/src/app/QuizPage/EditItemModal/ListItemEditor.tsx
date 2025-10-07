@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Text, Stack, Paper, Group, Textarea, ActionIcon, Button, Menu } from '@mantine/core'
+import { Text, Stack, Paper, Group, ActionIcon, Button, Menu } from '@mantine/core'
 import { DragDropContext, Droppable, Draggable, DropResult, DraggableProvided } from '@hello-pangea/dnd'
 import { ObjectId } from 'bson'
 
@@ -8,70 +8,88 @@ import { IconChevronDown, IconChevronRight, IconGripVertical, IconPlus, IconTras
 import { produce } from 'immer'
 import SelectedResponseItemEditor from 'src/app/QuizPage/EditItemModal/SelectedResponseItemEditor'
 import TextInputItemEditor from 'src/app/QuizPage/EditItemModal/TextInputItemEditor'
+import PromptInput from 'src/app/QuizPage/EditItemModal/PromptInput'
 
-export default function ListItemEditor({ items, setItems }: {
-  items: Quiz.Item[],
-  setItems: (_: Quiz.Item[]) => void
+export default function ListItemEditor({ item, onChange }: {
+  item: Quiz.ListItem,
+  onChange: (_: Quiz.ListItem) => void
 }) {
   const promptRefs = useRef<Record<string, HTMLTextAreaElement | null>>({})
-  const [expandedMap, setExpandedMap] = useState<Record<string, boolean | undefined>>({})
+  const [subitemExpandedMap, setSubitemExpandedMap] = useState<Record<string, boolean | undefined>>({})
 
-  function handleAddSelectedResponseItem() {
-    const newItem: Quiz.Item = {
-      id: new ObjectId().toString(),
-      kind: 'selectedResponseItem',
-      data: {
-        prompt: '',
-        options: [],
-        optionsPerRow: 1,
+  function handlePromptChange(value: string) {
+    const modifiedItem = produce(item, item => {
+      item.data.prompt = value
+    })
+
+    onChange(modifiedItem)
+  }
+
+  function handleAddSubitem(kind: Quiz.SelectedResponseItem['kind'] | Quiz.TextInputItem['kind']) {
+    const newSubitem: Quiz.Item = (() => {
+      const id = new ObjectId().toString()
+
+      switch (kind) {
+        case 'selectedResponseItem':
+          return {
+            id,
+            kind,
+            data: {
+              prompt: '',
+              options: [],
+              optionsPerRow: 1
+            }
+          }
+
+        case 'textInputItem':
+          return {
+            id,
+            kind,
+            data: {
+              prompt: ''
+            }
+          }
       }
-    }
+    })()
 
-    setItems([...items, newItem])
-    setExpanded(newItem.id, true)
+    const modifiedItem = produce(item, item => {
+      item.data.items.push(newSubitem)
+    })
+
+    onChange(modifiedItem)
+    setSubitemExpanded(newSubitem.id, true)
 
     // Focus next tick
     requestAnimationFrame(() => {
-      promptRefs.current[newItem.id]?.focus()
+      promptRefs.current[newSubitem.id]?.focus()
     })
   }
 
-  function handleAddTextInputItem() {
-    const newItem: Quiz.Item = {
-      id: new ObjectId().toString(),
-      kind: 'textInputItem',
-      data: {
-        prompt: ''
-      }
-    }
-
-    setItems([...items, newItem])
-    setExpanded(newItem.id, true)
-
-    // Focus next tick
-    requestAnimationFrame(() => {
-      promptRefs.current[newItem.id]?.focus()
+  function handleDeleteSubitem(id: string) {
+    const modifiedItem = produce(item, item => {
+      item.data.items = item.data.items.filter(x => x.id != id)
     })
+
+    onChange(modifiedItem)
   }
 
-  function handleDelete(id: string) {
-    const newItems = items.filter(x => x.id != id)
-    setItems(newItems)
-  }
+  function handleSubitemChange(subitem: Quiz.Item) {
+    const modifiedItem = produce(item, item => {
+      const index = item.data.items.findIndex(x => x.id == subitem.id)
+      item.data.items[index] = subitem
+    })
 
-  function setItem(item: Quiz.Item) {
-    const newItems = items.map(x => x.id == item.id ? item : x)
-    setItems(newItems)
+    onChange(modifiedItem)
   }
 
   function isExpanded(id: string) {
-    return expandedMap[id] ?? false
+    return subitemExpandedMap[id] ?? false
   }
 
-  function setExpanded(id: string, value: boolean) {
-    const copy = { ...expandedMap }
+  function setSubitemExpanded(id: string, value: boolean) {
+    const copy = { ...subitemExpandedMap }
     copy[id] = value
-    setExpandedMap(copy)
+    setSubitemExpandedMap(copy)
   }
 
   function onDragEnd(result: DropResult) {
@@ -86,98 +104,111 @@ export default function ListItemEditor({ items, setItems }: {
       return
     }
 
-    const copy = Array.from(items)
-    const [moved] = copy.splice(from, 1)
-    copy.splice(to, 0, moved)
-    setItems(items)
+    const modifiedItem = produce(item, item => {
+      const copy = Array.from(item.data.items)
+      const [moved] = copy.splice(from, 1)
+      copy.splice(to, 0, moved)
+      item.data.items = copy
+    })
+
+    onChange(modifiedItem)
   }
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <Droppable
-        droppableId='droppable-list'
-        // Need this for drag drop to work inside Mantine modal
-        // https://github.com/hello-pangea/dnd/issues/560#issuecomment-3353933696
-        // https://github.com/hello-pangea/dnd/blob/main/docs/guides/reparenting.md
-        renderClone={(provided, snapshot, rubric) => {
-          const index = items.findIndex(x => x.id == items[rubric.source.index].id)!
-          const item = items[index]
+    <Stack>
+      {/* Prompt */}
+      <PromptInput value={item.data.prompt} onChange={handlePromptChange} />
+      {/* Subitems */}
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable
+          droppableId='droppable-list'
+          // Need this for drag drop to work inside Mantine modal
+          // https://github.com/hello-pangea/dnd/issues/560#issuecomment-3353933696
+          // https://github.com/hello-pangea/dnd/blob/main/docs/guides/reparenting.md
+          renderClone={(provided, snapshot, rubric) => {
+            const subitem = item.data.items[rubric.source.index]
+            const index = item.data.items.findIndex(x => x.id == subitem.id)!
 
-          return (
-            <Row
-              item={item}
-              index={index}
-              setItem={e => { }}
-              onDelete={() => { }}
-              expanded={isExpanded(item.id)}
-              setExpanded={() => { }}
-              provided={provided}
-            />
-          )
-        }}
-      >
-        {(provided) => (
-          <Stack
-            ref={provided.innerRef}
-            {...provided.droppableProps}
-            style={{ width: '100%' }}
-            gap='xs'
-          >
-            {items.map((item, index) => (
-              <Draggable key={item.id} draggableId={item.id} index={index}>
-                {(provided, snapshot) => (
-                  <Row
-                    item={item}
-                    index={index}
-                    setItem={setItem}
-                    onDelete={() => handleDelete(item.id)}
-                    expanded={expandedMap[item.id] ?? false}
-                    setExpanded={value => setExpanded(item.id, value)}
-                    provided={provided}
-                    ref={el => (promptRefs.current[item.id] = el)}
-                  />
-                )}
-              </Draggable>
-            ))}
-            {provided.placeholder}
+            return (
+              <Row
+                item={subitem}
+                index={index}
+                onChange={e => { }}
+                onDelete={() => { }}
+                expanded={isExpanded(subitem.id)}
+                setExpanded={() => { }}
+                provided={provided}
+              />
+            )
+          }}
+        >
+          {(provided) => (
+            <Stack
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+              style={{ width: '100%' }}
+              gap='xs'
+            >
+              {item.data.items.map((subitem, index) => (
+                <Draggable key={subitem.id} draggableId={subitem.id} index={index}>
+                  {(provided, snapshot) => (
+                    <Row
+                      item={subitem}
+                      index={index}
+                      onChange={handleSubitemChange}
+                      onDelete={() => handleDeleteSubitem(subitem.id)}
+                      expanded={subitemExpandedMap[subitem.id] ?? false}
+                      setExpanded={value => setSubitemExpanded(subitem.id, value)}
+                      provided={provided}
+                      promptRef={el => (promptRefs.current[subitem.id] = el)}
+                    />
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
 
-            <Menu offset={6} position='right-start'>
-              <Menu.Target>
-                <Button
-                  variant='default'
-                  size='sm'
-                  leftSection={<IconPlus size={16} />}
-                  mr='auto'
-                >
-                  Add Item
-                </Button>
-              </Menu.Target>
-              <Menu.Dropdown>
-                <Menu.Item onClick={handleAddSelectedResponseItem}>
-                  Multiple Choice
-                </Menu.Item>
-                <Menu.Item onClick={handleAddTextInputItem}>
-                  Text Input
-                </Menu.Item>
-              </Menu.Dropdown>
-            </Menu>
+              <Menu offset={6} position='right-start'>
+                <Menu.Target>
+                  <Button
+                    variant='default'
+                    size='sm'
+                    leftSection={<IconPlus size={16} />}
+                    mr='auto'
+                  >
+                    Add Sub Item
+                  </Button>
+                </Menu.Target>
+                <Menu.Dropdown>
+                  <Menu.Item
+                    onClick={() => handleAddSubitem('selectedResponseItem')}
+                  >
+                    Multiple Choice
+                  </Menu.Item>
+                  <Menu.Item
+                    onClick={() => handleAddSubitem('textInputItem')}
+                  >
+                    Text Input
+                  </Menu.Item>
+                </Menu.Dropdown>
+              </Menu>
 
-          </Stack>
-        )}
-      </Droppable>
-    </DragDropContext >
+            </Stack>
+          )}
+        </Droppable>
+      </DragDropContext >
+    </Stack>
   )
 }
 
-function Row({ item, index, setItem, onDelete, expanded, setExpanded, provided, ref }: {
+function Row({ item, index, onChange, onDelete, expanded, setExpanded, provided, promptRef }: {
   item: Quiz.Item,
   index: number,
-  setItem: (_: Quiz.Item) => void,
+  onChange: (_: Quiz.Item) => void,
   onDelete: () => void,
   expanded: boolean,
   setExpanded: (_: boolean) => void,
   provided: DraggableProvided,
-  ref?: (_: HTMLTextAreaElement) => void
+  promptRef?: (_: HTMLTextAreaElement) => void
 }) {
   const kindLabel = (() => {
     switch (item.kind) {
@@ -212,7 +243,6 @@ function Row({ item, index, setItem, onDelete, expanded, setExpanded, provided, 
                   <IconChevronDown size={18} /> :
                   <IconChevronRight size={18} />
               }
-
             </ActionIcon>
             <Text fw='bold' fz='sm' mr='auto'>Item {index + 1} - {kindLabel}</Text>
           </Group>
@@ -238,39 +268,17 @@ function Row({ item, index, setItem, onDelete, expanded, setExpanded, provided, 
         {
           expanded ? (
             <>
-              {/* Prompt */}
-              <Textarea
-                label='Prompt'
-                w='100%'
-                autosize
-                minRows={1}
-                value={item.data.prompt}
-                onChange={e => {
-                  const item1 = produce(item, item => {
-                    item.data.prompt = e.currentTarget.value
-                  })
-                  setItem(item1)
-                }}
-                ref={ref}
-              />
-
               {/* Content */}
               {(() => {
                 switch (item.kind) {
                   case 'selectedResponseItem':
                     return (
-                      <SelectedResponseItemEditor
-                        options={item.data.options}
-                        setOptions={options => {
-                          const item1 = produce(item, item => { item.data.options = options })
-                          setItem(item1)
-                        }}
-                      />
+                      <SelectedResponseItemEditor item={item} onChange={onChange} promptRef={promptRef}/>
                     )
 
                   case 'textInputItem':
                     return (
-                      <TextInputItemEditor />
+                      <TextInputItemEditor item={item} onChange={onChange} promptRef={promptRef} />
                     )
 
                   case 'listItem':
@@ -287,7 +295,6 @@ function Row({ item, index, setItem, onDelete, expanded, setExpanded, provided, 
             </>
           )
         }
-
       </Stack>
     </Paper>
   )

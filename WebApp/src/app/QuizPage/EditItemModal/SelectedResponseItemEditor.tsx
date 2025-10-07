@@ -1,35 +1,60 @@
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { DragDropContext, Droppable, Draggable, DropResult, DraggableProvided } from '@hello-pangea/dnd'
-import { Text, TextInput, Button, ActionIcon, Group, Box, Stack, Paper } from '@mantine/core'
+import { Text, TextInput, Button, ActionIcon, Group, Box, Stack, Paper, Textarea } from '@mantine/core'
 import { IconGripVertical, IconTrash, IconPlus } from '@tabler/icons-react'
 import { ObjectId } from 'bson'
 
 import { Quiz } from 'src/models/Quiz'
+import { produce } from 'immer'
+import PromptInput from 'src/app/QuizPage/EditItemModal/PromptInput'
 
 type Option = Quiz.SelectedResponseItem['data']['options'][number]
 
-export default function SelectedResponseItemEditor({ options, setOptions }: {
-  options: Option[],
-  setOptions: (_: Option[]) => void
+export default function SelectedResponseItemEditor({ item, onChange, promptRef }: {
+  item: Quiz.SelectedResponseItem,
+  onChange: (_: Quiz.SelectedResponseItem) => void
+  promptRef?: React.Ref<HTMLTextAreaElement>
 }) {
-  const refs = useRef<Record<string, HTMLInputElement | null>>({})
+  const optionTextareaRefs = useRef<Record<string, HTMLInputElement | null>>({})
 
-  function handleAdd() {
+  function handlePromptChange(value: string) {
+    const modifiedItem = produce(item, item => {
+      item.data.prompt = value
+    })
+
+    onChange(modifiedItem)
+  }
+
+  function handleAddOption() {
     const newOption = { id: new ObjectId().toString(), value: '' }
-    setOptions([...options, newOption])
+
+    const modifiedItem = produce(item, item => {
+      item.data.options.push(newOption)
+    })
+
+    onChange(modifiedItem)
 
     // Focus next tick
     requestAnimationFrame(() => {
-      refs.current[newOption.id]?.focus()
+      optionTextareaRefs.current[newOption.id]?.focus()
     })
   }
 
-  function handleDelete(id: string) {
-    setOptions(options.filter(x => x.id != id))
+  function handleDeleteOption(id: string) {
+    const modifiedItem = produce(item, item => {
+      item.data.options = item.data.options.filter(x => x.id != id)
+    })
+
+    onChange(modifiedItem)
   }
 
-  function handleChange(option: Option) {
-    setOptions(options.map(x => x.id == option.id ? option : x))
+  function handleOptionChange(option: Option) {
+    const modifiedItem = produce(item, item => {
+      const index = item.data.options.findIndex(x => x.id == option.id)!
+      item.data.options[index] = option
+    })
+
+    onChange(modifiedItem)
   }
 
   function onDragEnd(result: DropResult) {
@@ -44,15 +69,21 @@ export default function SelectedResponseItemEditor({ options, setOptions }: {
       return
     }
 
-    const copy = Array.from(options)
-    const [moved] = copy.splice(from, 1)
-    copy.splice(to, 0, moved)
+    const modifiedItem = produce(item, item => {
+      const options = Array.from(item.data.options)
+      const [moved] = options.splice(from, 1)
+      options.splice(to, 0, moved)
+      item.data.options = options
+    })
 
-    setOptions(copy)
+    onChange(modifiedItem)
   }
 
   return (
-    <Box>
+    <Stack>
+      {/* Prompt */}
+      <PromptInput value={item.data.prompt} onChange={handlePromptChange} ref={promptRef}/>
+      {/* Options */}
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable
           droppableId='droppable-list'
@@ -60,7 +91,7 @@ export default function SelectedResponseItemEditor({ options, setOptions }: {
           // https://github.com/hello-pangea/dnd/issues/560#issuecomment-3353933696
           // https://github.com/hello-pangea/dnd/blob/main/docs/guides/reparenting.md
           renderClone={(provided, snapshot, rubric) => {
-            const option = options.find(x => x.id == options[rubric.source.index].id)!
+            const option = item.data.options[rubric.source.index]
 
             return (
               <Row
@@ -82,15 +113,15 @@ export default function SelectedResponseItemEditor({ options, setOptions }: {
                 <Text fz='sm' fw='500'>Options</Text>
 
                 <Stack gap='0.4rem'>
-                  {options.map((option, index) => (
+                  {item.data.options.map((option, index) => (
                     <Draggable key={option.id} draggableId={option.id} index={index}>
                       {(provided, snapshot) => (
                         <Row
                           option={option}
-                          onChange={modifiedOption => handleChange(modifiedOption)}
-                          onDelete={() => handleDelete(option.id)}
+                          onChange={modifiedOption => handleOptionChange(modifiedOption)}
+                          onDelete={() => handleDeleteOption(option.id)}
                           provided={provided}
-                          ref={el => (refs.current[option.id] = el)}
+                          ref={el => (optionTextareaRefs.current[option.id] = el)}
                         />
                       )}
                     </Draggable>
@@ -101,7 +132,7 @@ export default function SelectedResponseItemEditor({ options, setOptions }: {
                 <Button
                   variant='default'
                   leftSection={<IconPlus size={16} />}
-                  onClick={handleAdd}
+                  onClick={handleAddOption}
                   mr='auto'
                   mt='0.3rem'
                 >
@@ -112,7 +143,7 @@ export default function SelectedResponseItemEditor({ options, setOptions }: {
           )}
         </Droppable>
       </DragDropContext>
-    </Box>
+    </Stack>
   )
 }
 

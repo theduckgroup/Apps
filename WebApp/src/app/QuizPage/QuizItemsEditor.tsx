@@ -8,7 +8,7 @@ import EditItemModal, { EditItemModalOptions } from './EditItemModal'
 import EditSectionModal, { EditSectionModalOptions } from './EditSectionModal'
 import ConfirmDeleteModal, { ConfirmDeleteModalOptions } from './ConfirmDeleteModal'
 import { DragDropContext, Draggable, DraggableProvidedDragHandleProps, Droppable, DropResult } from '@hello-pangea/dnd'
-import { IconArrowsMoveVertical, IconArrowsSort, IconBaselineDensityMedium, IconChevronDown, IconChevronRight, IconEdit, IconGripVertical, IconMenu, IconMenuOrder, IconPencil, IconPlus } from '@tabler/icons-react'
+import { IconArrowsMoveVertical, IconArrowsSort, IconBaselineDensityMedium, IconChevronDown, IconChevronRight, IconDots, IconEdit, IconGripVertical, IconLetterT, IconListNumbers, IconMenu, IconMenuOrder, IconPencil, IconPlus, IconSquareCheck, IconSquareLetterT, IconTrash } from '@tabler/icons-react'
 import useRepeatedModal from 'src/common/use-repeated-modal'
 
 export default function QuizItemsEditor({ items, sections, onChange }: {
@@ -20,7 +20,7 @@ export default function QuizItemsEditor({ items, sections, onChange }: {
   const [editSectionModalOptions, setEditSectionModalOptions] = useState<EditSectionModalOptions>(EditSectionModalOptions.empty)
 
   const editItemModal = useRepeatedModal()
-  const [editItemModalOptions, setEditItemModalOptions] = useState<EditItemModalOptions>(EditItemModalOptions.empty)
+  const [editItemModalOptions, setEditItemModalOptions] = useState<EditItemModalOptions | null>(null)
 
   const deleteModal = useRepeatedModal()
   const [deleteModalOptions, setDeleteModalOptions] = useState<ConfirmDeleteModalOptions>(ConfirmDeleteModalOptions.empty)
@@ -87,21 +87,52 @@ export default function QuizItemsEditor({ items, sections, onChange }: {
     deleteModal.open()
   }
 
-  function handleAddItem(atRowIndex: number, section: Quiz.Section, sectionIndex: number) {
+  function handleAddItem(kind: Quiz.ItemKind, atRowIndex: number, section: Quiz.Section, sectionIndex: number) {
+    const item: Quiz.Item = (() => {
+      const id = new ObjectId().toString()
+
+      switch (kind) {
+        case 'selectedResponseItem':
+          return {
+            id,
+            kind,
+            data: {
+              prompt: '',
+              options: [],
+              optionsPerRow: 1,
+            }
+          }
+
+        case 'textInputItem':
+          return {
+            id,
+            kind,
+            data: {
+              prompt: ''
+            }
+          }
+
+        case 'listItem':
+          return {
+            id,
+            kind,
+            data: {
+              prompt: '',
+              items: []
+            }
+          }
+      }
+    })()
+
     setEditItemModalOptions({
       title: 'Add Item',
-      data: null,
-      onChange: data => {
-        const newItem: Quiz.Item = {
-          id: new ObjectId().toString(),
-          ...data
-        }
-
-        const newItems = [...items, newItem]
+      item: item,
+      onSave: item => {
+        const newItems = [...items, item]
 
         const newSections = produce(sections, sections => {
           const newRow: Quiz.Row = {
-            itemId: newItem.id
+            itemId: item.id
           }
 
           sections[sectionIndex].rows.splice(atRowIndex, 0, newRow)
@@ -117,15 +148,11 @@ export default function QuizItemsEditor({ items, sections, onChange }: {
   function handleEditItem(item: Quiz.Item, rowIndex: number, section: Quiz.Section, sectionIndex: number) {
     setEditItemModalOptions({
       title: 'Edit Item',
-      data: item,
-      onChange: data => {
+      item,
+      onSave: item => {
         const newItems = produce(items, items => {
           const index = items.findIndex(x => x.id == item.id)
-
-          items[index] = {
-            id: item.id,
-            ...data
-          }
+          items[index] = item
         })
 
         onChange(newItems, sections)
@@ -243,7 +270,7 @@ export default function QuizItemsEditor({ items, sections, onChange }: {
                         section={section}
                         onEdit={() => handleEditSection(section, sectionIndex)}
                         onDelete={() => handleDeleteSection(section, sectionIndex)}
-                        onAddItem={() => handleAddItem(section.rows.length, section, sectionIndex)}
+                        onAddItem={(kind) => handleAddItem(kind, section.rows.length, section, sectionIndex)}
                         onAddSectionAbove={() => handleAddSection(sectionIndex)}
                         onAddSectionBelow={() => handleAddSection(sectionIndex + 1)}
                         isExpanded={!collapsedSectionIds.includes(section.id)}
@@ -292,8 +319,7 @@ export default function QuizItemsEditor({ items, sections, onChange }: {
                                             index={rowIndex}
                                             onEdit={() => handleEditItem(item!, rowIndex, section, sectionIndex)}
                                             onDelete={() => handleDeleteItem(item!, rowIndex, section, sectionIndex)}
-                                            onAddItemAbove={() => handleAddItem(rowIndex, section, sectionIndex)}
-                                            onAddItemBelow={() => handleAddItem(rowIndex + 1, section, sectionIndex)}
+                                            onAddItem={kind => handleAddItem(kind, rowIndex + 1, section, sectionIndex)}
                                             dragHandleProps={provided.dragHandleProps}
                                           />
                                         )
@@ -355,7 +381,7 @@ function SectionHeader({ section, onEdit, onDelete, onAddItem, onAddSectionAbove
   section: Quiz.Section
   onEdit: () => void,
   onDelete: () => void
-  onAddItem: () => void
+  onAddItem: (kind: Quiz.ItemKind) => void
   onAddSectionAbove: () => void
   onAddSectionBelow: () => void
   isExpanded: boolean
@@ -397,43 +423,39 @@ function SectionHeader({ section, onEdit, onDelete, onAddItem, onAddSectionAbove
           {/* Add Button */}
           <Menu offset={6} position='bottom-end'>
             <Menu.Target>
-              <ActionIcon
-                variant='default'
-                size='md'
-                color='gray'
-              >
-                <IconPlus size={16} />
+              <ActionIcon variant='default' size='md' color='gray'>
+                <IconDots size={16} />
               </ActionIcon>
             </Menu.Target>
             <Menu.Dropdown>
-              <Menu.Item onClick={onAddItem}>
-                Add Item
-              </Menu.Item>
-              <Menu.Item onClick={onAddSectionAbove}>
+              <Menu.Label>Add Item</Menu.Label>
+              <AddItemMenuItems onAddItem={onAddItem} />
+              <Menu.Divider />
+              <Menu.Label>Add Section</Menu.Label>
+              <Menu.Item
+                leftSection={<IconPlus size={14} />}
+                onClick={onAddSectionAbove}
+              >
                 Add Section Above
               </Menu.Item>
-              <Menu.Item onClick={onAddSectionBelow}>
+              <Menu.Item
+                leftSection={<IconPlus size={14} />}
+                onClick={onAddSectionBelow}
+              >
                 Add Section Below
               </Menu.Item>
-            </Menu.Dropdown>
-          </Menu>
-          {/* Edit button */}
-          <Menu offset={6} position='bottom-end' width={150}>
-            <Menu.Target>
-              <ActionIcon
-                variant='default'
-                size='md'
-                color='gray'
+              <Menu.Divider />
+              <Menu.Label>Edit Section</Menu.Label>
+              <Menu.Item
+                leftSection={<IconPencil size={16} />}
+                onClick={onEdit}
               >
-                <IconPencil size={16} />
-                {/* <IconEdit size={18} /> */}
-              </ActionIcon>
-            </Menu.Target>
-            <Menu.Dropdown>
-              <Menu.Item onClick={onEdit}>
                 Edit
               </Menu.Item>
-              <Menu.Item onClick={onDelete}>
+              <Menu.Item
+                leftSection={<IconTrash size={16} />}
+                onClick={onDelete}
+              >
                 Delete
               </Menu.Item>
             </Menu.Dropdown>
@@ -460,13 +482,12 @@ function SectionHeader({ section, onEdit, onDelete, onAddItem, onAddSectionAbove
   )
 }
 
-function RowComponent({ item, index, onEdit, onDelete, onAddItemAbove, onAddItemBelow, dragHandleProps }: {
+function RowComponent({ item, index, onEdit, onDelete, onAddItem, dragHandleProps }: {
   item: Quiz.Item | undefined,
   index: number,
   onEdit: () => void,
   onDelete: () => void,
-  onAddItemAbove: () => void,
-  onAddItemBelow: () => void
+  onAddItem: (kind: Quiz.ItemKind) => void,
   dragHandleProps: DraggableProvidedDragHandleProps | null,
 }) {
   return (
@@ -492,43 +513,28 @@ function RowComponent({ item, index, onEdit, onDelete, onAddItemAbove, onAddItem
         <Space />
       </Group>
       <Group gap='xs' wrap='nowrap'>
-        {/* Add Button */}
+        {/* Action Button */}
         <Menu offset={6} position='bottom-end'>
           <Menu.Target>
-            <ActionIcon
-              variant='default'
-              size='md'
-              color='gray'
-            >
-              <IconPlus size={16} />
+            <ActionIcon variant='default' size='md' color='gray'>
+              <IconDots size={16} />
             </ActionIcon>
           </Menu.Target>
           <Menu.Dropdown>
-            <Menu.Item onClick={onAddItemAbove}>
-              Add Item Above
-            </Menu.Item>
-            <Menu.Item onClick={onAddItemBelow}>
-              Add Item Below
-            </Menu.Item>
-          </Menu.Dropdown>
-        </Menu>
-        {/* Edit button */}
-        <Menu offset={6} position='bottom-end' width={150}>
-          <Menu.Target>
-            <ActionIcon
-              variant='default'
-              size='md'
-              color='gray'
+            <Menu.Label>Add Item</Menu.Label>
+            <AddItemMenuItems onAddItem={onAddItem} />
+            <Menu.Divider/>
+            <Menu.Label>Edit Item</Menu.Label>
+            <Menu.Item
+              leftSection={<IconPencil size={16} />}
+              onClick={onEdit}
             >
-              <IconPencil size={16} />
-              {/* <IconEdit size={18} /> */}
-            </ActionIcon>
-          </Menu.Target>
-          <Menu.Dropdown>
-            <Menu.Item onClick={onEdit}>
               Edit
             </Menu.Item>
-            <Menu.Item onClick={onDelete}>
+            <Menu.Item
+              leftSection={<IconTrash size={16} />}
+              onClick={onDelete}
+            >
               Delete
             </Menu.Item>
           </Menu.Dropdown>
@@ -547,8 +553,34 @@ function RowComponent({ item, index, onEdit, onDelete, onAddItemAbove, onAddItem
             <IconBaselineDensityMedium /> 
             <IconMenu size={21} strokeWidth={1.75} /> */}
         </ActionIcon>
-        {/* </Button.Group> */}
       </Group>
     </Flex>
+  )
+}
+
+function AddItemMenuItems({ onAddItem }: {
+  onAddItem: (kind: Quiz.ItemKind) => void
+}) {
+  return (
+    <>
+      <Menu.Item
+        leftSection={<IconSquareCheck size={14} />}
+        onClick={() => onAddItem('selectedResponseItem')}
+      >
+        Multiple Choice Item
+      </Menu.Item>
+      <Menu.Item
+        leftSection={<IconSquareLetterT size={14} />}
+        onClick={() => onAddItem('textInputItem')}
+      >
+        Text Item
+      </Menu.Item>
+      <Menu.Item
+        leftSection={<IconListNumbers size={14} />}
+        onClick={() => onAddItem('listItem')}
+      >
+        List Item
+      </Menu.Item>
+    </>
   )
 }
