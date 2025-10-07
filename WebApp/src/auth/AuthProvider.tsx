@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react'
 
-import { Session, User } from '@supabase/supabase-js'
+import { Session } from '@supabase/supabase-js'
 import supabase from './supabase-client'
 
 import { AuthContext, AuthContextValue } from './AuthContext'
@@ -11,10 +11,12 @@ import { AuthContext, AuthContextValue } from './AuthContext'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
+  const [isLoaded, setIsLoaded] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
+      setIsLoaded(true)
     })
     
     const {
@@ -27,6 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const value: AuthContextValue = {
+    isLoaded,
     user: session?.user,
     login: async (options) => {
       const response = await supabase.auth.signInWithPassword(options)

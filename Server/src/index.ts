@@ -76,8 +76,8 @@ import authorize from 'src/auth/authorize'
 
 // API
 
-import vendorRouter from 'src/api/quiz-router'
-app.use('/api', authorize, vendorRouter)
+import quizRouter from 'src/api/quiz-router'
+app.use('/api', authorize, quizRouter)
 
 app.use('/api/*splat', (req, res) => {
   throw createHttpError(404, `Invalid Route`)

@@ -9,40 +9,42 @@ export interface DbQuiz {
 }
 
 export namespace DbQuiz {
-  export type Item = ListItem | MultipleChoiceQuestion | TextInputQuestion
+  export type Item = ListItem | SelectedResponseItem | TextInputItem
 
   export interface ListItem {
-    id: ObjectId
-    kind: 'list-item'
+    id: string
+    kind: 'listItem'
     data: {
-      text: string
-      subitems: Item[]
+      prompt: string
+      items: Item[]
     }
   }
 
-  export interface MultipleChoiceQuestion {
-    id: ObjectId
-    kind: 'multiple-choice-question'
+  export interface SelectedResponseItem {
+    id: string
+    kind: 'selectedResponseItem'
     data: {
-      question: string
-      choices: string[]
-      choicesPerRow: 1 | 4
+      prompt: string
+      options: {
+        id: string
+        value: string
+      }[]
     }
   }
 
-  export interface TextInputQuestion {
-    id: ObjectId
-    kind: 'text-input-question'
+  export interface TextInputItem {
+    id: string
+    kind: 'textInputItem'
     data: {
-      question: string
+      prompt: string
     }
   }
 
   export interface Section {
-    id: ObjectId
+    id: string
     name: string
     rows: {
-      itemId: ObjectId
+      itemId: string
     }[]
   }
 }

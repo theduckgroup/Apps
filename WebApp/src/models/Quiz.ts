@@ -29,7 +29,6 @@ export namespace Quiz {
         id: string
         value: string
       }[]
-      optionsPerRow: 1 | 2 | 4
     }
   }
 
@@ -66,18 +65,17 @@ export namespace Quiz {
             options: [
               {
                 id: new ObjectId().toString(),
-                value: 'Option_1'
+                value: 'Eins'
               },
               {
                 id: new ObjectId().toString(),
-                value: 'Option_2'
+                value: 'Zwei'
               },
               {
                 id: new ObjectId().toString(),
-                value: 'Option_3'
+                value: 'Drei'
               }
-            ],
-            optionsPerRow: 1,
+            ]
           }
         }
 
@@ -106,4 +104,7 @@ export namespace Quiz {
 export interface QuizMetadata {
   id: string
   name: string
+  code: string
+  sectionCount: number
+  itemCount: number
 }

@@ -4,19 +4,17 @@ import { BrowserRouter } from 'react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import '@mantine/core/styles.css';
 import { createTheme, MantineProvider } from '@mantine/core';
+import { enableMapSet } from 'immer'
 
 import './main.css'
 import './auth/configure-axios'
 import App from './app/App'
 import { AuthProvider } from './auth/AuthProvider'
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-     queries: {
-      retry: false
-     }
-  }
-})
+enableMapSet()
+
+console.info('Create query client')
+const queryClient = new QueryClient()
 
 const theme = createTheme({
   colors: {

@@ -8,24 +8,99 @@ import { DbQuiz } from 'src/db/DbQuiz'
 import eventHub from 'src/event-hub'
 import authorize, { authorizeAdmin } from 'src/auth/authorize'
 import validateSchema from 'src/common/validate-schema'
+import { validateQuiz } from './QuizSchema'
+import { DefinedError } from 'ajv'
 
 const router = express.Router()
 
-router.get('/quizzes', authorize, async (req, res) => {
+router.get('/quizzes', async (req, res) => {
   const db = await getDb()
 
   const dbQuizzes = await db.collection_quizzes.find({}).toArray()
-  
-  const quizzes = dbQuizzes.map(dbQuiz => {
+
+  interface QuizMetadata {
+    id: string
+    code: string
+    sectionCount: number
+    itemCount: number
+  }
+
+  const resData: QuizMetadata[] = dbQuizzes.map(dbQuiz => {
     return {
-      ...dbQuiz,
-      _id: undefined,
-      id: dbQuiz._id.toString()
+      id: dbQuiz._id.toString(),
+      name: dbQuiz.name,
+      code: '',
+      sectionCount: dbQuiz.sections.length,
+      itemCount: dbQuiz.sections.map(x => x.rows.length).reduce((x, y) => x + y, 0)
     }
   })
 
-  res.send(quizzes)
+  res.send(resData)
 })
+
+router.get('/quiz/:id', async (req, res) => {
+  const id = req.params.id
+
+  const db = await getDb()
+
+  const dbQuiz = await db.collection_quizzes.findOne({
+    _id: new ObjectId(id)
+  })
+
+  if (!dbQuiz) {
+    throw createHttpError(400, 'Document not found')
+  }
+
+  const resQuiz = {
+    ...dbQuiz,
+    _id: undefined,
+    id: dbQuiz._id.toString()
+  }
+
+  res.send(resQuiz)
+})
+
+router.put('/quiz/:id', async (req, res) => {
+  // await new Promise(resolve => setTimeout(resolve, 5000))
+  // throw createHttpError(400, 'Fake error')
+
+  const id = req.params.id
+
+  if (!validateQuiz(req.body)) {
+    const message = validateQuiz.errors!
+      .map(x => {
+        // error.instancePath and error.propertyName are always null
+        const error = x as DefinedError
+        return error.message
+      })
+      .join('\n')
+
+    throw createHttpError(400, message)
+  }
+
+  if (id != req.body.id) {
+    throw createHttpError(400, 'Inconsistent body ID')
+  }
+
+  const db = await getDb()
+
+  const data = {
+    ...req.body,
+    _id: new ObjectId(id),
+    id: undefined
+  }
+
+  await db.collection_quizzes.findOneAndUpdate({
+    _id: new ObjectId(id)
+  }, {
+    $set: data
+  }, {
+    upsert: true
+  })
+
+  res.send()
+})
+
 
 // Gets vendor summaries (ID & name), aka "metavendors".
 // router.get('/vendors', authorize, asyncHandler(async (req, res) => {

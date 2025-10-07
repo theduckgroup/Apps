@@ -1,13 +1,9 @@
-import { useEffect } from 'react'
-import { AppShell, Avatar, Box, Burger, Button, Center, Container, Group, Menu, Modal, NavLink, Space, Stack, Text, Tooltip } from '@mantine/core'
+import { Anchor, AppShell, Avatar, Box, Burger, Button, Center, Container, Group, Menu, Modal, Space, Stack, Text } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
-import { Outlet, useLocation, useNavigate } from 'react-router'
-import { IconChevronRight, IconLogout2, IconUserCircle, IconUsers } from '@tabler/icons-react'
-import axios from 'axios'
+import { Outlet, useNavigate } from 'react-router'
+import { IconLogout2, IconUserCircle } from '@tabler/icons-react'
 
 import { useAuth } from '../auth/AuthContext'
-import { useQuery } from '@tanstack/react-query'
-import formatError from 'src/utils/format-error'
 
 function DashboardLayout() {
   const [navbarOpened, { toggle: toggleNavbar, close: closeNavbar }] = useDisclosure() // Mobile only
@@ -41,7 +37,7 @@ function DashboardLayout() {
         <NavbarContent close={closeNavbar} />
       </AppShell.Navbar> */}
 
-      <AppShell.Main>
+      <AppShell.Main bg='dark.9'>
         {/* py here is opposite of AppShell.padding */}
         <Container py={{ base: 'md', sm: '0px' }}>
           {/* Content is decided by the route nested inside dashboard route */}
@@ -59,6 +55,8 @@ function HeaderContent({ navbarOpened, toggleNavbar, closeNavbar }: {
   toggleNavbar: () => void,
   closeNavbar: () => void
 }) {
+  const navigate = useNavigate()
+
   return (
     <Box bg='dark.7' h='100%'
       className='border-b border-b-neutral-700'>
@@ -69,10 +67,13 @@ function HeaderContent({ navbarOpened, toggleNavbar, closeNavbar }: {
             <Burger
               opened={navbarOpened}
               onClick={toggleNavbar}
-              hiddenFrom="sm"
-              size="sm"
+              hiddenFrom='sm'
+              size='sm'
             />
-            <Text fw='bold' fz={20}>Quiz App</Text>
+            <Anchor href='#' underline='never' onClick={() => navigate('/')}>
+              <Text fw='bold' fz={20} c='gray.0'>Quiz App</Text>
+            </Anchor>
+            {/* <Text fw='bold' fz={20}>Quiz App</Text> */}
           </Group>
         </Center>
 
@@ -196,7 +197,7 @@ const ProfileButton = ({ closeNavbar }: {
 //             label={vendor.name}
 //             variant='subtle'
 //             rightSection={
-//               <IconChevronRight size={12} stroke={1.5} className="mantine-rotate-rtl" />
+//               <IconChevronRight size={12} stroke={1.5} className='mantine-rotate-rtl' />
 //             }
 //             active={location.pathname.startsWith(path)}
 //             onClick={() => {
@@ -217,7 +218,7 @@ const ProfileButton = ({ closeNavbar }: {
 //           < IconUsers size={15} stroke={1.5} />
 //         }
 //         rightSection={
-//           < IconChevronRight size={12} stroke={1.5} className="mantine-rotate-rtl" />
+//           < IconChevronRight size={12} stroke={1.5} className='mantine-rotate-rtl' />
 //         }
 //       />
 //     </>

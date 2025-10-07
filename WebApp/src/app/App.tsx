@@ -2,15 +2,18 @@ import { ReactNode } from 'react'
 import { Navigate, Route, Routes } from 'react-router'
 import { Loader } from '@mantine/core'
 
-import { useAuth } from '../auth/AuthContext'
+import { useAuth } from 'src/auth/AuthContext'
 import DashboardLayout from './DashboardLayout'
 import LoginPage from 'src/auth/LoginPage'
 import ProfilePage from './ProfilePage'
 import QuizListPage from './QuizListPage'
 import QuizPage from './QuizPage'
 
-const App = () => {
-  const { isLoaded } = { isLoaded: true }
+function App() {
+  // Used to wait for session to be restored
+  // Without this it will always redirect to login at startup
+  // Then redirect to default authenticated page after session is restored
+  const { isLoaded } = useAuth()
 
   return (
     <>

@@ -1,4 +1,5 @@
-import { Button, Paper, Stack, Title } from '@mantine/core'
+import { Button, Grid, Group, Paper, Stack, Text, Title } from '@mantine/core'
+import { IconPlus } from '@tabler/icons-react'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { useNavigate } from 'react-router'
@@ -16,44 +17,66 @@ const QuizListPage = () => {
     }
   })
 
-  const addQuiz = () => {
-    navigate('/quiz')
-  }
-
-  if (isLoading) {
-    return <p>Loading...</p>
-  }
-
   if (error) {
     return <p>{error.message}</p>
   }
 
-  console.info(`data = ${data}`)
-
   return (
     <Stack gap='xl' align='flex-start'>
       <Title order={2}>Quizzes</Title>
-
       {
-        data && data.map(metaquiz => {
-          return (
-            <Paper id={metaquiz.id} p='md'>
-              <Title order={3}>{metaquiz.name}</Title>
-            </Paper>
-          )
-        })
+        isLoading ? (
+          <Text>Loading...</Text>
+        ) : 
+        data &&
+        <Grid w='100%'>
+          {
+            data.map(metaquiz => <QuizComponent key={metaquiz.id} metaquiz={metaquiz}/>)
+          }
+        </Grid>
       }
-
-      <Button variant='filled' onClick={addQuiz}>Add Quiz</Button>
+      <Button
+        variant='filled'
+        leftSection={<IconPlus size={16} strokeWidth={2} />}
+        onClick={() => navigate('/quiz')}
+      >
+        Add Quiz
+      </Button>
     </Stack>
   )
 }
 
-const QuizElement = () => {
-  return (
-    <Stack gap='sm'>
+function QuizComponent({ metaquiz }: {
+  metaquiz: QuizMetadata
+}) {
+  const navigate = useNavigate()
 
-    </Stack>
+  return (
+    <Grid.Col span={{ base: 12, sm: 4, lg: 3 }}>
+      <Paper px='md' py='sm' bg='dark.8' withBorder>
+        <Stack align='flex-start' gap='xl'>
+          <Stack gap='0'>
+            <Title order={5}>{metaquiz.name}</Title>
+            <Stack gap='sm'>
+              <Text fz='sm'>{metaquiz.itemCount} items</Text>
+            </Stack>
+          </Stack>
+          <Button
+            variant='default'
+            size='xs'
+            // leftSection={<IconPencil size={14}/>}
+            // rightSection={<IconArrowNarrowRight size={14}/>}
+            onClick={() => navigate(`/quiz/${metaquiz.id}`)}
+          >
+            <Group gap='0.25rem' align='center'>
+              {/* <IconPencil size={14} strokeWidth={1.25} /> */}
+              View/Edit
+              {/* <IconArrowNarrowRight size={14} /> */}
+            </Group>
+          </Button>
+        </Stack>
+      </Paper>
+    </Grid.Col>
   )
 }
 
