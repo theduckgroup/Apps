@@ -180,6 +180,7 @@ function Row({ option, onChange, onDelete, provided, ref }: {
           size='lg'
           onClick={onDelete}
           title='Delete'
+          tabIndex={-1}
         >
           <IconTrash size={16} />
         </ActionIcon>
@@ -190,6 +191,7 @@ function Row({ option, onChange, onDelete, provided, ref }: {
           variant='default'
           size='lg'
           title='Drag'
+          tabIndex={-1}
         >
           <IconGripVertical size={18} />
         </ActionIcon>

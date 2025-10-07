@@ -26,31 +26,7 @@ export default function ListItemEditor({ item, onChange }: {
   }
 
   function handleAddSubitem(kind: Quiz.SelectedResponseItem['kind'] | Quiz.TextInputItem['kind']) {
-    const newSubitem: Quiz.Item = (() => {
-      const id = new ObjectId().toString()
-
-      switch (kind) {
-        case 'selectedResponseItem':
-          return {
-            id,
-            kind,
-            data: {
-              prompt: '',
-              options: [],
-              optionsPerRow: 1
-            }
-          }
-
-        case 'textInputItem':
-          return {
-            id,
-            kind,
-            data: {
-              prompt: ''
-            }
-          }
-      }
-    })()
+    const newSubitem = Quiz.createDefaultItem(kind)
 
     const modifiedItem = produce(item, item => {
       item.data.items.push(newSubitem)

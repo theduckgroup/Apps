@@ -1,3 +1,5 @@
+import { ObjectId } from 'bson'
+
 export interface Quiz {
   id: string
   name: string
@@ -47,6 +49,57 @@ export namespace Quiz {
 
   export interface Row {
     itemId: string
+  }
+}
+
+export namespace Quiz {
+  export function createDefaultItem(kind: Quiz.ItemKind): Quiz.Item {
+    const id = new ObjectId().toString()
+
+    switch (kind) {
+      case 'selectedResponseItem':
+        return {
+          id,
+          kind,
+          data: {
+            prompt: '',
+            options: [
+              {
+                id: new ObjectId().toString(),
+                value: 'Option_1'
+              },
+              {
+                id: new ObjectId().toString(),
+                value: 'Option_2'
+              },
+              {
+                id: new ObjectId().toString(),
+                value: 'Option_3'
+              }
+            ],
+            optionsPerRow: 1,
+          }
+        }
+
+      case 'textInputItem':
+        return {
+          id,
+          kind,
+          data: {
+            prompt: ''
+          }
+        }
+
+      case 'listItem':
+        return {
+          id,
+          kind,
+          data: {
+            prompt: '',
+            items: []
+          }
+        }
+    }
   }
 }
 

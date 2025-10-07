@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ActionIcon, Button, Divider, Flex, Group, Menu, Space, Stack, Text, Title } from '@mantine/core'
+import { ActionIcon, Box, Button, Divider, Flex, Group, Menu, Paper, Space, Stack, Text, Title } from '@mantine/core'
 import { ObjectId } from 'bson'
 import { produce } from 'immer'
 
@@ -9,6 +9,7 @@ import EditSectionModal, { EditSectionModalOptions } from './EditSectionModal'
 import ConfirmDeleteModal, { ConfirmDeleteModalOptions } from './ConfirmDeleteModal'
 import { DragDropContext, Draggable, DraggableProvidedDragHandleProps, Droppable, DropResult } from '@hello-pangea/dnd'
 import { IconArrowsMoveVertical, IconArrowsSort, IconBaselineDensityMedium, IconChevronDown, IconChevronRight, IconDots, IconEdit, IconGripVertical, IconLetterT, IconListNumbers, IconMenu, IconMenuOrder, IconPencil, IconPlus, IconSquareCheck, IconSquareLetterT, IconTrash } from '@tabler/icons-react'
+import ItemComponent from './ItemComponent'
 import useRepeatedModal from 'src/common/use-repeated-modal'
 
 export default function QuizItemsEditor({ items, sections, onChange }: {
@@ -88,45 +89,9 @@ export default function QuizItemsEditor({ items, sections, onChange }: {
   }
 
   function handleAddItem(kind: Quiz.ItemKind, atRowIndex: number, section: Quiz.Section, sectionIndex: number) {
-    const item: Quiz.Item = (() => {
-      const id = new ObjectId().toString()
-
-      switch (kind) {
-        case 'selectedResponseItem':
-          return {
-            id,
-            kind,
-            data: {
-              prompt: '',
-              options: [],
-              optionsPerRow: 1,
-            }
-          }
-
-        case 'textInputItem':
-          return {
-            id,
-            kind,
-            data: {
-              prompt: ''
-            }
-          }
-
-        case 'listItem':
-          return {
-            id,
-            kind,
-            data: {
-              prompt: '',
-              items: []
-            }
-          }
-      }
-    })()
-
     setEditItemModalOptions({
       title: 'Add Item',
-      item: item,
+      item: Quiz.createDefaultItem(kind),
       onSave: item => {
         const newItems = [...items, item]
 
@@ -244,14 +209,28 @@ export default function QuizItemsEditor({ items, sections, onChange }: {
     <>
       <DragDropContext onDragEnd={onDragEnd}>
         {/* Droppable of sections */}
-        <Droppable droppableId='sections-droppable' direction='vertical' type='section'>
+        <Droppable
+          droppableId='sections-droppable'
+          direction='vertical'
+          type='section'
+          renderClone={(provided, snapshot, rubric) => {
+            return (
+              <Paper
+                ref={provided.innerRef}
+                {...provided.draggableProps}
+                bg='var(--mantine-color-gray-8)'
+                h='2.5rem'
+                radius='sm'
+              />
+            )
+          }}
+        >
           {provided => (
             // Stack of sections
             <Stack
               {...provided.droppableProps}
               ref={provided.innerRef}
               gap={0}
-              w='100%'
             >
               {sections.map((section, sectionIndex) => (
                 // One section
@@ -280,15 +259,30 @@ export default function QuizItemsEditor({ items, sections, onChange }: {
                       {/* Droppable of items */}
                       {
                         !collapsedSectionIds.includes(section.id) &&
-                        <Droppable droppableId={section.id} type='item'>
+                        <Droppable
+                          droppableId={section.id}
+                          type='item'
+                          renderClone={(provided, snapshot, rubric) => {
+                            return (
+                              <Paper
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                bg='var(--mantine-color-gray-8)'
+                                h='4rem'
+                                radius='sm'
+                              />
+                            )
+                          }}
+                        >
                           {(provided) => (
                             // Stack of items
                             <Stack
                               ref={provided.innerRef}
                               {...provided.droppableProps}
-                              gap={0}
+                              gap='xs'
+                              mt='xs'
+                              mb='md'
                               align='start'
-                              className='w-full'
                             >
                               {section.rows.map((row, rowIndex) => (
                                 // Draggable of row
@@ -300,21 +294,17 @@ export default function QuizItemsEditor({ items, sections, onChange }: {
                                       {...provided.draggableProps}
                                       style={{
                                         ...provided.draggableProps.style,
-                                        borderBottom: '1px solid var(--mantine-color-dark-4)'
+
                                       }}
-                                      py='sm'
                                       gap='xs'
                                       bg='var(--mantine-color-body)'
-                                      className='w-full'
+                                      w='100%'
                                     >
                                       {(function () {
-                                        console.info(`Rendering row ${JSON.stringify(row)} at index ${rowIndex}`)
-                                        console.info(`items = ${JSON.stringify(items)}`)
                                         const item = items.find(x => x.id == row.itemId)
-                                        console.info(`Found item = ${JSON.stringify(item)}`)
 
                                         return (
-                                          <RowComponent
+                                          <Row
                                             item={item}
                                             index={rowIndex}
                                             onEdit={() => handleEditItem(item!, rowIndex, section, sectionIndex)}
@@ -347,17 +337,18 @@ export default function QuizItemsEditor({ items, sections, onChange }: {
                 </Draggable>
               ))}
               {provided.placeholder}
-              <Group>
-                <Button
-                  variant='default'
-                  size='sm'
-                  leftSection={<IconPlus size={13} />}
-                  my='md'
-                  onClick={() => handleAddSection(sections.length)}
-                >
-                  Add Section
-                </Button>
-              </Group>
+
+              {/* Add Section button */}
+              <Button
+                variant='default'
+                size='sm'
+                mr='auto'
+                leftSection={<IconPlus size={13} />}
+                my='md'
+                onClick={() => handleAddSection(sections.length)}
+              >
+                Add Section
+              </Button>
             </Stack>
           )}
         </Droppable>
@@ -389,30 +380,24 @@ function SectionHeader({ section, onEdit, onDelete, onAddItem, onAddSectionAbove
   dragHandleProps: DraggableProvidedDragHandleProps | null
 }) {
   return (
-    <>
-      <Flex
-        direction={{ base: 'column', xs: 'row' }}
-        align={{ base: 'flex-start', xs: 'center' }}
-        justify='stretch'
-        gap={{ base: 'xs', xs: 'md' }}
-        wrap='nowrap'
-        py='xs'
-      >
+    <Stack gap='0'>
+      <Group wrap='nowrap' py='xs'>
         {/* Expand button + name */}
         <Group gap='0' align='center' wrap='nowrap' mr='auto'>
           {/* Expand button */}
-          <Button
+          <ActionIcon
             variant='transparent'
             size='compact-md'
             onClick={() => onToggleExpanded()}
             color='gray'
-            pl='0px'
+            pl='0'
+            pr='0.33rem'
           >
             {isExpanded ?
               <IconChevronDown size={22} /> :
-              <IconChevronRight size={22} className='-translate-y-[2px]' />
+              <IconChevronRight size={22} />
             }
-          </Button>
+          </ActionIcon>
           {/* Name -- for some reason, Tailwind 'leading-' doesn't work here */}
           <Title order={4} c='gray.0' style={{ lineHeight: '1.5rem' }}>
             {section.name}
@@ -429,7 +414,7 @@ function SectionHeader({ section, onEdit, onDelete, onAddItem, onAddSectionAbove
             </Menu.Target>
             <Menu.Dropdown>
               <Menu.Label>Add Item</Menu.Label>
-              <AddItemMenuItems onAddItem={onAddItem} />
+              <AddItemMenuSection onAddItem={onAddItem} />
               <Menu.Divider />
               <Menu.Label>Add Section</Menu.Label>
               <Menu.Item
@@ -476,13 +461,13 @@ function SectionHeader({ section, onEdit, onDelete, onAddItem, onAddSectionAbove
           </ActionIcon>
           {/* </Button.Group> */}
         </Group>
-      </Flex>
+      </Group>
       <Divider />
-    </>
+    </Stack>
   )
 }
 
-function RowComponent({ item, index, onEdit, onDelete, onAddItem, dragHandleProps }: {
+function Row({ item, index, onEdit, onDelete, onAddItem, dragHandleProps }: {
   item: Quiz.Item | undefined,
   index: number,
   onEdit: () => void,
@@ -490,75 +475,64 @@ function RowComponent({ item, index, onEdit, onDelete, onAddItem, dragHandleProp
   onAddItem: (kind: Quiz.ItemKind) => void,
   dragHandleProps: DraggableProvidedDragHandleProps | null,
 }) {
+  const controlSection = (
+    <Group gap='xs' wrap='nowrap'>
+      {/* Action Button */}
+      <Menu offset={6} position='bottom-end'>
+        <Menu.Target>
+          <ActionIcon variant='default' size='md' color='gray'>
+            <IconDots size={16} />
+          </ActionIcon>
+        </Menu.Target>
+        <Menu.Dropdown>
+          <Menu.Label>Add Item</Menu.Label>
+          <AddItemMenuSection onAddItem={onAddItem} />
+          <Menu.Divider />
+          <Menu.Label>Edit Item</Menu.Label>
+          <Menu.Item
+            leftSection={<IconPencil size={16} />}
+            onClick={onEdit}
+          >
+            Edit
+          </Menu.Item>
+          <Menu.Item
+            leftSection={<IconTrash size={16} />}
+            onClick={onDelete}
+          >
+            Delete
+          </Menu.Item>
+        </Menu.Dropdown>
+      </Menu>
+      {/* Drag Handle */}
+      <ActionIcon
+        variant='default'
+        size='md'
+        color='gray'
+        {...dragHandleProps}
+      >
+        <IconGripVertical size={16} />
+      </ActionIcon>
+    </Group>
+  )
+
   return (
-    <Flex
-      direction={{ base: 'column', xs: 'row' }}
-      align={{ base: 'flex-start', xs: 'center' }}
-      columnGap='md'
-      rowGap='0.5rem'
-      wrap='nowrap'
-      className='w-full'
-    >
-      {/* Prompt */}
-      <Group gap='xs' wrap='nowrap' mr='auto'>
-        <Text mr='auto'>
-          {
-            item ?
-              <>
-                <span className='font-bold'>{index + 1}.</span> <span>{item.data.prompt}</span>
-              </> :
-              <span>{'<Item not found>'}</span>
-          }
-        </Text>
-        <Space />
-      </Group>
-      <Group gap='xs' wrap='nowrap'>
-        {/* Action Button */}
-        <Menu offset={6} position='bottom-end'>
-          <Menu.Target>
-            <ActionIcon variant='default' size='md' color='gray'>
-              <IconDots size={16} />
-            </ActionIcon>
-          </Menu.Target>
-          <Menu.Dropdown>
-            <Menu.Label>Add Item</Menu.Label>
-            <AddItemMenuItems onAddItem={onAddItem} />
-            <Menu.Divider/>
-            <Menu.Label>Edit Item</Menu.Label>
-            <Menu.Item
-              leftSection={<IconPencil size={16} />}
-              onClick={onEdit}
-            >
-              Edit
-            </Menu.Item>
-            <Menu.Item
-              leftSection={<IconTrash size={16} />}
-              onClick={onDelete}
-            >
-              Delete
-            </Menu.Item>
-          </Menu.Dropdown>
-        </Menu>
-        {/* Drag Handle */}
-        <ActionIcon
-          variant='default'
-          size='md'
-          color='gray'
-          {...dragHandleProps}
-        >
-          <IconGripVertical size={16} />
-          {/* <IconMenuOrder />
-            <IconArrowsMoveVertical />
-            <IconArrowsSort />
-            <IconBaselineDensityMedium /> 
-            <IconMenu size={21} strokeWidth={1.75} /> */}
-        </ActionIcon>
-      </Group>
-    </Flex>
+    <Group w='100%' gap='sm' wrap='nowrap' align='start'>
+      <Text w='1rem'>{index + 1}.</Text>
+      {
+        item ? (
+          <ItemComponent item={item} controlSection={controlSection} />
+        ) : (
+          <Group mr='auto'>
+            <Text>Item Not Found</Text>
+            {controlSection}
+          </Group>
+        )
+      }
+    </Group>
   )
 }
 
-function AddItemMenuItems({ onAddItem }: {
+function AddItemMenuSection({ onAddItem }: {
   onAddItem: (kind: Quiz.ItemKind) => void
 }) {
   return (
