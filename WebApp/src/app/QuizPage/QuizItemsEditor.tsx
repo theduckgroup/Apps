@@ -240,11 +240,13 @@ export default function QuizItemsEditor({ items, sections, onChange }: {
                 <Draggable draggableId={section.id} index={sectionIndex} key={section.id}>
                   {provided => (
                     // Stack of section header and items
-                    <Paper withBorder>
+                    <Paper
+                      withBorder
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      style={provided.draggableProps.style}
+                    >
                       <Stack
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        style={provided.draggableProps.style}
                         gap={0}
                         // bg='var(--mantine-color-body)'
                         bg='dark.8'
