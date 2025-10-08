@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Text, Stack, Paper, Group, ActionIcon, Button, Menu } from '@mantine/core'
+import { Text, Stack, Paper, Group, ActionIcon, Button, Menu, Box } from '@mantine/core'
 import { DragDropContext, Droppable, Draggable, DropResult, DraggableProvided } from '@hello-pangea/dnd'
 import { ObjectId } from 'bson'
 
@@ -114,6 +114,7 @@ export default function ListItemEditor({ item, onChange }: {
                 expanded={isExpanded(subitem.id)}
                 setExpanded={() => { }}
                 provided={provided}
+                mb={0}
               />
             )
           }}
@@ -123,7 +124,8 @@ export default function ListItemEditor({ item, onChange }: {
               ref={provided.innerRef}
               {...provided.droppableProps}
               style={{ width: '100%' }}
-              gap='xs'
+              // gap='xs'
+              gap={0}
             >
               {item.data.items.map((subitem, index) => (
                 <Draggable key={subitem.id} draggableId={subitem.id} index={index}>
@@ -137,6 +139,7 @@ export default function ListItemEditor({ item, onChange }: {
                       setExpanded={value => setSubitemExpanded(subitem.id, value)}
                       provided={provided}
                       promptRef={el => (promptRefs.current[subitem.id] = el)}
+                      mb={index < item.data.items.length ? 'xs' : 0}
                     />
                   )}
                 </Draggable>
@@ -176,7 +179,7 @@ export default function ListItemEditor({ item, onChange }: {
   )
 }
 
-function Row({ item, index, onChange, onDelete, expanded, setExpanded, provided, promptRef }: {
+function Row({ item, index, onChange, onDelete, expanded, setExpanded, provided, promptRef, mb }: {
   item: Quiz.Item,
   index: number,
   onChange: (_: Quiz.Item) => void,
@@ -185,6 +188,7 @@ function Row({ item, index, onChange, onDelete, expanded, setExpanded, provided,
   setExpanded: (_: boolean) => void,
   provided: DraggableProvided,
   promptRef?: (_: HTMLTextAreaElement) => void
+  mb: string | number
 }) {
   const kindLabel = (() => {
     switch (item.kind) {
@@ -200,28 +204,29 @@ function Row({ item, index, onChange, onDelete, expanded, setExpanded, provided,
       {...provided.draggableProps}
       withBorder
       p='sm'
+      mb={mb}
     >
       <Stack
-        gap='0.5rem'
+        gap='0.25rem'
       // shadow={snapshot.isDragging ? "md" : "sm"}
       >
-        {/* Item number + trash + drag */}
+        {/* Expand button + Title + Trash button+ Drag handle */}
         <Group gap='xs'>
           <Group gap='0.25rem' mr='auto'>
+            {/* Expand button */}
             <ActionIcon
               variant='transparent'
               color='gray'
               size='compact-md'
+              pl={0}
               onClick={() => setExpanded(!expanded)}
             >
-              {
-                expanded ?
-                  <IconChevronDown size={18} /> :
-                  <IconChevronRight size={18} />
-              }
+              {expanded ? <IconChevronDown size={18} /> : <IconChevronRight size={18} />}
             </ActionIcon>
+            {/* Title */}
             <Text fw='bold' fz='sm' mr='auto'>Item {index + 1} - {kindLabel}</Text>
           </Group>
+          {/* Trash button */}
           <ActionIcon
             variant='default'
             size='md'
@@ -230,15 +235,12 @@ function Row({ item, index, onChange, onDelete, expanded, setExpanded, provided,
           >
             <IconTrash size={16} />
           </ActionIcon>
-          {/* Drag handle on the right */}
-          <ActionIcon
+          {/* Drag handle */}
+          <Box
             {...provided.dragHandleProps}
-            variant='default'
-            size='md'
-            title='Drag'
           >
             <IconGripVertical size={18} />
-          </ActionIcon>
+          </Box>
         </Group>
 
         {
@@ -248,19 +250,13 @@ function Row({ item, index, onChange, onDelete, expanded, setExpanded, provided,
               {(() => {
                 switch (item.kind) {
                   case 'selectedResponseItem':
-                    return (
-                      <SelectedResponseItemEditor item={item} onChange={onChange} promptRef={promptRef}/>
-                    )
+                    return <SelectedResponseItemEditor item={item} onChange={onChange} promptRef={promptRef} />
 
                   case 'textInputItem':
-                    return (
-                      <TextInputItemEditor item={item} onChange={onChange} promptRef={promptRef} />
-                    )
+                    return <TextInputItemEditor item={item} onChange={onChange} promptRef={promptRef} />
 
                   case 'listItem':
-                    return (
-                      <Text c='red'>ERROR: Unexpected item type</Text>
-                    )
+                    return <Text c='red'>ERROR: Unexpected item type</Text>
                 }
               })()}
             </>

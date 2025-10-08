@@ -82,7 +82,7 @@ export default function SelectedResponseItemEditor({ item, onChange, promptRef }
   return (
     <Stack>
       {/* Prompt */}
-      <PromptInput value={item.data.prompt} onChange={handlePromptChange} ref={promptRef}/>
+      <PromptInput value={item.data.prompt} onChange={handlePromptChange} ref={promptRef} />
       {/* Options */}
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable
@@ -99,6 +99,7 @@ export default function SelectedResponseItemEditor({ item, onChange, promptRef }
                 onChange={e => { }}
                 onDelete={() => { }}
                 provided={provided}
+                mb={0}
               />
             )
           }}
@@ -109,10 +110,9 @@ export default function SelectedResponseItemEditor({ item, onChange, promptRef }
               {...provided.droppableProps}
               style={{ width: '100%' }}
             >
-              <Stack gap='0.2rem'>
+              <Stack gap='0.5rem'>
                 <Text fz='sm' fw='500'>Options</Text>
-
-                <Stack gap='0.4rem'>
+                <Stack gap={0}>
                   {item.data.options.map((option, index) => (
                     <Draggable key={option.id} draggableId={option.id} index={index}>
                       {(provided, snapshot) => (
@@ -122,6 +122,7 @@ export default function SelectedResponseItemEditor({ item, onChange, promptRef }
                           onDelete={() => handleDeleteOption(option.id)}
                           provided={provided}
                           ref={el => (optionTextareaRefs.current[option.id] = el)}
+                          mb={index < item.data.options.length - 1 ? '0.5rem' : 0}
                         />
                       )}
                     </Draggable>
@@ -147,18 +148,20 @@ export default function SelectedResponseItemEditor({ item, onChange, promptRef }
   )
 }
 
-function Row({ option, onChange, onDelete, provided, ref }: {
+function Row({ option, onChange, onDelete, provided, ref, mb }: {
   option: Option,
   onChange: (_: Option) => void,
   onDelete: () => void,
   provided: DraggableProvided,
-  ref?: (_: HTMLInputElement) => void
+  ref?: (_: HTMLInputElement) => void,
+  mb: string | number
 }) {
   return (
     <Paper
       ref={provided.innerRef}
       {...provided.draggableProps}
-    // shadow={snapshot.isDragging ? "md" : "sm"}
+      mb={mb}
+    // shadow={snapshot.isDragging ? 'md' : 'sm'}
     >
       <Group gap='xs'>
         <Group style={{ flex: 1 }}>
@@ -168,8 +171,8 @@ function Row({ option, onChange, onDelete, provided, ref }: {
             size='sm'
             value={option.value}
             onChange={e => {
-              const updatedOption = { ...option, value: e.currentTarget.value }
-              onChange(updatedOption)
+              const modifiedOption = { ...option, value: e.currentTarget.value }
+              onChange(modifiedOption)
             }}
             ref={ref}
           />
@@ -186,15 +189,19 @@ function Row({ option, onChange, onDelete, provided, ref }: {
         </ActionIcon>
 
         {/* Drag handle on the right */}
-        <ActionIcon
+        {/* <ActionIcon
           {...provided.dragHandleProps}
           variant='default'
           size='lg'
           title='Drag'
           tabIndex={-1}
+        > */}
+        <Box
+          {...provided.dragHandleProps}
         >
           <IconGripVertical size={18} />
-        </ActionIcon>
+        </Box>
+        {/* </ActionIcon> */}
       </Group>
     </Paper>
   )

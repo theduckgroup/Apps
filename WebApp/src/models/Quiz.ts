@@ -3,6 +3,8 @@ import { ObjectId } from 'bson'
 export interface Quiz {
   id: string
   name: string
+  code: string
+  itemsPerPage: number
   items: Quiz.Item[]
   sections: Quiz.Section[]
 }

@@ -23,6 +23,8 @@ export default function QuizPage() {
         const quiz: Quiz = {
           id: (new ObjectId()).toString(),
           name: 'New Quiz',
+          code: '',
+          itemsPerPage: 10,
           items: [],
           sections: [
             {

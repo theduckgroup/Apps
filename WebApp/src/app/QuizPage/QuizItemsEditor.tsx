@@ -422,37 +422,16 @@ function SectionHeader({ section, onEdit, onDelete, onAddItem, onAddSectionAbove
               <IconDots size={16} />
             </ActionIcon>
           </Menu.Target>
-          <Menu.Dropdown>
+          <Menu.Dropdown>            
+            <Menu.Item leftSection={<IconPencil size={16} />} onClick={onEdit}>Edit</Menu.Item>
+            <Menu.Item leftSection={<IconTrash size={16} />} onClick={onDelete}>Delete</Menu.Item>
+            <Menu.Divider />
             <Menu.Label>Add Item</Menu.Label>
             <AddItemMenuSection onAddItem={onAddItem} />
             <Menu.Divider />
             <Menu.Label>Add Section</Menu.Label>
-            <Menu.Item
-              leftSection={<IconPlus size={14} />}
-              onClick={onAddSectionAbove}
-            >
-              Add Section Above
-            </Menu.Item>
-            <Menu.Item
-              leftSection={<IconPlus size={14} />}
-              onClick={onAddSectionBelow}
-            >
-              Add Section Below
-            </Menu.Item>
-            <Menu.Divider />
-            <Menu.Label>Edit Section</Menu.Label>
-            <Menu.Item
-              leftSection={<IconPencil size={16} />}
-              onClick={onEdit}
-            >
-              Edit
-            </Menu.Item>
-            <Menu.Item
-              leftSection={<IconTrash size={16} />}
-              onClick={onDelete}
-            >
-              Delete
-            </Menu.Item>
+            <Menu.Item leftSection={<IconPlus size={14} />} onClick={onAddSectionAbove}>Add Section Above</Menu.Item>
+            <Menu.Item leftSection={<IconPlus size={14} />} onClick={onAddSectionBelow}>Add Section Below</Menu.Item>
           </Menu.Dropdown>
         </Menu>
         {/* Drag Handle */}
@@ -503,22 +482,11 @@ function Row({ item, index, onEdit, onDelete, onAddItem, dragHandleProps }: {
           </Button> */}
         </Menu.Target>
         <Menu.Dropdown>
+          <Menu.Item leftSection={<IconPencil size={16} />} onClick={onEdit}>Edit</Menu.Item>
+          <Menu.Item leftSection={<IconTrash size={16} />} onClick={onDelete}>Delete</Menu.Item>
+          <Menu.Divider />
           <Menu.Label>Add Item</Menu.Label>
           <AddItemMenuSection onAddItem={onAddItem} />
-          <Menu.Divider />
-          <Menu.Label>Edit Item</Menu.Label>
-          <Menu.Item
-            leftSection={<IconPencil size={16} />}
-            onClick={onEdit}
-          >
-            Edit
-          </Menu.Item>
-          <Menu.Item
-            leftSection={<IconTrash size={16} />}
-            onClick={onDelete}
-          >
-            Delete
-          </Menu.Item>
         </Menu.Dropdown>
       </Menu>
       {/* Drag Handle */}

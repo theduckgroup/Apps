@@ -1,4 +1,4 @@
-import { Flex, Group, Paper, Stack, Text } from '@mantine/core'
+import { Box, Divider, Flex, Group, Paper, Stack, Text } from '@mantine/core'
 import { IconSquare, IconSquareFilled } from '@tabler/icons-react'
 import { Quiz } from 'src/models/Quiz'
 
@@ -9,30 +9,36 @@ export default function ReadonlyItemComponent({ item, controlSection }: {
   item: Quiz.Item,
   controlSection?: React.ReactElement
 }) {
-  switch (item.kind) {
-    case 'selectedResponseItem':
-      return <SelectedResponseItemComponent item={item} controlSection={controlSection} />
+  return (
+    <Group gap='md' wrap='nowrap' w='100%' align='flex-start'>
+      {(() => {
+        switch (item.kind) {
+          case 'selectedResponseItem':
+            return <SelectedResponseItemComponent item={item} />
 
-    case 'textInputItem':
-      return <TextInputItemComponent item={item} controlSection={controlSection} />
+          case 'textInputItem':
+            return <TextInputItemComponent item={item} />
 
-    case 'listItem':
-      return <ListItemComponent item={item} controlSection={controlSection} />
-  }
+          case 'listItem':
+            return <ListItemComponent item={item} />
+        }
+      })()}
+      {controlSection}
+    </Group>
+  )
 }
 
-function SelectedResponseItemComponent({ item, controlSection }: {
-  item: Quiz.SelectedResponseItem,
-  controlSection?: React.ReactElement
+function SelectedResponseItemComponent({ item }: {
+  item: Quiz.SelectedResponseItem
 }) {
   return (
-    <Stack w='100%' gap='0.2rem'>
-      <PromptComponent prompt={item.data.prompt} controlSection={controlSection} />
-      <Flex gap='md'>
+    <Stack w='100%' gap='0.5rem'>
+      <Text fz='sm' mr='auto'>{item.data.prompt}</Text>
+      <Flex gap='md' wrap='wrap' rowGap='0.5rem'>
         {
           item.data.options.length > 0 ?
             item.data.options.map(option => (
-              <Group key={option.id} gap='0.33rem'>
+              <Group key={option.id} gap='0.33rem' wrap='nowrap'>
                 <IconSquare size={14} strokeWidth={1.5} />
                 <Text fz='sm'>{option.value}</Text>
               </Group>
@@ -45,72 +51,47 @@ function SelectedResponseItemComponent({ item, controlSection }: {
   )
 }
 
-function TextInputItemComponent({ item, controlSection }: {
-  item: Quiz.TextInputItem,
-  controlSection?: React.ReactElement
+function TextInputItemComponent({ item }: {
+  item: Quiz.TextInputItem
 }) {
   return (
     <Stack w='100%' gap='0.25rem'>
-      <PromptComponent prompt={item.data.prompt} controlSection={controlSection} />
-      <Paper w='35%' px='sm' py='0.4rem' bg='dark.6'>
-        <Text fz='sm' c='dark.3'>Text</Text>
-      </Paper>
-      {/* <TextInput
-        variant='filled'
-        size='sm'
-        w='50%'
-        value=''
-        placeholder='Text'
-        className='pointer-events-none select-none'
-      /> */}
-    </Stack>
-  )
-}
-
-function ListItemComponent({ item, controlSection }: {
-  item: Quiz.ListItem,
-  controlSection?: React.ReactElement
-}) {
-  return (
-    <Stack w='100%' gap='0'>
-      <PromptComponent prompt={item.data.prompt} controlSection={controlSection} />
-      <Stack gap='0.3rem'>
-        {
-          item.data.items.map(subitem => {
-            return (
-              <Group key={subitem.id} gap='sm' align='baseline' wrap='nowrap'>
-                <IconSquareFilled size={5} className='-translate-y-0.5' />
-
-                {(() => {
-                  switch (subitem.kind) {
-                    case 'selectedResponseItem':
-                      return <SelectedResponseItemComponent item={subitem} />
-
-                    case 'textInputItem':
-                      return <TextInputItemComponent item={subitem} />
-
-                    case 'listItem':
-                      return <ListItemComponent item={item} />
-                  }
-                })()}
-              </Group>
-            )
-
-          })
-        }
+      <Text fz='sm' mr='auto'>{item.data.prompt}</Text>
+      <Stack w='30%' gap='0'>
+        <Text fz='sm' opacity={0}>(Text)</Text>
+        <Divider />
       </Stack>
     </Stack>
   )
 }
 
-function PromptComponent({ prompt, controlSection }: {
-  prompt: string,
-  controlSection?: React.ReactElement
+function ListItemComponent({ item }: {
+  item: Quiz.ListItem
 }) {
   return (
-    <Group gap='md' wrap='nowrap' w='100%' align='start'>
-      <Text fz='sm' mr='auto'>{prompt}</Text>
-      {controlSection}
-    </Group>
+    <Stack w='100%' gap='0.5rem'>
+      <Text fz='sm' mr='auto'>{item.data.prompt}</Text>
+      <Stack gap='0.4rem'>
+        {
+          item.data.items.map(subitem => (
+            <Group key={subitem.id} gap='sm' align='baseline' wrap='nowrap'>
+              <IconSquareFilled size={5} className='-translate-y-0.5' />
+
+              {(() => {
+                switch (subitem.kind) {
+                  case 'selectedResponseItem':
+                    return <SelectedResponseItemComponent item={subitem} />
+
+                  case 'textInputItem':
+                    return <TextInputItemComponent item={subitem} />
+
+                  case 'listItem':
+                    return <ListItemComponent item={item} />
+                }
+              })()}
+            </Group>
+          ))}
+      </Stack>
+    </Stack>
   )
 }
