@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef } from 'react'
 import { DragDropContext, Droppable, Draggable, DropResult, DraggableProvided } from '@hello-pangea/dnd'
 import { Text, TextInput, Button, ActionIcon, Group, Box, Stack, Paper, Textarea } from '@mantine/core'
 import { IconGripVertical, IconTrash, IconPlus } from '@tabler/icons-react'
@@ -198,6 +198,7 @@ function Row({ option, onChange, onDelete, provided, ref, mb }: {
         > */}
         <Box
           {...provided.dragHandleProps}
+          tabIndex={-1}
         >
           <IconGripVertical size={18} />
         </Box>

@@ -6,6 +6,8 @@ const schema = { // Can't annotate `Schema` type, will break type validation
       properties: {
         id: { type: 'string' },
         name: { type: 'string' },
+        code: { type: 'string' },
+        itemsPerPage: { type: 'int32' },
         items: { elements: { ref: 'Item' } },
         sections: { elements: { ref: 'Section' } }
       }

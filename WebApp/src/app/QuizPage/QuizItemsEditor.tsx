@@ -7,8 +7,8 @@ import { Quiz } from 'src/models/Quiz'
 import EditItemModal, { EditItemModalOptions } from './EditItemModal'
 import EditSectionModal, { EditSectionModalOptions } from './EditSectionModal'
 import ConfirmDeleteModal, { ConfirmDeleteModalOptions } from './ConfirmDeleteModal'
-import { DragDropContext, Draggable, DraggableProvidedDragHandleProps, Droppable, DropResult } from '@hello-pangea/dnd'
-import { IconArrowsMoveVertical, IconArrowsSort, IconBaselineDensityMedium, IconChevronDown, IconChevronRight, IconDots, IconEdit, IconGripVertical, IconLetterT, IconListNumbers, IconMenu, IconMenuOrder, IconPencil, IconPlus, IconSquareCheck, IconSquareLetterT, IconTrash } from '@tabler/icons-react'
+import { DragDropContext, Draggable, DraggableProvided, DraggableProvidedDragHandleProps, Droppable, DropResult } from '@hello-pangea/dnd'
+import { IconChevronDown, IconChevronRight, IconDots, IconGripVertical, IconListNumbers, IconPencil, IconPlus, IconSquareCheck, IconSquareLetterT, IconTrash } from '@tabler/icons-react'
 import ReadonlyItemComponent from './ReadonlyItemComponent'
 import useRepeatedModal from 'src/common/use-repeated-modal'
 
@@ -26,6 +26,7 @@ export default function QuizItemsEditor({ items, sections, onChange }: {
   const deleteModal = useRepeatedModal()
   const [deleteModalOptions, setDeleteModalOptions] = useState<ConfirmDeleteModalOptions>(ConfirmDeleteModalOptions.empty)
 
+  // Can't hold this inside SectionComponent because it gets reset during drag/drop
   const [sectionCollapsedIDs, setCollapsedSectionIDs] = useState<Set<string>>(new Set())
 
   function handleAddSection(atSectionIndex: number) {
@@ -237,113 +238,22 @@ export default function QuizItemsEditor({ items, sections, onChange }: {
             >
               {sections.map((section, sectionIndex) => (
                 // One section
-                <Draggable draggableId={section.id} index={sectionIndex} key={section.id}>
+                <Draggable key={section.id} draggableId={section.id} index={sectionIndex}>
                   {provided => (
-                    // Stack of section header and items
-                    <Paper
-                      withBorder
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      style={provided.draggableProps.style}
-                    >
-                      <Stack
-                        gap={0}
-                        // bg='var(--mantine-color-body)'
-                        bg='dark.8'
-                      >
-                        {/* Section header */}
-                        <SectionHeader
-                          section={section}
-                          onEdit={() => handleEditSection(section, sectionIndex)}
-                          onDelete={() => handleDeleteSection(section, sectionIndex)}
-                          onAddItem={(kind) => handleAddItem(kind, section.rows.length, section, sectionIndex)}
-                          onAddSectionAbove={() => handleAddSection(sectionIndex)}
-                          onAddSectionBelow={() => handleAddSection(sectionIndex + 1)}
-                          isExpanded={isSectionExpanded(section.id)}
-                          setExpanded={value => setSectionExpanded(section.id, value)}
-                          dragHandleProps={provided.dragHandleProps}
-                        />
-                        {/*  */}
-                        {isSectionExpanded(section.id) && <Divider />}
-                        {/* Droppable of items */}
-                        {
-                          isSectionExpanded(section.id) &&
-                          <Droppable
-                            droppableId={section.id}
-                            direction='vertical'
-                            type='item'
-                            renderClone={(provided, snapshot, rubric) => {
-                              return (
-                                <Paper
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  // bg='var(--mantine-color-gray-8)'
-                                  bg='dark.5'
-                                  h='4rem'
-                                  radius='sm'
-                                />
-                              )
-                            }}
-                          >
-                            {(provided) => (
-                              // Stack of rows/items
-                              <Stack
-                                ref={provided.innerRef}
-                                {...provided.droppableProps}
-                                gap='md'
-                                m='md'
-                                align='start'
-                              >
-                                {section.rows.map((row, rowIndex) => (
-                                  // Draggable of row
-                                  <Draggable draggableId={row.itemId} index={rowIndex} key={row.itemId}>
-                                    {(provided) => (
-                                      // Row
-                                      <Group
-                                        ref={provided.innerRef}
-                                        {...provided.draggableProps}
-                                        style={{
-                                          ...provided.draggableProps.style,
-
-                                        }}
-                                        gap='xs'
-                                        // bg='var(--mantine-color-body)'
-                                        w='100%'
-                                      >
-                                        {(function () {
-                                          const item = items.find(x => x.id == row.itemId)
-
-                                          return (
-                                            <Row
-                                              item={item}
-                                              index={rowIndex}
-                                              onEdit={() => handleEditItem(item!, rowIndex, section, sectionIndex)}
-                                              onDelete={() => handleDeleteItem(item!, rowIndex, section, sectionIndex)}
-                                              onAddItem={kind => handleAddItem(kind, rowIndex + 1, section, sectionIndex)}
-                                              dragHandleProps={provided.dragHandleProps}
-                                            />
-                                          )
-                                        })()}
-                                      </Group>
-                                    )}
-                                  </Draggable>
-                                ))}
-                                {provided.placeholder}
-                                {/* <Button
-                                variant='default'
-                                size='xs'
-                                leftSection={<IconPlus size={12} />}
-                                my='sm'
-                                onClick={() => handleAddItem(section.rows.length, section, sectionIndex)}
-                              >
-                                Add Item
-                              </Button> */}
-                              </Stack>
-                            )}
-                          </Droppable>
-                        }
-                      </Stack>
-                    </Paper>
+                    <SectionComponent
+                      section={section}
+                      sectionIndex={sectionIndex}
+                      itemForId={id => items.find(x => x.id == id)}
+                      isExpanded={isSectionExpanded(section.id)}
+                      onExpandedChange={value => setSectionExpanded(section.id, value)}
+                      handleAddSection={atIndex => handleAddSection(atIndex) }
+                      handleEditSection={() => handleEditSection(section, sectionIndex) }
+                      handleDeleteSection={() => handleDeleteSection(section, sectionIndex) }
+                      handleAddItem={handleAddItem}
+                      handleEditItem={handleEditItem}
+                      handleDeleteItem={handleDeleteItem}
+                      provided={provided}
+                    />
                   )}
                 </Draggable>
               ))}
@@ -355,7 +265,6 @@ export default function QuizItemsEditor({ items, sections, onChange }: {
                 size='sm'
                 mr='auto'
                 leftSection={<IconPlus size={13} />}
-                my='md'
                 onClick={() => handleAddSection(sections.length)}
               >
                 Add Section
@@ -379,7 +288,137 @@ export default function QuizItemsEditor({ items, sections, onChange }: {
   )
 }
 
-function SectionHeader({ section, onEdit, onDelete, onAddItem, onAddSectionAbove, onAddSectionBelow, isExpanded, setExpanded, dragHandleProps }: {
+function SectionComponent({
+  section, sectionIndex, itemForId,
+  isExpanded, onExpandedChange,
+  handleAddSection, handleEditSection, handleDeleteSection,
+  handleAddItem, handleEditItem, handleDeleteItem,
+  provided
+}: {
+  section: Quiz.Section,
+  sectionIndex: number,
+  itemForId: (id: string) => Quiz.Item | undefined,
+  isExpanded: boolean,
+  onExpandedChange: (_: boolean) => void,
+  handleAddSection: (atIndex: number) => void,
+  handleEditSection: () => void,
+  handleDeleteSection: () => void,
+  handleAddItem: (kind: Quiz.ItemKind, rowIndex: number, section: Quiz.Section, sectionIndex: number) => void
+  handleEditItem: (_: Quiz.Item, rowIndex: number, section: Quiz.Section, sectionIndex: number) => void
+  handleDeleteItem: (_: Quiz.Item, rowIndex: number, section: Quiz.Section, sectionIndex: number) => void
+  provided: DraggableProvided
+}) {
+  return (
+    // Stack of section header and items
+    <Paper
+      withBorder
+      ref={provided.innerRef}
+      {...provided.draggableProps}
+      style={provided.draggableProps.style}
+    >
+      <Stack
+        gap={0}
+        // bg='var(--mantine-color-body)'
+        bg='dark.8'
+      >
+        {/* Section header */}
+        <SectionHeader
+          section={section}
+          onEdit={() => handleEditSection(section, sectionIndex)}
+          onDelete={() => handleDeleteSection(section, sectionIndex)}
+          onAddItem={(kind) => handleAddItem(kind, section.rows.length, section, sectionIndex)}
+          onAddSectionAbove={() => handleAddSection(sectionIndex)}
+          onAddSectionBelow={() => handleAddSection(sectionIndex + 1)}
+          isExpanded={isExpanded}
+          onExpandedChange={onExpandedChange}
+          dragHandleProps={provided.dragHandleProps}
+        />
+        {/*  */}
+        {isExpanded && <Divider />}
+        {/* Droppable of items */}
+        {
+          isExpanded &&
+          <Droppable
+            droppableId={section.id}
+            direction='vertical'
+            type='item'
+            renderClone={(provided, snapshot, rubric) => {
+              return (
+                <Paper
+                  ref={provided.innerRef}
+                  {...provided.draggableProps}
+                  // bg='var(--mantine-color-gray-8)'
+                  bg='dark.5'
+                  h='4rem'
+                  radius='sm'
+                />
+              )
+            }}
+          >
+            {(provided) => (
+              // Stack of rows/items and Add Item button
+              <Stack
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                gap='md'
+                m='md'
+                align='start'
+              >
+                {section.rows.map((row, rowIndex) => (
+                  // Draggable of row
+                  <Draggable draggableId={row.itemId} index={rowIndex} key={row.itemId}>
+                    {(provided) => (
+                      // Row
+                      <Box
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        style={{ ...provided.draggableProps.style }}
+                        w='100%' // Important
+                      // bg='var(--mantine-color-body)'
+                      >
+                        {(() => {
+                          const item = itemForId(row.itemId)
+
+                          return (
+                            <Row
+                              item={itemForId(row.itemId)}
+                              index={rowIndex}
+                              onAddItem={kind => handleAddItem(kind, rowIndex + 1, section, sectionIndex)}
+                              onEdit={() => handleEditItem(item!, rowIndex, section, sectionIndex)}
+                              onDelete={() => handleDeleteItem(item!, rowIndex, section, sectionIndex)}
+                              dragHandleProps={provided.dragHandleProps}
+                            />
+                          )
+                        })()}
+                      </Box>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+                <Menu offset={6} position='right-end'>
+                  <Menu.Target>
+                    <Button
+                      variant='default' size='sm'
+                      mt={section.rows.length > 0 ? '0.5rem' : 0}
+                      leftSection={<IconPlus size={12} />}
+                    >
+                      Add Item
+                    </Button>
+                  </Menu.Target>
+                  <Menu.Dropdown>
+                    <AddItemMenuSection onAddItem={kind => handleAddItem(kind, section.rows.length, section, sectionIndex)} />
+                  </Menu.Dropdown>
+                </Menu>
+              </Stack>
+            )}
+          </Droppable>
+        }
+      </Stack>
+    </Paper>
+  )
+}
+
+function SectionHeader({ section, onEdit, onDelete, onAddItem, onAddSectionAbove, onAddSectionBelow, isExpanded, onExpandedChange, dragHandleProps }: {
   section: Quiz.Section
   onEdit: () => void,
   onDelete: () => void
@@ -387,21 +426,22 @@ function SectionHeader({ section, onEdit, onDelete, onAddItem, onAddSectionAbove
   onAddSectionAbove: () => void
   onAddSectionBelow: () => void
   isExpanded: boolean
-  setExpanded: (_: boolean) => void
+  onExpandedChange: (_: boolean) => void
   dragHandleProps: DraggableProvidedDragHandleProps | null
 }) {
   return (
-    <Group bg='dark.6' wrap='nowrap' px='md' py='sm'>
+    <Group bg='dark.6' wrap='nowrap' px='md' py='sm' align='flex-start'>
       {/* Expand button + name */}
-      <Group gap='0' align='center' wrap='nowrap' mr='auto'>
+      <Group gap='0' align='flex-start' wrap='nowrap' mr='auto'>
         {/* Expand button */}
         <ActionIcon
           variant='transparent'
           size='compact-md'
-          onClick={() => setExpanded(!isExpanded)}
+          onClick={() => onExpandedChange(!isExpanded)}
           color='gray'
           pl='0'
           pr='0.33rem'
+          className='flex-none'
         >
           {isExpanded ?
             <IconChevronDown size={22} /> :
@@ -422,7 +462,7 @@ function SectionHeader({ section, onEdit, onDelete, onAddItem, onAddSectionAbove
               <IconDots size={16} />
             </ActionIcon>
           </Menu.Target>
-          <Menu.Dropdown>            
+          <Menu.Dropdown>
             <Menu.Item leftSection={<IconPencil size={16} />} onClick={onEdit}>Edit</Menu.Item>
             <Menu.Item leftSection={<IconTrash size={16} />} onClick={onDelete}>Delete</Menu.Item>
             <Menu.Divider />
@@ -531,8 +571,7 @@ function AddItemMenuSection({ onAddItem }: {
 }) {
   return (
     <>
-      <Menu.Item
-        leftSection={<IconSquareCheck size={14} />}
+      <Menu.Item leftSection={<IconSquareCheck size={14} />}
         onClick={() => onAddItem('selectedResponseItem')}
       >
         Multiple Choice Item

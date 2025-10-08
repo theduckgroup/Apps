@@ -54,10 +54,11 @@ function QuizComponent({ metaquiz }: {
   return (
     <Grid.Col span={{ base: 12, sm: 4, lg: 3 }}>
       <Paper px='md' py='sm' bg='dark.8' withBorder>
-        <Stack align='flex-start' gap='xl'>
-          <Stack gap='0'>
+        <Stack align='flex-start' gap='md'>
+          <Stack gap='0.25rem'>
             <Title order={5}>{metaquiz.name}</Title>
-            <Stack gap='sm'>
+            <Stack gap='0'>
+              {metaquiz.code && <Text fz='sm' fw='bold' opacity={0.5}> {metaquiz.code}</Text>}
               <Text fz='sm'>{metaquiz.itemCount} items</Text>
             </Stack>
           </Stack>

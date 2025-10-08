@@ -32,7 +32,7 @@ function SelectedResponseItemComponent({ item }: {
   item: Quiz.SelectedResponseItem
 }) {
   return (
-    <Stack w='100%' gap='0.5rem'>
+    <Stack w='100%' gap='0.4rem'>
       <Text fz='sm' mr='auto'>{item.data.prompt}</Text>
       <Flex gap='md' wrap='wrap' rowGap='0.5rem'>
         {

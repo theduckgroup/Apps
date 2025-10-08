@@ -3,9 +3,10 @@ import { ObjectId } from 'mongodb'
 export interface DbQuiz {
   _id: ObjectId
   name: string
+  code: string
+  itemsPerPage: number
   items: DbQuiz.Item[]
   sections: DbQuiz.Section[]
-  itemsPerPage: number
 }
 
 export namespace DbQuiz {

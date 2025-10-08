@@ -53,6 +53,7 @@ export default function EditSectionModal({ opened, close, options }: {
       onClose={close}
       title={options?.title}
       returnFocus={false}
+      closeOnClickOutside={false}
     >
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack>

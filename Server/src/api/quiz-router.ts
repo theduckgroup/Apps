@@ -29,7 +29,7 @@ router.get('/quizzes', async (req, res) => {
     return {
       id: dbQuiz._id.toString(),
       name: dbQuiz.name,
-      code: '',
+      code: dbQuiz.code,
       sectionCount: dbQuiz.sections.length,
       itemCount: dbQuiz.sections.map(x => x.rows.length).reduce((x, y) => x + y, 0)
     }
@@ -69,9 +69,9 @@ router.put('/quiz/:id', async (req, res) => {
   if (!validateQuiz(req.body)) {
     const message = validateQuiz.errors!
       .map(x => {
-        // error.instancePath and error.propertyName are always null
         const error = x as DefinedError
-        return error.message
+        const message = `${error.schemaPath} → ${error.instancePath}: ${error.message}`
+        return message
       })
       .join('\n')
 
