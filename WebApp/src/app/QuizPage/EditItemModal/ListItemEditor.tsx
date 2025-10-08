@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Text, Stack, Paper, Group, ActionIcon, Button, Menu, Box } from '@mantine/core'
+import { Text, Stack, Paper, Group, ActionIcon, Button, Menu, Box, Anchor } from '@mantine/core'
 import { DragDropContext, Droppable, Draggable, DropResult, DraggableProvided } from '@hello-pangea/dnd'
 import { ObjectId } from 'bson'
 
@@ -15,7 +15,7 @@ export default function ListItemEditor({ item, onChange }: {
   onChange: (_: Quiz.ListItem) => void
 }) {
   const promptRefs = useRef<Record<string, HTMLTextAreaElement | null>>({})
-  const [subitemExpandedMap, setSubitemExpandedMap] = useState<Record<string, boolean | undefined>>({})
+  const [expandedSubitemIDs, setExpandedSubitemIDs] = useState<Set<string>>(new Set())
 
   function handlePromptChange(value: string) {
     const modifiedItem = produce(item, item => {
@@ -58,14 +58,29 @@ export default function ListItemEditor({ item, onChange }: {
     onChange(modifiedItem)
   }
 
-  function isExpanded(id: string) {
-    return subitemExpandedMap[id] ?? false
+  function isSubitemExpanded(id: string) {
+    return expandedSubitemIDs.has(id)
   }
 
+  // function areAllSubitemsExpanded() {
+  //   function areEqual(a: Set<string>, b: Set<string>) {
+  //     return a.size == b.size && a.forEach(x => b.has(x))
+  //   }
+
+  //   const allSubitemIDs = new Set(item.data.items.map(x => x.id))
+  //   return areEqual(expandedSubitemIDs, allSubitemIDs)
+  // }
+
   function setSubitemExpanded(id: string, value: boolean) {
-    const copy = { ...subitemExpandedMap }
-    copy[id] = value
-    setSubitemExpandedMap(copy)
+    const modified = produce(expandedSubitemIDs, set => {
+      if (value) {
+        set.add(id)
+      } else {
+        set.delete(id)
+      }
+    })
+
+    setExpandedSubitemIDs(modified)
   }
 
   function onDragEnd(result: DropResult) {
@@ -94,87 +109,97 @@ export default function ListItemEditor({ item, onChange }: {
     <Stack>
       {/* Prompt */}
       <PromptInput value={item.data.prompt} onChange={handlePromptChange} />
+
       {/* Subitems */}
-      <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable
-          droppableId='droppable-list'
-          // Need this for drag drop to work inside Mantine modal
-          // https://github.com/hello-pangea/dnd/issues/560#issuecomment-3353933696
-          // https://github.com/hello-pangea/dnd/blob/main/docs/guides/reparenting.md
-          renderClone={(provided, snapshot, rubric) => {
-            const subitem = item.data.items[rubric.source.index]
-            const index = item.data.items.findIndex(x => x.id == subitem.id)!
+      <Stack gap='0.25rem'>
+        {/* Label */}
+        <Group gap='md'>
+          <Text fz='sm'>Sub Items</Text>
+          {/* <Anchor onClick={e => { e.preventDefault(); expandCollapseAllSubitems() }}>Expand/Collapse</Anchor> */}
+        </Group>
 
-            return (
-              <Row
-                item={subitem}
-                index={index}
-                onChange={e => { }}
-                onDelete={() => { }}
-                expanded={isExpanded(subitem.id)}
-                setExpanded={() => { }}
-                provided={provided}
-                mb={0}
-              />
-            )
-          }}
-        >
-          {(provided) => (
-            <Stack
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-              style={{ width: '100%' }}
-              // gap='xs'
-              gap={0}
-            >
-              {item.data.items.map((subitem, index) => (
-                <Draggable key={subitem.id} draggableId={subitem.id} index={index}>
-                  {(provided, snapshot) => (
-                    <Row
-                      item={subitem}
-                      index={index}
-                      onChange={handleSubitemChange}
-                      onDelete={() => handleDeleteSubitem(subitem.id)}
-                      expanded={subitemExpandedMap[subitem.id] ?? false}
-                      setExpanded={value => setSubitemExpanded(subitem.id, value)}
-                      provided={provided}
-                      promptRef={el => (promptRefs.current[subitem.id] = el)}
-                      mb={index < item.data.items.length ? 'xs' : 0}
-                    />
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
+        {/* List */}
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable
+            droppableId='droppable-list'
+            // Need this for drag drop to work inside Mantine modal
+            // https://github.com/hello-pangea/dnd/issues/560#issuecomment-3353933696
+            // https://github.com/hello-pangea/dnd/blob/main/docs/guides/reparenting.md
+            renderClone={(provided, snapshot, rubric) => {
+              const subitem = item.data.items[rubric.source.index]
+              const index = item.data.items.findIndex(x => x.id == subitem.id)!
 
-              <Menu offset={6} position='right-start'>
-                <Menu.Target>
-                  <Button
-                    variant='default'
-                    size='sm'
-                    leftSection={<IconPlus size={16} />}
-                    mr='auto'
-                  >
-                    Add Sub Item
-                  </Button>
-                </Menu.Target>
-                <Menu.Dropdown>
-                  <Menu.Item
-                    onClick={() => handleAddSubitem('selectedResponseItem')}
-                  >
-                    Multiple Choice
-                  </Menu.Item>
-                  <Menu.Item
-                    onClick={() => handleAddSubitem('textInputItem')}
-                  >
-                    Text Input
-                  </Menu.Item>
-                </Menu.Dropdown>
-              </Menu>
+              return (
+                <Row
+                  item={subitem}
+                  index={index}
+                  onChange={e => { }}
+                  onDelete={() => { }}
+                  expanded={isSubitemExpanded(subitem.id)}
+                  setExpanded={() => { }}
+                  provided={provided}
+                  mb={0}
+                />
+              )
+            }}
+          >
+            {(provided) => (
+              <Stack
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                style={{ width: '100%' }}
+                // gap='xs'
+                gap={0}
+              >
+                {item.data.items.map((subitem, index) => (
+                  <Draggable key={subitem.id} draggableId={subitem.id} index={index}>
+                    {(provided, snapshot) => (
+                      <Row
+                        item={subitem}
+                        index={index}
+                        onChange={handleSubitemChange}
+                        onDelete={() => handleDeleteSubitem(subitem.id)}
+                        expanded={isSubitemExpanded(subitem.id)}
+                        setExpanded={value => setSubitemExpanded(subitem.id, value)}
+                        provided={provided}
+                        promptRef={el => (promptRefs.current[subitem.id] = el)}
+                        mb={index < item.data.items.length ? 'xs' : 0}
+                      />
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
 
-            </Stack>
-          )}
-        </Droppable>
-      </DragDropContext >
+                <Menu offset={6} position='right-start'>
+                  <Menu.Target>
+                    <Button
+                      variant='default'
+                      size='sm'
+                      leftSection={<IconPlus size={16} />}
+                      mr='auto'
+                    >
+                      Add Sub Item
+                    </Button>
+                  </Menu.Target>
+                  <Menu.Dropdown>
+                    <Menu.Item
+                      onClick={() => handleAddSubitem('selectedResponseItem')}
+                    >
+                      Multiple Choice
+                    </Menu.Item>
+                    <Menu.Item
+                      onClick={() => handleAddSubitem('textInputItem')}
+                    >
+                      Text Input
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
+
+              </Stack>
+            )}
+          </Droppable>
+        </DragDropContext >
+      </Stack>
     </Stack>
   )
 }
@@ -219,12 +244,21 @@ function Row({ item, index, onChange, onDelete, expanded, setExpanded, provided,
               color='gray'
               size='compact-md'
               pl={0}
+              tabIndex={-1}
               onClick={() => setExpanded(!expanded)}
             >
               {expanded ? <IconChevronDown size={18} /> : <IconChevronRight size={18} />}
             </ActionIcon>
             {/* Title */}
-            <Text fw='bold' fz='sm' mr='auto'>Item {index + 1} - {kindLabel}</Text>
+            {
+              expanded ?
+                <Text fw='bold' fz='sm' mr='auto'>{index + 1}. {kindLabel}</Text>
+                :
+                <Group fz='sm' gap='0.25rem'>
+                  <Text lineClamp={1}>{item.data.prompt}</Text>
+                </Group>
+            }
+
           </Group>
           {/* Trash button */}
           <ActionIcon
@@ -232,12 +266,14 @@ function Row({ item, index, onChange, onDelete, expanded, setExpanded, provided,
             size='md'
             onClick={onDelete}
             title='Delete'
+            tabIndex={-1}
           >
             <IconTrash size={16} />
           </ActionIcon>
           {/* Drag handle */}
           <Box
             {...provided.dragHandleProps}
+            tabIndex={-1}
           >
             <IconGripVertical size={18} />
           </Box>
@@ -263,7 +299,7 @@ function Row({ item, index, onChange, onDelete, expanded, setExpanded, provided,
           ) : (
             <>
               {/* Readonly prompt */}
-              {item.data.prompt ? <Text fz='sm'>{item.data.prompt}</Text> : null}
+              {/* {item.data.prompt ? <Text fz='sm'>{item.data.prompt}</Text> : null} */}
             </>
           )
         }

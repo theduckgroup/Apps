@@ -67,15 +67,15 @@ export namespace Quiz {
             options: [
               {
                 id: new ObjectId().toString(),
-                value: 'Eins'
+                value: ''
               },
               {
                 id: new ObjectId().toString(),
-                value: 'Zwei'
+                value: ''
               },
               {
                 id: new ObjectId().toString(),
-                value: 'Drei'
+                value: ''
               }
             ]
           }

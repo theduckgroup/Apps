@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react"
-import { Button, Group, Modal, Select, Stack, Textarea } from "@mantine/core"
+import { ActionIcon, Box, Button, Group, HoverCard, List, Modal, Select, Stack, Text, Textarea } from "@mantine/core"
 import { Quiz } from 'src/models/Quiz'
 
 import ListItemEditor from './ListItemEditor'
 import SelectedResponseItemEditor from './SelectedResponseItemEditor'
 import TextInputItemEditor from './TextInputItemEditor'
+import { getHotkeyHandler, useHotkeys } from '@mantine/hooks'
+import { IconInfoCircle, IconQuestionMark } from '@tabler/icons-react'
 
 export default function EditItemModal({ opened, close, options }: {
   opened: boolean,
@@ -24,6 +26,7 @@ function EditItemModalImpl({ opened, close, options }: {
   options: EditItemModalOptions
 }) {
   const [item, setItem] = useState<Quiz.Item>(options.item)
+  const ref = useRef<HTMLDivElement | null>(null)
 
   const title = (() => {
     switch (item.kind) {
@@ -38,6 +41,17 @@ function EditItemModalImpl({ opened, close, options }: {
     options.onSave(item)
   }
 
+  // useEffect(() => {
+  //   const element = ref.current
+  //   const handler = getHotkeyHandler([['mod+Enter', handleSave]])
+
+  //   setTimeout(() => {
+  //     element?.addEventListener('keydown', handler)
+  //   }, 500)
+
+  //   return () => element?.removeEventListener('keydown', handler)
+  // })
+
   return (
     <Modal
       opened={opened}
@@ -47,7 +61,7 @@ function EditItemModalImpl({ opened, close, options }: {
       returnFocus={false}
       closeOnClickOutside={false}
     >
-      <Stack>
+      <Stack ref={ref}>
         {
           (() => {
             switch (item.kind) {
@@ -62,9 +76,23 @@ function EditItemModalImpl({ opened, close, options }: {
             }
           })()
         }
-        <Group gap='sm' ml='auto'>
-          <Button variant='default' w='6rem' onClick={close}>Cancel</Button>
-          <Button type='submit' w='6rem' onClick={handleSave}>Save</Button>
+        <Group>
+          {/* <HoverCard width={250} shadow='md'>
+            <HoverCard.Target>
+              <ActionIcon variant='transparent'>
+                <IconInfoCircle size={20} />
+              </ActionIcon>
+            </HoverCard.Target>
+            <HoverCard.Dropdown>
+              <Text size='sm'>
+                Use Ctrl+Enter or ⌘+Enter to save, Esc to cancel
+              </Text>
+            </HoverCard.Dropdown>
+          </HoverCard> */}
+          <Group gap='sm' ml='auto'>
+            <Button variant='default' w='6rem' onClick={close}>Cancel</Button>
+            <Button type='submit' w='6rem' onClick={handleSave}>Save</Button>
+          </Group>
         </Group>
       </Stack>
     </Modal>

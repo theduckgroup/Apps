@@ -15,7 +15,7 @@ export default function SelectedResponseItemEditor({ item, onChange, promptRef }
   onChange: (_: Quiz.SelectedResponseItem) => void
   promptRef?: React.Ref<HTMLTextAreaElement>
 }) {
-  const optionTextareaRefs = useRef<Record<string, HTMLInputElement | null>>({})
+  const optionTextareaRefs = useRef<Record<string, HTMLTextAreaElement | null>>({})
 
   function handlePromptChange(value: string) {
     const modifiedItem = produce(item, item => {
@@ -91,11 +91,13 @@ export default function SelectedResponseItemEditor({ item, onChange, promptRef }
           // https://github.com/hello-pangea/dnd/issues/560#issuecomment-3353933696
           // https://github.com/hello-pangea/dnd/blob/main/docs/guides/reparenting.md
           renderClone={(provided, snapshot, rubric) => {
-            const option = item.data.options[rubric.source.index]
+            const index = rubric.source.index 
+            const option = item.data.options[index]
 
             return (
               <Row
                 option={option}
+                index={index}
                 onChange={e => { }}
                 onDelete={() => { }}
                 provided={provided}
@@ -118,6 +120,7 @@ export default function SelectedResponseItemEditor({ item, onChange, promptRef }
                       {(provided, snapshot) => (
                         <Row
                           option={option}
+                          index={index}
                           onChange={modifiedOption => handleOptionChange(modifiedOption)}
                           onDelete={() => handleDeleteOption(option.id)}
                           provided={provided}
@@ -148,12 +151,13 @@ export default function SelectedResponseItemEditor({ item, onChange, promptRef }
   )
 }
 
-function Row({ option, onChange, onDelete, provided, ref, mb }: {
+function Row({ option, index, onChange, onDelete, provided, ref, mb }: {
   option: Option,
+  index: number,
   onChange: (_: Option) => void,
   onDelete: () => void,
   provided: DraggableProvided,
-  ref?: (_: HTMLInputElement) => void,
+  ref?: (_: HTMLTextAreaElement) => void,
   mb: string | number
 }) {
   return (
@@ -163,46 +167,41 @@ function Row({ option, onChange, onDelete, provided, ref, mb }: {
       mb={mb}
     // shadow={snapshot.isDragging ? 'md' : 'sm'}
     >
-      <Group gap='xs'>
-        <Group style={{ flex: 1 }}>
-          <TextInput
-            placeholder='Type something...'
-            w='100%'
-            size='sm'
-            value={option.value}
-            onChange={e => {
-              const modifiedOption = { ...option, value: e.currentTarget.value }
-              onChange(modifiedOption)
-            }}
-            ref={ref}
-          />
+      <Group gap='xs' wrap='nowrap' align='flex-start'>
+        <Textarea
+          placeholder={`Option ${index + 1}`}
+          w='100%'
+          size='sm'
+          autosize
+          minRows={1}
+          value={option.value}
+          onChange={e => {
+            const modifiedOption = { ...option, value: e.currentTarget.value }
+            onChange(modifiedOption)
+          }}
+          ref={ref}
+        />
+
+        <Group gap='xs' wrap='nowrap'>
+          {/* Delete button */}
+          <ActionIcon
+            variant='default'
+            size='lg'
+            onClick={onDelete}
+            title='Delete'
+            tabIndex={-1}
+          >
+            <IconTrash size={16} />
+          </ActionIcon>
+
+          {/* Drag handle */}
+          <Box
+            {...provided.dragHandleProps}
+            tabIndex={-1}
+          >
+            <IconGripVertical size={18} />
+          </Box>
         </Group>
-
-        <ActionIcon
-          variant='default'
-          size='lg'
-          onClick={onDelete}
-          title='Delete'
-          tabIndex={-1}
-        >
-          <IconTrash size={16} />
-        </ActionIcon>
-
-        {/* Drag handle on the right */}
-        {/* <ActionIcon
-          {...provided.dragHandleProps}
-          variant='default'
-          size='lg'
-          title='Drag'
-          tabIndex={-1}
-        > */}
-        <Box
-          {...provided.dragHandleProps}
-          tabIndex={-1}
-        >
-          <IconGripVertical size={18} />
-        </Box>
-        {/* </ActionIcon> */}
       </Group>
     </Paper>
   )

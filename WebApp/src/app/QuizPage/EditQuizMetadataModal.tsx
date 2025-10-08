@@ -1,5 +1,5 @@
-import { Button, Modal, NumberInput, Stack, TextInput } from "@mantine/core"
-import { isNotEmpty, useForm } from "@mantine/form"
+import { Button, Group, Modal, NumberInput, Stack, TextInput } from "@mantine/core"
+import { isInRange, isNotEmpty, useForm } from "@mantine/form"
 import { useEffect, useRef } from "react"
 
 export function EditQuizMetadataModal(
@@ -21,21 +21,15 @@ function EditQuizMetadataModalImpl({ opened, close, options }: EditQuizMetadataM
       itemsPerPage: options.data.itemsPerPage
     },
     validate: {
-      name: isNotEmpty('Name is required')
+      name: isNotEmpty('Required'),
+      itemsPerPage: (value) => isNotEmpty('Required')(value) || isInRange({ min: 5, max: 100 }, 'Out of range')(value)
     }
   })
 
   const nameRef = useRef<HTMLInputElement | null>(null)
 
   useEffect(() => {
-    // form.setValues({
-    //   name: options.data.name,
-    //   code: options.data.code,
-    //   itemsPerPage: options.data.itemsPerPage
-    // })
     nameRef.current?.focus()
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -81,10 +75,14 @@ function EditQuizMetadataModalImpl({ opened, close, options }: EditQuizMetadataM
             label="Items per Page"
             min={5}
             max={100}
+            clampBehavior='none'
             key={form.key('itemsPerPage')}
             {...form.getInputProps('itemsPerPage')}
           />
-          <Button type='submit' ml='auto'>Save</Button>
+          <Group gap='xs' ml='auto'>
+            <Button variant='default' onClick={close} w='6rem'>Cancel</Button>
+            <Button type='submit' w='6rem'>Save</Button>
+          </Group>
         </Stack>
       </form>
     </Modal>

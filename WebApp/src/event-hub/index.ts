@@ -23,14 +23,14 @@ const eventHub = {
    * 
    * @returns Function that can be used to stop listening.
    */
-  onVendorChanged: (vendorId: string, callback: () => void): () => void => {
+  onQuizzesChanged: (callback: () => void): () => void => {
     console.info(`! Listening...`)
     const listener = () => {
-      console.info(`! Received vendor event`)
+      console.info(`! Received quizzes changed`)
       callback()
     }
 
-    const event = `event.vendor:${vendorId}.change`
+    const event = `event:quizzes:changed`
     socket.on(event, listener)
 
     // Very important to remove listener

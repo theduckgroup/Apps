@@ -5,17 +5,29 @@ import axios from 'axios'
 import { useNavigate } from 'react-router'
 
 import { QuizMetadata } from 'src/models/Quiz'
+import eventHub from 'src/event-hub'
+import { useEffect } from 'react'
 
 const QuizListPage = () => {
   const navigate = useNavigate()
 
-  const { data, error, isLoading } = useQuery({
+  const { data, error, isLoading, refetch } = useQuery({
     queryKey: ['quizzes'],
     queryFn: async () => {
       const metaquizzes = (await axios.get('/api/quizzes')).data as QuizMetadata[]
       return metaquizzes
     }
   })
+
+  useEffect(() => {
+    const unsub = eventHub.onQuizzesChanged(() => {
+      refetch()
+    })
+    
+    return () => {
+      unsub()
+    }
+  }, [refetch])
 
   if (error) {
     return <p>{error.message}</p>
@@ -27,13 +39,13 @@ const QuizListPage = () => {
       {
         isLoading ? (
           <Text>Loading...</Text>
-        ) : 
-        data &&
-        <Grid w='100%'>
-          {
-            data.map(metaquiz => <QuizComponent key={metaquiz.id} metaquiz={metaquiz}/>)
-          }
-        </Grid>
+        ) :
+          data &&
+          <Grid w='100%'>
+            {
+              data.map(metaquiz => <QuizComponent key={metaquiz.id} metaquiz={metaquiz} />)
+            }
+          </Grid>
       }
       <Button
         variant='filled'
@@ -58,7 +70,7 @@ function QuizComponent({ metaquiz }: {
           <Stack gap='0.25rem'>
             <Title order={5}>{metaquiz.name}</Title>
             <Stack gap='0'>
-              {metaquiz.code && <Text fz='sm' fw='bold' opacity={0.5}> {metaquiz.code}</Text>}
+              {metaquiz.code && <Text fz='sm' fw={500} opacity={0.5}> {metaquiz.code}</Text>}
               <Text fz='sm'>{metaquiz.itemCount} items</Text>
             </Stack>
           </Stack>

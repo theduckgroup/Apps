@@ -246,12 +246,12 @@ export default function QuizItemsEditor({ items, sections, onChange }: {
                       itemForId={id => items.find(x => x.id == id)}
                       isExpanded={isSectionExpanded(section.id)}
                       onExpandedChange={value => setSectionExpanded(section.id, value)}
-                      handleAddSection={atIndex => handleAddSection(atIndex) }
-                      handleEditSection={() => handleEditSection(section, sectionIndex) }
-                      handleDeleteSection={() => handleDeleteSection(section, sectionIndex) }
-                      handleAddItem={handleAddItem}
-                      handleEditItem={handleEditItem}
-                      handleDeleteItem={handleDeleteItem}
+                      onAddSection={atIndex => handleAddSection(atIndex)}
+                      onEditSection={() => handleEditSection(section, sectionIndex)}
+                      onDeleteSection={() => handleDeleteSection(section, sectionIndex)}
+                      onAddItem={handleAddItem}
+                      onEditItem={handleEditItem}
+                      onDeleteItem={handleDeleteItem}
                       provided={provided}
                     />
                   )}
@@ -291,8 +291,8 @@ export default function QuizItemsEditor({ items, sections, onChange }: {
 function SectionComponent({
   section, sectionIndex, itemForId,
   isExpanded, onExpandedChange,
-  handleAddSection, handleEditSection, handleDeleteSection,
-  handleAddItem, handleEditItem, handleDeleteItem,
+  onAddSection, onEditSection, onDeleteSection,
+  onAddItem, onEditItem, onDeleteItem,
   provided
 }: {
   section: Quiz.Section,
@@ -300,12 +300,12 @@ function SectionComponent({
   itemForId: (id: string) => Quiz.Item | undefined,
   isExpanded: boolean,
   onExpandedChange: (_: boolean) => void,
-  handleAddSection: (atIndex: number) => void,
-  handleEditSection: () => void,
-  handleDeleteSection: () => void,
-  handleAddItem: (kind: Quiz.ItemKind, rowIndex: number, section: Quiz.Section, sectionIndex: number) => void
-  handleEditItem: (_: Quiz.Item, rowIndex: number, section: Quiz.Section, sectionIndex: number) => void
-  handleDeleteItem: (_: Quiz.Item, rowIndex: number, section: Quiz.Section, sectionIndex: number) => void
+  onAddSection: (atIndex: number) => void,
+  onEditSection: () => void,
+  onDeleteSection: () => void,
+  onAddItem: (kind: Quiz.ItemKind, rowIndex: number, section: Quiz.Section, sectionIndex: number) => void
+  onEditItem: (_: Quiz.Item, rowIndex: number, section: Quiz.Section, sectionIndex: number) => void
+  onDeleteItem: (_: Quiz.Item, rowIndex: number, section: Quiz.Section, sectionIndex: number) => void
   provided: DraggableProvided
 }) {
   return (
@@ -324,11 +324,10 @@ function SectionComponent({
         {/* Section header */}
         <SectionHeader
           section={section}
-          onEdit={() => handleEditSection(section, sectionIndex)}
-          onDelete={() => handleDeleteSection(section, sectionIndex)}
-          onAddItem={(kind) => handleAddItem(kind, section.rows.length, section, sectionIndex)}
-          onAddSectionAbove={() => handleAddSection(sectionIndex)}
-          onAddSectionBelow={() => handleAddSection(sectionIndex + 1)}
+          onAddSectionAbove={() => onAddSection(sectionIndex)}
+          onAddSectionBelow={() => onAddSection(sectionIndex + 1)}
+          onEditSection={onEditSection}
+          onDeleteSection={onDeleteSection}
           isExpanded={isExpanded}
           onExpandedChange={onExpandedChange}
           dragHandleProps={provided.dragHandleProps}
@@ -383,9 +382,9 @@ function SectionComponent({
                             <Row
                               item={itemForId(row.itemId)}
                               index={rowIndex}
-                              onAddItem={kind => handleAddItem(kind, rowIndex + 1, section, sectionIndex)}
-                              onEdit={() => handleEditItem(item!, rowIndex, section, sectionIndex)}
-                              onDelete={() => handleDeleteItem(item!, rowIndex, section, sectionIndex)}
+                              onAddItem={kind => onAddItem(kind, rowIndex + 1, section, sectionIndex)}
+                              onEdit={() => onEditItem(item!, rowIndex, section, sectionIndex)}
+                              onDelete={() => onDeleteItem(item!, rowIndex, section, sectionIndex)}
                               dragHandleProps={provided.dragHandleProps}
                             />
                           )
@@ -395,7 +394,7 @@ function SectionComponent({
                   </Draggable>
                 ))}
                 {provided.placeholder}
-                <Menu offset={6} position='right-end'>
+                <Menu offset={6} position='right-start'>
                   <Menu.Target>
                     <Button
                       variant='default' size='sm'
@@ -406,7 +405,7 @@ function SectionComponent({
                     </Button>
                   </Menu.Target>
                   <Menu.Dropdown>
-                    <AddItemMenuSection onAddItem={kind => handleAddItem(kind, section.rows.length, section, sectionIndex)} />
+                    <AddItemMenuSection onAddItem={kind => onAddItem(kind, section.rows.length, section, sectionIndex)} />
                   </Menu.Dropdown>
                 </Menu>
               </Stack>
@@ -418,13 +417,12 @@ function SectionComponent({
   )
 }
 
-function SectionHeader({ section, onEdit, onDelete, onAddItem, onAddSectionAbove, onAddSectionBelow, isExpanded, onExpandedChange, dragHandleProps }: {
+function SectionHeader({ section, onAddSectionAbove, onAddSectionBelow, onEditSection, onDeleteSection, isExpanded, onExpandedChange, dragHandleProps }: {
   section: Quiz.Section
-  onEdit: () => void,
-  onDelete: () => void
-  onAddItem: (kind: Quiz.ItemKind) => void
-  onAddSectionAbove: () => void
-  onAddSectionBelow: () => void
+  onAddSectionAbove: () => void,
+  onAddSectionBelow: () => void,
+  onEditSection: () => void,
+  onDeleteSection: () => void
   isExpanded: boolean
   onExpandedChange: (_: boolean) => void
   dragHandleProps: DraggableProvidedDragHandleProps | null
@@ -456,22 +454,19 @@ function SectionHeader({ section, onEdit, onDelete, onAddItem, onAddSectionAbove
       {/* Buttons */}
       <Group gap='xs' wrap='nowrap'>
         {/* Add Button */}
-        <Menu offset={6} position='bottom-end'>
+        <Menu offset={6} position='bottom-end' width={180}>
           <Menu.Target>
             <ActionIcon variant='default' size='md' color='gray'>
               <IconDots size={16} />
             </ActionIcon>
           </Menu.Target>
           <Menu.Dropdown>
-            <Menu.Item leftSection={<IconPencil size={16} />} onClick={onEdit}>Edit</Menu.Item>
-            <Menu.Item leftSection={<IconTrash size={16} />} onClick={onDelete}>Delete</Menu.Item>
-            <Menu.Divider />
-            <Menu.Label>Add Item</Menu.Label>
-            <AddItemMenuSection onAddItem={onAddItem} />
+            <Menu.Item leftSection={<IconPencil size={16} />} onClick={onEditSection}>Edit</Menu.Item>
+            <Menu.Item leftSection={<IconTrash size={16} />} onClick={onDeleteSection}>Delete</Menu.Item>
             <Menu.Divider />
             <Menu.Label>Add Section</Menu.Label>
-            <Menu.Item leftSection={<IconPlus size={14} />} onClick={onAddSectionAbove}>Add Section Above</Menu.Item>
-            <Menu.Item leftSection={<IconPlus size={14} />} onClick={onAddSectionBelow}>Add Section Below</Menu.Item>
+            <Menu.Item leftSection={<IconPencil size={16} />} onClick={onAddSectionAbove}>Add Above</Menu.Item>
+            <Menu.Item leftSection={<IconTrash size={16} />} onClick={onAddSectionBelow}>Add Below</Menu.Item>
           </Menu.Dropdown>
         </Menu>
         {/* Drag Handle */}
@@ -517,9 +512,6 @@ function Row({ item, index, onEdit, onDelete, onAddItem, dragHandleProps }: {
           <ActionIcon variant='default' size='md' color='gray'>
             <IconDots size={16} />
           </ActionIcon>
-          {/* <Button variant='default' size='compact-xs' color='gray'>
-            Action
-          </Button> */}
         </Menu.Target>
         <Menu.Dropdown>
           <Menu.Item leftSection={<IconPencil size={16} />} onClick={onEdit}>Edit</Menu.Item>
@@ -551,16 +543,17 @@ function Row({ item, index, onEdit, onDelete, onAddItem, dragHandleProps }: {
 
   return (
     <Group w='100%' gap='sm' wrap='nowrap' align='start'>
-      <Text fz='sm' w='0.5rem'>{index + 1}.</Text>
+      {/* Index */}
+      <Text fz='sm' fw='bold' w='1.2rem'>{index + 1}.</Text>
+      {/* Item or Item not found */}
       {
-        item ? (
+        item ?
           <ReadonlyItemComponent item={item} controlSection={controlSection} />
-        ) : (
+          :
           <Group mr='auto'>
             <Text>Item Not Found</Text>
             {controlSection}
           </Group>
-        )
       }
     </Group>
   )

@@ -99,6 +99,8 @@ router.put('/quiz/:id', async (req, res) => {
   })
 
   res.send()
+
+  eventHub.emitQuizzesChanged()
 })
 
 

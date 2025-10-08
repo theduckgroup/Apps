@@ -1,4 +1,4 @@
-import { Button, Modal, Stack, TextInput } from "@mantine/core"
+import { Button, Group, Modal, Stack, TextInput } from "@mantine/core"
 import { isNotEmpty, useForm } from "@mantine/form"
 import { useEffect, useRef } from "react"
 
@@ -63,7 +63,10 @@ export default function EditSectionModal({ opened, close, options }: {
             key={form.key('name')}
             {...form.getInputProps('name')}
           />
-          <Button type='submit' ml='auto'>Save</Button>
+          <Group gap='xs' ml='auto'>
+            <Button variant='default' onClick={close} w='6rem'>Cancel</Button>
+            <Button type='submit' w='6rem'>Save</Button>
+          </Group>
         </Stack>
       </form>
     </Modal>
