@@ -9,7 +9,7 @@ import eventHub from 'src/event-hub'
 import authorize, { authorizeAdmin } from 'src/auth/authorize'
 import validateSchema from 'src/common/validate-schema'
 import { validateQuiz } from './QuizSchema'
-import { DefinedError } from 'ajv'
+import { DefinedError, ErrorObject } from 'ajv'
 
 const router = express.Router()
 
@@ -60,6 +60,28 @@ router.get('/quiz/:id', async (req, res) => {
   res.send(resQuiz)
 })
 
+router.get('/quiz/code/:code', async (req, res) => {
+  const code = req.params.code
+
+  const db = await getDb()
+
+  const dbQuiz = await db.collection_quizzes.findOne({
+    code: code
+  })
+
+  if (!dbQuiz) {
+    throw createHttpError(400, 'Document not found')
+  }
+
+  const resQuiz = {
+    ...dbQuiz,
+    _id: undefined,
+    id: dbQuiz._id.toString()
+  }
+
+  res.send(resQuiz)
+})
+
 router.put('/quiz/:id', async (req, res) => {
   // await new Promise(resolve => setTimeout(resolve, 5000))
   // throw createHttpError(400, 'Fake error')
@@ -67,15 +89,7 @@ router.put('/quiz/:id', async (req, res) => {
   const id = req.params.id
 
   if (!validateQuiz(req.body)) {
-    const message = validateQuiz.errors!
-      .map(x => {
-        const error = x as DefinedError
-        const message = `${error.schemaPath} → ${error.instancePath}: ${error.message}`
-        return message
-      })
-      .join('\n')
-
-    throw createHttpError(400, message)
+    throw createHttpError(400, formatSchemaErrors(validateQuiz.errors!))
   }
 
   if (id != req.body.id) {
@@ -102,6 +116,16 @@ router.put('/quiz/:id', async (req, res) => {
 
   eventHub.emitQuizzesChanged()
 })
+
+function formatSchemaErrors(errors: ErrorObject[]) {
+  return errors
+    .map(x => {
+      const error = x as DefinedError
+      const message = `${error.schemaPath} → ${error.instancePath}: ${error.message}`
+      return message
+    })
+    .join('\n')
+}
 
 
 // Gets vendor summaries (ID & name), aka "metavendors".
