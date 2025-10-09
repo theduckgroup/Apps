@@ -2,7 +2,11 @@ import Foundation
 import SwiftUI
 
 struct HomeView: View {
-    @State var quiz: Result<Quiz, Error>?
+    @AppStorage("App:persistedQuizName") var persistedQuizName: String = ""
+    @State var quizResult: Result<Quiz, Error>?
+    @State var error: Error?
+    @State var isFetching = false
+    @State var fetchTask: Task<Void, Never>?
     @State var presentedQuiz: Quiz?
     @Environment(\.scenePhase) var scenePhase
     
@@ -11,12 +15,15 @@ struct HomeView: View {
             .fullScreenCover(item: $presentedQuiz) { quiz in
                 QuizView(quiz: quiz)
             }
+            .onAppear {
+                fetchQuiz()
+            }
             .onReceive(EventHub.shared.quizzesChanged) {
-                fetchQuizDesign()
+                fetchQuiz()
             }
             .onChange(of: scenePhase) {
                 if scenePhase == .active {
-                    fetchQuizDesign()
+                    fetchQuiz()
                 }
             }
     }
@@ -24,49 +31,88 @@ struct HomeView: View {
     @ViewBuilder
     private func bodyContent() -> some View {
         ZStack {
-            Button("Start") {
-                guard case .success(let quiz) = quiz else {
-                    return
+            VStack {
+                if !persistedQuizName.isEmpty {
+                    Text(persistedQuizName)
+                        .font(.title2)
                 }
                 
-                self.presentedQuiz = quiz
+                let quiz: Quiz? = if let quizResult, case .success(let quiz) = quizResult {
+                    quiz
+                } else {
+                    nil
+                }
+                
+                Button("Start") {
+                    if let quiz {
+                        self.presentedQuiz = quiz
+                    }
+                }
+                .disabled(quiz == nil)
+                .buttonStyle(.borderedProminent)
             }
-            .disabled(quiz == nil || quiz!.isFailure)
-            .buttonStyle(.borderedProminent)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .overlay(alignment: .top) {
-            if case .failure(let error) = quiz {
-                VStack {
-                    Text("Unable to load data: \(error.localizedDescription)")
+        .overlay(alignment: .bottom) {
+            if isFetching {
+                HStack {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                    
+                    Text("Loading...")
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.bottom, 30)
+                
+            } else if let quizResult, case .failure(let error) = quizResult {
+                VStack(alignment: .trailing) {
+                    Text(error.localizedDescription)
                         .foregroundStyle(.red)
                     
                     Button("Retry") {
-                        fetchQuizDesign()
+                        fetchQuiz()
                     }
                 }
                 .padding()
-                .foregroundStyle(.white)
-                .background(Color.yellow)
+                .background {
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color(UIColor.quaternarySystemFill))
+                }
+                .padding()
+                
             }
         }
     }
     
-    private func fetchQuizDesign() {
-        Task {
-            if let quiz, quiz.isFailure {
-                self.quiz = nil
-            }
+    private func fetchQuiz() {
+        fetchTask?.cancel()
+        
+        fetchTask = Task {
+            isFetching = true
             
             do {
                 let request = try Server.makeRequest(httpMethod: "GET", path: "/api/quiz/code/FOH_STAFF_KNOWLEDGE")
                 let data = try await HTTPClient().get(request)
+                
+                try await Task.sleep(for: .seconds(2))
+                
+                try Task.checkCancellation()
+                
                 let quiz = try JSONDecoder().decode(Quiz.self, from: data)
-                self.quiz = .success(quiz)
+                self.quizResult = .success(quiz)
+                self.persistedQuizName = quiz.name
+                
+                isFetching = false
                 
             } catch {
+                guard !error.isCancellationError else {
+                    return
+                }
+                
+                isFetching = false
+                
                 logger.error("Unable to parse quiz: \(error)")
-                self.quiz = .failure(error)
+                self.quizResult = .failure(error)
             }
         }
     }
@@ -111,6 +157,13 @@ extension Result {
         switch self {
         case .success: false
         case .failure: true
+        }
+    }
+    
+    var error: Error? {
+        switch self {
+        case .success: nil
+        case .failure(let error): error
         }
     }
 }
