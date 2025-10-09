@@ -127,27 +127,21 @@ export default function QuizPage() {
         return (
           <Stack gap='lg'>
             <Stack gap='xs' align='flex-start'>
-              {/* Quiz title + metadata */}
-              <Title order={4}>{quiz!.name}</Title>
+              {/* Quiz title + Edit button */}
+              <Group gap='md'>
+                <Title order={4}>{quiz!.name}</Title>
+                <Button variant='light' size='compact-xs' onClick={handleEdit}>
+                  <Group gap='0.25rem'>
+                    <IconPencil size={14} />
+                    Edit
+                  </Group>
+                </Button>
+              </Group>
+              {/* Code, items per page */}
               <Stack gap='0'>
                 <Text>Code: {quiz.code}</Text>
                 <Text>Items per Page: {quiz.itemsPerPage}</Text>
               </Stack>
-
-              {/* Modify button */}
-              {/* <Anchor href='#' onClick={e => { e.preventDefault(); handleEdit(); }}>
-                <Group gap='0.25rem' wrap='nowrap'>
-                  <IconPencil size={14} />
-                  <Text fz='sm'>Edit</Text>
-                </Group>
-              </Anchor> */}
-              <Button variant='light' size='compact-xs' onClick={handleEdit}>
-                <Group gap='0.25rem'>
-                  <IconPencil size={14} />
-                  Edit
-                </Group>
-
-              </Button>
             </Stack>
 
             {/* Items editor */}
