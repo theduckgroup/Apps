@@ -8,96 +8,92 @@ struct QuizResponse {
     var itemResponses: [ItemResponse]
 }
 
+extension QuizResponse: Encodable {
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(quiz, forKey: .quiz)
+        try container.encode(respondent, forKey: .respondent)
+        try container.encode(createdDate, forKey: .createdDate)
+        try container.encodeIfPresent(submittedDate, forKey: .submittedDate)
+        try container.encode(itemResponses, forKey: .itemResponses)
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case quiz
+        case respondent
+        case createdDate
+        case submittedDate
+        case itemResponses
+    }
+}
+
 extension QuizResponse {
-    struct Respondent {
+    struct Respondent: Encodable {
         var name: String = ""
         var store: String = ""
     }
     
-    enum ItemResponse {
-        case selectedResponseItemResponse(SelectedResponseItemResponse)
-        case textInputItemResponse(TextInputItemResponse)
-        case listItemResponse(ListItemResponse)
-        
-        var id: String {
-            switch self {
-            case .selectedResponseItemResponse(let item): item.id
-            case .textInputItemResponse(let item): item.id
-            case .listItemResponse(let item): item.id
-            }
-        }
-        
-        var itemId: String {
-            switch self {
-            case .selectedResponseItemResponse(let item): item.itemId
-            case .textInputItemResponse(let item): item.itemId
-            case .listItemResponse(let item): item.itemId
-            }
-        }
-        
-        func `as`<T>(_ type: T.Type) -> T {
-            if T.self == SelectedResponseItemResponse.self {
-                guard case .selectedResponseItemResponse(let value) = self else {
-                    fatalError()
-                }
-                
-                return value as! T
-            }
-            
-            if T.self == TextInputItemResponse.self {
-                guard case .textInputItemResponse(let value) = self else {
-                    fatalError()
-                }
-                
-                return value as! T
-            }
-            
-            if T.self == ListItemResponse.self {
-                guard case .listItemResponse(let value) = self else {
-                    fatalError()
-                }
-                
-                return value as! T
-            }
-            
-            preconditionFailure()
-        }
+    protocol ItemResponse: Encodable {
+        var id: String { get }
+        var itemId: String { get }
     }
     
-    struct SelectedResponseItemResponse {
+    struct SelectedResponseItemResponse: ItemResponse, Encodable {
         let id: String
         let itemId: String
         let itemKind: Quiz.ItemKind
         var data = Data()
         
-        struct Data {
+        struct Data: Encodable {
             var selectedOptions: [SelectedOption] = []
             
-            struct SelectedOption {
+            struct SelectedOption: Encodable {
                 var id: String
+                var value: String
             }
         }
     }
     
-    struct TextInputItemResponse {
+    struct TextInputItemResponse: ItemResponse, Encodable {
         let id: String
         let itemId: String
         let itemKind: Quiz.ItemKind
         var data = Data()
         
-        struct Data {
+        struct Data: Encodable {
             var value: String = ""
         }
     }
     
-    struct ListItemResponse {
+    struct ListItemResponse: ItemResponse {
         let id: String
         let itemId: String
         let itemKind: Quiz.ItemKind
         var data: Data
         
-        struct Data {
-            var itemResponses: [ItemResponse]
+        struct Data: Encodable {
+            var itemResponses: [any ItemResponse]
+            
+            func encode(to encoder: any Encoder) throws {
+                var container = encoder.container(keyedBy: CodingKeys.self)
+                try container.encode(itemResponses, forKey: .itemResponses)
+            }
+            
+            enum CodingKeys: CodingKey {
+                case itemResponses
+            }
+        }
+    }
+}
+
+// ItemResponse Coding
+
+extension KeyedEncodingContainer {
+    mutating func encode(_ itemResponses: [QuizResponse.ItemResponse], forKey key: K) throws {
+        var nestedContainer = nestedUnkeyedContainer(forKey: key)
+        
+        for itemResponse in itemResponses { // Automatically unboxed?
+            try nestedContainer.encode(itemResponse)
         }
     }
 }

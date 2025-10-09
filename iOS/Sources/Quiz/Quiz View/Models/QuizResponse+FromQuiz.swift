@@ -8,38 +8,30 @@ extension QuizResponse {
             respondent: Respondent(),
             createdDate: Date(),
             submittedDate: nil,
-            itemResponses: quiz.items.map { .init(from: $0) }
+            itemResponses: quiz.items.map(Self.createItemResponseFromItem)
         )
     }
-}
-
-extension QuizResponse.ItemResponse {
-    init(from item: Quiz.Item) {
+    
+    private static func createItemResponseFromItem(_ item: Quiz.Item) -> QuizResponse.ItemResponse {
         switch item {
-        case .selectedResponseItem(let item):
-            let response = QuizResponse.SelectedResponseItemResponse(
+        case let item as Quiz.SelectedResponseItem:
+            return QuizResponse.SelectedResponseItemResponse(
                 id: BSONObjectID().hex,
                 itemId: item.id,
                 itemKind: item.kind
             )
             
-            self = .selectedResponseItemResponse(response)
-            
-        case .textInputItem(let item):
-            let response = QuizResponse.TextInputItemResponse(
+        case let item as Quiz.TextInputItem:
+            return QuizResponse.TextInputItemResponse(
                 id: BSONObjectID().hex,
                 itemId: item.id,
                 itemKind: item.kind
             )
             
-            self = .textInputItemResponse(response)
+        case let item as Quiz.ListItem:
+            let subitemResponses = item.data.items.map(createItemResponseFromItem)
             
-        case .listItem(let item):
-            let subitemResponses = item.data.items.map {
-                QuizResponse.ItemResponse(from: $0)
-            }
-            
-            let response = QuizResponse.ListItemResponse(
+            return QuizResponse.ListItemResponse(
                 id: BSONObjectID().hex,
                 itemId: item.id,
                 itemKind: item.kind,
@@ -48,7 +40,8 @@ extension QuizResponse.ItemResponse {
                 )
             )
             
-            self = .listItemResponse(response)
+        default:
+            preconditionFailure()
         }
     }
 }

@@ -7,16 +7,19 @@ struct RespondentView: View {
     var body: some View {
         @Bindable var viewModel = viewModel
         
-        VStack(alignment: .leading) {
-            VStack {
-                Text("Name")
-                PaperTextField(text: $viewModel.quizResponse.respondent.name)
+        ScrollView {
+            VStack(alignment: .leading) {
+                VStack(alignment: .leading) {
+                    Text("Name")
+                    PaperTextField(text: $viewModel.quizResponse.respondent.name)
+                }
+                
+                VStack(alignment: .leading) {
+                    Text("Store")
+                    PaperTextField(text: $viewModel.quizResponse.respondent.store)
+                }
             }
-            
-            VStack {
-                Text("Store")
-                PaperTextField(text: $viewModel.quizResponse.respondent.store)
-            }
+            .padding()
         }
     }
 }

@@ -19,6 +19,8 @@ struct QuizView: View {
                 QuizPageView(page: page)
             }
         }
+        .tabViewStyle(.page(indexDisplayMode: .always))
+        .indexViewStyle(.page(backgroundDisplayMode: .interactive))
         .environment(viewModel)
     }
 }

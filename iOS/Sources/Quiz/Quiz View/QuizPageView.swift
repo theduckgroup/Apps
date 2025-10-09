@@ -13,53 +13,58 @@ struct QuizPageView: View {
         @Bindable var quizViewModel = quizViewModel
         
         ScrollView(.vertical) {
-            ForEach(Array(page.rows.enumerated()), id: \.offset) { index, row in
-                switch row {
-                case .itemResponse(let id):
-                    // let itemResponse = quizViewModel.quizResponse.itemResponses.first { $0.id == id }
-                    let index = quizViewModel.quizResponse.itemResponses.firstIndex { $0.id == id }!
-                    let itemResponse = $quizViewModel.quizResponse.itemResponses[index]
-                    viewForItemResponse(itemResponse)
+            VStack {
+                ForEach(Array(page.rows.enumerated()), id: \.offset) { index, row in
+                    switch row {
+                    case .itemResponse(let id):
+                        let index = quizViewModel.quizResponse.itemResponses.firstIndex { $0.id == id }!
+                        let itemResponse = $quizViewModel.quizResponse.itemResponses[index]
+                        viewForItemResponse(itemResponse)
+                    }
                 }
             }
+            .padding()
         }
     }
     
     @ViewBuilder
     private func viewForItemResponse(_ itemResponse: Binding<QuizResponse.ItemResponse>) -> some View {
         switch itemResponse.wrappedValue {
-        case .selectedResponseItemResponse(_):
-            let item = quizViewModel.quiz.itemForID(itemResponse.wrappedValue.itemId)!.as(Quiz.SelectedResponseItem.self)
+        case is QuizResponse.SelectedResponseItemResponse:
+            let item = quizViewModel.quiz.itemForID(itemResponse.wrappedValue.itemId) as! Quiz.SelectedResponseItem
             
             let itemResponse = Binding {
-                itemResponse.wrappedValue.as(QuizResponse.SelectedResponseItemResponse.self)
+                itemResponse.wrappedValue as! QuizResponse.SelectedResponseItemResponse
             } set: {
-                itemResponse.wrappedValue = .selectedResponseItemResponse($0)
+                itemResponse.wrappedValue = $0
             }
                         
             SelectedResponseItemResponseView(item: item, response: itemResponse)
             
-        case .textInputItemResponse(_):
-            let item = quizViewModel.quiz.itemForID(itemResponse.wrappedValue.itemId)!.as(Quiz.TextInputItem.self)
+        case is QuizResponse.TextInputItemResponse:
+            let item = quizViewModel.quiz.itemForID(itemResponse.wrappedValue.itemId) as! Quiz.TextInputItem
             
             let itemResponse = Binding {
-                itemResponse.wrappedValue.as(QuizResponse.TextInputItemResponse.self)
+                itemResponse.wrappedValue as! QuizResponse.TextInputItemResponse
             } set: {
-                itemResponse.wrappedValue = .textInputItemResponse($0)
+                itemResponse.wrappedValue = $0
             }
-                        
+
             TextInputItemResponseView(item: item, response: itemResponse)
             
-        case .listItemResponse(_):
-            let item = quizViewModel.quiz.itemForID(itemResponse.wrappedValue.itemId)!.as(Quiz.ListItem.self)
+        case is QuizResponse.ListItemResponse:
+            let item = quizViewModel.quiz.itemForID(itemResponse.wrappedValue.itemId) as! Quiz.ListItem
             
             let itemResponse = Binding {
-                itemResponse.wrappedValue.as(QuizResponse.ListItemResponse.self)
+                itemResponse.wrappedValue as! QuizResponse.ListItemResponse
             } set: {
-                itemResponse.wrappedValue = .listItemResponse($0)
+                itemResponse.wrappedValue = $0
             }
                         
             ListItemResponseView(item: item, response: itemResponse)
+            
+        default:
+            preconditionFailure()
         }
     }
 }
@@ -73,13 +78,13 @@ private struct SelectedResponseItemResponseView: View {
         VStack {
             Text(item.data.prompt)
             
-            VStack {
+            VStack(alignment: .leading) {
                 ForEach(item.data.options) { option in
                     Button {
                         if let index = response.data.selectedOptions.map(\.id).firstIndex(of: option.id) {
                             response.data.selectedOptions.remove(at: index)
                         } else {
-                            response.data.selectedOptions.append(.init(id: option.id))
+                            response.data.selectedOptions.append(.init(id: option.id, value: option.value))
                         }
                         
                     } label: {
@@ -101,7 +106,7 @@ private struct TextInputItemResponseView: View {
     @Binding var response: QuizResponse.TextInputItemResponse
     
     var body: some View {
-        VStack {
+        VStack(alignment: .leading) {
             Text(item.data.prompt)
             PaperTextField("", text: $response.data.value)
         }
@@ -113,7 +118,7 @@ private struct ListItemResponseView: View {
     @Binding var response: QuizResponse.ListItemResponse
     
     var body: some View {
-        VStack {
+        VStack(alignment: .leading) {
             Text(item.data.prompt)
             Text("TODO")
         }

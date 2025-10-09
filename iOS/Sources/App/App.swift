@@ -19,7 +19,7 @@ private struct ContentView: View {
     
     var body: some View {
         bodyContent()
-            .preferredColorScheme(.dark)
+            .preferredColorScheme(.light)
     }
     
     @ViewBuilder
