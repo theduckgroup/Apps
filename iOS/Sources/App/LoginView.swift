@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 
 struct LoginView: View {
-    @State var username: String = ""
+    @State var email: String = ""
     @State var password: String = ""
     @FocusState var usernameFocused: Bool
     @State var loading = false
@@ -41,7 +41,7 @@ struct LoginView: View {
             // Username + password
             
             VStack {
-                InputField("Email", text: $username)
+                InputField("Email", text: $email)
                     .focused($usernameFocused)
                     .textContentType(.emailAddress)
                     .keyboardType(.emailAddress)
@@ -50,7 +50,7 @@ struct LoginView: View {
                 
                 InputField("Password", text: $password, secure: true)
                     .onKeyPress(.return) {
-                        guard !username.isEmpty && !password.isEmpty else {
+                        guard !email.isEmpty && !password.isEmpty else {
                             return .ignored
                         }
                         
@@ -103,7 +103,7 @@ struct LoginView: View {
         
         do {
             try await Task.sleep(for: .seconds(0.5))
-            try await UserManager.shared.login(username: username, password: password)
+            try await Auth.shared.signIn(email: email, password: password)
             
         } catch {
             self.error = formatError(error)

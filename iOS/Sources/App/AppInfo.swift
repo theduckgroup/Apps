@@ -14,13 +14,12 @@ enum Target {
 extension Target {
     static var current: Target {
         switch Bundle.main.bundleIdentifier! {
-        case "au.com.thenakedduck.Inventory": .prod
-        case "au.com.thenakedduck.Inventory-local": .local
+        case "au.com.theduckgroup.Quiz": .prod
+        case "au.com.theduckgroup.Quiz-local": .local
         default: fatalError("Unknown bundle identifier")
         }
     }
 }
-
 
 var isRunningForPreviews: Bool {
     ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"

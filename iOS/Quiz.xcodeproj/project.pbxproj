@@ -7,8 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		738F34192E97315000F876DB /* SwiftBSON in Frameworks */ = {isa = PBXBuildFile; productRef = 738F34182E97315000F876DB /* SwiftBSON */; };
+		738F341B2E97315D00F876DB /* SwiftBSON in Frameworks */ = {isa = PBXBuildFile; productRef = 738F341A2E97315D00F876DB /* SwiftBSON */; };
+		73B0BDDC2E968F0100501694 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = 73B0BDDB2E968F0100501694 /* Auth */; };
+		73B0BDDE2E968F1500501694 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = 73B0BDDD2E968F1500501694 /* Auth */; };
+		73B0BDE62E968FBB00501694 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 73B0BDE52E968FBB00501694 /* Supabase */; };
+		73B0BDE82E968FBF00501694 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 73B0BDE72E968FBF00501694 /* Supabase */; };
 		73D2F5FD2DCF19620012CCBE /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 73D2F5FC2DCF19620012CCBE /* SocketIO */; };
-		73D2F5FF2DCF196D0012CCBE /* Inventory-local.app in Resources */ = {isa = PBXBuildFile; fileRef = 73D2F5092DCC6E7D0012CCBE /* Inventory-local.app */; };
+		73D2F5FF2DCF196D0012CCBE /* Quiz-local.app in Resources */ = {isa = PBXBuildFile; fileRef = 73D2F5092DCC6E7D0012CCBE /* Quiz-local.app */; };
 		73D2F6032DCF19720012CCBE /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 73D2F6022DCF19720012CCBE /* SocketIO */; };
 /* End PBXBuildFile section */
 
@@ -23,24 +29,24 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		73B1F29E2D694E8F0069610E /* Inventory.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Inventory.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		73D2F5092DCC6E7D0012CCBE /* Inventory-local.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Inventory-local.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		73B1F29E2D694E8F0069610E /* Quiz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Quiz.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		73D2F5092DCC6E7D0012CCBE /* Quiz-local.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Quiz-local.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		73D2F50A2DCC6E7D0012CCBE /* Exceptions for "Sources" folder in "Inventory-local" target */ = {
+		73D2F50A2DCC6E7D0012CCBE /* Exceptions for "Sources" folder in "Quiz-local" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 73D2F5022DCC6E7D0012CCBE /* Inventory-local */;
+			target = 73D2F5022DCC6E7D0012CCBE /* Quiz-local */;
 		};
-		73D2F5202DCC87950012CCBE /* Exceptions for "Sources" folder in "Inventory" target */ = {
+		73D2F5202DCC87950012CCBE /* Exceptions for "Sources" folder in "Quiz" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 73B1F29D2D694E8F0069610E /* Inventory */;
+			target = 73B1F29D2D694E8F0069610E /* Quiz */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -48,8 +54,8 @@
 		73B1F2A02D694E8F0069610E /* Sources */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				73D2F5202DCC87950012CCBE /* Exceptions for "Sources" folder in "Inventory" target */,
-				73D2F50A2DCC6E7D0012CCBE /* Exceptions for "Sources" folder in "Inventory-local" target */,
+				73D2F5202DCC87950012CCBE /* Exceptions for "Sources" folder in "Quiz" target */,
+				73D2F50A2DCC6E7D0012CCBE /* Exceptions for "Sources" folder in "Quiz-local" target */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -61,7 +67,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				738F341B2E97315D00F876DB /* SwiftBSON in Frameworks */,
+				73B0BDDC2E968F0100501694 /* Auth in Frameworks */,
 				73D2F6032DCF19720012CCBE /* SocketIO in Frameworks */,
+				73B0BDE82E968FBF00501694 /* Supabase in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -69,7 +78,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				738F34192E97315000F876DB /* SwiftBSON in Frameworks */,
+				73B0BDDE2E968F1500501694 /* Auth in Frameworks */,
 				73D2F5FD2DCF19620012CCBE /* SocketIO in Frameworks */,
+				73B0BDE62E968FBB00501694 /* Supabase in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -88,8 +100,8 @@
 		73B1F29F2D694E8F0069610E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				73B1F29E2D694E8F0069610E /* Inventory.app */,
-				73D2F5092DCC6E7D0012CCBE /* Inventory-local.app */,
+				73B1F29E2D694E8F0069610E /* Quiz.app */,
+				73D2F5092DCC6E7D0012CCBE /* Quiz-local.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -104,9 +116,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		73B1F29D2D694E8F0069610E /* Inventory */ = {
+		73B1F29D2D694E8F0069610E /* Quiz */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 73B1F2AE2D694E910069610E /* Build configuration list for PBXNativeTarget "Inventory" */;
+			buildConfigurationList = 73B1F2AE2D694E910069610E /* Build configuration list for PBXNativeTarget "Quiz" */;
 			buildPhases = (
 				73B1F29A2D694E8F0069610E /* Sources */,
 				73B1F29B2D694E8F0069610E /* Frameworks */,
@@ -120,17 +132,20 @@
 			fileSystemSynchronizedGroups = (
 				73B1F2A02D694E8F0069610E /* Sources */,
 			);
-			name = Inventory;
+			name = Quiz;
 			packageProductDependencies = (
 				73D2F6022DCF19720012CCBE /* SocketIO */,
+				73B0BDDB2E968F0100501694 /* Auth */,
+				73B0BDE72E968FBF00501694 /* Supabase */,
+				738F341A2E97315D00F876DB /* SwiftBSON */,
 			);
 			productName = Inventory;
-			productReference = 73B1F29E2D694E8F0069610E /* Inventory.app */;
+			productReference = 73B1F29E2D694E8F0069610E /* Quiz.app */;
 			productType = "com.apple.product-type.application";
 		};
-		73D2F5022DCC6E7D0012CCBE /* Inventory-local */ = {
+		73D2F5022DCC6E7D0012CCBE /* Quiz-local */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 73D2F5062DCC6E7D0012CCBE /* Build configuration list for PBXNativeTarget "Inventory-local" */;
+			buildConfigurationList = 73D2F5062DCC6E7D0012CCBE /* Build configuration list for PBXNativeTarget "Quiz-local" */;
 			buildPhases = (
 				73D2F5032DCC6E7D0012CCBE /* Sources */,
 				73D2F5042DCC6E7D0012CCBE /* Frameworks */,
@@ -143,12 +158,15 @@
 			fileSystemSynchronizedGroups = (
 				73B1F2A02D694E8F0069610E /* Sources */,
 			);
-			name = "Inventory-local";
+			name = "Quiz-local";
 			packageProductDependencies = (
 				73D2F5FC2DCF19620012CCBE /* SocketIO */,
+				73B0BDDD2E968F1500501694 /* Auth */,
+				73B0BDE52E968FBB00501694 /* Supabase */,
+				738F34182E97315000F876DB /* SwiftBSON */,
 			);
 			productName = Inventory;
-			productReference = 73D2F5092DCC6E7D0012CCBE /* Inventory-local.app */;
+			productReference = 73D2F5092DCC6E7D0012CCBE /* Quiz-local.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -166,7 +184,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 73B1F2992D694E8F0069610E /* Build configuration list for PBXProject "Inventory" */;
+			buildConfigurationList = 73B1F2992D694E8F0069610E /* Build configuration list for PBXProject "Quiz" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -177,14 +195,16 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				73D2F5FB2DCF19620012CCBE /* XCRemoteSwiftPackageReference "socket" */,
+				73B0BDDA2E968F0100501694 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+				738F34172E97315000F876DB /* XCRemoteSwiftPackageReference "swift-bson" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 73B1F29F2D694E8F0069610E /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				73B1F29D2D694E8F0069610E /* Inventory */,
-				73D2F5022DCC6E7D0012CCBE /* Inventory-local */,
+				73B1F29D2D694E8F0069610E /* Quiz */,
+				73D2F5022DCC6E7D0012CCBE /* Quiz-local */,
 			);
 		};
 /* End PBXProject section */
@@ -194,7 +214,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				73D2F5FF2DCF196D0012CCBE /* Inventory-local.app in Resources */,
+				73D2F5FF2DCF196D0012CCBE /* Quiz-local.app in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -227,7 +247,7 @@
 /* Begin PBXTargetDependency section */
 		73D2F6012DCF196D0012CCBE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 73D2F5022DCC6E7D0012CCBE /* Inventory-local */;
+			target = 73D2F5022DCC6E7D0012CCBE /* Quiz-local */;
 			targetProxy = 73D2F6002DCF196D0012CCBE /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -377,7 +397,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = au.com.thenakedduck.Inventory;
+				PRODUCT_BUNDLE_IDENTIFIER = au.com.theduckgroup.Quiz;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -408,7 +428,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = au.com.thenakedduck.Inventory;
+				PRODUCT_BUNDLE_IDENTIFIER = au.com.theduckgroup.Quiz;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -440,7 +460,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "au.com.thenakedduck.Inventory-local";
+				PRODUCT_BUNDLE_IDENTIFIER = "au.com.theduckgroup.Quiz-local";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -472,7 +492,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "au.com.thenakedduck.Inventory-local";
+				PRODUCT_BUNDLE_IDENTIFIER = "au.com.theduckgroup.Quiz-local";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -483,7 +503,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		73B1F2992D694E8F0069610E /* Build configuration list for PBXProject "Inventory" */ = {
+		73B1F2992D694E8F0069610E /* Build configuration list for PBXProject "Quiz" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				73B1F2AC2D694E910069610E /* Debug */,
@@ -492,7 +512,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		73B1F2AE2D694E910069610E /* Build configuration list for PBXNativeTarget "Inventory" */ = {
+		73B1F2AE2D694E910069610E /* Build configuration list for PBXNativeTarget "Quiz" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				73B1F2AF2D694E910069610E /* Debug */,
@@ -501,7 +521,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		73D2F5062DCC6E7D0012CCBE /* Build configuration list for PBXNativeTarget "Inventory-local" */ = {
+		73D2F5062DCC6E7D0012CCBE /* Build configuration list for PBXNativeTarget "Quiz-local" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				73D2F5072DCC6E7D0012CCBE /* Debug */,
@@ -513,6 +533,22 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		738F34172E97315000F876DB /* XCRemoteSwiftPackageReference "swift-bson" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mongodb/swift-bson";
+			requirement = {
+				kind = exactVersion;
+				version = 3.1.0;
+			};
+		};
+		73B0BDDA2E968F0100501694 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
 		73D2F5FB2DCF19620012CCBE /* XCRemoteSwiftPackageReference "socket" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/socketio/socket.io-client-swift";
@@ -524,6 +560,36 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		738F34182E97315000F876DB /* SwiftBSON */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 738F34172E97315000F876DB /* XCRemoteSwiftPackageReference "swift-bson" */;
+			productName = SwiftBSON;
+		};
+		738F341A2E97315D00F876DB /* SwiftBSON */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 738F34172E97315000F876DB /* XCRemoteSwiftPackageReference "swift-bson" */;
+			productName = SwiftBSON;
+		};
+		73B0BDDB2E968F0100501694 /* Auth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73B0BDDA2E968F0100501694 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Auth;
+		};
+		73B0BDDD2E968F1500501694 /* Auth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73B0BDDA2E968F0100501694 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Auth;
+		};
+		73B0BDE52E968FBB00501694 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73B0BDDA2E968F0100501694 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+		73B0BDE72E968FBF00501694 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73B0BDDA2E968F0100501694 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
 		73D2F5FC2DCF19620012CCBE /* SocketIO */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 73D2F5FB2DCF19620012CCBE /* XCRemoteSwiftPackageReference "socket" */;

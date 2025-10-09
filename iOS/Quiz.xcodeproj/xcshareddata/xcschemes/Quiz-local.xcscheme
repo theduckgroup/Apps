@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1620"
+   LastUpgradeVersion = "1640"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -16,9 +16,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "73D2F5022DCC6E7D0012CCBE"
-               BuildableName = "Inventory-local.app"
-               BlueprintName = "Inventory-local"
-               ReferencedContainer = "container:Inventory.xcodeproj">
+               BuildableName = "Quiz-local.app"
+               BlueprintName = "Quiz-local"
+               ReferencedContainer = "container:Quiz.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -45,9 +45,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "73D2F5022DCC6E7D0012CCBE"
-            BuildableName = "Inventory-local.app"
-            BlueprintName = "Inventory-local"
-            ReferencedContainer = "container:Inventory.xcodeproj">
+            BuildableName = "Quiz-local.app"
+            BlueprintName = "Quiz-local"
+            ReferencedContainer = "container:Quiz.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -62,9 +62,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "73D2F5022DCC6E7D0012CCBE"
-            BuildableName = "Inventory-local.app"
-            BlueprintName = "Inventory-local"
-            ReferencedContainer = "container:Inventory.xcodeproj">
+            BuildableName = "Quiz-local.app"
+            BlueprintName = "Quiz-local"
+            ReferencedContainer = "container:Quiz.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

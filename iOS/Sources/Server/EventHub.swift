@@ -6,7 +6,7 @@ class EventHub {
     static let shared = EventHub()
     
     private let socketManager = SocketManager(
-        socketURL: InventoryServer.url,
+        socketURL: Server.url,
         config: [
             .path("/socketio"), // url.append(path:) doesn't work
             .compress,
@@ -16,7 +16,7 @@ class EventHub {
     
     private init() {
         let socket = socketManager.defaultSocket
-            
+        
         socket.on(clientEvent: .connect) { data, ack in
             logger.info("! Socket connected")
         }
@@ -28,23 +28,45 @@ class EventHub {
         socket.connect()
     }
     
-    func connected() -> some Publisher<Void, Never> {
-        EventPublisher(socket: socketManager.defaultSocket, eventName: "connect")
-            .map { _ in () }
+    func quizzesChanged() -> AsyncStream<Void> {
+        print("Creating quizzes changed stream")
+        return events("event:quizzes:changed")
     }
     
-    // NOT TESTED
-    func disconnected() -> some Publisher<Void, Never> {
-        EventPublisher(socket: socketManager.defaultSocket, eventName: "disconnect")
-            .map { _ in () }
+    private func events(_ eventName: String) -> AsyncStream<Void> {
+        let (stream, cont) = AsyncStream<Void>.makeStream()
+        let socket = socketManager.defaultSocket
+        
+        let handlerID = socket.on(eventName) { data, ack in
+            logger.info("Received \(eventName), data = \(data)")
+            cont.yield()
+        }
+        
+        cont.onTermination = { termination in
+            socket.off(id: handlerID)
+        }
+        
+        return stream
     }
     
-    func vendorChanged(vendorId: String) -> some Publisher<Void, Never> {
-        let eventName = "event.vendor:\(vendorId).change"
-
-        return EventPublisher(socket: socketManager.defaultSocket, eventName: eventName)
-            .map { _ in () }
-    }
+    // Combine implementation
+//    func connected() -> Task {
+//        EventPublisher(socket: socketManager.defaultSocket, eventName: "connect")
+//            .map { _ in () }
+//    }
+//    
+//    // NOT TESTED
+//    func disconnected() -> some Publisher<Void, Never> {
+//        EventPublisher(socket: socketManager.defaultSocket, eventName: "disconnect")
+//            .map { _ in () }
+//    }
+//    
+//    func vendorChanged(vendorId: String) -> some Publisher<Void, Never> {
+//        let eventName = "event.vendor:\(vendorId).change"
+//
+//        return EventPublisher(socket: socketManager.defaultSocket, eventName: eventName)
+//            .map { _ in () }
+//    }
     
     // Namespace implementation
     
@@ -56,6 +78,8 @@ class EventHub {
     */
 }
 
+/*
+// Combine
 private struct EventPublisher: Publisher {
     typealias Output = [Any] // Socket.io data type
     typealias Failure = Never
@@ -95,6 +119,7 @@ private class EventSubscription<S: Subscriber>: Subscription where S.Input == Ar
         socket.off(id: handlerID)
     }
 }
+*/
 
 // Namespace implementation
 
