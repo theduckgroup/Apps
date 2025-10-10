@@ -1,7 +1,5 @@
 import 'dotenv/config'
 
-// SUPABASE_DB_PASSWORD=f22T1QxzI0EdOzbq
-
 import express from 'express'
 import { createServer } from 'http'
 import session from 'express-session'
@@ -28,11 +26,8 @@ const server = createServer(app)
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-
 app.use(compression())
-
 app.use('/', requestLogger({ logger }))
-
 app.use(rateLimiter())
 
 // Event hub
@@ -45,7 +40,7 @@ eventHub.init(server)
 const MongoDBStore = createMongoDBStore(session)
 
 app.use(session({
-  name: 'inventory.sid',
+  name: 'quiz.sid',
   secret: process.env.EXPRESS_SESSION_KEY!,
   resave: false,
   saveUninitialized: false,
@@ -64,20 +59,10 @@ app.use(session({
 
 // Static
 
-// Auth
-
-// import webappAuthRouter from 'src/auth/webapp-auth-router'
-// app.use('/auth/webapp', webappAuthRouter)
-
-// import authRouter from 'src/auth/auth-router'
-// app.use('/auth', authRouter)
-
-import authorize from 'src/auth/authorize'
-
 // API
 
 import quizRouter from 'src/api/quiz-router'
-app.use('/api', authorize, quizRouter)
+app.use('/api', quizRouter)
 
 app.use('/api/*splat', (req, res) => {
   throw createHttpError(404, `Invalid Route`)

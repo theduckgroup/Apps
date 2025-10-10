@@ -1,19 +1,19 @@
 import express from 'express'
-import { AnyBulkWriteOperation, BulkWriteResult, Filter, ObjectId } from 'mongodb'
-import asyncHandler from 'express-async-handler'
+import { ObjectId } from 'mongodb'
 import createHttpError from 'http-errors'
 
 import { getDb } from 'src/db'
 import { DbQuiz } from 'src/db/DbQuiz'
 import eventHub from 'src/event-hub'
 import authorize, { authorizeAdmin } from 'src/auth/authorize'
-import validateSchema from 'src/common/validate-schema'
 import { validateQuiz } from './QuizSchema'
 import { DefinedError, ErrorObject } from 'ajv'
 
-const router = express.Router()
+const privateRouter = express.Router()
 
-router.get('/quizzes', async (req, res) => {
+privateRouter.use(authorize)
+
+privateRouter.get('/quizzes', async (req, res) => {
   const db = await getDb()
 
   const dbQuizzes = await db.collection_quizzes.find({}).toArray()
@@ -38,7 +38,7 @@ router.get('/quizzes', async (req, res) => {
   res.send(resData)
 })
 
-router.get('/quiz/:id', async (req, res) => {
+privateRouter.get('/quiz/:id', async (req, res) => {
   const id = req.params.id
 
   const db = await getDb()
@@ -51,17 +51,17 @@ router.get('/quiz/:id', async (req, res) => {
     throw createHttpError(400, 'Document not found')
   }
 
-  const resQuiz = {
-    ...dbQuiz,
-    _id: undefined,
-    id: dbQuiz._id.toString()
-  }
+  const resQuiz = normalizeId(dbQuiz)
 
   res.send(resQuiz)
 })
 
-router.get('/quiz/code/:code', async (req, res) => {
-  const code = req.params.code
+privateRouter.get('/quiz' /* ?code=XYZ */, async (req, res) => {
+  const code = req.query.code
+
+  if (!code) {
+    throw createHttpError(400, 'Missing required query parameter: code')
+  }
 
   const db = await getDb()
 
@@ -73,16 +73,12 @@ router.get('/quiz/code/:code', async (req, res) => {
     throw createHttpError(400, 'Document not found')
   }
 
-  const resQuiz = {
-    ...dbQuiz,
-    _id: undefined,
-    id: dbQuiz._id.toString()
-  }
+  const resQuiz = normalizeId(dbQuiz)
 
   res.send(resQuiz)
 })
 
-router.put('/quiz/:id', async (req, res) => {
+privateRouter.put('/quiz/:id', async (req, res) => {
   // await new Promise(resolve => setTimeout(resolve, 5000))
   // throw createHttpError(400, 'Fake error')
 
@@ -117,6 +113,40 @@ router.put('/quiz/:id', async (req, res) => {
   eventHub.emitQuizzesChanged()
 })
 
+// Public router
+
+const publicRouter = express.Router()
+
+publicRouter.get('/mock-quiz', async (req, res) => {
+  console.info(`In mock-quiz`)
+  const db = await getDb()
+
+  const dbQuiz = await db.collection_quizzes.findOne({
+    code: 'FOH_STAFF_KNOWLEDGE'
+  })
+
+  if (!dbQuiz) {
+    throw createHttpError(400, 'Document not found')
+  }
+
+  const resQuiz = normalizeId(dbQuiz)
+  console.info(`id = ${resQuiz.id}`)
+
+  res.send(resQuiz)
+})
+
+publicRouter.get('/quiz-response/:id', async (req, res) => {
+  res.send(500)
+})
+
+// Helpers
+
+function normalizeId<T extends { _id: ObjectId }>(object: T) {
+  const { _id, ...rest } = object
+  const obj = { ...rest, id: _id.toString() }
+  return obj
+}
+
 function formatSchemaErrors(errors: ErrorObject[]) {
   return errors
     .map(x => {
@@ -126,6 +156,15 @@ function formatSchemaErrors(errors: ErrorObject[]) {
     })
     .join('\n')
 }
+
+// Exported router
+
+const router = express.Router()
+
+router.use(publicRouter) // Order is important
+router.use(privateRouter)
+
+export default router
 
 
 // Gets vendor summaries (ID & name), aka "metavendors".
@@ -412,5 +451,3 @@ function formatSchemaErrors(errors: ErrorObject[]) {
 
 //   res.send()
 // }))
-
-export default router
