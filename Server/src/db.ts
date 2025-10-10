@@ -2,7 +2,6 @@ import { MongoClient, Db } from 'mongodb'
 
 import env from 'src/env'
 import deduplicate from 'src/common/deduplicate'
-import './quiz/db/Db+collections'
 
 const client = new MongoClient(env.mongodb.uri)
 let db: Db | undefined

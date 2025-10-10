@@ -58,7 +58,7 @@ app.use(session({
 
 // API - Quiz 
 
-import quizRouter from './quiz/api/router'
+import quizRouter from './quiz-app/api/router'
 app.use('/api/quiz-app', quizRouter)
 
 // API - splat

@@ -1,6 +1,8 @@
 import { Db } from 'mongodb'
-import { DbUserData } from 'src/quiz/db/DbUserData';
-import { DbQuiz } from 'src/quiz/db/DbQuiz';
+import { DbUserData } from './DbUserData'
+import { DbQuiz } from './DbQuiz'
+
+// Don't actually need to import this
 
 declare module 'mongodb' {
   interface Db {
