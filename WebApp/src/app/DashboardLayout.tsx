@@ -71,7 +71,7 @@ function HeaderContent({ navbarOpened, toggleNavbar, closeNavbar }: {
               size='sm'
             />
             <Anchor href='#' underline='never' onClick={() => navigate('/')}>
-              <Text fw='bold' fz={20} c='gray.0'>Quiz App</Text>
+              <Text fw='bold' fz={20} c='gray.0'>Duck Group</Text>
             </Anchor>
             {/* <Text fw='bold' fz={20}>Quiz App</Text> */}
           </Group>

@@ -12,23 +12,36 @@ export function ApiProvider({ baseUrl, children }: {
     baseURL: baseUrl // Just /api/quiz-app or sth, not full url
   })
 
-  axiosInstance.interceptors.request.use(async config => {
+  axiosInstance.interceptors.request.use(async request => {
+    console.info(`request`, request)
     const session = await getSession()
 
     if (session) {
-      config.headers['Authorization'] = `Bearer ${session.access_token}`
+      request.headers['Authorization'] = `Bearer ${session.access_token}`
     }
 
-    return config
+    return request
   })
 
-  axiosInstance.interceptors.response.use(async config => {
-    if (config.status == 401) {
-      await logout()
+  axiosInstance.interceptors.response.use(
+    async response => {
+      console.info(`response`, response)
+      if (response.status == 401) {
+        await logout()
+      }
+
+      return response
+    },
+    async error => {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status == 401) {
+          await logout()
+        }
+      }
+      
+      throw error
     }
-
-    return config
-  })
+  )
 
   const value: ApiContextValue = {
     axios: axiosInstance
