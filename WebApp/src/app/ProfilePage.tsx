@@ -1,9 +1,7 @@
-import { useEffect } from 'react'
-import { Anchor, Button, Divider, Stack, Text, Title } from '@mantine/core'
-import { IconExternalLink } from '@tabler/icons-react'
+import { Stack, Text, Title } from '@mantine/core'
+// import { IconExternalLink } from '@tabler/icons-react'
 
 import { useAuth } from 'src/app/providers/AuthContext'
-import formatError from 'src/utils/format-error'
 
 const ProfilePage = () => {
   const { user } = useAuth()

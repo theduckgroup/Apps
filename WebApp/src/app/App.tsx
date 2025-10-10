@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { Navigate, Outlet, Route, Routes } from 'react-router'
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router'
 import { Loader } from '@mantine/core'
 
 import { useAuth } from './providers/AuthContext'
@@ -14,7 +14,9 @@ import quizRoutes from 'src/quiz'
 function App() {
   return (
     <AuthProvider>
-      <AppRoutes />
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
     </AuthProvider>
   )
 }
@@ -56,7 +58,9 @@ function AppRoutes() {
 
 const subappRoutes = (
   <>
-    <Route path='quiz-app' element={<SubappLayout path='/quiz-app' apiPath='/api/quiz-app' />}>
+    <Route path='quiz-app' element={
+      <SubappLayout path='/quiz-app' apiPath='/api/quiz-app' />
+    }>
       {quizRoutes}
     </Route>
   </>

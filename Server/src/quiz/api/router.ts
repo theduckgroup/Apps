@@ -4,7 +4,7 @@ import createHttpError from 'http-errors'
 
 import { getDb } from 'src/db'
 import { DbQuiz } from 'src/quiz/db/DbQuiz'
-import eventHub from 'src/event-hub'
+import eventHub from 'src/quiz/event-hub'
 import authorize, { authorizeAdmin } from 'src/auth/authorize'
 import { validateQuiz } from './QuizSchema'
 import { DefinedError, ErrorObject } from 'ajv'

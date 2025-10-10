@@ -8,11 +8,7 @@ export function PathProvider({ path, children }: {
   const navigate = useNavigate()
 
   const value: PathContextValue = {
-    navigate: (to, options) => {
-      console.info(`! path = ${path}, to = ${to}`)
-      console.info(`joined = ${joinPath(path, to)}`)
-      return navigate(joinPath(path, to), options)
-    }
+    navigate: (to, options) => navigate(joinPath(path, to), options)
   }
 
   return (

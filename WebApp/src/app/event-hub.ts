@@ -11,13 +11,31 @@ socket.on('connect', () => {
 })
 
 socket.on('connect_error', (data) => {
-  console.error(`! Socket connect error ${JSON.stringify(data)}`)
+  console.error(`Socket connect error ${JSON.stringify(data)}`)
 })
 
 console.info(`! Connecting socket`)
 socket.connect()
 
 const eventHub = {
+  onEvent: (eventName: string, callback: () => void): () => void => {
+    console.info(`! Listening to ${eventName}`)
+    
+    const listener = () => {
+      console.info(`! Received ${eventName}`)
+      callback()
+    }
+
+    socket.on(eventName, listener)
+
+    // Very important to remove listener
+
+    return () => {
+      console.info(`! Unregister ${eventName}`)
+      socket.off(eventName, listener)
+    }
+  },
+
   /**
    * Listens to vendor change event.
    * 
@@ -37,7 +55,7 @@ const eventHub = {
 
     return () => {
       console.info(`! Unregister listener`)
-      socket.off(event, listener) 
+      socket.off(event, listener)
     }
   }
 }

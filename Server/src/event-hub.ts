@@ -25,12 +25,9 @@ const eventHub = {
     // io.of('/vendor:[a-z]')
     // io.of('/temp')
   },
-  emitQuizzesChanged() {
-    // io.of(`/vendor:${vendorId}`).emit('change')
-    console.info(`! emit quizzes change`)
-    // io.of(`/temp`).emit('change')
-    io.emit(`event:quizzes:changed`)
-  },
+  emit(eventName: string) {
+    io.emit(eventName)
+  }
 }
 
 export default eventHub

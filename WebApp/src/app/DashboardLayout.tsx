@@ -1,7 +1,7 @@
 import { Anchor, AppShell, Avatar, Box, Burger, Button, Center, Container, Group, Menu, Modal, NavLink, Space, Stack, Text } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { Outlet, useLocation, useNavigate } from 'react-router'
-import { IconChevronRight, IconLogout2, IconUserCircle, IconUsers } from '@tabler/icons-react'
+import { IconChevronRight, IconLogout2, IconUserCircle } from '@tabler/icons-react'
 
 import { useAuth } from 'src/app/providers/AuthContext'
 

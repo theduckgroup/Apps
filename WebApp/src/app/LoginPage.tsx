@@ -8,7 +8,7 @@ import { useAuth } from './providers/AuthContext'
 
 const LoginPage = () => {
   const auth = useAuth()
-  
+
   const form = useForm({
     mode: 'controlled',
     validateInputOnChange: true,
@@ -47,10 +47,7 @@ const LoginPage = () => {
   return (
     <div className='w-screen h-screen flex'>
       <Stack align='center' m='auto'>
-        <Title order={2} mb={0}>Quiz</Title>
-        <Box mih='24px'>
-          {(error && !isPending) && <Text c='red' ta='center' fz='sm'>{error.message}</Text>}
-        </Box>
+        <Title order={2} mb='lg'>Duck Group</Title>
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Stack w='250' gap='sm'>
             <TextInput
@@ -76,8 +73,11 @@ const LoginPage = () => {
             </Button>
           </Stack>
         </form>
+        <Box mih='24px'>
+          {(error && !isPending) && <Text c='red' ta='center' fz='sm'>{error.message}</Text>}
+        </Box>
         {/* To align vertically */}
-        <Box h='90px'/>
+        {/* <Box h='90px' /> */}
       </Stack>
     </div>
   )

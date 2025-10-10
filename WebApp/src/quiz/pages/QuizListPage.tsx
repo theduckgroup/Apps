@@ -1,11 +1,10 @@
+import { useEffect } from 'react'
 import { Button, Grid, Group, Paper, Stack, Text, Title } from '@mantine/core'
 import { IconPlus } from '@tabler/icons-react'
 import { useQuery } from '@tanstack/react-query'
-import { useNavigate } from 'react-router'
 
 import { QuizMetadata } from 'src/quiz/models/Quiz'
-import eventHub from 'src/event-hub'
-import { useEffect } from 'react'
+import quizEventHub from 'src/quiz/event-hub'
 import { useApi } from 'src/app/providers/ApiContext'
 import { usePath } from 'src/app/providers/PathContext'
 
@@ -22,7 +21,7 @@ const QuizListPage = () => {
   })
 
   useEffect(() => {
-    const unsub = eventHub.onQuizzesChanged(() => {
+    const unsub = quizEventHub.onQuizzesChanged(() => {
       refetch()
     })
 
