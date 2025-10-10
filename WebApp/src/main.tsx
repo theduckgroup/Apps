@@ -7,9 +7,8 @@ import { createTheme, MantineProvider } from '@mantine/core';
 import { enableMapSet } from 'immer'
 
 import './main.css'
-import './auth/configure-axios'
 import App from './app/App'
-import { AuthProvider } from './auth/AuthProvider'
+import { AuthProvider } from './app/providers/AuthProvider'
 
 enableMapSet()
 
@@ -91,9 +90,7 @@ createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <MantineProvider defaultColorScheme='dark' theme={theme}>
-          <AuthProvider>
-            <App />
-          </AuthProvider>
+          <App />
         </MantineProvider >
       </BrowserRouter>
     </QueryClientProvider>

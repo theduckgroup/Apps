@@ -1,20 +1,22 @@
 import { Button, Grid, Group, Paper, Stack, Text, Title } from '@mantine/core'
 import { IconPlus } from '@tabler/icons-react'
 import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
 import { useNavigate } from 'react-router'
 
 import { QuizMetadata } from 'src/quiz/models/Quiz'
 import eventHub from 'src/event-hub'
 import { useEffect } from 'react'
+import { useApi } from 'src/app/providers/ApiContext'
+import { usePath } from 'src/app/providers/PathContext'
 
 const QuizListPage = () => {
-  const navigate = useNavigate()
+  const { axios } = useApi()
+  const { navigate } = usePath()
 
   const { data, error, isLoading, refetch } = useQuery({
     queryKey: ['quizzes'],
     queryFn: async () => {
-      const metaquizzes = (await axios.get('/api/quiz-app/quizzes')).data as QuizMetadata[]
+      const metaquizzes = (await axios.get('/quizzes')).data as QuizMetadata[]
       return metaquizzes
     }
   })
@@ -23,7 +25,7 @@ const QuizListPage = () => {
     const unsub = eventHub.onQuizzesChanged(() => {
       refetch()
     })
-    
+
     return () => {
       unsub()
     }
@@ -39,13 +41,14 @@ const QuizListPage = () => {
       {
         isLoading ? (
           <Text>Loading...</Text>
-        ) :
+        ) : (
           data &&
           <Grid w='100%'>
             {
               data.map(metaquiz => <QuizComponent key={metaquiz.id} metaquiz={metaquiz} />)
             }
           </Grid>
+        )
       }
       <Button
         variant='filled'
@@ -61,7 +64,7 @@ const QuizListPage = () => {
 function QuizComponent({ metaquiz }: {
   metaquiz: QuizMetadata
 }) {
-  const navigate = useNavigate()
+  const { navigate } = usePath()
 
   return (
     <Grid.Col span={{ base: 12, sm: 4 }}>
@@ -79,7 +82,7 @@ function QuizComponent({ metaquiz }: {
             size='xs'
             // leftSection={<IconPencil size={14}/>}
             // rightSection={<IconArrowNarrowRight size={14}/>}
-            onClick={() => navigate(`/quiz-app/quiz/${metaquiz.id}`)}
+            onClick={() => navigate(`/quiz/${metaquiz.id}`)}
           >
             <Group gap='0.25rem' align='center'>
               {/* <IconPencil size={14} strokeWidth={1.25} /> */}

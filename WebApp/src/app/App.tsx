@@ -1,50 +1,81 @@
 import { ReactNode } from 'react'
-import { Navigate, Route, Routes } from 'react-router'
+import { Navigate, Outlet, Route, Routes } from 'react-router'
 import { Loader } from '@mantine/core'
 
-import { useAuth } from 'src/auth/AuthContext'
-import LoginPage from 'src/auth/LoginPage'
+import { useAuth } from './providers/AuthContext'
+import { AuthProvider } from './providers/AuthProvider'
+import { PathProvider } from './providers/PathProvider'
+import { ApiProvider } from './providers/ApiProvider'
+import LoginPage from 'src/app/LoginPage'
 import DashboardLayout from './DashboardLayout'
 import ProfilePage from './ProfilePage'
 import quizRoutes from 'src/quiz'
 
 function App() {
+  return (
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
+  )
+}
+
+function AppRoutes() {
   // Used to wait for session to be restored
   // Without this it will always redirect to login at startup
   // Then redirect to default authenticated page after session is restored
   const { isLoaded } = useAuth()
 
   return (
-    <>
-      {isLoaded ?
-        <Routes>
-          <>
-            <Route path='login' element={
-              <RedirectToRootIfAuthenticated>
-                <LoginPage />
-              </RedirectToRootIfAuthenticated>
-            } />
+    isLoaded ?
+      <Routes>
+        <>
+          <Route path='login' element={
+            <RedirectToRootIfAuthenticated>
+              <LoginPage />
+            </RedirectToRootIfAuthenticated>
+          } />
 
-            <Route path='/' element={
-              <RedirectToLoginIfUnauthenticated>
-                <DashboardLayout />
-              </RedirectToLoginIfUnauthenticated>
-            }>
-              <Route index element={<Navigate to='quiz-app' />} />
-              <Route path='quiz-app'>
-                {quizRoutes}
-              </Route>
-              <Route path='profile' element={<ProfilePage />} />
-              <Route path='*' element={<NoMatch />} />
-            </Route>
-          </>
-        </Routes>
-        :
-        <LoadingPage />
-      }
-    </>
+          <Route path='/' element={
+            <RedirectToLoginIfUnauthenticated>
+              <DashboardLayout />
+            </RedirectToLoginIfUnauthenticated>
+          }>
+            <Route index element={<Navigate to='quiz-app' />} />
+            {subappRoutes}
+            <Route path='profile' element={<ProfilePage />} />
+            <Route path='*' element={<NoMatch />} />
+          </Route>
+        </>
+      </Routes >
+      :
+      <LoadingPage />
   )
 }
+
+// Apps
+
+const subappRoutes = (
+  <>
+    <Route path='quiz-app' element={<SubappLayout path='/quiz-app' apiPath='/api/quiz-app' />}>
+      {quizRoutes}
+    </Route>
+  </>
+)
+
+function SubappLayout({ path, apiPath }: {
+  path: string,
+  apiPath: string
+}) {
+  return (
+    <PathProvider path={path}>
+      <ApiProvider baseUrl={apiPath}>
+        <Outlet />
+      </ApiProvider>
+    </PathProvider>
+  )
+}
+
+// Loading & Redirects
 
 function LoadingPage() {
   return (
@@ -74,32 +105,12 @@ function RedirectToRootIfAuthenticated({ children }: { children: ReactNode }) {
   return children
 }
 
-// function RedirectToFirstVendor() {
-//   const { user } = useAuth()
-
-//   return <Navigate to='/' replace />
-// }
-
-// function NavigateToLinkedVendor() {
-//   const { user } = useAuth()
-
-//   if (!user) {
-//     return <Navigate to='/login' replace />
-//   }
-
-//   return <Navigate to='/' replace />
-// }
-
 function NoMatch() {
-  // const location = useLocation()
-
   return (
     <h3>
-      <p>Lalala</p>
-      <p>Page not found... what was you trying to do?</p>
+      <p>Page not found... What was you trying to do?</p>
     </h3>
   )
 }
-
 
 export default App

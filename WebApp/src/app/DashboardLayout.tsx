@@ -3,8 +3,7 @@ import { useDisclosure } from '@mantine/hooks'
 import { Outlet, useLocation, useNavigate } from 'react-router'
 import { IconChevronRight, IconLogout2, IconUserCircle, IconUsers } from '@tabler/icons-react'
 
-import { useAuth } from 'src/auth/AuthContext'
-import env from 'src/env'
+import { useAuth } from 'src/app/providers/AuthContext'
 
 function DashboardLayout() {
   const [navbarOpened, { toggle: toggleNavbar, close: closeNavbar }] = useDisclosure() // Mobile only
@@ -168,8 +167,8 @@ function NavbarContent({ close }: {
         rightSection={
           <IconChevronRight size={14} stroke={2} className='mantine-rotate-rtl' />
         }
-        active={location.pathname.startsWith(env.quizApp.path)}
-        onClick={() => navigate(env.quizApp.path)}
+        active={location.pathname.startsWith('/quiz-app')}
+        onClick={() => navigate('/quiz-app')}
       />
       <NavLink
         href='#'
@@ -178,8 +177,8 @@ function NavbarContent({ close }: {
           < IconChevronRight size={12} stroke={1.5} className='mantine-rotate-rtl' />
         }
         variant='filled'        
-        active={location.pathname.startsWith(`/${env.adminApp.webPath}`)}
-        onClick={() => navigate(`/${env.adminApp.webPath}`)}
+        active={location.pathname.startsWith('/admin')}
+        onClick={() => navigate('/admin')}
       />
     </>
   )

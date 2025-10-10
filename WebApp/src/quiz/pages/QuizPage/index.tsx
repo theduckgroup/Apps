@@ -1,40 +1,41 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router'
+import { useParams } from 'react-router'
 import { Anchor, Button, Group, Loader, Stack, Text, Title } from '@mantine/core'
-import axios from 'axios'
 import { useMutation } from '@tanstack/react-query'
 import { ObjectId } from 'bson'
 import { IconChevronLeft, IconPencil } from '@tabler/icons-react'
+import { produce } from 'immer'
 
-import env from 'src/env'
+import { useApi } from 'src/app/providers/ApiContext'
+import { usePath } from 'src/app/providers/PathContext'
 import { Quiz } from 'src/quiz/models/Quiz'
 import { EditQuizMetadataModal } from './EditQuizMetadataModal'
 import QuizItemsEditor from './QuizItemsEditor'
 import useRepeatedModal from 'src/common/use-repeated-modal'
-import { produce } from 'immer'
 import formatError from 'src/common/format-error'
 
 export default function QuizPage() {
-  const navigate = useNavigate()
   const { quizId } = useParams()
+  const { axios } = useApi()
+  const { navigate } = usePath()
   const [quiz, setQuiz] = useState<Quiz | null>(null)
 
   const { mutate: loadQuiz, error: loadError, isPending: isLoading } = useMutation({
     mutationFn: async () => {
       if (quizId) {
-        return (await axios.get(`${env.quizApp.apiPath}/quiz/${quizId}`)).data as Quiz
+        return (await axios.get(`/quiz/${quizId}`)).data as Quiz
 
       } else {
         const quiz: Quiz = {
           id: (new ObjectId()).toString(),
-          name: 'New Quiz',
-          code: '',
+          name: 'New Test',
+          code: 'NEW_TEST',
           itemsPerPage: 10,
           items: [],
           sections: [
             {
               id: new ObjectId().toString(),
-              name: 'Section 1',
+              name: 'Section 0',
               rows: []
             }
           ]
@@ -54,7 +55,7 @@ export default function QuizPage() {
 
   const { mutate: saveQuiz, error: saveError, isPending: isSaving } = useMutation({
     mutationFn: async () => {
-      await axios.put(`/api/quiz-app/quiz/${quiz!.id}`, quiz)
+      await axios.put(`/quiz/${quiz!.id}`, quiz)
     }
   })
 
@@ -98,7 +99,7 @@ export default function QuizPage() {
       }
 
       {/* Home link */}
-      <Anchor size='sm' href='#' onClick={() => navigate(`${env.quizApp.path}/list`)}>
+      <Anchor size='sm' href='#' onClick={() => navigate(`/list`)}>
         <Group gap='0.2rem'>
           <IconChevronLeft size={18} />
           Home
