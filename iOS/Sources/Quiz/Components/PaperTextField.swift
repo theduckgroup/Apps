@@ -1,22 +1,32 @@
 import Foundation
 import SwiftUI
 
-/// Text field with a line at the bottom similar to on paper. The line disappears once text has been entered.
+/// Text field with a line at the bottom similar to on paper.
 struct PaperTextField: View {
-    var title: String
     @Binding var text: String
+    @FocusState var focused: Bool
+    @ScaledMetric var verticalPadding = 3
     
-    init(_ title: String = "", text: Binding<String>) {
-        self.title = title
+    init(text: Binding<String>) {
         self._text = text
     }
     
     var body: some View {
-            TextField(title, text: $text)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .overlay(alignment: .bottom) {
-                    text.isEmpty ? Divider() : nil
-                }
+        TextField("", text: $text, axis: .vertical)
+            .foregroundStyle(.secondary)
+            .lineLimit(5)
+            .focused($focused)
+            .padding(.top, verticalPadding)
+            .padding(.bottom, verticalPadding)
+            .autocorrectionDisabled()
+            .contentShape(Rectangle())
+            .overlay(alignment: .bottom) {
+                Rectangle()
+                    .fill(Color(UIColor.systemGray3))
+                    .frame(height: 1)
+            }
+            .onTapGesture {
+                focused = true
+            }
     }
 }

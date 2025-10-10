@@ -31,10 +31,11 @@ struct HomeView: View {
     @ViewBuilder
     private func bodyContent() -> some View {
         ZStack {
-            VStack {
+            VStack(spacing: 15) {
                 if !persistedQuizName.isEmpty {
                     Text(persistedQuizName)
                         .font(.title2)
+                        .fontWeight(.semibold)
                 }
                 
                 let quiz: Quiz? = if let quizResult, case .success(let quiz) = quizResult {
@@ -43,13 +44,17 @@ struct HomeView: View {
                     nil
                 }
                 
-                Button("Start") {
+                Button {
                     if let quiz {
                         self.presentedQuiz = quiz
                     }
+                } label: {
+                    Text("Start")
+                        .font(.title2)
+                        .padding(.horizontal)
                 }
                 .disabled(quiz == nil)
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.bordered)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -91,14 +96,16 @@ struct HomeView: View {
             isFetching = true
             
             do {
-                let request = try Server.makeRequest(httpMethod: "GET", path: "/api/quiz/code/FOH_STAFF_KNOWLEDGE")
-                let data = try await HTTPClient().get(request)
+                try await Task.sleep(for: .seconds(0.5)) // Grace
                 
-                try await Task.sleep(for: .seconds(2))
-                
-                try Task.checkCancellation()
-                
-                let quiz = try JSONDecoder().decode(Quiz.self, from: data)
+                let quiz = try await {
+                    if isRunningForPreviews {
+                        return try await Server.mockQuiz()
+                    }
+                    
+                    return try await Server.quiz(code: "FOH_STAFF_KNOWLEDGE")
+                }()
+
                 self.quizResult = .success(quiz)
                 self.persistedQuizName = quiz.name
                 
@@ -142,7 +149,6 @@ extension View {
 
 #Preview {
     HomeView()
-        .preferredColorScheme(.dark)
 }
 
 extension Result {

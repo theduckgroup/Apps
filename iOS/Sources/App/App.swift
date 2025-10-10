@@ -5,7 +5,7 @@ import SwiftData
 struct App: SwiftUI.App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            AppView()
                 .onOpenURL { url in
                     Auth.shared.handleOAuthURL(url)
                 }
@@ -14,25 +14,31 @@ struct App: SwiftUI.App {
     }
 }
 
-private struct ContentView: View {
+private struct AppView: View {
     @State var auth = Auth.shared
     
     var body: some View {
         bodyContent()
             .preferredColorScheme(.light)
+            .tint(.red)
     }
     
     @ViewBuilder
     private func bodyContent() -> some View {
-        if auth.user != nil {
-            HomeView()
-            
+        if auth.isLoaded {
+            if auth.user != nil {
+                HomeView()
+                
+            } else {
+                LoginView()
+            }
         } else {
-            LoginView()
+            ProgressView()
+                .progressViewStyle(.circular)
         }
     }
 }
 
 #Preview {
-    ContentView()
+    AppView()
 }

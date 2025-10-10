@@ -21,5 +21,6 @@ struct RespondentView: View {
             }
             .padding()
         }
+        .scrollDismissesKeyboard(.immediately)
     }
 }

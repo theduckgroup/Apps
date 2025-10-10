@@ -2,66 +2,137 @@ import Foundation
 import SwiftUI
 
 struct QuizPageView: View {
+    var page: QuizViewModel.QuizResponsePage
+    var nextEnabled: Bool
+    var onNext: () -> Void
+    var submitEnabled: Bool
+    var onSubmit: () -> Void
     @Environment(QuizViewModel.self) private var quizViewModel
-    var page: QuizViewModel.Page
-    
-    init(page: QuizViewModel.Page) {
-        self.page = page
-    }
+    @ScaledMetric private var spacing = 15
     
     var body: some View {
         @Bindable var quizViewModel = quizViewModel
         
-        ScrollView(.vertical) {
-            VStack {
-                ForEach(Array(page.rows.enumerated()), id: \.offset) { index, row in
-                    switch row {
-                    case .itemResponse(let id):
-                        let index = quizViewModel.quizResponse.itemResponses.firstIndex { $0.id == id }!
-                        let itemResponse = $quizViewModel.quizResponse.itemResponses[index]
-                        viewForItemResponse(itemResponse)
+        ScrollViewReader { reader in
+            ScrollView(.vertical) {
+                VStack(alignment: .leading, spacing: 0) {
+                    Color.clear.frame(height: 0).id("top")
+                    
+                    VStack(spacing: spacing) {
+                        ForEach(Array(page.rows.enumerated()), id: \.offset) { rowIndex, row in
+                            Group {
+                                switch row {
+                                case .itemResponse(let id, let indexInSection):
+                                    let itemResponse = quizViewModel.itemResponseBindingForID(id)
+                                    itemResponseRow(itemResponse, index: indexInSection)
+                                }
+                            }
+                            .id(rowIndex)
+                        }
+                        
+                        bottomButtons()
                     }
+                    .padding()
                 }
             }
-            .padding()
+            .scrollDismissesKeyboard(.automatic)
+            .onAppear {
+                reader.scrollTo("top")
+            }
         }
     }
     
     @ViewBuilder
-    private func viewForItemResponse(_ itemResponse: Binding<QuizResponse.ItemResponse>) -> some View {
-        switch itemResponse.wrappedValue {
-        case is QuizResponse.SelectedResponseItemResponse:
-            let item = quizViewModel.quiz.itemForID(itemResponse.wrappedValue.itemId) as! Quiz.SelectedResponseItem
-            
-            let itemResponse = Binding {
-                itemResponse.wrappedValue as! QuizResponse.SelectedResponseItemResponse
-            } set: {
-                itemResponse.wrappedValue = $0
+    private func itemResponseRow(_ itemResponse: Binding<QuizResponse.ItemResponse>, index: Int) -> some View {
+        HStack(alignment: .firstTextBaseline) {
+            ZStack(alignment: .leading) {
+                Text("\(index + 1).")
+                    .fontWeight(.bold)
+                
+                Text("00")
+                    .opacity(0)
             }
-                        
-            SelectedResponseItemResponseView(item: item, response: itemResponse)
             
-        case is QuizResponse.TextInputItemResponse:
-            let item = quizViewModel.quiz.itemForID(itemResponse.wrappedValue.itemId) as! Quiz.TextInputItem
+            let item = quizViewModel.quiz.itemForID(itemResponse.wrappedValue.itemId)!
+            ItemResponseView(item: item, itemResponse: itemResponse)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    @ViewBuilder
+    private func bottomButtons() -> some View {
+        HStack {
+            Spacer()
             
-            let itemResponse = Binding {
-                itemResponse.wrappedValue as! QuizResponse.TextInputItemResponse
-            } set: {
-                itemResponse.wrappedValue = $0
+            if nextEnabled {
+                Button {
+                    onNext()
+                } label: {
+                    HStack(spacing: 6) {
+                        Text("Next")
+                        Image(systemName: "chevron.right")
+                    }
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 3)
+                }
+                .buttonStyle(.bordered)
             }
 
-            TextInputItemResponseView(item: item, response: itemResponse)
+            if submitEnabled {
+                Button {
+                    onSubmit()
+                } label: {
+                    Text("Submit")
+                        .padding(.horizontal, 9)
+                        .padding(.vertical, 3)
+                        .fontWeight(.bold)
+                }
+                .buttonStyle(.bordered)
+            }
+        }
+        .padding(.top, 21)
+    }
+}
+
+struct ItemResponseView: View  {
+    var item: Quiz.Item
+    @Binding var itemResponse: QuizResponse.ItemResponse
+    var compact: Bool = false
+    
+    var body: some View {
+        switch itemResponse {
+        case is QuizResponse.SelectedResponseItemResponse:
+            let castItem = item as! Quiz.SelectedResponseItem
             
-        case is QuizResponse.ListItemResponse:
-            let item = quizViewModel.quiz.itemForID(itemResponse.wrappedValue.itemId) as! Quiz.ListItem
-            
-            let itemResponse = Binding {
-                itemResponse.wrappedValue as! QuizResponse.ListItemResponse
+            let castItemResponse = Binding {
+                itemResponse as! QuizResponse.SelectedResponseItemResponse
             } set: {
-                itemResponse.wrappedValue = $0
+                itemResponse = $0
             }
                         
-            ListItemResponseView(item: item, response: itemResponse)
+            SelectedResponseItemResponseView(item: castItem, response: castItemResponse, compact: compact)
+            
+        case is QuizResponse.TextInputItemResponse:
+            let castItem = item as! Quiz.TextInputItem
+            
+            let castItemResponse = Binding {
+                itemResponse as! QuizResponse.TextInputItemResponse
+            } set: {
+                itemResponse = $0
+            }
+
+            TextInputItemResponseView(item: castItem, response: castItemResponse, compact: compact)
+            
+        case is QuizResponse.ListItemResponse:
+            let castItem = item as! Quiz.ListItem
+            
+            let castItemResponse = Binding {
+                itemResponse as! QuizResponse.ListItemResponse
+            } set: {
+                itemResponse = $0
+            }
+                        
+            ListItemResponseView(item: castItem, response: castItemResponse)
             
         default:
             preconditionFailure()
@@ -69,16 +140,20 @@ struct QuizPageView: View {
     }
 }
 
-
 private struct SelectedResponseItemResponseView: View {
     var item: Quiz.SelectedResponseItem
     @Binding var response: QuizResponse.SelectedResponseItemResponse
+    var compact: Bool
+    @ScaledMetric private var promptSpacing = 6
+    @ScaledMetric private var itemSpacing = 3
+    @ScaledMetric private var itemVerticalPadding = 6
     
     var body: some View {
-        VStack {
+        VStack(alignment: .leading, spacing: promptSpacing) {
             Text(item.data.prompt)
+                .fixedSize(horizontal: false, vertical: true)
             
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: itemSpacing) {
                 ForEach(item.data.options) { option in
                     Button {
                         if let index = response.data.selectedOptions.map(\.id).firstIndex(of: option.id) {
@@ -90,11 +165,18 @@ private struct SelectedResponseItemResponseView: View {
                     } label: {
                         HStack(alignment: .firstTextBaseline) {
                             let selected = response.data.selectedOptions.map(\.id).contains(option.id)
+                            
                             Image(systemName: selected ? "checkmark.square" : "square")
+                                .foregroundStyle(selected ? .primary : .secondary)
+                            
                             Text(option.value)
+                                .multilineTextAlignment(.leading)
                         }
+                        .foregroundStyle(Color.primary)
+                        .padding(.vertical, itemVerticalPadding)
+                        .contentShape(Rectangle())
+                        .transaction { $0.animation = nil }
                     }
-                    .buttonStyle(.plain)
                 }
             }
         }
@@ -104,11 +186,22 @@ private struct SelectedResponseItemResponseView: View {
 private struct TextInputItemResponseView: View {
     var item: Quiz.TextInputItem
     @Binding var response: QuizResponse.TextInputItemResponse
+    var compact: Bool
+    @ScaledMetric private var spacing = 6
+    @ScaledMetric private var compactSpacing = 2
+    @FocusState private var focused: Bool
     
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: compact ? compactSpacing : spacing) {
             Text(item.data.prompt)
-            PaperTextField("", text: $response.data.value)
+                .fixedSize(horizontal: false, vertical: true)
+            
+            PaperTextField(text: $response.data.value)
+                .focused($focused)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            focused = true
         }
     }
 }
@@ -116,11 +209,29 @@ private struct TextInputItemResponseView: View {
 private struct ListItemResponseView: View {
     var item: Quiz.ListItem
     @Binding var response: QuizResponse.ListItemResponse
+    @ScaledMetric var bulletSize = 9
+    @ScaledMetric var bulletWidth = 21
+    @ScaledMetric var bulletOffset = -1.5
+    @ScaledMetric var spacing = 12
     
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: spacing) {
             Text(item.data.prompt)
-            Text("TODO")
+                .fixedSize(horizontal: false, vertical: true)
+
+            VStack(alignment: .leading, spacing: spacing) {
+                ForEach($response.data.itemResponses, id: \.id) { $subitemResponse in
+                    HStack(alignment: .firstTextBaseline, spacing: 0) {
+                        Text("▪")
+                            .font(.system(size: bulletSize))
+                            .frame(width: bulletWidth, alignment: .leading)
+                            .offset(y: bulletOffset)
+                        
+                        let subitem = item.data.items.first { $0.id == subitemResponse.itemId }!
+                        ItemResponseView(item: subitem, itemResponse: $subitemResponse, compact: true)
+                    }
+                }
+            }
         }
     }
 }

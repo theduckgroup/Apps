@@ -5,14 +5,16 @@ import Supabase
 class Auth {
     static let shared = Auth()
     
-    private let supabaseClient = SupabaseClient(supabaseURL: URL(string: "https://ahvebevkycanekqtnthy.supabase.co")!, supabaseKey: "sb_publishable_RYskGh0Y71aGJoncWRLZDQ_rp9Z0U2u")
     private var session: Session?
+    private(set) var isLoaded = false
+    private let supabaseClient = SupabaseClient(supabaseURL: URL(string: "https://ahvebevkycanekqtnthy.supabase.co")!, supabaseKey: "sb_publishable_RYskGh0Y71aGJoncWRLZDQ_rp9Z0U2u")
     
     private init() {
         Task {
             for await (event, session) in supabaseClient.auth.authStateChanges {
                 logger.info("Receive auth event \(event.rawValue)")
                 self.session = session
+                self.isLoaded = true
             }
         }
     }

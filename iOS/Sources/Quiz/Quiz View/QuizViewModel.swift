@@ -8,23 +8,24 @@ class QuizViewModel {
     
     init(quizResponse: QuizResponse) {
         self.quizResponse = quizResponse
-        self.pages = Self.pagesFromQuizResponse(quizResponse)
+        self.pages = [.respondentPage] + Self.pagesFromQuizResponse(quizResponse)
     }
     
     private static func pagesFromQuizResponse(_ quizResponse: QuizResponse) -> [Page] {
         let quiz = quizResponse.quiz
         var pages: [Page] = []
-        var currentPageRows: [Row] = []
+        var currentPageRows: [QuizResponsePage.Row] = []
         
         func endPage() {
-            pages.append(.init(rows: currentPageRows))
+            let page = Page.quizResponsePage(QuizResponsePage(rows: currentPageRows))
+            pages.append(page)
             currentPageRows.removeAll()
         }
         
         for section in quiz.sections {
             // Section header will go here
             
-            for row in section.rows {
+            for (rowIndex, row) in section.rows.enumerated() {
                 let itemResponse = quizResponse.itemResponses.first { $0.itemId == row.itemId }
                 
                 guard let itemResponse else {
@@ -36,7 +37,7 @@ class QuizViewModel {
                     endPage()
                 }
                 
-                currentPageRows.append(.itemResponse(id: itemResponse.id))
+                currentPageRows.append(.itemResponse(id: itemResponse.id, indexInSection: rowIndex))
             }
             
             endPage()
@@ -63,14 +64,22 @@ class QuizViewModel {
 }
 
 extension QuizViewModel {
-    struct Page: Identifiable {
-        let id = UUID()
-        let rows: [Row]
+//    struct Page: Identifiable {
+//        let id = UUID()
+//        let rows: [Row]
+//    }
+    
+    enum Page {
+        case respondentPage
+        case quizResponsePage(QuizResponsePage)
     }
     
-    enum Row {
-        // Section header will go here
+    struct QuizResponsePage {
+        var rows: [Row]
         
-        case itemResponse(id: String)
+        enum Row {
+            // Section header will go here
+            case itemResponse(id: String, indexInSection: Int)
+        }
     }
 }
