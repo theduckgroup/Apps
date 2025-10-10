@@ -8,7 +8,8 @@ struct HomeView: View {
     @State var isFetching = false
     @State var fetchTask: Task<Void, Never>?
     @State var presentedQuiz: Quiz?
-    @Environment(\.scenePhase) var scenePhase
+    @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
     var body: some View {
         bodyContent()
@@ -70,18 +71,24 @@ struct HomeView: View {
                 .padding(.bottom, 30)
                 
             } else if let quizResult, case .failure(let error) = quizResult {
-                VStack(alignment: .trailing) {
-                    Text(error.localizedDescription)
+                VStack(alignment: .leading) {
+                    Text(formatError(error))
                         .foregroundStyle(.red)
+                        .multilineTextAlignment(.leading)
                     
                     Button("Retry") {
                         fetchQuiz()
                     }
+                    .buttonStyle(.bordered)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
                 }
+                .fixedSize(horizontal: false, vertical: false)
                 .padding()
+                .frame(width: horizontalSizeClass == .regular ? 570 : nil)
+                .frame(maxWidth: horizontalSizeClass == .compact ? .infinity : nil)
                 .background {
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(Color(UIColor.quaternarySystemFill))
+                        .fill(Color(UIColor.tertiarySystemFill))
                 }
                 .padding()
                 
@@ -97,6 +104,9 @@ struct HomeView: View {
             
             do {
                 try await Task.sleep(for: .seconds(0.5)) // Grace
+                
+                // throw GenericError("Culpa dolore sit pariatur commodo nulla commodo amet ad velit magna commodo fugiat. Laboris reprehenderit do culpa. Enim quis cupidatat ex mollit elit aute proident dolor dolor laboris et ex esse aliqua fugiat. Commodo officia consequat minim elit aliquip qui veniam labore dolore eu culpa aliquip ex.")
+                // throw GenericError("Not connected to internet")
                 
                 let quiz = try await {
                     if isRunningForPreviews {
@@ -149,6 +159,7 @@ extension View {
 
 #Preview {
     HomeView()
+        .tint(.red)
 }
 
 extension Result {

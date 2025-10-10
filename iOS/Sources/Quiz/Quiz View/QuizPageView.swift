@@ -3,9 +3,9 @@ import SwiftUI
 
 struct QuizPageView: View {
     var page: QuizViewModel.QuizResponsePage
-    var nextEnabled: Bool
+    var nextVisible: Bool
     var onNext: () -> Void
-    var submitEnabled: Bool
+    var submitVisible: Bool
     var onSubmit: () -> Void
     @Environment(QuizViewModel.self) private var quizViewModel
     @ScaledMetric private var spacing = 15
@@ -36,6 +36,7 @@ struct QuizPageView: View {
                 }
             }
             .scrollDismissesKeyboard(.automatic)
+            .ignoresSafeArea([.container])
             .onAppear {
                 reader.scrollTo("top")
             }
@@ -64,30 +65,17 @@ struct QuizPageView: View {
         HStack {
             Spacer()
             
-            if nextEnabled {
-                Button {
+            if nextVisible {
+                PageNavButton("Next", systemImage: "chevron.right") {
                     onNext()
-                } label: {
-                    HStack(spacing: 6) {
-                        Text("Next")
-                        Image(systemName: "chevron.right")
-                    }
-                    .padding(.horizontal, 9)
-                    .padding(.vertical, 3)
                 }
-                .buttonStyle(.bordered)
             }
 
-            if submitEnabled {
-                Button {
+            if submitVisible {
+                PageNavButton("Submit") {
                     onSubmit()
-                } label: {
-                    Text("Submit")
-                        .padding(.horizontal, 9)
-                        .padding(.vertical, 3)
-                        .fontWeight(.bold)
                 }
-                .buttonStyle(.bordered)
+                .bold()
             }
         }
         .padding(.top, 21)

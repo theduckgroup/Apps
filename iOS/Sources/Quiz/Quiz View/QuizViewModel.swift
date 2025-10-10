@@ -33,7 +33,7 @@ class QuizViewModel {
                     continue
                 }
             
-                if currentPageRows.count > quiz.itemsPerPage {
+                if currentPageRows.count >= quiz.itemsPerPage {
                     endPage()
                 }
                 

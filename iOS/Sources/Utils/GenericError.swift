@@ -1,9 +1,13 @@
 import Foundation
 
-struct GenericError: Error {
-    var localizedDescription: String?
+struct GenericError: LocalizedError {
+    var errorDescription: String?
     
     init(_ message: String) {
-        self.localizedDescription = message
+        self.errorDescription = message
+    }
+    
+    public var debugDescription: String {
+        "\(Self.self)(\"\(errorDescription!)\")"
     }
 }

@@ -3,11 +3,13 @@ import SwiftUI
 
 struct QuizView: View {
     @State private var viewModel: QuizViewModel
-    @State private var pageIndex: Int = 2
+    @State private var pageIndex: Int = 0
     @State private var topBarSize: CGSize?
     @State private var bottomBarSize: CGSize?
     @State private var textSize: DynamicTypeSize = .xLarge
     @State private var presentingTextSizeSheet = false
+    @State private var presentingQuitAlert = false
+    @State private var keyboardVisible = false
     @Environment(\.dynamicTypeSize) private var defaultTextSize
     @Environment(\.dismiss) private var dismiss
     
@@ -20,22 +22,30 @@ struct QuizView: View {
     
     var body: some View {
         GeometryReader { geometry in
-            VStack(spacing: 0) {
-                NavigationStack {
-                    tabView()
-                }
-                .overlay(alignment: .bottom) {
-                    bottomBar(geometry)
-                        .ignoresSafeArea()
-                        .readSize(assignTo: $bottomBarSize)
-                }
-            }
-            .environment(viewModel)
-            .onAppear {
-                textSize = defaultTextSize
-            }
-            .onChange(of: pageIndex) {
-                UIApplication.dismissKeyboard()
+            NavigationStack {
+                tabView()
+                    .overlay(alignment: .bottom, ) {
+                        if pageIndex > 0 && !keyboardVisible {
+                            pageNavBar(geometry)
+                                .readSize(assignTo: $bottomBarSize)
+                        }
+                    }
+                // Can apply this to make the overlay ignore keyboard safe area
+                // However that break scroll view automatic keyboard avoidance
+                // .ignoresSafeArea([.keyboard], edges: [.bottom])
+                    .environment(viewModel)
+                    .onAppear {
+                        textSize = defaultTextSize
+                    }
+                    .onReceive(NotificationCenter.default.publisher(for: UIApplication.keyboardWillShowNotification)) { n in
+                        keyboardVisible = true
+                    }
+                    .onReceive(NotificationCenter.default.publisher(for: UIApplication.keyboardWillHideNotification)) { n in
+                        keyboardVisible = false
+                    }
+                    .onChange(of: pageIndex) {
+                         UIApplication.dismissKeyboard()
+                    }
             }
         }
     }
@@ -43,8 +53,15 @@ struct QuizView: View {
     @ToolbarContentBuilder
     private func toolbarContent() -> some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
-            Button("Cancel") {
-                dismiss()
+            Button("Quit") {
+                presentingQuitAlert = true
+            }
+            .alert("", isPresented: $presentingQuitAlert) {
+                Button("Quit", role: .destructive) {
+                    dismiss()
+                }
+            } message: {
+                Text("Quit without submitting test? You will not be able to return to it.")
             }
         }
         
@@ -56,7 +73,8 @@ struct QuizView: View {
                     .font(.subheadline)
             }
             .popover(isPresented: $presentingTextSizeSheet) {
-                textSizeView()
+                textSizePopover()
+                    .presentationCompactAdaptation(.popover)
             }
             
             Button("Submit") {
@@ -73,14 +91,17 @@ struct QuizView: View {
                 Group {
                     switch page {
                     case .respondentPage:
-                        RespondentView()
+                        RespondentView(
+                            nextEnabled: !respondentIsEmpty,
+                            onNext: handleNext
+                        )
                         
                     case .quizResponsePage(let page):
                         QuizPageView(
                             page: page,
-                            nextEnabled: nextEnabled,
+                            nextVisible: nextAllowed,
                             onNext: handleNext,
-                            submitEnabled: pageIndex == viewModel.pages.indices.last!,
+                            submitVisible: pageIndex == viewModel.pages.indices.last!,
                             onSubmit: handleSubmit
                         )
                     }
@@ -101,6 +122,7 @@ struct QuizView: View {
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
         .indexViewStyle(.page(backgroundDisplayMode: .interactive))
+        .ignoresSafeArea([.container], edges: [.bottom])
         .navigationTitle(viewModel.quiz.name)
         .toolbar {
             toolbarContent()
@@ -149,7 +171,7 @@ struct QuizView: View {
     }
     
     @ViewBuilder
-    private func textSizeView() -> some View {
+    private func textSizePopover() -> some View {
         VStack(alignment: .leading) {
             Text("Text Size")
             
@@ -201,7 +223,7 @@ struct QuizView: View {
     }
     
     @ViewBuilder
-    private func bottomBar(_ geometry: GeometryProxy) -> some View {
+    private func pageNavBar(_ geometry: GeometryProxy) -> some View {
         HStack {
             Button {
                 handlePrevious()
@@ -212,18 +234,12 @@ struct QuizView: View {
                     .padding(.vertical, 15)
                     .contentShape(Rectangle())
             }
-            .glassEffectShim()
-            .opacity(previousEnabled ? 1 : 0)
-            
-            Spacer()
+            .disabled(!previousAllowed)
             
             Text("Page \(pageIndex + 1)")
+                .monospacedDigit()
                 .foregroundStyle(.secondary)
-                .frame(width: 150)
                 .padding(.vertical, 15)
-                .glassEffectShim()
-            
-            Spacer()
             
             Button {
                 handleNext()
@@ -234,14 +250,21 @@ struct QuizView: View {
                     .padding(.vertical, 15)
                     .contentShape(Rectangle())
             }
-            .glassEffectShim()
-            .opacity(nextEnabled ? 1 : 0)
+            .disabled(!nextAllowed)
         }
-        .padding()
+        .padding(.horizontal, 12)
+        .glassEffectShim()
+        .padding(.horizontal)
+        .padding(.bottom, geometry.safeAreaInsets.bottom > 0 ? 12 : 21)
         // .padding(.bottom, geometry.safeAreaInsets.bottom)
     }
+    
+    private var respondentIsEmpty: Bool {
+        viewModel.quizResponse.respondent.name.isEmpty ||
+        viewModel.quizResponse.respondent.store.isEmpty
+    }
         
-    private var previousEnabled: Bool {
+    private var previousAllowed: Bool {
         pageIndex > 0
     }
     
@@ -251,7 +274,7 @@ struct QuizView: View {
         }
     }
     
-    private var nextEnabled: Bool {
+    private var nextAllowed: Bool {
         pageIndex < viewModel.pages.indices.last!
     }
     
