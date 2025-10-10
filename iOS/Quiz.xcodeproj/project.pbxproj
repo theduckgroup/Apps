@@ -14,7 +14,7 @@
 		73B0BDE62E968FBB00501694 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 73B0BDE52E968FBB00501694 /* Supabase */; };
 		73B0BDE82E968FBF00501694 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 73B0BDE72E968FBF00501694 /* Supabase */; };
 		73D2F5FD2DCF19620012CCBE /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 73D2F5FC2DCF19620012CCBE /* SocketIO */; };
-		73D2F5FF2DCF196D0012CCBE /* Quiz-local.app in Resources */ = {isa = PBXBuildFile; fileRef = 73D2F5092DCC6E7D0012CCBE /* Quiz-local.app */; };
+		73D2F5FF2DCF196D0012CCBE /* FOH Test [local].app in Resources */ = {isa = PBXBuildFile; fileRef = 73D2F5092DCC6E7D0012CCBE /* FOH Test [local].app */; };
 		73D2F6032DCF19720012CCBE /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 73D2F6022DCF19720012CCBE /* SocketIO */; };
 /* End PBXBuildFile section */
 
@@ -29,8 +29,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		73B1F29E2D694E8F0069610E /* Quiz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Quiz.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		73D2F5092DCC6E7D0012CCBE /* Quiz-local.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Quiz-local.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		73B1F29E2D694E8F0069610E /* FOH Test.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "FOH Test.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		73D2F5092DCC6E7D0012CCBE /* FOH Test [local].app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "FOH Test [local].app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -100,8 +100,8 @@
 		73B1F29F2D694E8F0069610E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				73B1F29E2D694E8F0069610E /* Quiz.app */,
-				73D2F5092DCC6E7D0012CCBE /* Quiz-local.app */,
+				73B1F29E2D694E8F0069610E /* FOH Test.app */,
+				73D2F5092DCC6E7D0012CCBE /* FOH Test [local].app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -140,7 +140,7 @@
 				738F341A2E97315D00F876DB /* SwiftBSON */,
 			);
 			productName = Inventory;
-			productReference = 73B1F29E2D694E8F0069610E /* Quiz.app */;
+			productReference = 73B1F29E2D694E8F0069610E /* FOH Test.app */;
 			productType = "com.apple.product-type.application";
 		};
 		73D2F5022DCC6E7D0012CCBE /* Quiz-local */ = {
@@ -166,7 +166,7 @@
 				738F34182E97315000F876DB /* SwiftBSON */,
 			);
 			productName = Inventory;
-			productReference = 73D2F5092DCC6E7D0012CCBE /* Quiz-local.app */;
+			productReference = 73D2F5092DCC6E7D0012CCBE /* FOH Test [local].app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -214,7 +214,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				73D2F5FF2DCF196D0012CCBE /* Quiz-local.app in Resources */,
+				73D2F5FF2DCF196D0012CCBE /* FOH Test [local].app in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -400,7 +400,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = au.com.theduckgroup.Quiz;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "FOH Test";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -431,7 +431,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = au.com.theduckgroup.Quiz;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "FOH Test";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -461,9 +461,9 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "au.com.theduckgroup.Quiz-local";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "FOH Test [local]";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -493,9 +493,9 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "au.com.theduckgroup.Quiz-local";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "FOH Test [local]";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

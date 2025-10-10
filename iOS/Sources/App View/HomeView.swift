@@ -8,6 +8,7 @@ struct HomeView: View {
     @State var isFetching = false
     @State var fetchTask: Task<Void, Never>?
     @State var presentedQuiz: Quiz?
+    @State var presentingSettings = false
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
@@ -59,6 +60,23 @@ struct HomeView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay(alignment: .topTrailing) {
+            HStack {
+                Button {
+                    presentingSettings = true
+                    
+                } label: {
+                    Image(systemName: "gearshape.2.fill")
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.bordered)
+                .padding(.bottom, 3)
+                .popover(isPresented: $presentingSettings) {
+                    SettingsView()
+                }
+            }
+            .padding()
+        }
         .overlay(alignment: .bottom) {
             if isFetching {
                 HStack {
@@ -160,6 +178,7 @@ extension View {
 #Preview {
     HomeView()
         .tint(.red)
+        .environment(AppDefaults())
 }
 
 extension Result {

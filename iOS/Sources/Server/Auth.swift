@@ -20,7 +20,19 @@ class Auth {
     }
     
     var user: User? {
-        session?.user
+        if isRunningForPreviews {
+            return User(
+                id: UUID(),
+                appMetadata: [:],
+                userMetadata: [:],
+                aud: "",
+                email: "theduckgroupapp@gmail.com",
+                createdAt: Date(),
+                updatedAt: Date(),
+            )
+        }
+        
+        return session?.user
     }
     
     var accessToken: String? {

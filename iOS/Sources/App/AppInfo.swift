@@ -1,6 +1,10 @@
 import Foundation
 
 struct AppInfo {
+    static var marketingVersion: String {
+        Bundle.main.infoDictionary!["CFBundleShortVersionString"] as! String
+    }
+    
     static var bundleVersion: String {
         Bundle.main.infoDictionary!["CFBundleVersion"] as! String
     }
