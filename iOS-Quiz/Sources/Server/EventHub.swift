@@ -6,7 +6,7 @@ class EventHub {
     static let shared = EventHub()
     
     private let socketManager = SocketManager(
-        socketURL: Server.url,
+        socketURL: Server.apiURL,
         config: [
             .path("/socketio"), // url.append(path:) doesn't work
             .compress,
