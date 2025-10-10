@@ -171,29 +171,6 @@ function NavbarContent({ close }: {
         active={location.pathname.startsWith(env.quizApp.path)}
         onClick={() => navigate(env.quizApp.path)}
       />
-      {/* {vendors && vendors.map(vendor => {
-        const path = `/vendor/${vendor.id}`
-
-        return (
-          <NavLink
-            key={vendor.id}
-            href={`#vendor_${vendor.id}`}
-            label={vendor.name}
-            variant='subtle'
-            rightSection={
-              <IconChevronRight size={12} stroke={1.5} className='mantine-rotate-rtl' />
-            }
-            active={location.pathname.startsWith(path)}
-            onClick={() => {
-              if (!location.pathname.startsWith(path)) {
-                navigate(path)
-              }
-
-              close()
-            }}
-          />
-        )
-      })} */}
       <NavLink
         href='#'
         label='Admin'
