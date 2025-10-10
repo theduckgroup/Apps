@@ -1,9 +1,10 @@
-import { Anchor, AppShell, Avatar, Box, Burger, Button, Center, Container, Group, Menu, Modal, Space, Stack, Text } from '@mantine/core'
+import { Anchor, AppShell, Avatar, Box, Burger, Button, Center, Container, Group, Menu, Modal, NavLink, Space, Stack, Text } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
-import { Outlet, useNavigate } from 'react-router'
-import { IconLogout2, IconUserCircle } from '@tabler/icons-react'
+import { Outlet, useLocation, useNavigate } from 'react-router'
+import { IconChevronRight, IconLogout2, IconUserCircle, IconUsers } from '@tabler/icons-react'
 
-import { useAuth } from '../auth/AuthContext'
+import { useAuth } from 'src/auth/AuthContext'
+import env from 'src/env'
 
 function DashboardLayout() {
   const [navbarOpened, { toggle: toggleNavbar, close: closeNavbar }] = useDisclosure() // Mobile only
@@ -22,20 +23,20 @@ function DashboardLayout() {
       header={{
         height: 60
       }}
-      // navbar={{
-      //   width: 250,
-      //   breakpoint: 'sm',
-      //   collapsed: { mobile: !navbarOpened }
-      // }}
+      navbar={{
+        width: 250,
+        breakpoint: 'sm',
+        collapsed: { mobile: !navbarOpened }
+      }}
       padding={{ base: '0', sm: 'md' }}
     >
       <AppShell.Header withBorder={false}>
         <HeaderContent navbarOpened={navbarOpened} toggleNavbar={toggleNavbar} closeNavbar={closeNavbar} />
       </AppShell.Header>
 
-      {/* <AppShell.Navbar px={0} py='md' bg='dark.8' withBorder={false}>
+      <AppShell.Navbar px={0} py='md' bg='dark.8' withBorder={false}>
         <NavbarContent close={closeNavbar} />
-      </AppShell.Navbar> */}
+      </AppShell.Navbar>
 
       <AppShell.Main bg='dark.9'>
         {/* py here is opposite of AppShell.padding */}
@@ -79,7 +80,7 @@ function HeaderContent({ navbarOpened, toggleNavbar, closeNavbar }: {
 
         <Space flex={1} />
 
-         <Group gap='xs'>
+        <Group gap='xs'>
           <ProfileButton closeNavbar={closeNavbar} />
         </Group>
       </Group>
@@ -152,77 +153,59 @@ const ProfileButton = ({ closeNavbar }: {
 
 // Navbar
 
-// function NavbarContent({ close }: {
-//   close: () => void
-// }) {
-//   const location = useLocation()
-//   const navigate = useNavigate()
+function NavbarContent({ close }: {
+  close: () => void
+}) {
+  const location = useLocation()
+  const navigate = useNavigate()
 
-//   interface Vendor {
-//     id: string
-//     name: string
-//   }
+  return (
+    <>
+      <NavLink
+        href='#'
+        label='FOH Test'
+        variant='filled'
+        rightSection={
+          <IconChevronRight size={14} stroke={2} className='mantine-rotate-rtl' />
+        }
+        active={location.pathname.startsWith(env.quizApp.path)}
+        onClick={() => navigate(env.quizApp.path)}
+      />
+      {/* {vendors && vendors.map(vendor => {
+        const path = `/vendor/${vendor.id}`
 
-//   const { data: vendors, isLoading, error } = useQuery({
-//     queryKey: ['quizzes'],
-//     queryFn: async () => (await axios.get<Vendor[]>('/api/quizzes')).data
-//   })
+        return (
+          <NavLink
+            key={vendor.id}
+            href={`#vendor_${vendor.id}`}
+            label={vendor.name}
+            variant='subtle'
+            rightSection={
+              <IconChevronRight size={12} stroke={1.5} className='mantine-rotate-rtl' />
+            }
+            active={location.pathname.startsWith(path)}
+            onClick={() => {
+              if (!location.pathname.startsWith(path)) {
+                navigate(path)
+              }
 
-//   useEffect(() => {
-//     if (vendors) {
-//       if (location.pathname == '/') {
-//         navigate(`/vendor/${vendors[0].id}`)
-//       }
-//     }
-
-//   }, [navigate, vendors, location.pathname])
-
-//   if (isLoading) {
-//     return null
-//   }
-
-//   if (error) {
-//     return <Text c='red'>{formatError(error)}</Text>
-//   }
-
-//   return (
-//     <>
-//       {vendors && vendors.map(vendor => {
-//         const path = `/vendor/${vendor.id}`
-
-//         return (
-//           <NavLink
-//             key={vendor.id}
-//             href={`#vendor_${vendor.id}`}
-//             label={vendor.name}
-//             variant='subtle'
-//             rightSection={
-//               <IconChevronRight size={12} stroke={1.5} className='mantine-rotate-rtl' />
-//             }
-//             active={location.pathname.startsWith(path)}
-//             onClick={() => {
-//               if (!location.pathname.startsWith(path)) {
-//                 navigate(path)
-//               }
-
-//               close()
-//             }}
-//           />
-//         )
-//       })}
-//       <NavLink
-//         href='#'
-//         label='Manage Users'
-//         variant='subtle'
-//         leftSection={
-//           < IconUsers size={15} stroke={1.5} />
-//         }
-//         rightSection={
-//           < IconChevronRight size={12} stroke={1.5} className='mantine-rotate-rtl' />
-//         }
-//       />
-//     </>
-//   )
-// }
+              close()
+            }}
+          />
+        )
+      })} */}
+      <NavLink
+        href='#'
+        label='Admin'
+        rightSection={
+          < IconChevronRight size={12} stroke={1.5} className='mantine-rotate-rtl' />
+        }
+        variant='filled'        
+        active={location.pathname.startsWith(`/${env.adminApp.webPath}`)}
+        onClick={() => navigate(`/${env.adminApp.webPath}`)}
+      />
+    </>
+  )
+}
 
 export default DashboardLayout

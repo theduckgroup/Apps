@@ -3,11 +3,10 @@ import { Navigate, Route, Routes } from 'react-router'
 import { Loader } from '@mantine/core'
 
 import { useAuth } from 'src/auth/AuthContext'
-import DashboardLayout from './DashboardLayout'
 import LoginPage from 'src/auth/LoginPage'
+import DashboardLayout from './DashboardLayout'
 import ProfilePage from './ProfilePage'
-import QuizListPage from './QuizListPage'
-import QuizPage from './QuizPage'
+import quizRoutes from 'src/quiz'
 
 function App() {
   // Used to wait for session to be restored
@@ -20,7 +19,7 @@ function App() {
       {isLoaded ?
         <Routes>
           <>
-            <Route path='/login' element={
+            <Route path='login' element={
               <RedirectToRootIfAuthenticated>
                 <LoginPage />
               </RedirectToRootIfAuthenticated>
@@ -31,10 +30,10 @@ function App() {
                 <DashboardLayout />
               </RedirectToLoginIfUnauthenticated>
             }>
-              <Route index element={<Navigate to='/quiz-list' replace />} />
-              <Route path='quiz-list' element={<QuizListPage />} />
-              <Route path='quiz' element={<QuizPage />} />
-              <Route path='quiz/:quizId' element={<QuizPage />} />
+              <Route index element={<Navigate to='quiz-app' />} />
+              <Route path='quiz-app'>
+                {quizRoutes}
+              </Route>
               <Route path='profile' element={<ProfilePage />} />
               <Route path='*' element={<NoMatch />} />
             </Route>

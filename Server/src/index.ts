@@ -23,7 +23,6 @@ const publicDir = path.resolve(path.join(__dirname, '../public'))
 
 const app = express()
 const server = createServer(app)
-
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(compression())
@@ -40,7 +39,7 @@ eventHub.init(server)
 const MongoDBStore = createMongoDBStore(session)
 
 app.use(session({
-  name: 'quiz.sid',
+  name: 'apps.sid',
   secret: process.env.EXPRESS_SESSION_KEY!,
   resave: false,
   saveUninitialized: false,
@@ -57,12 +56,12 @@ app.use(session({
   })
 }))
 
-// Static
+// API - Quiz 
 
-// API
+import quizRouter from './quiz/api/router'
+app.use('/api/quiz-app', quizRouter)
 
-import quizRouter from 'src/api/quiz-router'
-app.use('/api', quizRouter)
+// API - splat
 
 app.use('/api/*splat', (req, res) => {
   throw createHttpError(404, `Invalid Route`)
