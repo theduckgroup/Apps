@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { Text, Stack, Paper, Group, ActionIcon, Button, Menu, Box } from '@mantine/core'
 import { DragDropContext, Droppable, Draggable, DropResult, DraggableProvided } from '@hello-pangea/dnd'
 
-import { Quiz } from 'src/quiz/models/Quiz'
+import { Quiz } from 'src/quiz-app/models/Quiz'
 import { IconChevronDown, IconChevronRight, IconGripVertical, IconPlus, IconTrash } from '@tabler/icons-react'
 import { produce } from 'immer'
 import SelectedResponseItemEditor from './SelectedResponseItemEditor'

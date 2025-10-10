@@ -3,7 +3,7 @@ import { ActionIcon, Box, Button, Divider, Flex, Group, Menu, Paper, Space, Stac
 import { ObjectId } from 'bson'
 import { produce } from 'immer'
 
-import { Quiz } from 'src/quiz/models/Quiz'
+import { Quiz } from 'src/quiz-app/models/Quiz'
 import EditItemModal, { EditItemModalOptions } from './EditItemModal'
 import EditSectionModal, { EditSectionModalOptions } from './EditSectionModal'
 import ConfirmDeleteModal, { ConfirmDeleteModalOptions } from './ConfirmDeleteModal'

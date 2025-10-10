@@ -9,7 +9,7 @@ import { ApiProvider } from './providers/ApiProvider'
 import LoginPage from 'src/app/LoginPage'
 import DashboardLayout from './DashboardLayout'
 import ProfilePage from './ProfilePage'
-import quizRoutes from 'src/quiz'
+import quizRoutes from 'src/quiz-app'
 
 function App() {
   return (

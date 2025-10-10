@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { ActionIcon, Box, Button, Group, HoverCard, List, Modal, Select, Stack, Text, Textarea } from "@mantine/core"
-import { Quiz } from 'src/quiz/models/Quiz'
+import { Quiz } from 'src/quiz-app/models/Quiz'
 
 import ListItemEditor from './ListItemEditor'
 import SelectedResponseItemEditor from './SelectedResponseItemEditor'

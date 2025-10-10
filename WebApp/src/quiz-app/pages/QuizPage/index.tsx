@@ -8,7 +8,7 @@ import { produce } from 'immer'
 
 import { useApi } from 'src/app/providers/ApiContext'
 import { usePath } from 'src/app/providers/PathContext'
-import { Quiz } from 'src/quiz/models/Quiz'
+import { Quiz } from 'src/quiz-app/models/Quiz'
 import { EditQuizMetadataModal } from './EditQuizMetadataModal'
 import QuizItemsEditor from './QuizItemsEditor'
 import useRepeatedModal from 'src/common/use-repeated-modal'

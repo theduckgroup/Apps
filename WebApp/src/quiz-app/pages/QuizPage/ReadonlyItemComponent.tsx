@@ -1,6 +1,6 @@
 import { Box, Divider, Flex, Group, Paper, Stack, Text } from '@mantine/core'
 import { IconSquare, IconSquareFilled } from '@tabler/icons-react'
-import { Quiz } from 'src/quiz/models/Quiz'
+import { Quiz } from 'src/quiz-app/models/Quiz'
 
 /**
  * Readonly component for an item

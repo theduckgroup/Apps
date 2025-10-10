@@ -1,4 +1,4 @@
-import { Quiz } from 'src/quiz/models/Quiz'
+import { Quiz } from 'src/quiz-app/models/Quiz'
 import { produce } from 'immer'
 import PromptInput from './PromptInput'
 

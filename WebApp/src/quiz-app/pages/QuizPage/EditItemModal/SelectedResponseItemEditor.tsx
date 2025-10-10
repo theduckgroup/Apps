@@ -4,7 +4,7 @@ import { Text, Button, ActionIcon, Group, Box, Stack, Paper, Textarea } from '@m
 import { IconGripVertical, IconTrash, IconPlus } from '@tabler/icons-react'
 import { ObjectId } from 'bson'
 
-import { Quiz } from 'src/quiz/models/Quiz'
+import { Quiz } from 'src/quiz-app/models/Quiz'
 import { produce } from 'immer'
 import PromptInput from './PromptInput'
 
