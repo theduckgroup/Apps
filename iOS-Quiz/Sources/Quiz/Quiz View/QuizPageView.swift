@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import Equatable
 
 struct QuizPageView: View {
     var page: QuizViewModel.QuizResponsePage
@@ -82,10 +83,19 @@ struct QuizPageView: View {
     }
 }
 
-struct ItemResponseView: View  {
+// Equatable DOES make a significant difference
+// Check this by typing random letters quickly
+
+struct ItemResponseView: View, Equatable {
     var item: Quiz.Item
     @Binding var itemResponse: QuizResponse.ItemResponse
     var compact: Bool = false
+    
+    static func == (x: ItemResponseView, y: ItemResponseView) -> Bool {
+        areEqual(x.item, y.item) &&
+        areEqual(x.itemResponse, y.itemResponse) &&
+        x.compact == y.compact
+    }
     
     var body: some View {
         switch itemResponse {
@@ -126,8 +136,10 @@ struct ItemResponseView: View  {
             preconditionFailure()
         }
     }
+
 }
 
+@Equatable
 private struct SelectedResponseItemResponseView: View {
     var item: Quiz.SelectedResponseItem
     @Binding var response: QuizResponse.SelectedResponseItemResponse
@@ -171,6 +183,7 @@ private struct SelectedResponseItemResponseView: View {
     }
 }
 
+@Equatable
 private struct TextInputItemResponseView: View {
     var item: Quiz.TextInputItem
     @Binding var response: QuizResponse.TextInputItemResponse
@@ -194,12 +207,13 @@ private struct TextInputItemResponseView: View {
     }
 }
 
+@Equatable
 private struct ListItemResponseView: View {
     var item: Quiz.ListItem
     @Binding var response: QuizResponse.ListItemResponse
     @ScaledMetric var bulletSize = 9
     @ScaledMetric var bulletWidth = 21
-    @ScaledMetric var bulletOffset = -1.5
+    @ScaledMetric var bulletOffset = -2
     @ScaledMetric var spacing = 12
     
     var body: some View {
@@ -210,7 +224,7 @@ private struct ListItemResponseView: View {
             VStack(alignment: .leading, spacing: spacing) {
                 ForEach($response.data.itemResponses, id: \.id) { $subitemResponse in
                     HStack(alignment: .firstTextBaseline, spacing: 0) {
-                        Text("▪")
+                        Text("■")
                             .font(.system(size: bulletSize))
                             .frame(width: bulletWidth, alignment: .leading)
                             .offset(y: bulletOffset)

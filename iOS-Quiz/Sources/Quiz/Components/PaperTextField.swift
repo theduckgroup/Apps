@@ -12,40 +12,41 @@ struct PaperTextField: View {
     }
     
     var body: some View {
-//        TextField("", text: $text, axis: .vertical)
-//            .foregroundStyle(.secondary)
-//            .lineLimit(5)
-//            .focused($focused)
-//            .padding(.top, verticalPadding)
-//            .padding(.bottom, verticalPadding)
-//            .autocorrectionDisabled()
-//            .contentShape(Rectangle())
-//            .overlay(alignment: .bottom) {
-//                Rectangle()
-//                    .fill(Color(UIColor.systemGray3))
-//                    .frame(height: 1)
-//            }
-//            .onTapGesture {
-//                focused = true
-//            }
+        TextField("", text: $text, axis: .vertical)
+            .foregroundStyle(.secondary)
+            .lineLimit(5)
+            .focused($focused)
+            .padding(.top, verticalPadding)
+            .padding(.bottom, verticalPadding)
+            .autocorrectionDisabled()
+            .contentShape(Rectangle())
+            .overlay(alignment: .bottom) {
+                Rectangle()
+                    .fill(Color(UIColor.systemGray3))
+                    .frame(height: 1)
+            }
+            .onTapGesture {
+                focused = true
+            }
         
-        MultilineTextField(
-            text: $text,
-            font: .preferredFont(forTextStyle: .body),
-            textColor: .secondaryLabel
-        )
-        .focused($focused)
-        .padding(.top, verticalPadding)
-        .padding(.bottom, verticalPadding)
-        .autocorrectionDisabled()
-        .contentShape(Rectangle())
-        .overlay(alignment: .bottom) {
-            Rectangle()
-                .fill(Color(UIColor.systemGray3))
-                .frame(height: 1)
-        }
-        .onTapGesture {
-            focused = true
-        }
+//        MultilineTextField(
+//            text: $text,
+//            textStyle: .body,
+//            textColor: .secondaryLabel
+//        )
+//        .updatesBindingImmediately(false)
+//        .focused($focused)
+//        .padding(.top, verticalPadding)
+//        .padding(.bottom, verticalPadding)
+//        .autocorrectionDisabled()
+//        .contentShape(Rectangle())
+//        .overlay(alignment: .bottom) {
+//            Rectangle()
+//                .fill(Color(UIColor.systemGray3))
+//                .frame(height: 1)
+//        }
+//        .onTapGesture {
+//            focused = true
+//        }
     }
 }

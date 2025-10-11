@@ -1,12 +1,21 @@
 import Foundation
 
-struct Quiz: Identifiable {
+struct Quiz: Equatable, Identifiable {
     var id: String
     var name: String
     var code: String
     var itemsPerPage: Int
     var items: [any Item]
     var sections: [Section]
+    
+    static func ==(_ x: Self, _ y: Self) -> Bool {
+        x.id == y.id &&
+        x.name == y.name &&
+        x.code == y.code &&
+        x.itemsPerPage == y.itemsPerPage &&
+        x.items.elementsEqual(y.items, by: areEqual) &&
+        x.sections == y.sections
+    }
     
     func itemForID(_ id: String) -> (any Item)? {
         let item = items.first { $0.id == id }
@@ -80,40 +89,45 @@ extension Quiz {
         }
     }
     
-    struct SelectedResponseItem: Item, Codable {
+    struct SelectedResponseItem: Item, Equatable, Codable {
         var id: String
         var kind: ItemKind
         var data: Data
         
-        struct Data: Codable {
+        struct Data: Equatable, Codable {
             var prompt: String
             var options: [Option]
             
-            struct Option: Identifiable, Codable {
+            struct Option: Identifiable, Equatable, Codable {
                 var id: String
                 var value: String
             }
         }
     }
     
-    struct TextInputItem: Item, Codable {
+    struct TextInputItem: Item, Equatable, Codable {
         var id: String
         var kind: ItemKind
         var data: Data
         
-        struct Data: Codable {
+        struct Data: Equatable, Codable {
             var prompt: String
         }
     }
     
-    struct ListItem: Item, Codable {
+    struct ListItem: Item, Equatable, Codable {
         var id: String
         var kind: ItemKind
         var data: Data
         
-        struct Data: Codable {
+        struct Data: Equatable, Codable {
             var prompt: String
             var items: [any Item]
+            
+            static func ==(x: Self, y: Self) -> Bool {
+                x.prompt == y.prompt &&
+                x.items.elementsEqual(y.items, by: areEqual)
+            }
             
             init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -134,26 +148,45 @@ extension Quiz {
         }
     }
     
-    enum ItemKind: String, Codable {
+    enum ItemKind: String, Equatable, Codable {
         case selectedResponseItem
         case textInputItem
         case listItem
     }
     
-    struct Section: Codable {
+    struct Section: Equatable, Codable {
         var id: String
         var name: String
         var rows: [Row]
         
-        struct Row: Codable {
+        struct Row: Equatable, Codable {
             var itemId: String
         }
     }
 }
 
+// Items compare
+
+func areEqual(_ x: Quiz.Item, _ y: Quiz.Item) -> Bool {
+    func areEqual<T: Equatable>(_ x: Quiz.Item, _ y: Quiz.Item, ofType: T.Type) -> Bool {
+        if let x = x as? T, let y = y as? T {
+            return x == y
+            
+        } else {
+            return false
+        }
+    }
+    
+    return (
+        areEqual(x, y, ofType: Quiz.SelectedResponseItem.self) ||
+        areEqual(x, y, ofType: Quiz.TextInputItem.self) ||
+        areEqual(x, y, ofType: Quiz.ListItem.self)
+    )
+}
+
 // Items coding
 
-extension KeyedDecodingContainer {
+private extension KeyedDecodingContainer {
     func decode(_ type: [Quiz.Item].Type, forKey key: K) throws -> [Quiz.Item] {
         var nestedContainer = try nestedUnkeyedContainer(forKey: key)
         var items: [Quiz.Item] = []
@@ -181,7 +214,7 @@ extension KeyedDecodingContainer {
     }
 }
 
-extension KeyedEncodingContainer {
+private extension KeyedEncodingContainer {
     mutating func encode(_ items: [Quiz.Item], forKey key: K) throws {
         var nestedContainer = nestedUnkeyedContainer(forKey: key)
         

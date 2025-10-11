@@ -16,6 +16,8 @@
 		73D2F5FD2DCF19620012CCBE /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 73D2F5FC2DCF19620012CCBE /* SocketIO */; };
 		73D2F5FF2DCF196D0012CCBE /* FOH Test [local].app in Resources */ = {isa = PBXBuildFile; fileRef = 73D2F5092DCC6E7D0012CCBE /* FOH Test [local].app */; };
 		73D2F6032DCF19720012CCBE /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 73D2F6022DCF19720012CCBE /* SocketIO */; };
+		73E01ED12E99CC70004570BF /* Equatable in Frameworks */ = {isa = PBXBuildFile; productRef = 73E01ED02E99CC70004570BF /* Equatable */; };
+		73E01ED32E99CC7C004570BF /* Equatable in Frameworks */ = {isa = PBXBuildFile; productRef = 73E01ED22E99CC7C004570BF /* Equatable */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +71,7 @@
 			files = (
 				738F341B2E97315D00F876DB /* SwiftBSON in Frameworks */,
 				73B0BDDC2E968F0100501694 /* Auth in Frameworks */,
+				73E01ED32E99CC7C004570BF /* Equatable in Frameworks */,
 				73D2F6032DCF19720012CCBE /* SocketIO in Frameworks */,
 				73B0BDE82E968FBF00501694 /* Supabase in Frameworks */,
 			);
@@ -80,6 +83,7 @@
 			files = (
 				738F34192E97315000F876DB /* SwiftBSON in Frameworks */,
 				73B0BDDE2E968F1500501694 /* Auth in Frameworks */,
+				73E01ED12E99CC70004570BF /* Equatable in Frameworks */,
 				73D2F5FD2DCF19620012CCBE /* SocketIO in Frameworks */,
 				73B0BDE62E968FBB00501694 /* Supabase in Frameworks */,
 			);
@@ -138,6 +142,7 @@
 				73B0BDDB2E968F0100501694 /* Auth */,
 				73B0BDE72E968FBF00501694 /* Supabase */,
 				738F341A2E97315D00F876DB /* SwiftBSON */,
+				73E01ED22E99CC7C004570BF /* Equatable */,
 			);
 			productName = Inventory;
 			productReference = 73B1F29E2D694E8F0069610E /* FOH Test.app */;
@@ -164,6 +169,7 @@
 				73B0BDDD2E968F1500501694 /* Auth */,
 				73B0BDE52E968FBB00501694 /* Supabase */,
 				738F34182E97315000F876DB /* SwiftBSON */,
+				73E01ED02E99CC70004570BF /* Equatable */,
 			);
 			productName = Inventory;
 			productReference = 73D2F5092DCC6E7D0012CCBE /* FOH Test [local].app */;
@@ -197,6 +203,7 @@
 				73D2F5FB2DCF19620012CCBE /* XCRemoteSwiftPackageReference "socket" */,
 				73B0BDDA2E968F0100501694 /* XCRemoteSwiftPackageReference "supabase-swift" */,
 				738F34172E97315000F876DB /* XCRemoteSwiftPackageReference "swift-bson" */,
+				73E01ECF2E99CC70004570BF /* XCRemoteSwiftPackageReference "equatable" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 73B1F29F2D694E8F0069610E /* Products */;
@@ -446,7 +453,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 447AVTZYHV;
+				DEVELOPMENT_TEAM = HQGEN8T35Z;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Sources/Info.plist;
@@ -478,7 +485,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 447AVTZYHV;
+				DEVELOPMENT_TEAM = HQGEN8T35Z;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Sources/Info.plist;
@@ -559,6 +566,14 @@
 				minimumVersion = 16.1.1;
 			};
 		};
+		73E01ECF2E99CC70004570BF /* XCRemoteSwiftPackageReference "equatable" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ordo-one/equatable.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -601,6 +616,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 73D2F5FB2DCF19620012CCBE /* XCRemoteSwiftPackageReference "socket" */;
 			productName = SocketIO;
+		};
+		73E01ED02E99CC70004570BF /* Equatable */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73E01ECF2E99CC70004570BF /* XCRemoteSwiftPackageReference "equatable" */;
+			productName = Equatable;
+		};
+		73E01ED22E99CC7C004570BF /* Equatable */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73E01ECF2E99CC70004570BF /* XCRemoteSwiftPackageReference "equatable" */;
+			productName = Equatable;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
