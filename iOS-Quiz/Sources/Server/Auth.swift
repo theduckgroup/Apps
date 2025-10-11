@@ -44,7 +44,7 @@ class Auth {
     }
     
     func signOut() async throws {
-        try await supabaseClient.auth.signOut()
+        try await supabaseClient.auth.signOut(scope: .local)
     }
     
     func handleOAuthURL(_ url: URL) {

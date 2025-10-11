@@ -50,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     logout: async () => {
       try {
-        const response = await supabase.auth.signOut()
+        const response = await supabase.auth.signOut({ scope: 'local' })
 
         if (response.error) {
           throw response.error
