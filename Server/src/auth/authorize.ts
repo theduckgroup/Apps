@@ -23,9 +23,7 @@ export default async function authorize(req: Request, res: Response, next: NextF
 export async function authorizeAdmin(req: Request, res: Response, next: NextFunction) {
   await authorizeImpl(req)
 
-  // const roles = req.auth!.roles
-  const roles: string[] = []
-
+  const roles: string[] = req.user!.app_metadata.roles ?? []
   const authorized = roles.includes('org:owner') || roles.includes('org:admin')
 
   if (!authorized) {
@@ -48,13 +46,13 @@ async function authorizeImpl(req: Request) {
     throw createHttpError(401, 'Invalid authorization')
   }
 
-  const userResponse = (await supabase.auth.getUser(jwt))
+  const { data, error } = (await supabase.auth.getUser(jwt))
   
-  if (userResponse.error) {
-    throw createHttpError(401, `Invalid JWT: ${userResponse.error.message}`)
+  if (error) {
+    throw createHttpError(401, `Invalid JWT: ${error.message}`)
   }
   
-  req.user = userResponse.data.user
+  req.user = data.user
 }
 
 declare global {

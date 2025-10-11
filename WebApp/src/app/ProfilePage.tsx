@@ -14,8 +14,8 @@ const ProfilePage = () => {
             <Stack>
               <Title order={2} c='gray.0'>Profile</Title>
               <Stack gap={0}>
-                <Text>{`${user.user_metadata.first_name} ${user.user_metadata.last_name}`}</Text>
-                <Text>{user.user_metadata.email}</Text>
+                <Text>{`${user.userMetadata.firstName} ${user.userMetadata.lastName}`}</Text>
+                <Text>{user.email}</Text>
               </Stack>
             </Stack>
             {/* <Divider /> */}

@@ -56,12 +56,13 @@ app.use(session({
   })
 }))
 
-// API - Quiz 
+// API
 
-import quizRouter from './quiz-app/api/router'
-app.use('/api/quiz-app', quizRouter)
+import quizAppRouter from './quiz-app/api/router'
+app.use('/api/quiz-app', quizAppRouter)
 
-// API - splat
+import adminAppRouter from './admin-app/api/router'
+app.use('/api/admin', adminAppRouter)
 
 app.use('/api/*splat', (req, res) => {
   throw createHttpError(404, `Invalid Route`)

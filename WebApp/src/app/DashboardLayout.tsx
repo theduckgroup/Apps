@@ -92,7 +92,6 @@ const ProfileButton = ({ closeNavbar }: {
 }) => {
   const navigate = useNavigate()
   const { user, logout } = useAuth()
-  const name = user && `${user.user_metadata.firstName} ${user.user_metadata.lastName}`
 
   const [logoutModalOpened, { open: openLogoutModal, close: closeLogoutModal }] = useDisclosure(false)
   const [menuOpened, { open: openMenu, close: closeMenu }] = useDisclosure(false)
@@ -107,7 +106,7 @@ const ProfileButton = ({ closeNavbar }: {
     >
       <Menu.Target>
         <Avatar
-          name={name}
+          name={user?.name}
           color='initials'
           radius='xl'
           className='cursor-pointer'

@@ -2,6 +2,7 @@ import { ReactNode, useEffect, useState } from 'react'
 import { Session, createClient } from '@supabase/supabase-js'
 
 import { AuthContext, AuthContextValue } from './AuthContext'
+import { User } from '../models/User'
 
 // This is part of AuthContext, but split into separate file
 // due to fast refresh restrictions 
@@ -38,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value: AuthContextValue = {
     isLoaded,
-    user: session?.user,
+    user: session?.user ? new User(session.user) : null,
     login: async (options) => {
       const response = await supabase.auth.signInWithPassword(options)
 

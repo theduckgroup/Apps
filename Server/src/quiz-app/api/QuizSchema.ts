@@ -1,4 +1,4 @@
-import Ajv, { Schema } from 'ajv/dist/jtd.js'
+import Ajv from 'ajv/dist/jtd.js'
 
 const schema = { // Can't annotate `Schema` type, will break type validation
   definitions: {

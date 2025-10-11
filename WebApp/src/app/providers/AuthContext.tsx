@@ -1,9 +1,10 @@
 import { createContext, useContext } from 'react'
-import { Session, User } from '@supabase/supabase-js'
+import { Session } from '@supabase/supabase-js'
+import { User } from '../models/User'
 
 export interface AuthContextValue {
   isLoaded: boolean
-  user?: User
+  user: User | null
   login: (options: {email: string, password: string}) => Promise<void>
   logout: () => Promise<void>,
   getSession: () => Promise<Session | null>,

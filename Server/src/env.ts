@@ -7,6 +7,10 @@ export default {
     uri: load('MONGODB_URI'),
     dbName: load('MONGODB_DB_NAME'),
   },
+  supabase: {
+    url: load('SUPABASE_URL'),
+    key: load('SUPABASE_KEY')
+  },
   axiom: {
     token: load('AXIOM_TOKEN'),
     dataset: load('AXIOM_DATASET')

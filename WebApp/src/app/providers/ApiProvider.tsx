@@ -13,7 +13,6 @@ export function ApiProvider({ baseUrl, children }: {
   })
 
   axiosInstance.interceptors.request.use(async request => {
-    console.info(`request`, request)
     const session = await getSession()
 
     if (session) {
@@ -25,7 +24,6 @@ export function ApiProvider({ baseUrl, children }: {
 
   axiosInstance.interceptors.response.use(
     async response => {
-      console.info(`response`, response)
       if (response.status == 401) {
         await logout()
       }
@@ -38,7 +36,7 @@ export function ApiProvider({ baseUrl, children }: {
           await logout()
         }
       }
-      
+
       throw error
     }
   )

@@ -19,10 +19,10 @@ socket.connect()
 
 const eventHub = {
   onEvent: (eventName: string, callback: () => void): () => void => {
-    console.info(`! Listening to ${eventName}`)
+    console.info(`! Listening to ${eventName} ????`)
     
     const listener = () => {
-      console.info(`! Received ${eventName}`)
+      console.info(`! Received ${eventName}, callback = `, callback)
       callback()
     }
 
@@ -33,29 +33,6 @@ const eventHub = {
     return () => {
       console.info(`! Unregister ${eventName}`)
       socket.off(eventName, listener)
-    }
-  },
-
-  /**
-   * Listens to vendor change event.
-   * 
-   * @returns Function that can be used to stop listening.
-   */
-  onQuizzesChanged: (callback: () => void): () => void => {
-    console.info(`! Listening...`)
-    const listener = () => {
-      console.info(`! Received quizzes changed`)
-      callback()
-    }
-
-    const event = `event:quizzes:changed`
-    socket.on(event, listener)
-
-    // Very important to remove listener
-
-    return () => {
-      console.info(`! Unregister listener`)
-      socket.off(event, listener)
     }
   }
 }
