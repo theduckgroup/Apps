@@ -218,7 +218,7 @@ extension View {
         .onAppear {
             Task {
                 do {
-                    quiz = try await Server.mockQuiz()
+                    quiz = try await API.shared.mockQuiz()
                     
                 } catch {
                     logger.error("Unable to get mock quiz: \(error)")

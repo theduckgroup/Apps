@@ -95,7 +95,7 @@ struct HomeView: View {
                         .multilineTextAlignment(.leading)
                     
                     Button("Retry") {
-                        fetchQuiz()
+                        fetchQuiz(delay: true)
                     }
                     .buttonStyle(.bordered)
                     .frame(maxWidth: .infinity, alignment: .trailing)
@@ -114,24 +114,26 @@ struct HomeView: View {
         }
     }
     
-    private func fetchQuiz() {
+    private func fetchQuiz(delay: Bool = false) {
         fetchTask?.cancel()
         
         fetchTask = Task {
             isFetching = true
             
             do {
-                try await Task.sleep(for: .seconds(0.5)) // Grace
+                if delay {
+                    try await Task.sleep(for: .seconds(1))
+                }
                 
                 // throw GenericError("Culpa dolore sit pariatur commodo nulla commodo amet ad velit magna commodo fugiat. Laboris reprehenderit do culpa. Enim quis cupidatat ex mollit elit aute proident dolor dolor laboris et ex esse aliqua fugiat. Commodo officia consequat minim elit aliquip qui veniam labore dolore eu culpa aliquip ex.")
                 // throw GenericError("Not connected to internet")
                 
                 let quiz = try await {
                     if isRunningForPreviews {
-                        return try await Server.mockQuiz()
+                        return try await API.shared.mockQuiz()
                     }
                     
-                    return try await Server.quiz(code: "FOH_STAFF_KNOWLEDGE")
+                    return try await API.shared.quiz(code: "FOH_STAFF_KNOWLEDGE")
                 }()
 
                 self.quizResult = .success(quiz)
