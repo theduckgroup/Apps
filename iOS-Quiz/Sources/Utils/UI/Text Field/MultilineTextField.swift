@@ -22,7 +22,7 @@ public struct MultilineTextField: View {
     public var placeholder: String
     @Binding public var text: String
     public var editable: Bool
-    public var font: UIFont
+    public var textStyle: UIFont.TextStyle
     public var textColor: UIColor
     public var updatesBindingImmediately = true
     public var minimumHeight: CGFloat = 0
@@ -31,22 +31,25 @@ public struct MultilineTextField: View {
     public var pasteDisabled: Bool = false
     public var onEndEditing: (() -> Void)?
     public var proxy: Proxy?
-    @State internal var internalText: String
+    @State fileprivate var internalText: String
     @State private var height: CGFloat = 0
+    @State fileprivate var font: UIFont
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     
     public init(
         _ placeholder: String = "",
         text: Binding<String>,
         editable: Bool = true,
-        font: UIFont = .preferredFont(forTextStyle: .subheadline),
+        textStyle: UIFont.TextStyle = .body,
         textColor: UIColor = .secondaryLabel
     ) {
         self.placeholder = placeholder
         self._text = text
         self.internalText = text.wrappedValue
         self.editable = editable
-        self.font = font
+        self.textStyle = textStyle
         self.textColor = textColor
+        self.font = .preferredFont(forTextStyle: textStyle)
     }
     
     /// If `true` binding is updated immediately as user types, otherwise it will be updated when
@@ -106,6 +109,13 @@ public struct MultilineTextField: View {
                 internalText = newValue
             }
         }
+        .onAppear(perform: updateFont)
+        .onChange(of: dynamicTypeSize, updateFont)
+    }
+    
+    private func updateFont() {
+        let traitCollection = UITraitCollection(preferredContentSizeCategory: .init(dynamicTypeSize))
+        self.font = .preferredFont(forTextStyle: textStyle, compatibleWith: traitCollection)
     }
     
     private func computeHeight(_ geometryProxy: GeometryProxy) -> CGFloat {
@@ -113,12 +123,12 @@ public struct MultilineTextField: View {
             let textHeight = fittingHeight(text: internalText, geometryProxy)
             let placeholderHeight = fittingHeight(text: placeholder, geometryProxy)
             let minimumHeightFromLines = font.lineHeight * CGFloat(self.mininumNumberOfLines)
-            return max(textHeight, placeholderHeight, self.minimumHeight, minimumHeightFromLines)
+            return max(textHeight, placeholderHeight, self.minimumHeight, minimumHeightFromLines).rounded(.up)
             
         } else {
             let textHeight = fittingHeight(text: internalText, geometryProxy)
             let placeholderHeight = internalText.isEmpty ? fittingHeight(text: placeholder, geometryProxy) : 0
-            return max(textHeight, placeholderHeight)
+            return max(textHeight, placeholderHeight).rounded(.up)
         }
     }
     
