@@ -19,10 +19,10 @@ socket.connect()
 
 const eventHub = {
   onEvent: (eventName: string, callback: () => void): () => void => {
-    console.info(`! Listening to ${eventName} ????`)
+    console.info(`! Listening to ${eventName}`)
     
     const listener = () => {
-      console.info(`! Received ${eventName}, callback = `, callback)
+      console.info(`! Received ${eventName}`)
       callback()
     }
 

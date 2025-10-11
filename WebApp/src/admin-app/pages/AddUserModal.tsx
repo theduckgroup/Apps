@@ -4,8 +4,7 @@ import { hasLength, isEmail, isNotEmpty, useForm } from '@mantine/form'
 import { useMutation } from '@tanstack/react-query'
 import { IconInfoCircle } from '@tabler/icons-react'
 
-import { useAuth } from 'src/app/providers/AuthContext'
-import { useApi } from 'src/app/providers/ApiContext'
+import { useAuth, useApi } from 'src/app/contexts'
 import formatError from 'src/common/format-error'
 import sleep from 'src/common/sleep'
 

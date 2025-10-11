@@ -1,7 +1,7 @@
 import { Stack, Text, Title } from '@mantine/core'
 // import { IconExternalLink } from '@tabler/icons-react'
 
-import { useAuth } from 'src/app/providers/AuthContext'
+import { useAuth } from 'src/app/contexts'
 
 const ProfilePage = () => {
   const { user } = useAuth()

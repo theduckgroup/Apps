@@ -1,6 +1,6 @@
-import axios from 'axios';
-import { ApiContext, ApiContextValue } from 'src/app/providers/ApiContext';
-import { useAuth } from 'src/app/providers/AuthContext';
+import axios from 'axios'
+import { useAuth } from './AuthContext'
+import { ApiContext, ApiContextValue } from './ApiContext'
 
 export function ApiProvider({ baseUrl, children }: {
   baseUrl: string,

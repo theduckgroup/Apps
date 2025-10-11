@@ -3,7 +3,7 @@ import { useDisclosure } from '@mantine/hooks'
 import { Outlet, useLocation, useNavigate } from 'react-router'
 import { IconChevronRight, IconLogout2, IconUserCircle } from '@tabler/icons-react'
 
-import { useAuth } from 'src/app/providers/AuthContext'
+import { useAuth } from 'src/app/contexts'
 
 function DashboardLayout() {
   const [navbarOpened, { toggle: toggleNavbar, close: closeNavbar }] = useDisclosure() // Mobile only

@@ -3,10 +3,9 @@ import { Button, Grid, Group, Paper, Stack, Text, Title } from '@mantine/core'
 import { IconPlus } from '@tabler/icons-react'
 import { useQuery } from '@tanstack/react-query'
 
+import { usePath, useApi } from 'src/app/contexts'
 import { QuizMetadata } from 'src/quiz-app/models/Quiz'
 import quizEventHub from 'src/quiz-app/event-hub'
-import { useApi } from 'src/app/providers/ApiContext'
-import { usePath } from 'src/app/providers/PathContext'
 
 const QuizListPage = () => {
   const { axios } = useApi()
