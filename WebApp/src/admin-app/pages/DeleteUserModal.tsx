@@ -3,7 +3,7 @@ import { Button, Group, Modal, Text } from '@mantine/core'
 
 import { useApi } from 'src/app/contexts'
 import formatError from 'src/common/format-error'
-import sleep from 'src/utils/sleep'
+import sleep from 'src/common/sleep'
 
 export default function DeleteUserModal({ userId, opened, onClose }: DeleteUserModalProps) {
   const { axios } = useApi()
