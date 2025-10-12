@@ -1,8 +1,9 @@
 import { ReactNode } from 'react'
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router'
-import { Loader } from '@mantine/core'
+import { MantineProvider, Loader } from '@mantine/core'
 
-import { AuthProvider, useAuth, PathProvider, ApiProvider  } from './contexts'
+import { AuthProvider, useAuth, PathProvider, ApiProvider } from './contexts'
+import theme from './mantine-theme'
 import LoginPage from 'src/app/pages/LoginPage'
 import DashboardLayout from './pages/DashboardLayout'
 import ProfilePage from './pages/ProfilePage'
@@ -11,11 +12,13 @@ import adminAppRoutes from 'src/admin-app/routes'
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
-    </AuthProvider>
+    <MantineProvider defaultColorScheme='dark' theme={theme}>
+      <AuthProvider>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </AuthProvider>
+    </MantineProvider>
   )
 }
 
