@@ -29,7 +29,7 @@ const QuizListPage = () => {
 
   return (
     <Stack gap='md' align='flex-start'>
-      <Title order={2}>Tests</Title>
+      <Title order={2} c='gray.0'>Tests</Title>
       {(() => {
         if (isLoading) {
           return <Text>Loading...</Text>
