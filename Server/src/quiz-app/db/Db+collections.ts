@@ -1,13 +1,11 @@
 import { Db } from 'mongodb'
-import { DbUserData } from './DbUserData'
 import { DbQuiz } from './DbQuiz'
-
-// Don't actually need to import this
+import { DbQuizResponse } from './DbQuizResponse'
 
 declare module 'mongodb' {
   interface Db {
-    collection_userData: Collection<DbUserData>
     collection_quizzes: Collection<DbQuiz>
+    collection_quizResponses: Collection<DbQuizResponse>
   }
 }
 
@@ -19,10 +17,10 @@ Object.defineProperty(Db.prototype, 'collection_quizzes', {
   configurable: true, // Allow redefining if needed
 })
 
-Object.defineProperty(Db.prototype, 'collection_userData', {
-  get(this: Db) {    
-    return this.collection<DbUserData>('user_data')
+Object.defineProperty(Db.prototype, 'collection_quizResponses', {
+  get(this: Db) {
+    return this.collection<DbQuizResponse>('quiz_responses')
   },
-  enumerable: true, // Make it visible when iterating properties
-  configurable: true, // Allow redefining if needed
+  enumerable: true,
+  configurable: true,
 })

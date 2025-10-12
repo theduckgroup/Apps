@@ -6,6 +6,7 @@ import { getDb } from 'src/db'
 import { authorizeAdmin } from 'src/auth/authorize'
 import eventHub from './event-hub'
 import QuizSchema from './QuizSchema'
+import QuizResponseSchema from './QuizResponseSchema'
 import logger from 'src/logger'
 
 const privateRouter = express.Router()
@@ -78,9 +79,6 @@ privateRouter.get('/quiz' /* ?code=XYZ */, async (req, res) => {
 })
 
 privateRouter.put('/quiz/:id', async (req, res) => {
-  // await new Promise(resolve => setTimeout(resolve, 5000))
-  // throw createHttpError(400, 'Fake error')
-
   const id = req.params.id
 
   const { data, error: schemaError } = QuizSchema.safeParse(req.body)
@@ -113,6 +111,47 @@ privateRouter.put('/quiz/:id', async (req, res) => {
   res.send()
 
   eventHub.emitQuizzesChanged()
+})
+
+privateRouter.post('/quiz-response/submit', async (req, res) => {
+  const { data, error: schemaError } = QuizResponseSchema.safeParse(req.body)
+
+  if (schemaError) {
+    logger.error(schemaError)
+    throw createHttpError(400)
+  }
+
+  const db = await getDb()
+
+  const doc = {
+    ...data,
+    createdDate: new Date(data.createdDate)
+  }
+
+  await db.collection_quizResponses.insertOne(doc)
+
+  res.send()
+})
+
+privateRouter.get('/quiz-response/:id', async (req, res) => {
+  const db = await getDb()
+
+  const doc = await db.collection_quizResponses.findOne({
+    _id: new Object(req.params.id)
+  })
+
+  if (!doc) {
+    throw createHttpError(404)
+  }
+
+  const data = {
+    ...doc,
+    _id: undefined,
+    id: doc._id.toString(),
+    createdDate: doc.createdDate.toISOString(),
+  }
+
+  res.send(data)
 })
 
 // Public router
