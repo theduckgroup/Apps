@@ -1,3 +1,4 @@
+import { User } from '@supabase/supabase-js'
 import express from 'express'
 import createHttpError from 'http-errors'
 import z from 'zod'
@@ -5,8 +6,9 @@ import z from 'zod'
 import supabase from 'src/auth/supabase-client'
 import { authorizeAdmin } from 'src/auth/authorize'
 import eventHub from './event-hub'
-import { Role, Roles, getRoles } from './roles'
+import { Role, Roles, getUserName, getUserRoles } from './user-extensions'
 import logger from 'src/logger'
+import mailer from 'src/utils/mailer'
 
 const router = express.Router()
 
@@ -68,7 +70,7 @@ router.post('/user', async (req, res) => {
 
   // Permission
 
-  checkRoles(getRoles(req.user!), data.app_metadata.roles, 'create')
+  checkRoles(getUserRoles(req.user!), data.app_metadata.roles, 'create')
 
   // Create user
 
@@ -84,7 +86,7 @@ router.post('/user', async (req, res) => {
     logger.error(error)
 
     if (error.code == 'email_exists') {
-      
+
     }
     throw createHttpError(500, error.message)
   }
@@ -116,7 +118,7 @@ router.patch('/user/:id', async (req, res) => {
 
   // Permissions
 
-  checkRoles(getRoles(req.user!), getRoles(targetUser), 'update')
+  checkRoles(getUserRoles(req.user!), getUserRoles(targetUser), 'update')
 
   // Update user
 
@@ -134,6 +136,8 @@ router.patch('/user/:id', async (req, res) => {
   res.send()
 
   eventHub.emitUsersChanged()
+
+  sendOwnerChangedEmail(req.user!, targetUser, 'updated')
 })
 
 // Delete a user
@@ -143,10 +147,10 @@ router.delete('/user/:id', async (req, res) => {
 
   const uid = req.params.id
   const targetUser = await getUser(uid)
-  
+
   // Roles
 
-  checkRoles(getRoles(req.user!), getRoles(targetUser), 'delete')
+  checkRoles(getUserRoles(req.user!), getUserRoles(targetUser), 'delete')
 
   // Delete user
 
@@ -160,6 +164,8 @@ router.delete('/user/:id', async (req, res) => {
   res.send()
 
   eventHub.emitUsersChanged()
+
+  sendOwnerChangedEmail(req.user!, targetUser, 'deleted')
 })
 
 /**
@@ -209,6 +215,26 @@ async function getUser(uid: string) {
   }
 
   return user
+}
+
+function sendOwnerChangedEmail(currentUser: User, targetUser: User, action: string) {
+  if (!getUserRoles(targetUser).includes('org:owner')) {
+    return
+  }
+
+  logger.info('Sending owner changed email')
+
+  // Not waiting
+  mailer.sendMail({
+    recipients: [
+      {
+        name: getUserName(targetUser),
+        email: targetUser.email!
+      }
+    ],
+    subject: `Account ${action}`,
+    contentHtml: `Your account has been ${action} by ${getUserName(currentUser)}`
+  })
 }
 
 export default router

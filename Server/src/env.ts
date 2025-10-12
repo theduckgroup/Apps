@@ -11,6 +11,11 @@ export default {
     url: load('SUPABASE_URL'),
     key: load('SUPABASE_KEY')
   },
+  zohoMailer: {
+    name: load('ZOHO_MAILER_NAME'),
+    username: load('ZOHO_MAILER_USERNAME'),
+    password: load('ZOHO_MAILER_PASSWORD')
+  },
   axiom: {
     token: load('AXIOM_TOKEN'),
     dataset: load('AXIOM_DATASET')
