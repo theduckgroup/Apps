@@ -2,11 +2,8 @@ import 'dotenv/config'
 
 import express from 'express'
 import { createServer } from 'http'
-import session from 'express-session'
-import createMongoDBStore from 'connect-mongodb-session'
 import compression from 'compression'
 import createHttpError from 'http-errors'
-import ms from 'ms'
 import path from 'path'
 
 import rateLimiter from 'src/common/rate-limiter'
@@ -16,7 +13,7 @@ import logger from './logger'
 
 // Env
 
-import env from './env'
+import _ from './env'
 const publicDir = path.resolve(path.join(__dirname, '../public'))
 
 // Express
@@ -33,28 +30,6 @@ app.use(rateLimiter())
 
 import eventHub from './event-hub'
 eventHub.init(server)
-
-// Session
-
-const MongoDBStore = createMongoDBStore(session)
-
-app.use(session({
-  name: 'apps.sid',
-  secret: process.env.EXPRESS_SESSION_KEY!,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV != 'local',
-    httpOnly: true,
-    sameSite: 'strict',
-    maxAge: ms('100y'),
-  },
-  store: new MongoDBStore({
-    uri: env.mongodb.uri,
-    databaseName: env.mongodb.dbName,
-    collection: 'express_sessions'
-  })
-}))
 
 // API
 
