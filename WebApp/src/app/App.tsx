@@ -9,6 +9,7 @@ import DashboardLayout from './pages/DashboardLayout'
 import ProfilePage from './pages/ProfilePage'
 import quizAppRoutes from 'src/quiz-app/routes'
 import adminAppRoutes from 'src/admin-app/routes'
+import QuizResponsePage from 'src/quiz-app/pages/QuizResponsePage'
 
 function App() {
   return (
@@ -37,6 +38,8 @@ function AppRoutes() {
               <LoginPage />
             </RedirectToRootIfAuthenticated>
           } />
+
+          <Route path='/fohtest/view/:id' element={<QuizResponsePage />}/>
 
           <Route path='/' element={
             <RedirectToLoginIfUnauthenticated>
