@@ -1,79 +1,65 @@
-import Ajv from 'ajv/dist/jtd.js'
+import { z } from "zod"
 
-const schema = { // Can't annotate `Schema` type, will break type validation
-  definitions: {
-    Quiz: {
-      properties: {
-        id: { type: 'string' },
-        name: { type: 'string' },
-        code: { type: 'string' },
-        itemsPerPage: { type: 'int32' },
-        items: { elements: { ref: 'Item' } },
-        sections: { elements: { ref: 'Section' } }
-      }
-    },
-    Item: {
-      discriminator: 'kind',
-      mapping: {
-        // Note: can't use ref in mapping, must define properties directly
-        listItem: {
-          properties: {
-            id: { type: 'string' },
-            data: {
-              properties: {
-                prompt: { type: 'string' },
-                items: { elements: { ref: 'Item' } }
-              }
-            }
-          }
-        },
-        selectedResponseItem: {
-          properties: {
-            id: { type: 'string' },
-            data: {
-              properties: {
-                prompt: { type: 'string' },
-                options: {
-                  elements: {
-                    properties: {
-                      id: { type: 'string' },
-                      value: { type: 'string' }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        textInputItem: {
-          properties: {
-            id: { type: 'string' },
-            data: {
-              properties: {
-                prompt: { type: 'string' }
-              }
-            }
-          }
-        }
-      }
-    },
-    Section: {
-      properties: {
-        id: { type: 'string' },
-        name: { type: 'string' },
-        rows: {
-          elements: {
-            properties: {
-              itemId: { type: 'string' }
-            }
-          }
-        }
-      }
-    }
-  },
-  ref: 'Quiz'
-} as const
+// ---------- Item Variants ----------
 
-const validateQuiz = new Ajv().compile(schema)
+const SelectedResponseItemSchema = z.object({
+  kind: z.literal("selectedResponseItem"),
+  id: z.string(),
+  data: z.object({
+    prompt: z.string(),
+    options: z.array(
+      z.object({
+        id: z.string(),
+        value: z.string(),
+      })
+    ),
+  }),
+})
 
-export { validateQuiz }
+const TextInputItemSchema = z.object({
+  kind: z.literal("textInputItem"),
+  id: z.string(),
+  data: z.object({
+    prompt: z.string(),
+  }),
+})
+
+const ListItemSchema = z.object({
+  kind: z.literal("listItem"),
+  id: z.string(),
+  data: z.object({
+    prompt: z.string(),
+    // recursive definition: items contains other Items
+    items: z.array(
+      z.discriminatedUnion("kind", [
+        SelectedResponseItemSchema,
+        TextInputItemSchema,
+      ])
+    )
+  }),
+})
+
+const ItemSchema = z.discriminatedUnion("kind", [
+  SelectedResponseItemSchema,
+  TextInputItemSchema,
+  ListItemSchema
+])
+
+const SectionSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  rows: z.array(
+    z.object({
+      itemId: z.string(),
+    })
+  ),
+})
+
+export default z.object({
+  id: z.string(),
+  name: z.string(),
+  code: z.string(),
+  itemsPerPage: z.number().int(),
+  items: z.array(ItemSchema),
+  sections: z.array(SectionSchema),
+})

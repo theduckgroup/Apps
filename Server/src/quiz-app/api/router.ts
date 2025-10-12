@@ -5,8 +5,8 @@ import createHttpError from 'http-errors'
 import { getDb } from 'src/db'
 import { authorizeAdmin } from 'src/auth/authorize'
 import eventHub from './event-hub'
-import { validateQuiz } from './QuizSchema'
-import formatSchemaErrors from 'src/utils/format-schema-errors'
+import QuizSchema from './QuizSchema'
+import logger from 'src/logger'
 
 const privateRouter = express.Router()
 
@@ -83,18 +83,21 @@ privateRouter.put('/quiz/:id', async (req, res) => {
 
   const id = req.params.id
 
-  if (!validateQuiz(req.body)) {
-    throw createHttpError(400, formatSchemaErrors(validateQuiz.errors!))
+  const { data, error: schemaError } = QuizSchema.safeParse(req.body)
+
+  if (schemaError) {
+    logger.error(schemaError)
+    throw createHttpError(400)
   }
 
-  if (id != req.body.id) {
+  if (id != data.id) {
     throw createHttpError(400, 'Inconsistent body ID')
   }
 
   const db = await getDb()
 
-  const data = {
-    ...req.body,
+  const doc = {
+    ...data,
     _id: new ObjectId(id),
     id: undefined
   }
@@ -102,7 +105,7 @@ privateRouter.put('/quiz/:id', async (req, res) => {
   await db.collection_quizzes.findOneAndUpdate({
     _id: new ObjectId(id)
   }, {
-    $set: data
+    $set: doc
   }, {
     upsert: true
   })
