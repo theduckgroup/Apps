@@ -16,35 +16,43 @@ struct SettingsView: View {
     @ViewBuilder
     private func bodyContent() -> some View {
         VStack(alignment: .leading, spacing: 18) {
-            ColorSchemeView()
-            
             if let user = auth.user {
-                Divider()
-                
-                VStack(alignment: .leading) {
-                    Text(user.email ?? "")
+                HStack(alignment: .firstTextBaseline) {
+//                    Image(systemName: "person.fill")
+//                        .foregroundStyle(.secondary)
                     
-                    Button("Log out") {
-                        presentingLogoutAlert = true
-                    }
-                    .buttonStyle(.borderless)
-                    .alert("Log out?", isPresented: $presentingLogoutAlert) {
-                        Button("Log out") {
-                            Task {
-                                try await auth.signOut()
-                            }
-                        }
+                    VStack(alignment: .leading) {
+                        Text(user.name)
+                            .bold()
                         
-                        Button("Cancel", role: .cancel) {}
+                        Text(user.email ?? "")                            
+                        
+                        Button("Log out") {
+                            presentingLogoutAlert = true
+                        }
+                        .buttonStyle(.borderless)
+                        .alert("Log out?", isPresented: $presentingLogoutAlert) {
+                            Button("Log out") {
+                                Task {
+                                    try await auth.signOut()
+                                }
+                            }
+                            
+                            Button("Cancel", role: .cancel) {}
+                        }
                     }
                 }
+                
+                Divider()
             }
+            
+            ColorSchemeView()
             
             Divider()
             
             Text("Version: \(AppInfo.marketingVersion) (\(AppInfo.bundleVersion))")
         }
-        .frame(width: 240)
+        .frame(minWidth: 240)
         .padding(.horizontal, 27)
         .padding(.vertical, 24)
         .presentationCompactAdaptation(.popover)
@@ -52,14 +60,15 @@ struct SettingsView: View {
 }
 
 #Preview {
+    @Previewable @State var presenting = true
     VStack() {
         HStack {
             Spacer()
             
-            Button("", systemImage: "square.and.arrow.up") {
-                
+            Button("", systemImage: "person.fill") {
+                presenting = true
             }
-            .popover(isPresented: .constant(true)) {
+            .popover(isPresented: $presenting) {
                 SettingsView()
             }
         }

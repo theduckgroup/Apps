@@ -24,7 +24,10 @@ class Auth {
             return User(
                 id: UUID(),
                 appMetadata: [:],
-                userMetadata: [:],
+                userMetadata: [
+                    "first_name": "The Duck Group App",
+                    "last_name": ""
+                ],
                 aud: "",
                 email: "theduckgroupapp@gmail.com",
                 createdAt: Date(),
@@ -64,3 +67,16 @@ class Auth {
     }
 }
 
+extension User {
+    var firstName: String {
+        userMetadata["first_name"]?.value as? String ?? ""
+    }
+    
+    var lastName: String {
+        userMetadata["last_name"]?.value as? String ?? ""
+    }
+    
+    var name: String {
+        [firstName, lastName].filter { !$0.isEmpty }.joined(separator: " ")
+    }
+}
