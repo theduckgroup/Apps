@@ -56,7 +56,8 @@ struct HomeView: View {
                         .padding(.horizontal)
                 }
                 .disabled(quiz == nil)
-                .buttonStyle(.bordered)
+                .buttonStyle_glassProminent_shim()
+                .glassEffectShim()
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -66,10 +67,12 @@ struct HomeView: View {
                     presentingSettings = true
                     
                 } label: {
-                    Image(systemName: "gearshape.2.fill")
+                    Image(systemName: "person.fill")
+                        .frame(width: 44, height: 44)
                         .contentShape(Rectangle())
                 }
-                .buttonStyle(.bordered)
+                // .buttonStyle(.bordered)
+                .glassEffectShim()
                 .padding(.bottom, 3)
                 .popover(isPresented: $presentingSettings) {
                     SettingsView()
@@ -173,6 +176,15 @@ extension View {
             for await value in createStream() {
                 perform(value)
             }
+        }
+    }
+    
+    @ViewBuilder
+    func buttonStyle_glassProminent_shim() -> some View {
+        if #available(iOS 26, *) {
+            buttonStyle(.glassProminent)
+        } else {
+            buttonStyle(.borderedProminent)
         }
     }
 }

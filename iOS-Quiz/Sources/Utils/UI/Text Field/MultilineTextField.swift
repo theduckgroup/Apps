@@ -185,7 +185,6 @@ private struct UITextViewRepresentable: UIViewRepresentable {
     }
     
     private func updateAttributes(_ textView: UITextView) {
-        print("Update dynamicTypeSize = \(dynamicTypeSize) ")
         textView.minimumContentSizeCategory = .init(dynamicTypeSize)
         textView.maximumContentSizeCategory = .init(dynamicTypeSize)
         textView.adjustsFontForContentSizeCategory = true

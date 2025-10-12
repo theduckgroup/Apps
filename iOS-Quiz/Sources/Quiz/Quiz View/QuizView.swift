@@ -11,6 +11,7 @@ struct QuizView: View {
     @State private var keyboardObserver = KeyboardObserver.shared
     @AppStorage("QuizView:dynamicTypeSizeOverride") var dynamicTypeSizeOverride: DynamicTypeSizeOverride?
     @Environment(\.dynamicTypeSize) private var systemDynamicTypeSize
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.dismiss) private var dismiss
     
     init(quiz: Quiz) {
@@ -23,19 +24,24 @@ struct QuizView: View {
     var body: some View {
         GeometryReader { geometry in
             VStack {
-                NavigationStack {
+//                NavigationStack {
+                VStack {
                     tabView()
-                        .overlay(alignment: .bottom, ) {
+                        .overlay(alignment: .top) {
+                            topBar()
+                                .readSize(assignTo: $topBarSize)
+                        }
+                        .overlay(alignment: .bottom) {
                             if pageIndex > 0 && !keyboardObserver.isKeyboardVisible {
                                 pageNavBar(geometry)
                                     .readSize(assignTo: $bottomBarSize)
                             }
                         }
                         .dynamicTypeSize(dynamicTypeSizeOverride?.dynamicTypeSize ?? systemDynamicTypeSize)
-                        .navigationTitle(viewModel.quiz.name)
-                        .toolbar {
-                            toolbarContent()
-                        }
+//                        .navigationTitle(viewModel.quiz.name)
+//                        .toolbar {
+//                            toolbarContent()
+//                        }
                     // Can apply this to make the overlay ignore keyboard safe area
                     // However that breaks scroll view automatic keyboard avoidance
                     // .ignoresSafeArea([.keyboard], edges: [.bottom])
@@ -48,12 +54,50 @@ struct QuizView: View {
         }
     }
     
-    @ToolbarContentBuilder
-    private func toolbarContent() -> some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
-            Button("Quit") {
+//    @ToolbarContentBuilder
+//    private func toolbarContent() -> some ToolbarContent {
+//        ToolbarItem(placement: .topBarLeading) {
+//            Button("Quit") {
+//                presentingQuitAlert = true
+//            }
+//            .alert("", isPresented: $presentingQuitAlert) {
+//                Button("Quit", role: .destructive) {
+//                    dismiss()
+//                }
+//            } message: {
+//                Text("Quit without submitting test? You will not be able to return to it.")
+//            }
+//        }
+//        
+//        ToolbarItemGroup(placement: .topBarTrailing) {
+//            Button {
+//                presentingAppearancePopover = true
+//                
+//            } label: {
+//                Image(systemName: "textformat.el")
+//                    .font(.subheadline)
+//            }
+//            .popover(isPresented: $presentingAppearancePopover) {
+//                QuizAppearanceView(dynamicTypeSizeOverride: $dynamicTypeSizeOverride)
+//            }
+//            
+//            Button("Submit") {
+//                handleSubmit()
+//            }
+//            .bold()
+//        }
+//    }
+    
+    @ViewBuilder
+    private func topBar() -> some View {
+        HStack(spacing: 18) {
+            Button {
                 presentingQuitAlert = true
+
+            } label: {
+                Text("Quit")
             }
+            .buttonStyle(.paper(maxHeight: .infinity))
             .alert("", isPresented: $presentingQuitAlert) {
                 Button("Quit", role: .destructive) {
                     dismiss()
@@ -61,25 +105,44 @@ struct QuizView: View {
             } message: {
                 Text("Quit without submitting test? You will not be able to return to it.")
             }
-        }
-        
-        ToolbarItemGroup(placement: .topBarTrailing) {
-            Button {
-                presentingAppearancePopover = true
-                
-            } label: {
-                Image(systemName: "textformat.el")
-                    .font(.subheadline)
-            }
-            .popover(isPresented: $presentingAppearancePopover) {
-                QuizAppearanceView(dynamicTypeSizeOverride: $dynamicTypeSizeOverride)
-            }
             
-            Button("Submit") {
-                handleSubmit()
+//            if horizontalSizeClass == .regular {
+//                Text(viewModel.quiz.name)
+//                    .fontWeight(.bold)
+//                    .frame(minHeight: 44)
+//                    .padding(.horizontal, 24)
+//                    .background {
+//                        Capsule()
+//                            .fill(.background)
+//                    }
+//                    .glassEffectShim()
+//            }
+            
+            Spacer()
+            
+            HStack {
+                Button {
+                    presentingAppearancePopover = true
+                    
+                } label: {
+                    Image(systemName: "textformat.el")
+                }
+                .buttonStyle(.paper(maxHeight: .infinity))
+                .popover(isPresented: $presentingAppearancePopover) {
+                    QuizAppearanceView(dynamicTypeSizeOverride: $dynamicTypeSizeOverride)
+                }
+                
+                Button {
+                    handleSubmit()
+                    
+                } label: {
+                    Text("Submit")
+                }
+                .buttonStyle(.paper(prominent: true, maxHeight: .infinity))
             }
-            .bold()
         }
+        .fixedSize(horizontal: false, vertical: true)
+        .padding()
     }
     
     @ViewBuilder
@@ -133,8 +196,8 @@ struct QuizView: View {
                 
             } label: {
                 Image(systemName: "chevron.left")
-                    .padding(.horizontal, 18)
-                    .padding(.vertical, 15)
+                    .padding(.horizontal, 15)
+                    .padding(.vertical, 12)
                     .contentShape(Rectangle())
             }
             .disabled(!previousAllowed)
@@ -142,7 +205,6 @@ struct QuizView: View {
             Text("Page \(pageIndex + 1)")
                 .monospacedDigit()
                 .foregroundStyle(.secondary)
-                .padding(.vertical, 15)
             
             Button {
                 handleNext()
@@ -155,11 +217,10 @@ struct QuizView: View {
             }
             .disabled(!nextAllowed)
         }
+        .font(.subheadline)
         .padding(.horizontal, 12)
-        .glassEffectShim()
-        .padding(.horizontal)
+        .paperCapsuleBackground()
         .padding(.bottom, geometry.safeAreaInsets.bottom > 0 ? 12 : 21)
-        // .padding(.bottom, geometry.safeAreaInsets.bottom)
     }
     
     private var respondentIsEmpty: Bool {
@@ -227,7 +288,7 @@ extension View {
         }
         .fullScreenCover(item: $quiz) { quiz in
             QuizView(quiz: quiz)
-                .tint(.red)
+                .tint(.blue)
         }
         .environment(AppDefaults())
 }
