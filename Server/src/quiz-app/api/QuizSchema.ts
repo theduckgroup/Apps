@@ -1,7 +1,5 @@
 import { z } from "zod"
 
-// ---------- Item Variants ----------
-
 const SelectedResponseItemSchema = z.object({
   kind: z.literal("selectedResponseItem"),
   id: z.string(),
