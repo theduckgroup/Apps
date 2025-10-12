@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 
 export default function RoleSelect({ role, disabled, selectInputProps }: {
   role: 'owner' | 'admin' | 'user',
-  disabled: boolean,
+  disabled?: boolean,
   selectInputProps: object,
 }) {
   // const [roleInfoVisible, setRoleInfoVisible] = useState(false)

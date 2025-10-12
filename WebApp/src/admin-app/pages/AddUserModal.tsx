@@ -123,7 +123,6 @@ export default function AddUserModal({ opened, onClose }: AddUserModalProps) {
 
             {/* Role select */}
             <RoleSelect
-              isOwner={isOwner}
               role={form.values.role}
               selectInputProps={form.getInputProps('role')}
             />
