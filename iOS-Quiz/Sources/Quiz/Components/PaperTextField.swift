@@ -4,15 +4,16 @@ import SwiftUI
 /// Text field with a line at the bottom similar to on paper.
 struct PaperTextField: View {
     @Binding var text: String
-    @FocusState var focused: Bool
-    @ScaledMetric var verticalPadding = 3
+    var multiline: Bool = false
+    @FocusState private var focused: Bool
+    @ScaledMetric private var verticalPadding = 3
     
     init(text: Binding<String>) {
         self._text = text
     }
     
     var body: some View {
-        TextField("", text: $text, axis: .vertical)
+        TextField("", text: $text, axis: multiline ? .vertical : .horizontal)
             .foregroundStyle(.secondary)
             .lineLimit(5)
             .focused($focused)

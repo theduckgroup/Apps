@@ -9,6 +9,7 @@ struct QuizView: View {
     @State private var presentingAppearancePopover = false
     @State private var presentingQuitAlert = false
     @State private var keyboardObserver = KeyboardObserver.shared
+    @State private var didFinishRespondent = false
     @AppStorage("QuizView:dynamicTypeSizeOverride") var dynamicTypeSizeOverride: DynamicTypeSizeOverride?
     @Environment(\.dynamicTypeSize) private var systemDynamicTypeSize
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -32,7 +33,7 @@ struct QuizView: View {
                                 .readSize(assignTo: $topBarSize)
                         }
                         .overlay(alignment: .bottom) {
-                            if pageIndex > 0 && !keyboardObserver.isKeyboardVisible {
+                            if didFinishRespondent && !keyboardObserver.isKeyboardVisible {
                                 pageNavBar(geometry)
                                     .readSize(assignTo: $bottomBarSize)
                             }
@@ -97,7 +98,7 @@ struct QuizView: View {
             } label: {
                 Text("Quit")
             }
-            .buttonStyle(.paper(maxHeight: .infinity))
+            .buttonStyle(.paper(wide: true, maxHeight: .infinity))
             .alert("", isPresented: $presentingQuitAlert) {
                 Button("Quit", role: .destructive) {
                     dismiss()
@@ -127,7 +128,7 @@ struct QuizView: View {
                 } label: {
                     Image(systemName: "textformat.el")
                 }
-                .buttonStyle(.paper(maxHeight: .infinity))
+                .buttonStyle(.paper(wide: true, maxHeight: .infinity))
                 .popover(isPresented: $presentingAppearancePopover) {
                     QuizAppearanceView(dynamicTypeSizeOverride: $dynamicTypeSizeOverride)
                 }
@@ -138,7 +139,8 @@ struct QuizView: View {
                 } label: {
                     Text("Submit")
                 }
-                .buttonStyle(.paper(prominent: true, maxHeight: .infinity))
+                .disabled(!didFinishRespondent)
+                .buttonStyle(.paper(prominent: true, wide: true, maxHeight: .infinity))
             }
         }
         .fixedSize(horizontal: false, vertical: true)
@@ -154,7 +156,10 @@ struct QuizView: View {
                     case .respondentPage:
                         RespondentView(
                             nextEnabled: !respondentIsEmpty,
-                            onNext: handleNext
+                            onNext: {
+                                didFinishRespondent = true
+                                handleNext()
+                            }
                         )
                         
                     case .quizResponsePage(let page):

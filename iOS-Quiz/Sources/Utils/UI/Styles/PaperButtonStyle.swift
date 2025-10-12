@@ -3,44 +3,52 @@ import SwiftUI
 
 struct PaperButtonStyle: ButtonStyle {
     var prominent = false
+    var wide = false
     var maxHeight: CGFloat?
+    @Environment(\.isEnabled) private var isEnabled: Bool
     
     func makeBody(configuration: Configuration) -> some View {
-        if prominent {
-            withPadding {
+        Group {
+            if prominent {
                 configuration.label
                     .bold()
                     .foregroundStyle(.white)
+                
+            } else {
+                if configuration.isPressed {
+                    configuration.label
+                        .foregroundStyle(.tint.opacity(0.5))
+                    
+                } else {
+                    configuration.label
+                        .foregroundStyle(.tint)
+                }
             }
-            .background {
-                Capsule().fill(.tint)
-            }
-            
-        } else {
-            withPadding {
-                configuration.label
-                    .foregroundStyle(.tint)
-            }
-            .background {
+        }
+        .padding(.horizontal, wide ? 24 : 12)
+        .padding(.vertical, 12)
+        .frame(minWidth: 44, minHeight: 44, maxHeight: maxHeight)
+        .contentShape(Rectangle())
+        .background {
+            if prominent {
+                if isEnabled {
+                    Capsule().fill(.tint.opacity(configuration.isPressed ? 0.5 : 1))
+                    
+                } else {
+                    Capsule().fill(Color(UIColor.systemFill))
+                }
+            } else {
                 Capsule()
                     .fill(.background)
                     .paperShadow()
             }
         }
     }
-    
-    private func withPadding(@ViewBuilder _ content: () -> some View) -> some View {
-        content()
-            .padding(.horizontal, 24)
-            .padding(.vertical, 9)
-            .frame(minHeight: 44, maxHeight: maxHeight)
-            .contentShape(Rectangle())
-    }
 }
 
 extension ButtonStyle where Self == PaperButtonStyle {
-    static func paper(prominent: Bool = false, maxHeight: CGFloat? = nil) -> Self {
-        PaperButtonStyle(prominent: prominent, maxHeight: maxHeight)
+    static func paper(prominent: Bool = false, wide: Bool = false, maxHeight: CGFloat? = nil) -> Self {
+        PaperButtonStyle(prominent: prominent, wide: wide, maxHeight: maxHeight)
     }
 }
 

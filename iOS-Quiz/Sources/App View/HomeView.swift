@@ -68,11 +68,9 @@ struct HomeView: View {
                     
                 } label: {
                     Image(systemName: "person.fill")
-                        .frame(width: 44, height: 44)
                         .contentShape(Rectangle())
                 }
-                // .buttonStyle(.bordered)
-                .glassEffectShim()
+                .buttonStyle(.paper())
                 .padding(.bottom, 3)
                 .popover(isPresented: $presentingSettings) {
                     SettingsView()
@@ -193,27 +191,4 @@ extension View {
     HomeView()
         .tint(.red)
         .environment(AppDefaults())
-}
-
-extension Result {
-    var isSuccess: Bool {
-        switch self {
-        case .success: true
-        case .failure: false
-        }
-    }
-    
-    var isFailure: Bool {
-        switch self {
-        case .success: false
-        case .failure: true
-        }
-    }
-    
-    var error: Error? {
-        switch self {
-        case .success: nil
-        case .failure(let error): error
-        }
-    }
 }

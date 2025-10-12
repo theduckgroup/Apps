@@ -12,8 +12,12 @@ struct RespondentView: View {
         @Bindable var viewModel = viewModel
         
         ScrollView {
-            VStack(alignment: .trailing, spacing: 0) {
-                VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 24) {
+                Text(viewModel.quiz.name)
+                    .font(.title)
+                    .fontWeight(.semibold)
+                
+                VStack(alignment: .leading, spacing: 12) {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Name")
                         PaperTextField(text: $viewModel.quizResponse.respondent.name)
@@ -25,21 +29,15 @@ struct RespondentView: View {
                         PaperTextField(text: $viewModel.quizResponse.respondent.store)
                     }
                 }
-                .padding(.horizontal, 24)
-                .padding(.vertical, 30)
-                .frame(width: horizontalSizeClass == .regular ? 540 : nil)
-                .background {
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color(UIColor.secondarySystemBackground))
-                }
-                .padding(.top, horizontalSizeClass == .regular ? 54 : 0)
                 
-                PageNavButton("Next", systemImage: "chevron.right") {
-                    onNext()
-                    // UIApplication.dismissKeyboard()
+                HStack {
+                    Spacer() 
+                    PageNavButton("Next", systemImage: "chevron.right") {
+                        onNext()
+                        UIApplication.dismissKeyboard()
+                    }
+                    .disabled(!nextEnabled)
                 }
-                .disabled(!nextEnabled)
-                .padding(.top, 24)
             }
             .padding()
         }
