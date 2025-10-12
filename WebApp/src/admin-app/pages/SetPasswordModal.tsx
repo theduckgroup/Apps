@@ -3,12 +3,13 @@ import { useMutation } from '@tanstack/react-query'
 import { Modal, Text, Button, Group, Stack, PasswordInput } from '@mantine/core'
 import { hasLength, isNotEmpty, useForm } from '@mantine/form'
 
+import { useApi } from 'src/app/contexts'
 import { User } from 'src/app/models/User'
-import sleep from 'src/common/sleep'
-import axios from 'axios'
 import formatError from 'src/common/format-error'
 
 const SetPasswordModal: React.FC<SetPasswordModalProps> = ({ user, opened, onClose }) => {
+  const { axios } = useApi()
+
   const form = useForm({
     initialValues: {
       password: ''
@@ -22,9 +23,12 @@ const SetPasswordModal: React.FC<SetPasswordModalProps> = ({ user, opened, onClo
   })
 
   const mutation = useMutation<void, Error, typeof form.values>({
-    mutationFn: async (data) => {
-      await sleep(500)
-      return (await axios.patch(`/api/users/${user.id}/set_password`, data)).data
+    mutationFn: async (values) => {
+      const data = {
+        password: values.password
+      }
+
+      return (await axios.patch(`/user/${user.id}`, data)).data
     },
     onSuccess: () => {
       onClose()
@@ -40,6 +44,7 @@ const SetPasswordModal: React.FC<SetPasswordModalProps> = ({ user, opened, onClo
       title='Set Password'
       opened={opened}
       onClose={onClose}
+      closeOnClickOutside={false}
     >
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack gap='md'>

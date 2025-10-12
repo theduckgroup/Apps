@@ -6,10 +6,10 @@ import { useQuery } from '@tanstack/react-query'
 import { usePath, useApi } from 'src/app/contexts'
 import { QuizMetadata } from 'src/quiz-app/models/Quiz'
 import quizEventHub from 'src/quiz-app/event-hub'
+import formatError from 'src/common/format-error'
 
 const QuizListPage = () => {
   const { axios } = useApi()
-  const { navigate } = usePath()
 
   const { data, error, isLoading, refetch } = useQuery({
     queryKey: ['quizzes'],
@@ -24,37 +24,52 @@ const QuizListPage = () => {
       refetch()
     })
 
-    return () => {
-      unsub()
-    }
+    return unsub
   }, [refetch])
-
-  if (error) {
-    return <p>{error.message}</p>
-  }
 
   return (
     <Stack gap='md' align='flex-start'>
       <Title order={2}>Tests</Title>
+      {(() => {
+        if (isLoading) {
+          return <Text>Loading...</Text>
+        }
+
+        if (error) {
+          return <Text c='red'>{formatError(error)}</Text>
+        }
+        if (!data) {
+          return <Text>???</Text>
+        }
+
+        return <Content data={data} />
+      })()}
+    </Stack>
+  )
+}
+
+function Content({ data }: {
+  data: QuizMetadata[]
+}) {
+  const { navigate } = usePath()
+
+  return (
+    <Stack align='flex-start' w='100%'>
+      <Grid w='100%'>
+        {
+          data.map(metaquiz => <QuizComponent key={metaquiz.id} metaquiz={metaquiz} />)
+        }
+      </Grid>
       {
-        isLoading ? (
-          <Text>Loading...</Text>
-        ) : (
-          data &&
-          <Grid w='100%'>
-            {
-              data.map(metaquiz => <QuizComponent key={metaquiz.id} metaquiz={metaquiz} />)
-            }
-          </Grid>
-        )
+        import.meta.env.DEV &&
+        <Button
+          variant='filled'
+          leftSection={<IconPlus size={16} strokeWidth={2} />}
+          onClick={() => navigate('/quiz')}
+        >
+          [dev] Add Test
+        </Button>
       }
-      <Button
-        variant='filled'
-        leftSection={<IconPlus size={16} strokeWidth={2} />}
-        onClick={() => navigate('/quiz')}
-      >
-        Add Test
-      </Button>
     </Stack>
   )
 }

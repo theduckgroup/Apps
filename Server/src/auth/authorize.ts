@@ -1,18 +1,14 @@
 import { Request, Response, NextFunction } from 'express'
 import createHttpError from 'http-errors'
-import jwt, { TokenExpiredError } from 'jsonwebtoken'
-import { AxiosError } from 'axios'
-
-import env from 'src/env'
-import supabase from './supabase-client'
 import { User } from '@supabase/supabase-js'
+import supabase from './supabase-client'
 
 /**
  * Middleware that authorizes user.
  * 
  * If authorization is successful, `req.user` is set to the authorized user.
  */
-export default async function authorize(req: Request, res: Response, next: NextFunction) {
+export async function authorize(req: Request, res: Response, next: NextFunction) {
   await authorizeImpl(req)
   next()
 }

@@ -3,14 +3,14 @@ import { ObjectId } from 'mongodb'
 import createHttpError from 'http-errors'
 
 import { getDb } from 'src/db'
-import authorize, { authorizeAdmin } from 'src/auth/authorize'
+import { authorizeAdmin } from 'src/auth/authorize'
 import eventHub from './event-hub'
 import { validateQuiz } from './QuizSchema'
 import formatSchemaErrors from 'src/utils/format-schema-errors'
 
 const privateRouter = express.Router()
 
-privateRouter.use(authorize)
+privateRouter.use(authorizeAdmin)
 
 privateRouter.get('/quizzes', async (req, res) => {
   const db = await getDb()

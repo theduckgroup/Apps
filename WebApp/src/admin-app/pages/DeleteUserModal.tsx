@@ -1,15 +1,17 @@
 import { useMutation } from '@tanstack/react-query'
 import { Button, Group, Modal, Text } from '@mantine/core'
-import axios from 'axios'
+
+import { useApi } from 'src/app/contexts'
 import formatError from 'src/common/format-error'
-import sleep from 'src/common/sleep'
+import sleep from 'src/utils/sleep'
 
 export default function DeleteUserModal({ userId, opened, onClose }: DeleteUserModalProps) {
+  const { axios } = useApi()
+  
   const { mutate: deleteUser, isPending: isDeleting, error: deleteError } = useMutation({
     mutationFn: async (userId: string) => {
-      // Can't use wait({ minMs }) -- UI will refresh immediately after user is delete
       await sleep(500)
-      await axios.delete(`/api/users/${userId}`)
+      await axios.delete(`/user/${userId}`)
     },
     onSuccess: () => {
       onClose()

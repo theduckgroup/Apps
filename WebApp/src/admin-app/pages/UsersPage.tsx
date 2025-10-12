@@ -11,6 +11,7 @@ import EditUserModal from './EditUserModal'
 import DeleteUserModal from './DeleteUserModal'
 import SetPasswordModal from './SetPasswordModal'
 import useRepeatedModal from 'src/common/use-repeated-modal'
+import formatError from 'src/common/format-error'
 
 export default function UsersPage() {
   const { axios } = useApi()
@@ -42,7 +43,7 @@ export default function UsersPage() {
         }
 
         if (error) {
-          return <Text c='red'>{error.message}</Text>
+          return <Text c='red'>{formatError(error)}</Text>
         }
 
         if (!users) {
@@ -78,7 +79,7 @@ function Content({ users }: { users: User[] }) {
                 Role
               </Table.Th>
               <Table.Th styles={{ th: { width: '15%' } }}>
-
+                {/* Manage */}
               </Table.Th>
             </Table.Tr>
           </Table.Thead>
@@ -119,7 +120,6 @@ function UserRow({ user, onDelete }: {
   onDelete: () => void
 }) {
   const { user: currentUser } = useAuth()
-  const { navigate } = usePath()
   const [manageMenuOpened, setManageMenuOpened] = useState(false)
   const editModal = useRepeatedModal()
   const passwordModal = useRepeatedModal()
@@ -163,7 +163,7 @@ function UserRow({ user, onDelete }: {
       <Table.Td>{user.roleName}</Table.Td>
       <Table.Td>
         {
-          // (canEdit || canDelete) &&
+          (checkRoles('update') || checkRoles('delete')) &&
           <Group justify='end'>
             <Menu
               opened={manageMenuOpened}

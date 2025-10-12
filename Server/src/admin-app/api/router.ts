@@ -10,6 +10,7 @@ import logger from 'src/logger'
 
 const router = express.Router()
 
+// router.use(authorize)
 router.use(authorizeAdmin)
 
 // Get all users
@@ -47,7 +48,7 @@ const zUserMetadata = z.strictObject({
 })
 
 const zAppMetadata = z.strictObject({
-  roles: z.array(z.enum([Roles.owner, Roles.admin])).length(1)
+  roles: z.array(z.enum([Roles.owner, Roles.admin])).max(1)
 })
 
 const CreateUserBody = z.strictObject({
@@ -63,7 +64,6 @@ router.post('/user', async (req, res) => {
   const { data, error: zError } = CreateUserBody.safeParse(req.body)
 
   if (zError) {
-    console.info(`zod formatted error`, z.formatError(zError))
     throw createHttpError(400, z.formatError(zError))
   }
 
@@ -75,13 +75,19 @@ router.post('/user', async (req, res) => {
 
   const { data: { user: _ }, error } = await supabase.auth.admin.createUser({
     email: data.email,
+    email_confirm: true, // Confirm email automatically
     user_metadata: data.user_metadata,
     app_metadata: data.app_metadata
   })
 
   if (error) {
-    logger.error(`Unable to create user`, error)
-    throw createHttpError(500)
+    logger.error(`Failed to create user`)
+    logger.error(error)
+
+    if (error.code == 'email_exists') {
+      
+    }
+    throw createHttpError(500, error.message)
   }
 
   res.send()
@@ -145,7 +151,7 @@ router.delete('/user/:id', async (req, res) => {
 
   // Delete user
 
-  const { error } = await supabase.auth.admin.deleteUser(uid, /* shouldSoftDelete*/ true)
+  const { error } = await supabase.auth.admin.deleteUser(uid, false)
 
   if (error) {
     logger.error(`Unable to delete user`, error)
