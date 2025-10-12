@@ -14,8 +14,8 @@ struct QuizPageView: View {
     var body: some View {
         @Bindable var quizViewModel = quizViewModel
         
-        ScrollViewReader { reader in
-            ScrollView(.vertical) {
+//        ScrollViewReader { reader in
+//            ScrollView(.vertical) {
                 VStack(alignment: .leading, spacing: 0) {
                     Color.clear.frame(height: 0).id("top")
                     
@@ -31,17 +31,16 @@ struct QuizPageView: View {
                             .id(rowIndex)
                         }
                         
-                        bottomButtons()
+                        // bottomButtons()
                     }
                     .padding()
                 }
-            }
-            .scrollDismissesKeyboard(.automatic)
-            .ignoresSafeArea([.container])
-            .onAppear {
-                reader.scrollTo("top")
-            }
-        }
+//            }
+//            .scrollDismissesKeyboard(.automatic)
+//            .onAppear {
+//                reader.scrollTo("top")
+//            }
+//        }
     }
     
     @ViewBuilder
@@ -156,6 +155,8 @@ private struct SelectedResponseItemResponseView: View {
             VStack(alignment: .leading, spacing: itemSpacing) {
                 ForEach(item.data.options) { option in
                     Button {
+                        UIApplication.dismissKeyboard()
+                        
                         if let index = response.data.selectedOptions.map(\.id).firstIndex(of: option.id) {
                             response.data.selectedOptions.remove(at: index)
                         } else {
@@ -167,16 +168,32 @@ private struct SelectedResponseItemResponseView: View {
                             let selected = response.data.selectedOptions.map(\.id).contains(option.id)
                             
                             Image(systemName: selected ? "checkmark.square" : "square")
-                                .foregroundStyle(selected ? .primary : .secondary)
+                                .modified {
+                                    if selected {
+                                        $0.foregroundStyle(.tint)
+                                    } else {
+                                        $0.foregroundStyle(.secondary)
+                                    }
+                                }
+                                // .foregroundStyle(selected ? .tint : .secondary)
                             
                             Text(option.value)
                                 .multilineTextAlignment(.leading)
+                                .modified {
+                                    if selected {
+                                        $0.foregroundStyle(.tint)
+                                    } else {
+                                        $0.foregroundStyle(.primary)
+                                    }
+                                }
+                                // .foregroundStyle(selected ? .tint : .primary)
                         }
                         .foregroundStyle(Color.primary)
                         .padding(.vertical, itemVerticalPadding)
                         .contentShape(Rectangle())
                         .transaction { $0.animation = nil }
                     }
+                    .buttonStyle(.plain)
                 }
             }
         }
@@ -197,8 +214,9 @@ private struct TextInputItemResponseView: View {
             Text(item.data.prompt)
                 .fixedSize(horizontal: false, vertical: true)
             
-            PaperTextField(text: $response.data.value)
+            PaperTextField(text: $response.data.value, multiline: true)
                 .focused($focused)
+                .foregroundStyle(.tint)
         }
         .contentShape(Rectangle())
         .onTapGesture {

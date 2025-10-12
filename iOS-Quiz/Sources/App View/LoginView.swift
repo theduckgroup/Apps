@@ -9,6 +9,7 @@ struct LoginView: View {
     @State var presentingSettings = false
     @State var presentingError = false
     @State var error: String?
+    @Environment(\.colorScheme) private var colorScheme
     
     init() {}
     
@@ -74,19 +75,19 @@ struct LoginView: View {
                     if loading {
                         ProgressView()
                             .progressViewStyle(.circular)
-                            .tint(.white)
+                            .tint(.primary)
                         
                     } else {
                         Text("Log in")
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .frame(height: 30)
+                .frame(height: 33)
             }
             .buttonStyle(.borderedProminent)
         }
         .disabled(loading)
-        .frame(width: 250)
+        .frame(width: 320)
     }
     
     private func login() async {

@@ -11,8 +11,8 @@ struct PaperButtonStyle: ButtonStyle {
         Group {
             if prominent {
                 configuration.label
-                    .bold()
-                    .foregroundStyle(.white)
+                    .bold(isEnabled)
+                    .foregroundStyle(.white.opacity(isEnabled ? 1 : 0.5))
                 
             } else {
                 if configuration.isPressed {
@@ -35,7 +35,10 @@ struct PaperButtonStyle: ButtonStyle {
                     Capsule().fill(.tint.opacity(configuration.isPressed ? 0.5 : 1))
                     
                 } else {
-                    Capsule().fill(Color(UIColor.systemFill))
+                    ZStack {
+                        Capsule().fill(.background)
+                        Capsule().fill(Color(UIColor.systemFill))
+                    }
                 }
             } else {
                 Capsule()

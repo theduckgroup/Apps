@@ -26,18 +26,18 @@ struct QuizView: View {
         GeometryReader { geometry in
             VStack {
 //                NavigationStack {
-                VStack {
+//                VStack {
                     pagesView(geometry)
                         .overlay(alignment: .top) {
                             topBar()
                                 .readSize(assignTo: $topBarSize)
                         }
-                        .overlay(alignment: .bottom) {
-                            if didFinishRespondent { // && !keyboardObserver.isKeyboardVisible
-                                pageNavBar(geometry)
-                                    .readSize(assignTo: $bottomBarSize)
-                            }
-                        }
+//                        .overlay(alignment: .bottom) {
+//                            if didFinishRespondent { // && !keyboardObserver.isKeyboardVisible
+//                                pageNavBar(geometry)
+//                                    .readSize(assignTo: $bottomBarSize)
+//                            }
+//                        }
                         .dynamicTypeSize(dynamicTypeSizeOverride?.dynamicTypeSize ?? systemDynamicTypeSize)
 //                        .navigationTitle(viewModel.quiz.name)
 //                        .toolbar {
@@ -46,7 +46,7 @@ struct QuizView: View {
                     // Can apply this to make the overlay ignore keyboard safe area
                     // However that breaks scroll view automatic keyboard avoidance
                     // .ignoresSafeArea([.keyboard], edges: [.bottom])
-                }
+//                }
             }
             .environment(viewModel)
             .onChange(of: pageIndex) {
@@ -139,7 +139,7 @@ struct QuizView: View {
                 } label: {
                     Text("Submit")
                 }
-                .disabled(!didFinishRespondent)
+                // .disabled(!didFinishRespondent)
                 .buttonStyle(.paper(prominent: true, wide: true, maxHeight: .infinity))
             }
         }
@@ -149,54 +149,49 @@ struct QuizView: View {
     
     @ViewBuilder
     private func pagesView(_ geometry: GeometryProxy) -> some View {
-        // ScrollViewReader { scrollView in
-            // ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 0) {
-                    ForEach(Array(viewModel.pages.indices.dropFirst()), id: \.self) { index in
-                        let page = viewModel.pages[index]
-                        viewForPage(page)
-                            .frame(width: geometry.size.width)
-                            .id(index)
-                    }
+        ScrollView(.vertical) {
+            VStack(spacing: 0) {
+                ForEach(Array(viewModel.pages.enumerated()), id: \.offset) { pageIndex, page in
+                    viewForPage(page)
+                        .frame(width: geometry.size.width)
+                        .id(pageIndex)
                 }
-                .background {
-                    GeometryReader { geom in
-                        let offset = -geom.frame(in: .named("scroll")).origin.x
-                        let _ = print("offset = \(offset)")
-                        Color.clear.preference(key: ViewOffsetKey.self, value: offset)
-                    }
-                }
-                .onPreferenceChange(ViewOffsetKey.self) { offset in
-                    let pageIndex = Int((offset / geometry.size.width).rounded())
-                    self.pageIndex = pageIndex
-                }
-//            }
-//            .coordinateSpace(name: "scroll")
-            // .scrollTargetBehavior(.paging)
-//            .onChange(of: pageIndex) {
-//                withAnimation {
-//                    scrollView.scrollTo(pageIndex)
-//                }
-//            }
-        // }
-        
+            }
+        }
+        .contentMargins(
+            .vertical,
+            .init(
+                top: topBarSize?.height ?? 0,
+                leading: 0,
+                bottom: (bottomBarSize?.height ?? 0) + 60,
+                trailing: 0
+            ),
+            for: .scrollContent
+        )
+    }
+    
+    /*
+    @ViewBuilder
+    private func oldPagesView(_ geometry: GeometryProxy) -> some View {
         // PagesView(selection: $pageIndex, values: Array(viewModel.pages.indices)) { pageIndex in
-        // .tabViewStyle(.page(indexDisplayMode: .never))
-        // .indexViewStyle(.page(backgroundDisplayMode: .interactive))
+        TabView(selection: $pageIndex) {
+            ForEach(Array(viewModel.pages.enumerated()), id: \.offset) { pageIndex, page in
+                viewForPage(page)
+                    .frame(width: geometry.size.width)
+                    .id(pageIndex)
+            }
+        }
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .indexViewStyle(.page(backgroundDisplayMode: .interactive))
         // Enable this breaks the Next/Prev badly!
         // Issue: Next button (on Respondent page) doesn't work after dismissing keyboard
         // Safe area is not even ignored correctly
         // .ignoresSafeArea([.container], edges: [.bottom])
     }
+    */
     
-    struct ViewOffsetKey: PreferenceKey {
-        static var defaultValue = CGFloat.zero
-        
-        static func reduce(value: inout Value, nextValue: () -> Value) {
-            //
-        }
-    }
-    
+    @ScaledMetric private var pageSpacing = 15
+
     @ViewBuilder
     private func viewForPage(_ page: QuizViewModel.Page) -> some View {
         Group {
@@ -220,16 +215,16 @@ struct QuizView: View {
                 )
             }
         }
-        .contentMargins(
-            .vertical,
-            .init(
-                top: topBarSize?.height ?? 0,
-                leading: 0,
-                bottom: (bottomBarSize?.height ?? 0) + 84,
-                trailing: 0
-            ),
-            for: .scrollContent
-        )
+//        .contentMargins(
+//            .vertical,
+//            .init(
+//                top: topBarSize?.height ?? 0,
+//                leading: 0,
+//                bottom: (bottomBarSize?.height ?? 0) + 84,
+//                trailing: 0
+//            ),
+//            for: .scrollContent
+//        )
     }
     
     @ViewBuilder
