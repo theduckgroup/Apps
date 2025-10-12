@@ -49,13 +49,14 @@ class API {
         }
     }
     
-    private func makeRequest(authenticated: Bool = true, method: String, path: String, queryItems: [URLQueryItem]) throws -> URLRequest {
+    private func makeRequest(authenticated: Bool, method: String, path: String, queryItems: [URLQueryItem]) throws -> URLRequest {
         let url = baseURL.appending(path: path).appending(queryItems: queryItems)
         var request = URLRequest(url: url)
         request.httpMethod = method
         
         if authenticated {
-            guard let accessToken = Auth.shared.accessToken else {
+            print("HERE")
+            guard let accessToken = auth.accessToken else {
                 throw GenericError("Not signed in")
             }
             
@@ -82,27 +83,14 @@ class API {
 
 extension API {
     func quiz(code: String) async throws -> Quiz {
-        let queryItem = URLQueryItem(name: "code", value: "FOH_STAFF_KNOWLEDGE")
-        let quiz = try await get(path: "quiz", queryItems: [queryItem], decodeAs: Quiz.self)
-        return quiz
+        try await get(
+            path: "quiz",
+            queryItems: [.init(name: "code", value: "FOH_STAFF_KNOWLEDGE")],
+            decodeAs: Quiz.self
+        )
     }
     
     func mockQuiz() async throws -> Quiz {
-        try await get(path: "mock-quiz", decodeAs: Quiz.self)
+        try await get(authenticated: false, path: "mock-quiz", decodeAs: Quiz.self)
     }
-    
-//    static func makeRequest(authenticated: Bool = true, httpMethod: String, path: String) throws -> URLRequest {
-//        var request = URLRequest(url: apiURL.appending(path: path))
-//        request.httpMethod = httpMethod
-//        
-//        if authenticated {
-//            guard let accessToken = Auth.shared.accessToken else {
-//                throw GenericError("User is not signed in")
-//            }
-//            
-//            request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
-//        }
-//        
-//        return request
-//    }
 }
