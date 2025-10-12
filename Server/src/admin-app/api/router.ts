@@ -10,7 +10,6 @@ import logger from 'src/logger'
 
 const router = express.Router()
 
-// router.use(authorize)
 router.use(authorizeAdmin)
 
 // Get all users
@@ -42,29 +41,29 @@ router.get('/user/:id', async (req, res) => {
 
 // Create user
 
-const zUserMetadata = z.strictObject({
+const UserMetadataSchema = z.strictObject({
   first_name: z.string(),
   last_name: z.string()
 })
 
-const zAppMetadata = z.strictObject({
+const AppMetadataSchema = z.strictObject({
   roles: z.array(z.enum([Roles.owner, Roles.admin])).max(1)
 })
 
-const CreateUserBody = z.strictObject({
+const CreateUserSchema = z.strictObject({
   email: z.email(),
   password: z.string(),
-  user_metadata: zUserMetadata,
-  app_metadata: zAppMetadata
+  user_metadata: UserMetadataSchema,
+  app_metadata: AppMetadataSchema
 })
 
 router.post('/user', async (req, res) => {
   // Body
 
-  const { data, error: zError } = CreateUserBody.safeParse(req.body)
+  const { data, error: schemaError } = CreateUserSchema.safeParse(req.body)
 
-  if (zError) {
-    throw createHttpError(400, z.formatError(zError))
+  if (schemaError) {
+    throw createHttpError(400, z.formatError(schemaError))
   }
 
   // Permission
@@ -97,17 +96,17 @@ router.post('/user', async (req, res) => {
 
 // Update user
 
-const UpdateUserBody = z.strictObject({
+const UpdateUserSchema = z.strictObject({
   password: z.string().optional(),
-  user_metadata: zUserMetadata.optional(),
-  app_metadata: zAppMetadata.optional()
+  user_metadata: UserMetadataSchema.optional(),
+  app_metadata: AppMetadataSchema.optional()
 })
 
 router.patch('/user/:id', async (req, res) => {
-  const { data, error: zError } = UpdateUserBody.safeParse(req.body)
+  const { data, error: schemaError } = UpdateUserSchema.safeParse(req.body)
 
-  if (zError) {
-    throw createHttpError(500, z.formatError(zError))
+  if (schemaError) {
+    throw createHttpError(500, z.formatError(schemaError))
   }
 
   // Get user
