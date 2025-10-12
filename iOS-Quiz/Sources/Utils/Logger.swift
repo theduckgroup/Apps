@@ -4,6 +4,8 @@ import os
 private let osLogger = os.Logger()
 
 struct Logger {
+    let osLoggerLimit = 32_000
+    
     init() {}
     
     func info(_ message: String) {
@@ -12,7 +14,7 @@ struct Logger {
             return
         }
         
-        osLogger.info("\(message, privacy: .public)")
+        osLog(.info, message: message)
     }
     
     func error(_ message: String) {
@@ -21,7 +23,36 @@ struct Logger {
             return
         }
         
-        osLogger.error("ERROR: \(message, privacy: .public)")
+        osLog(.error, message: "ERROR: \(message)")
+    }
+    
+    private func osLog(_ level: OSLogType, message: String) {
+        if message.utf8.count < osLoggerLimit {
+            osLogger.log(level: level, "\(message, privacy: .public)")
+            
+        } else {
+            let formattedDate = Date().formatted(
+                .dateTime.hour(.twoDigits(amPM: .abbreviated))
+                .minute(.twoDigits)
+                .second(.twoDigits)
+                .secondFraction(.fractional(3))
+            )
+            
+            let formattedLevel = switch level {
+            case .info: "INFO"
+            case .error: "ERROR"
+            default: fatalError()
+            }
+            
+            let formattedMessage =
+                """
+                [Message] [\(formattedDate)] [\(formattedLevel)]
+                \(message)
+                [End Message]
+                """
+            
+            print(formattedMessage)
+        }
     }
 }
 
