@@ -3,9 +3,9 @@ import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router'
 import { Loader } from '@mantine/core'
 
 import { AuthProvider, useAuth, PathProvider, ApiProvider  } from './contexts'
-import LoginPage from 'src/app/LoginPage'
-import DashboardLayout from './DashboardLayout'
-import ProfilePage from './ProfilePage'
+import LoginPage from 'src/app/pages/LoginPage'
+import DashboardLayout from './pages/DashboardLayout'
+import ProfilePage from './pages/ProfilePage'
 import quizAppRoutes from 'src/quiz-app/routes'
 import adminAppRoutes from 'src/admin-app/routes'
 

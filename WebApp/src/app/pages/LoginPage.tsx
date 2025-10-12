@@ -4,7 +4,7 @@ import { Navigate } from 'react-router'
 import { Text, TextInput, Button, Stack, Box, PasswordInput, Title } from '@mantine/core'
 import { useForm, isNotEmpty } from '@mantine/form'
 
-import { useAuth } from './contexts'
+import { useAuth } from '../contexts'
 
 const LoginPage = () => {
   const auth = useAuth()

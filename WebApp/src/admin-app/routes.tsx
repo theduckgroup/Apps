@@ -1,6 +1,6 @@
 import { Navigate, Route } from 'react-router'
 import UsersPage from './pages/UsersPage'
-import ProfilePage from 'src/app/ProfilePage'
+import ProfilePage from 'src/app/pages/ProfilePage'
 
 export default (
   <>
