@@ -39,23 +39,32 @@ class API {
     
     func post<T: Encodable>(
         authenticated: Bool = true,
+        method: String,
         path: String,
         body: T
     ) async throws {
         try await handle401 {
-            var request = try makeRequest(authenticated: authenticated, method: "GET", path: path, queryItems: [])
-            request.httpBody = try JSONEncoder().encode(body)
+            var request = try makeRequest(authenticated: authenticated, method: method, path: path, queryItems: [])
+
+            let encoder = JSONEncoder()
+            encoder.dateEncodingStrategy = .iso8601
+            request.httpBody = try encoder.encode(body)
+            
             _ = try await HTTPClient().post(request, json: true)
         }
     }
     
     private func makeRequest(authenticated: Bool, method: String, path: String, queryItems: [URLQueryItem]) throws -> URLRequest {
-        let url = baseURL.appending(path: path).appending(queryItems: queryItems)
+        var url = baseURL.appending(path: path)
+        
+        if queryItems.count > 0 {
+            url.append(queryItems: queryItems)
+        }
+        
         var request = URLRequest(url: url)
         request.httpMethod = method
         
         if authenticated {
-            print("HERE")
             guard let accessToken = auth.accessToken else {
                 throw GenericError("Not signed in")
             }
@@ -84,13 +93,17 @@ class API {
 extension API {
     func quiz(code: String) async throws -> Quiz {
         try await get(
-            path: "quiz",
+            path: "/quiz",
             queryItems: [.init(name: "code", value: "FOH_STAFF_KNOWLEDGE")],
             decodeAs: Quiz.self
         )
     }
     
     func mockQuiz() async throws -> Quiz {
-        try await get(authenticated: false, path: "mock-quiz", decodeAs: Quiz.self)
+        try await get(authenticated: false, path: "/mock-quiz", decodeAs: Quiz.self)
+    }
+    
+    func submitQuizResponse(_ quizResponse: QuizResponse) async throws {
+        try await post(method: "POST", path: "/quiz-response/submit", body: quizResponse)
     }
 }

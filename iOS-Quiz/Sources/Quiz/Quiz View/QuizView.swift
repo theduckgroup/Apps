@@ -8,8 +8,11 @@ struct QuizView: View {
     @State private var bottomBarSize: CGSize?
     @State private var presentingAppearancePopover = false
     @State private var presentingQuitAlert = false
+    @State private var presentingSubmitAlert = false
     // @State private var keyboardObserver = KeyboardObserver.shared
     @State private var didFinishRespondent = false
+    @State private var submitting = false
+    @State private var presentingSubmittedAlert = false
     @AppStorage("QuizView:dynamicTypeSizeOverride") var dynamicTypeSizeOverride: DynamicTypeSizeOverride?
     @Environment(\.dynamicTypeSize) private var systemDynamicTypeSize
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -134,13 +137,22 @@ struct QuizView: View {
                 }
                 
                 Button {
-                    handleSubmit()
+                    presentingSubmitAlert = true
                     
                 } label: {
                     Text("Submit")
                 }
                 // .disabled(!didFinishRespondent)
                 .buttonStyle(.paper(prominent: true, wide: true, maxHeight: .infinity))
+                .alert("", isPresented: $presentingSubmitAlert) {
+                    Button("Submit") {
+                        handleSubmit()
+                    }
+                    
+                    Button("Cancel", role: .cancel) {}
+                } message: {
+                    Text("Submit test?")
+                }
             }
         }
         .fixedSize(horizontal: false, vertical: true)
@@ -163,7 +175,7 @@ struct QuizView: View {
             .init(
                 top: topBarSize?.height ?? 0,
                 leading: 0,
-                bottom: (bottomBarSize?.height ?? 0) + 60,
+                bottom: (bottomBarSize?.height ?? 0) + 120, // Enough to see the next text input item
                 trailing: 0
             ),
             for: .scrollContent
@@ -288,7 +300,22 @@ struct QuizView: View {
     }
     
     private func handleSubmit() {
-        
+        Task {
+            viewModel.quizResponse.submittedDate = Date()
+            
+            submitting = true
+            defer { submitting = false }
+            
+            do {
+                try await Task.sleep(for: .seconds(2))
+                try await API.shared.submitQuizResponse(viewModel.quizResponse)
+                
+                presentingSubmittedAlert = true
+                
+            } catch {
+                
+            }
+        }
     }
 }
 
