@@ -8,7 +8,7 @@ struct QuizView: View {
     @State private var bottomBarSize: CGSize?
     @State private var presentingAppearancePopover = false
     @State private var presentingQuitAlert = false
-    @State private var keyboardObserver = KeyboardObserver.shared
+    // @State private var keyboardObserver = KeyboardObserver.shared
     @State private var didFinishRespondent = false
     @AppStorage("QuizView:dynamicTypeSizeOverride") var dynamicTypeSizeOverride: DynamicTypeSizeOverride?
     @Environment(\.dynamicTypeSize) private var systemDynamicTypeSize
@@ -27,13 +27,13 @@ struct QuizView: View {
             VStack {
 //                NavigationStack {
                 VStack {
-                    tabView()
+                    pagesView(geometry)
                         .overlay(alignment: .top) {
                             topBar()
                                 .readSize(assignTo: $topBarSize)
                         }
                         .overlay(alignment: .bottom) {
-                            if didFinishRespondent && !keyboardObserver.isKeyboardVisible {
+                            if didFinishRespondent { // && !keyboardObserver.isKeyboardVisible
                                 pageNavBar(geometry)
                                     .readSize(assignTo: $bottomBarSize)
                             }
@@ -148,49 +148,88 @@ struct QuizView: View {
     }
     
     @ViewBuilder
-    private func tabView() -> some View {
-        TabView(selection: $pageIndex) {
-            ForEach(Array(viewModel.pages.enumerated()), id: \.offset) { index, page in
-                Group {
-                    switch page {
-                    case .respondentPage:
-                        RespondentView(
-                            nextEnabled: !respondentIsEmpty,
-                            onNext: {
-                                didFinishRespondent = true
-                                handleNext()
-                            }
-                        )
-                        
-                    case .quizResponsePage(let page):
-                        QuizPageView(
-                            page: page,
-                            nextVisible: nextAllowed,
-                            onNext: handleNext,
-                            submitVisible: pageIndex == viewModel.pages.indices.last!,
-                            onSubmit: handleSubmit
-                        )
+    private func pagesView(_ geometry: GeometryProxy) -> some View {
+        // ScrollViewReader { scrollView in
+            // ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 0) {
+                    ForEach(Array(viewModel.pages.indices.dropFirst()), id: \.self) { index in
+                        let page = viewModel.pages[index]
+                        viewForPage(page)
+                            .frame(width: geometry.size.width)
+                            .id(index)
                     }
                 }
-                .contentMargins(
-                    .vertical,
-                    .init(
-                        top: topBarSize?.height ?? 0,
-                        leading: 0,
-                        bottom: (bottomBarSize?.height ?? 0) + 84,
-                        trailing: 0
-                    ),
-                    for: .scrollContent
-                )
-                .tag(index)
-            }
-        }
-        .tabViewStyle(.page(indexDisplayMode: .never))
-        .indexViewStyle(.page(backgroundDisplayMode: .interactive))
+                .background {
+                    GeometryReader { geom in
+                        let offset = -geom.frame(in: .named("scroll")).origin.x
+                        let _ = print("offset = \(offset)")
+                        Color.clear.preference(key: ViewOffsetKey.self, value: offset)
+                    }
+                }
+                .onPreferenceChange(ViewOffsetKey.self) { offset in
+                    let pageIndex = Int((offset / geometry.size.width).rounded())
+                    self.pageIndex = pageIndex
+                }
+//            }
+//            .coordinateSpace(name: "scroll")
+            // .scrollTargetBehavior(.paging)
+//            .onChange(of: pageIndex) {
+//                withAnimation {
+//                    scrollView.scrollTo(pageIndex)
+//                }
+//            }
+        // }
+        
+        // PagesView(selection: $pageIndex, values: Array(viewModel.pages.indices)) { pageIndex in
+        // .tabViewStyle(.page(indexDisplayMode: .never))
+        // .indexViewStyle(.page(backgroundDisplayMode: .interactive))
         // Enable this breaks the Next/Prev badly!
         // Issue: Next button (on Respondent page) doesn't work after dismissing keyboard
         // Safe area is not even ignored correctly
         // .ignoresSafeArea([.container], edges: [.bottom])
+    }
+    
+    struct ViewOffsetKey: PreferenceKey {
+        static var defaultValue = CGFloat.zero
+        
+        static func reduce(value: inout Value, nextValue: () -> Value) {
+            //
+        }
+    }
+    
+    @ViewBuilder
+    private func viewForPage(_ page: QuizViewModel.Page) -> some View {
+        Group {
+            switch page {
+            case .respondentPage:
+                RespondentView(
+                    nextEnabled: !respondentIsEmpty,
+                    onNext: {
+                        didFinishRespondent = true
+                        handleNext()
+                    }
+                )
+                
+            case .quizResponsePage(let page):
+                QuizPageView(
+                    page: page,
+                    nextVisible: nextAllowed,
+                    onNext: handleNext,
+                    submitVisible: pageIndex == viewModel.pages.indices.last!,
+                    onSubmit: handleSubmit
+                )
+            }
+        }
+        .contentMargins(
+            .vertical,
+            .init(
+                top: topBarSize?.height ?? 0,
+                leading: 0,
+                bottom: (bottomBarSize?.height ?? 0) + 84,
+                trailing: 0
+            ),
+            for: .scrollContent
+        )
     }
     
     @ViewBuilder
