@@ -2,7 +2,7 @@
  IMPORTANT: Modify this in Common.
  */
 
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 /**
  * Returns states needed for repeatedly opening the same modal but with fresh
@@ -12,25 +12,29 @@ export default function useRepeatedModal(): ReturnValue {
   const [modalIDs, setModalIDs] = useState<number[]>([])
   const [openedModalId, setOpenedModalId] = useState<number>()
 
+  const open = useCallback(() => {
+    const id = modalIDs.length
+    setModalIDs(modalIDs.concat(id))
+
+    // Need to wait for modal IDs to be updated, otherwise no in animation
+    setTimeout(() => setOpenedModalId(id), 0)
+  }, [modalIDs])
+
+  const close = useCallback(() => {
+    setOpenedModalId(undefined)
+
+    // Wait & remove old (never used again) modals
+    setTimeout(() => {
+      setModalIDs([])
+    }, 500)
+  }, [])
+
   return useMemo(() => ({
     modalIDs,
     isOpened: (id: number) => openedModalId == id,
-    open: () => {
-      const id = modalIDs.length
-      setModalIDs(modalIDs.concat(id))
-
-      // Need to wait for modal IDs to be updated, otherwise no in animation
-      setTimeout(() => setOpenedModalId(id), 0)
-    },
-    close: () => {
-      setOpenedModalId(undefined)
-
-      // Wait & remove old (never used again) modals
-      setTimeout(() => {
-        setModalIDs([])
-      }, 500)
-    }
-  }), [modalIDs, openedModalId])
+    open,
+    close
+  }), [open, close, modalIDs, openedModalId])
 }
 
 interface ReturnValue {
