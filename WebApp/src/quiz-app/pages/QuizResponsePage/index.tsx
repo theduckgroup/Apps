@@ -1,12 +1,15 @@
 import { useParams } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
-import { Container, MantineProvider, Stack, Text } from '@mantine/core'
+import { ActionIcon, Box, Button, Container, Divider, Group, MantineProvider, Stack, Text, Title, useComputedColorScheme, useMantineColorScheme } from '@mantine/core'
+import { IconBrightnessDown, IconBrightnessDownFilled, IconMoon, IconSun } from '@tabler/icons-react'
+import { format } from 'date-fns'
 
 import { useApi } from 'src/app/contexts'
 import theme from './mantine-theme'
 import { QuizResponse, QuizResponsePayload } from 'src/quiz-app/models/QuizResponse'
 import formatError from 'src/common/format-error'
 import ItemResponseComponent from './ItemResponseComponent'
+import { localStorageColorSchemeManager } from 'src/utils/mantine-local-storage-color-scheme-manager'
 
 export default function QuizResponsePage() {
   const { axios } = useApi()
@@ -32,7 +35,11 @@ export default function QuizResponsePage() {
   })
 
   return (
-    <MantineProvider defaultColorScheme='light' theme={theme}>
+    <MantineProvider
+      colorSchemeManager={localStorageColorSchemeManager({ key: 'fohtest-viewer-color-scheme-value' })}
+      defaultColorScheme='light'
+      theme={theme}
+    >
       <Container p='md'>
         {(() => {
           if (isLoading) {
@@ -51,17 +58,77 @@ export default function QuizResponsePage() {
 }
 
 function Content({ data }: { data: QuizResponse }) {
+  const { toggleColorScheme } = useMantineColorScheme()
+  const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true })
+
   return (
     <Stack gap='md'>
-      {data.quiz.items.map((item, index) => {
-        const itemResponse = data.itemResponses.find(x => x.itemId == item.id)
+      {/* Title */}
+      <Group>
+        <Title order={2} mr='auto'>{data.quiz.name}</Title>
+        <ActionIcon
+          variant='default' size='lg' c='gray.5'
+          onClick={() => toggleColorScheme()}
+        >
+          {computedColorScheme == 'light' ?
+            <IconMoon size={20} strokeWidth={1.5} /> :
+            <IconSun size={20} strokeWidth={1.5} />
+          }
+        </ActionIcon>
+      </Group>
 
-        if (!itemResponse) {
-          return <Text c='red'>Item Not Found</Text>
-        }
+      <Divider />
 
-        return <ItemResponseComponent item={item} itemResponse={itemResponse} />
+      {/* Name + Store */}
+      <Stack gap='0.0rem'>
+        <Group>
+          <Text fw='bold'>Name</Text>
+          <Text>{data.respondent.name}</Text>
+        </Group>
+        <Group>
+          <Text fw='bold'>Store</Text>
+          <Text>{data.respondent.store}</Text>
+        </Group>
+        <Group>
+          <Text fw='bold'>Date/Time</Text>
+          <Text>{format(data.submittedDate, "EEEE, d MMM yyyy 'at' h:mm aaa")}</Text>
+        </Group>
+      </Stack>
+
+      <Divider />
+
+      {/* Sections */}
+      {data.quiz.sections.map((section, sectionIndex) => {
+        return (
+          <Stack key={section.id} gap='md'>
+            {section.rows.map((row, rowIndex) => {
+              return (
+                <Group key={rowIndex} wrap='nowrap' align='flex-start'>
+                  <Text fw='bold' w='1rem'>{rowIndex + 1}.</Text>
+                  {(() => {
+                    const item = data.quiz.items.find(x => x.id == row.itemId)
+
+                    if (!item) {
+                      return <Text c='red'>Item Not Found</Text>
+                    }
+
+                    const itemResponse = data.itemResponses.find(x => x.itemId == item.id)
+
+                    if (!itemResponse) {
+                      return <Text c='red'>Item Response Not Found</Text>
+                    }
+
+                    return <ItemResponseComponent item={item} itemResponse={itemResponse} />
+                  })()}
+                </Group>
+              )
+
+            })}
+          </Stack>
+        )
       })}
+
+      <Box h='3rem' />
     </Stack>
   )
 }
