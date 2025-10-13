@@ -33,7 +33,7 @@ function DashboardLayout() {
         <HeaderContent navbarOpened={navbarOpened} toggleNavbar={toggleNavbar} closeNavbar={closeNavbar} />
       </AppShell.Header>
 
-      <AppShell.Navbar px={0} py='md' bg='dark.8' withBorder={false}>
+      <AppShell.Navbar bg='dark.8' withBorder={false}>
         <NavbarContent close={closeNavbar} />
       </AppShell.Navbar>
 
