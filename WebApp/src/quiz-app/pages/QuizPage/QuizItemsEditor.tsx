@@ -1,5 +1,7 @@
 import { useState } from 'react'
-import { ActionIcon, Box, Button, Divider, Flex, Group, Menu, Paper, Space, Stack, Text, Title } from '@mantine/core'
+import { ActionIcon, Box, Button, Divider, Group, Menu, Paper, Stack, Text, Title } from '@mantine/core'
+import { DragDropContext, Draggable, DraggableProvided, DraggableProvidedDragHandleProps, Droppable, DropResult } from '@hello-pangea/dnd'
+import { IconChevronDown, IconChevronRight, IconDots, IconGripVertical, IconListNumbers, IconPencil, IconPlus, IconSquareCheck, IconSquareLetterT, IconTrash } from '@tabler/icons-react'
 import { ObjectId } from 'bson'
 import { produce } from 'immer'
 
@@ -7,8 +9,6 @@ import { Quiz } from 'src/quiz-app/models/Quiz'
 import EditItemModal, { EditItemModalOptions } from './EditItemModal'
 import EditSectionModal, { EditSectionModalOptions } from './EditSectionModal'
 import ConfirmDeleteModal, { ConfirmDeleteModalOptions } from './ConfirmDeleteModal'
-import { DragDropContext, Draggable, DraggableProvided, DraggableProvidedDragHandleProps, Droppable, DropResult } from '@hello-pangea/dnd'
-import { IconChevronDown, IconChevronRight, IconDots, IconGripVertical, IconListNumbers, IconPencil, IconPlus, IconSquareCheck, IconSquareLetterT, IconTrash } from '@tabler/icons-react'
 import ReadonlyItemComponent from './ReadonlyItemComponent'
 import useRepeatedModal from 'src/common/use-repeated-modal'
 
