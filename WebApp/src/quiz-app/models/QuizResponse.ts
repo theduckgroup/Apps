@@ -1,23 +1,31 @@
-import { ObjectId } from 'mongodb'
+import { Quiz } from './Quiz'
 
-export interface DbQuizResponse {
-  // _id: ObjectId
+export interface QuizResponse {
+  id: string
   createdDate: Date
   submittedDate: Date
-  itemResponses: DbQuizResponse.ItemResponse[]
+  quiz: Quiz
+  itemResponses: QuizResponse.ItemResponse[]
   respondent: {
     name: string
     store: string
   }
 }
 
-export namespace DbQuizResponse {
+export type QuizResponsePayload = ReplaceFields<QuizResponse, {
+  createdDate: string,
+  submittedDate: string
+}>
+
+export namespace QuizResponse {
   export type ItemResponse =
     | ListItemResponse
     | SelectedResponseItemResponse
     | TextInputItemResponse
 
   export interface ListItemResponse {
+    id: string
+    itemId: string
     itemKind: "listItem"
     data: {
       itemResponses: ItemResponse[]
@@ -25,6 +33,8 @@ export namespace DbQuizResponse {
   }
 
   export interface SelectedResponseItemResponse {
+    id: string
+    itemId: string
     itemKind: "selectedResponseItem"
     data: {
       selectedOptions: {
@@ -35,9 +45,17 @@ export namespace DbQuizResponse {
   }
 
   export interface TextInputItemResponse {
+    id: string
+    itemId: string
     itemKind: "textInputItem"
     data: {
       value: string
     }
   }
+}
+
+// Helper
+
+type ReplaceFields<T, Replacements extends Partial<Record<keyof T, unknown>>> = {
+  [K in keyof T]: K extends keyof Replacements ? Replacements[K] : T[K]
 }

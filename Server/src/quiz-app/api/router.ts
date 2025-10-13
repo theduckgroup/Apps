@@ -1,9 +1,10 @@
 import express from 'express'
-import { ObjectId } from 'mongodb'
+import { ObjectId, WithoutId } from 'mongodb'
 import createHttpError from 'http-errors'
 
 import { getDb } from 'src/db'
 import { authorizeAdmin } from 'src/auth/authorize'
+import { DbQuizResponse } from '../db/DbQuizResponse'
 import eventHub from './event-hub'
 import QuizSchema from './QuizSchema'
 import QuizResponseSchema from './QuizResponseSchema'
@@ -123,35 +124,15 @@ privateRouter.post('/quiz-response/submit', async (req, res) => {
 
   const db = await getDb()
 
-  const doc = {
+  const doc: DbQuizResponse = {
     ...data,
-    createdDate: new Date(data.createdDate)
+    createdDate: new Date(data.createdDate),
+    submittedDate: new Date(data.submittedDate)
   }
 
   await db.collection_quizResponses.insertOne(doc)
 
   res.send()
-})
-
-privateRouter.get('/quiz-response/:id', async (req, res) => {
-  const db = await getDb()
-
-  const doc = await db.collection_quizResponses.findOne({
-    _id: new Object(req.params.id)
-  })
-
-  if (!doc) {
-    throw createHttpError(404)
-  }
-
-  const data = {
-    ...doc,
-    _id: undefined,
-    id: doc._id.toString(),
-    createdDate: doc.createdDate.toISOString(),
-  }
-
-  res.send(data)
 })
 
 // Public router
@@ -177,7 +158,25 @@ publicRouter.get('/mock-quiz', async (req, res) => {
 })
 
 publicRouter.get('/quiz-response/:id', async (req, res) => {
-  res.send(500)
+  const db = await getDb()
+
+  const doc = await db.collection_quizResponses.findOne({
+    _id: new ObjectId(req.params.id)
+  })
+
+  if (!doc) {
+    throw createHttpError(404)
+  }
+
+  const data = {
+    ...doc,
+    _id: undefined,
+    id: doc._id.toString(),
+    createdDate: doc.createdDate.toISOString(),
+    submittedDate: doc.submittedDate.toISOString()
+  }
+
+  res.send(data)
 })
 
 // Helpers

@@ -39,7 +39,7 @@ function AppRoutes() {
             </RedirectToRootIfAuthenticated>
           } />
 
-          <Route path='/fohtest/view/:id' element={<QuizResponsePage />}/>
+          {fohTestRoute}
 
           <Route path='/' element={
             <RedirectToLoginIfUnauthenticated>
@@ -58,7 +58,7 @@ function AppRoutes() {
   )
 }
 
-// Apps
+// (Sub)App routes
 
 const subappRoutes = (
   <>
@@ -73,6 +73,14 @@ const subappRoutes = (
       {adminAppRoutes}
     </Route>
   </>
+)
+
+const fohTestRoute = (
+  <Route path='/fohtest/view/:id' element={
+    <ApiProvider baseUrl='/api/quiz-app'>
+      <QuizResponsePage />
+    </ApiProvider>
+  } />
 )
 
 function SubappLayout({ path, apiPath }: {

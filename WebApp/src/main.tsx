@@ -9,8 +9,13 @@ import App from './app/App'
 
 enableMapSet()
 
-const queryClient = new QueryClient()
-
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false
+    }
+  }
+})
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
