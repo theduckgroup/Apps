@@ -82,7 +82,11 @@ export default function QuizItemsEditor({ items, sections, onChange }: {
           sections.splice(sectionIndex, 1)
         })
 
-        onChange(items, newSections)
+        // Delete items in section
+        const sectionItemIDs = new Set(section.rows.map(x => x.itemId))
+        const newItems = items.filter(x => !sectionItemIDs.has(x.id))
+
+        onChange(newItems, newSections)
       }
     })
 
@@ -111,7 +115,11 @@ export default function QuizItemsEditor({ items, sections, onChange }: {
     editItemModal.open()
   }
 
-  function handleEditItem(item: Quiz.Item, rowIndex: number, section: Quiz.Section, sectionIndex: number) {
+  function handleEditItem(item: Quiz.Item | undefined, rowIndex: number, section: Quiz.Section, sectionIndex: number) {
+    if (!item) {
+      return
+    }
+
     setEditItemModalOptions({
       title: 'Edit Item',
       item,
@@ -128,7 +136,19 @@ export default function QuizItemsEditor({ items, sections, onChange }: {
     editItemModal.open()
   }
 
-  function handleDeleteItem(item: Quiz.Item, rowIndex: number, section: Quiz.Section, sectionIndex: number) {
+  function handleDeleteItem(item: Quiz.Item | undefined, rowIndex: number, section: Quiz.Section, sectionIndex: number) {
+    if (!item) {
+      // Delete the row
+      
+      const newSections = produce(sections, sections => {
+        sections[sectionIndex].rows.splice(rowIndex, 1)
+      })
+
+      onChange(items, newSections)
+
+      return
+    }
+
     setDeleteModalOptions({
       message: (
         <Stack gap='xs'>
@@ -304,8 +324,8 @@ function SectionComponent({
   onEditSection: () => void,
   onDeleteSection: () => void,
   onAddItem: (kind: Quiz.ItemKind, rowIndex: number, section: Quiz.Section, sectionIndex: number) => void
-  onEditItem: (_: Quiz.Item, rowIndex: number, section: Quiz.Section, sectionIndex: number) => void
-  onDeleteItem: (_: Quiz.Item, rowIndex: number, section: Quiz.Section, sectionIndex: number) => void
+  onEditItem: (_: Quiz.Item | undefined, rowIndex: number, section: Quiz.Section, sectionIndex: number) => void
+  onDeleteItem: (_: Quiz.Item | undefined, rowIndex: number, section: Quiz.Section, sectionIndex: number) => void
   provided: DraggableProvided
 }) {
   return (
@@ -383,8 +403,8 @@ function SectionComponent({
                               item={itemForId(row.itemId)}
                               index={rowIndex}
                               onAddItem={kind => onAddItem(kind, rowIndex + 1, section, sectionIndex)}
-                              onEdit={() => onEditItem(item!, rowIndex, section, sectionIndex)}
-                              onDelete={() => onDeleteItem(item!, rowIndex, section, sectionIndex)}
+                              onEdit={() => onEditItem(item, rowIndex, section, sectionIndex)}
+                              onDelete={() => onDeleteItem(item, rowIndex, section, sectionIndex)}
                               dragHandleProps={provided.dragHandleProps}
                             />
                           )
@@ -544,14 +564,14 @@ function Row({ item, index, onEdit, onDelete, onAddItem, dragHandleProps }: {
   return (
     <Group w='100%' gap='sm' wrap='nowrap' align='start'>
       {/* Index */}
-      <Text fz='sm' fw='bold' w='1.2rem'>{index + 1}.</Text>
+      <Text fw='bold' w='1.2rem'>{index + 1}.</Text>
       {/* Item or Item not found */}
       {
         item ?
           <ReadonlyItemComponent item={item} controlSection={controlSection} />
           :
-          <Group mr='auto'>
-            <Text>Item Not Found</Text>
+          <Group mr='auto' w='100%'>
+            <Text c='red' mr='auto'>Item Not Found</Text>
             {controlSection}
           </Group>
       }
