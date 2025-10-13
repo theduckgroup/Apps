@@ -1,7 +1,10 @@
 import { defineConfig } from 'vite'
 import path from "node:path";
-import react from '@vitejs/plugin-react-swc'
+import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+
+// @vitejs/plugin-react-swc does not yet support react compiler
+// https://www.reddit.com/r/react/comments/1m4mxgg/react_compiler_swc_vite/
 
 export default defineConfig(() => {
   return {
@@ -23,7 +26,11 @@ export default defineConfig(() => {
       }
     },
     plugins: [
-      react(),
+      react({
+        babel: {
+          plugins: ['babel-plugin-react-compiler'],
+        },
+      }),
       tailwindcss(),
     ],
     resolve: {
