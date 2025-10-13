@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		732A1B072E9CC4D900F0E507 /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 732A1B062E9CC4D900F0E507 /* Algorithms */; };
 		738F34192E97315000F876DB /* SwiftBSON in Frameworks */ = {isa = PBXBuildFile; productRef = 738F34182E97315000F876DB /* SwiftBSON */; };
 		738F341B2E97315D00F876DB /* SwiftBSON in Frameworks */ = {isa = PBXBuildFile; productRef = 738F341A2E97315D00F876DB /* SwiftBSON */; };
 		73B0BDDC2E968F0100501694 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = 73B0BDDB2E968F0100501694 /* Auth */; };
@@ -81,6 +82,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				732A1B072E9CC4D900F0E507 /* Algorithms in Frameworks */,
 				738F34192E97315000F876DB /* SwiftBSON in Frameworks */,
 				73B0BDDE2E968F1500501694 /* Auth in Frameworks */,
 				73E01ED12E99CC70004570BF /* Equatable in Frameworks */,
@@ -170,6 +172,7 @@
 				73B0BDE52E968FBB00501694 /* Supabase */,
 				738F34182E97315000F876DB /* SwiftBSON */,
 				73E01ED02E99CC70004570BF /* Equatable */,
+				732A1B062E9CC4D900F0E507 /* Algorithms */,
 			);
 			productName = Inventory;
 			productReference = 73D2F5092DCC6E7D0012CCBE /* FOH Test [local].app */;
@@ -204,6 +207,7 @@
 				73B0BDDA2E968F0100501694 /* XCRemoteSwiftPackageReference "supabase-swift" */,
 				738F34172E97315000F876DB /* XCRemoteSwiftPackageReference "swift-bson" */,
 				73E01ECF2E99CC70004570BF /* XCRemoteSwiftPackageReference "equatable" */,
+				732A1B052E9CC4D900F0E507 /* XCRemoteSwiftPackageReference "swift-algorithms" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 73B1F29F2D694E8F0069610E /* Products */;
@@ -542,6 +546,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		732A1B052E9CC4D900F0E507 /* XCRemoteSwiftPackageReference "swift-algorithms" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-algorithms.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.1;
+			};
+		};
 		738F34172E97315000F876DB /* XCRemoteSwiftPackageReference "swift-bson" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/mongodb/swift-bson";
@@ -577,6 +589,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		732A1B062E9CC4D900F0E507 /* Algorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 732A1B052E9CC4D900F0E507 /* XCRemoteSwiftPackageReference "swift-algorithms" */;
+			productName = Algorithms;
+		};
 		738F34182E97315000F876DB /* SwiftBSON */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 738F34172E97315000F876DB /* XCRemoteSwiftPackageReference "swift-bson" */;
