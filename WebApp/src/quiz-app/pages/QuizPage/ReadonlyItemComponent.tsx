@@ -71,7 +71,7 @@ function ListItemComponent({ item }: {
 }) {
   return (
     <Stack w='100%' gap='0.5rem'>
-      <Text fz='sm' mr='auto' className='whitespace-pre-wrap'>{item.data.prompt}</Text>
+      <Text mr='auto' className='whitespace-pre-wrap'>{item.data.prompt}</Text>
       <Stack gap='0.4rem'>
         {
           item.data.items.map(subitem => (
