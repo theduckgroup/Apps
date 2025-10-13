@@ -19,9 +19,13 @@ struct PaperButtonStyle: ButtonStyle {
                     configuration.label
                         .foregroundStyle(.tint.opacity(0.5))
                     
-                } else {
+                } else if isEnabled {
                     configuration.label
                         .foregroundStyle(.tint)
+                    
+                } else {
+                    configuration.label
+                        .foregroundStyle(Color.secondary)
                 }
             }
         }
