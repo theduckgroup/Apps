@@ -93,7 +93,7 @@ export default function QuizItemsEditor({ items, sections, onChange }: {
     deleteModal.open()
   }, [deleteModal, items, sections, onChange])
 
-  const handleAddItem: AddItemHandler = useCallback((kind, atRowIndex, section, sectionIndex) => {
+  const handleAddItem: AddItemHandler = useCallback((kind, atRowIndex, sectionIndex) => {
     setEditItemModalOptions({
       title: 'Add Item',
       item: Quiz.createDefaultItem(kind),
@@ -115,7 +115,7 @@ export default function QuizItemsEditor({ items, sections, onChange }: {
     editItemModal.open()
   }, [editItemModal, items, sections, onChange])
 
-  const handleEditItem: EditItemHandler = useCallback((item, rowIndex, section, sectionIndex) => {
+  const handleEditItem: EditItemHandler = useCallback((item, rowIndex, sectionIndex) => {
     if (!item) {
       return
     }
@@ -136,7 +136,7 @@ export default function QuizItemsEditor({ items, sections, onChange }: {
     editItemModal.open()
   }, [editItemModal, items, sections, onChange])
 
-  const handleDeleteItem: EditItemHandler = useCallback((item, rowIndex, section, sectionIndex) => {
+  const handleDeleteItem: EditItemHandler = useCallback((item, rowIndex, sectionIndex) => {
     if (!item) {
       // Delete the row
       
@@ -403,8 +403,8 @@ function SectionComponent({
                               section={section}
                               sectionIndex={sectionIndex}
                               onAddItem={onAddItem}
-                              onEdit={onEditItem}
-                              onDelete={onDeleteItem}
+                              onEditItem={onEditItem}
+                              onDeleteItem={onDeleteItem}
                               dragHandleProps={provided.dragHandleProps}
                             />
                           )
@@ -425,7 +425,7 @@ function SectionComponent({
                     </Button>
                   </Menu.Target>
                   <Menu.Dropdown>
-                    <AddItemMenuSection onAddItem={kind => onAddItem(kind, section.rows.length, section, sectionIndex)} />
+                    <AddItemMenuSection onAddItem={kind => onAddItem(kind, section.rows.length, sectionIndex)} />
                   </Menu.Dropdown>
                 </Menu>
               </Stack>
@@ -532,27 +532,27 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
   )
 }
 
-function Row({ item, rowIndex, section, sectionIndex, onEdit, onDelete, onAddItem, dragHandleProps }: {
+function Row({ item, rowIndex, section, sectionIndex, onAddItem, onEditItem, onDeleteItem, dragHandleProps }: {
   item: Quiz.Item | undefined,
   rowIndex: number,
   section: Quiz.Section,
   sectionIndex: number,
   onAddItem: AddItemHandler,
-  onEdit: EditItemHandler,
-  onDelete: DeleteItemHandler,
+  onEditItem: EditItemHandler,
+  onDeleteItem: DeleteItemHandler,
   dragHandleProps: DraggableProvidedDragHandleProps | null,
 }) {
   const handleAdd = useCallback((kind: Quiz.ItemKind) => {
-    onAddItem(kind, rowIndex, section, sectionIndex)
-  }, [onAddItem, rowIndex, section, sectionIndex])
+    onAddItem(kind, rowIndex, sectionIndex)
+  }, [onAddItem, rowIndex, sectionIndex])
 
   const handleEdit = useCallback(() => {
-    onEdit(item, rowIndex, section, sectionIndex)
-  }, [item, onEdit, rowIndex, section, sectionIndex])
+    onEditItem(item, rowIndex, sectionIndex)
+  }, [item, onEditItem, rowIndex, section, sectionIndex])
 
   const handleDelete = useCallback(() => {
-    onDelete(item, rowIndex, section, sectionIndex)
-  }, [item, onDelete, rowIndex, section, sectionIndex])
+    onDeleteItem(item, rowIndex, sectionIndex)
+  }, [item, onDeleteItem, rowIndex, section, sectionIndex])
 
   const controlSection = useMemo(() => (
     <Group gap='xs' wrap='nowrap'>
@@ -650,6 +650,6 @@ function AddItemMenuSection({ onAddItem }: {
 type AddSectionHandler = (atSectionIndex: number) => void
 type EditSectionHandler = (section: Quiz.Section, sectionIndex: number) => void
 type DeleteSectionHandler = (section: Quiz.Section, sectionIndex: number) => void
-type AddItemHandler = (kind: Quiz.ItemKind, atRowIndex: number, section: Quiz.Section, sectionIndex: number) => void
-type EditItemHandler = (item: Quiz.Item | undefined, rowIndex: number, section: Quiz.Section, sectionIndex: number) => void
-type DeleteItemHandler = (item: Quiz.Item | undefined, rowIndex: number, section: Quiz.Section, sectionIndex: number) => void
+type AddItemHandler = (kind: Quiz.ItemKind, atRowIndex: number, sectionIndex: number) => void
+type EditItemHandler = (item: Quiz.Item | undefined, rowIndex: number, sectionIndex: number) => void
+type DeleteItemHandler = (item: Quiz.Item | undefined, rowIndex: number, sectionIndex: number) => void
