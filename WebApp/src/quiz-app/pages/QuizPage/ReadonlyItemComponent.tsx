@@ -33,20 +33,21 @@ function SelectedResponseItemComponent({ item }: {
 }) {
   return (
     <Stack w='100%' gap='0.4rem'>
-      <Text fz='sm' mr='auto' className='whitespace-pre-wrap'>{item.data.prompt}</Text>
-      <Flex gap='md' wrap='wrap' rowGap='0.5rem'>
+      <Text mr='auto' className='whitespace-pre-wrap'>{item.data.prompt}</Text>
+      <Stack gap='0.5rem'>
         {
           item.data.options.length > 0 ?
             item.data.options.map(option => (
               <Group key={option.id} gap='0.45rem' wrap='nowrap' align='baseline'>
-                <IconSquare size={14} strokeWidth={1.5} className='flex-none translate-y-0.5' />
-                <Text fz='sm' className='whitespace-pre-wrap'>{option.value}</Text>
+                <IconSquare size={16} strokeWidth={1.5} className='flex-none translate-y-0.5' />
+                <Text className='whitespace-pre-wrap'>{option.value}</Text>
               </Group>
-            )) : (
+            )) : 
+            (
               <Text c='red'>(No option)</Text>
             )
         }
-      </Flex>
+      </Stack>
     </Stack>
   )
 }
@@ -56,9 +57,9 @@ function TextInputItemComponent({ item }: {
 }) {
   return (
     <Stack w='100%' gap='0.25rem'>
-      <Text fz='sm' mr='auto' className='whitespace-pre-wrap'>{item.data.prompt}</Text>
+      <Text mr='auto' className='whitespace-pre-wrap'>{item.data.prompt}</Text>
       <Stack w='45%' gap='0'>
-        <Text fz='sm' opacity={0}>(Text)</Text>
+        <Text opacity={0}>(Text)</Text>
         <Divider />
       </Stack>
     </Stack>
