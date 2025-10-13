@@ -220,7 +220,7 @@ function UserRow({ user, onDelete }: {
         <EditUserModal key={id} title='Edit User' user={user} opened={editModal.isOpened(id)} onClose={editModal.close} />
       ))}
       {passwordModal.modalIDs.map(id => (
-        <SetPasswordModal user={user} opened={passwordModal.isOpened(id)} onClose={passwordModal.close} />
+        <SetPasswordModal key={id} user={user} opened={passwordModal.isOpened(id)} onClose={passwordModal.close} />
       ))}
     </Table.Tr>
   )
