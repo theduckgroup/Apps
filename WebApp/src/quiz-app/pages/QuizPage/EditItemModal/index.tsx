@@ -1,12 +1,11 @@
-import { useEffect, useRef, useState } from "react"
-import { ActionIcon, Box, Button, Group, HoverCard, List, Modal, Select, Stack, Text, Textarea } from "@mantine/core"
+import { useRef, useState } from 'react'
+import { Button, Group, Modal, Stack } from '@mantine/core'
 import { Quiz } from 'src/quiz-app/models/Quiz'
 
 import ListItemEditor from './ListItemEditor'
 import SelectedResponseItemEditor from './SelectedResponseItemEditor'
 import TextInputItemEditor from './TextInputItemEditor'
-import { getHotkeyHandler, useHotkeys } from '@mantine/hooks'
-import { IconInfoCircle, IconQuestionMark } from '@tabler/icons-react'
+import { produce } from 'immer'
 
 export default function EditItemModal({ opened, close, options }: {
   opened: boolean,
@@ -37,8 +36,15 @@ function EditItemModalImpl({ opened, close, options }: {
   })()
 
   function handleSave() {
+    // Sanitize data
+    const sanitizedItem = produce(item, item => {
+      if (item.kind == 'selectedResponseItem') {
+        item.data.options = item.data.options.filter(x => x.value != '')
+      }
+    })
+
     close()
-    options.onSave(item)
+    options.onSave(sanitizedItem)
   }
 
   // useEffect(() => {

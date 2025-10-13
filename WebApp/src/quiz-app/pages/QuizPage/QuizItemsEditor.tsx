@@ -554,7 +554,7 @@ function Row({ item, rowIndex, section, sectionIndex, onEdit, onDelete, onAddIte
     onDelete(item, rowIndex, section, sectionIndex)
   }, [item, onDelete, rowIndex, section, sectionIndex])
 
-  const controlSection = (
+  const controlSection = useMemo(() => (
     <Group gap='xs' wrap='nowrap'>
       {/* Action Button */}
       <Menu offset={6} position='bottom-end'>
@@ -589,7 +589,7 @@ function Row({ item, rowIndex, section, sectionIndex, onEdit, onDelete, onAddIte
         <IconGripVertical size={16} />
       </ActionIcon> */}
     </Group>
-  )
+  ), [dragHandleProps, handleAdd, handleDelete, handleEdit])
 
   return (
     <Group w='100%' gap='sm' wrap='nowrap' align='start'>
