@@ -400,7 +400,6 @@ function SectionComponent({
                             <Row
                               item={itemForId(row.itemId)}
                               rowIndex={rowIndex}
-                              section={section}
                               sectionIndex={sectionIndex}
                               onAddItem={onAddItem}
                               onEditItem={onEditItem}
@@ -532,10 +531,9 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
   )
 }
 
-function Row({ item, rowIndex, section, sectionIndex, onAddItem, onEditItem, onDeleteItem, dragHandleProps }: {
+function Row({ item, rowIndex, sectionIndex, onAddItem, onEditItem, onDeleteItem, dragHandleProps }: {
   item: Quiz.Item | undefined,
   rowIndex: number,
-  section: Quiz.Section,
   sectionIndex: number,
   onAddItem: AddItemHandler,
   onEditItem: EditItemHandler,
@@ -548,11 +546,11 @@ function Row({ item, rowIndex, section, sectionIndex, onAddItem, onEditItem, onD
 
   const handleEdit = useCallback(() => {
     onEditItem(item, rowIndex, sectionIndex)
-  }, [item, onEditItem, rowIndex, section, sectionIndex])
+  }, [item, onEditItem, rowIndex, sectionIndex])
 
   const handleDelete = useCallback(() => {
     onDeleteItem(item, rowIndex, sectionIndex)
-  }, [item, onDeleteItem, rowIndex, section, sectionIndex])
+  }, [item, onDeleteItem, rowIndex, sectionIndex])
 
   const controlSection = useMemo(() => (
     <Group gap='xs' wrap='nowrap'>
