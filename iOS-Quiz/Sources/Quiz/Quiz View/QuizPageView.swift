@@ -167,10 +167,10 @@ private struct SelectedResponseItemResponseView: View {
                         HStack(alignment: .firstTextBaseline) {
                             let selected = response.data.selectedOptions.map(\.id).contains(option.id)
                             
-                            Image(systemName: selected ? "checkmark.square" : "square")
+                            Image(systemName: selected ? "checkmark.square.fill" : "square")
                                 .modified {
                                     if selected {
-                                        $0.foregroundStyle(.tint)
+                                        $0.foregroundStyle(.blue)
                                     } else {
                                         $0.foregroundStyle(.secondary)
                                     }
@@ -179,13 +179,13 @@ private struct SelectedResponseItemResponseView: View {
                             
                             Text(option.value)
                                 .multilineTextAlignment(.leading)
-                                .modified {
-                                    if selected {
-                                        $0.foregroundStyle(.tint)
-                                    } else {
-                                        $0.foregroundStyle(.primary)
-                                    }
-                                }
+//                                .modified {
+//                                    if selected {
+//                                        $0.foregroundStyle(.blue)
+//                                    } else {
+//                                        $0.foregroundStyle(.primary)
+//                                    }
+//                                }
                                 // .foregroundStyle(selected ? .tint : .primary)
                         }
                         .foregroundStyle(Color.primary)
@@ -216,7 +216,7 @@ private struct TextInputItemResponseView: View {
             
             PaperTextField(text: $response.data.value, multiline: true)
                 .focused($focused)
-                .foregroundStyle(.tint)
+                .foregroundStyle(.blue)
         }
         .contentShape(Rectangle())
         .onTapGesture {
