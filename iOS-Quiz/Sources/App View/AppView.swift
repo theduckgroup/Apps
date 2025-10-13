@@ -17,17 +17,12 @@ struct AppView: View {
     }
     
     private func applyStylingOverride() {
-        let scene = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first
+        let window = UIApplication.shared.anyKeyWindow
         
-        guard let window = scene?.keyWindow else {
-            return
-        }
-        
-        if let override = appDefaults.colorSchemeOverride {
-            window.overrideUserInterfaceStyle = switch override {
-            case .light: .light
-            case .dark: .dark
-            }
+        window?.overrideUserInterfaceStyle = switch appDefaults.colorSchemeOverride {
+        case .light: .light
+        case .dark: .dark
+        case .none: .unspecified
         }
     }
     

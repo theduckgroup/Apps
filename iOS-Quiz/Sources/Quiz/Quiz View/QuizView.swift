@@ -6,13 +6,9 @@ struct QuizView: View {
     @State private var pageIndex: Int = 0
     @State private var topBarSize: CGSize?
     @State private var bottomBarSize: CGSize?
-    @State private var presentingAppearancePopover = false
-    @State private var presentingQuitAlert = false
-    @State private var presentingSubmitAlert = false
-    // @State private var keyboardObserver = KeyboardObserver.shared
     @State private var didFinishRespondent = false
-    @State private var submitting = false
-    @State private var presentingSubmittedAlert = false
+    @State private var presentingAppearancePopover = false
+    @State private var ps = PresentationState()
     @AppStorage("QuizView:dynamicTypeSizeOverride") var dynamicTypeSizeOverride: DynamicTypeSizeOverride?
     @Environment(\.dynamicTypeSize) private var systemDynamicTypeSize
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -51,6 +47,7 @@ struct QuizView: View {
                     // .ignoresSafeArea([.keyboard], edges: [.bottom])
 //                }
             }
+            .presentations(ps)
             .environment(viewModel)
             .onChange(of: pageIndex) {
                 UIApplication.dismissKeyboard()
@@ -95,20 +92,7 @@ struct QuizView: View {
     @ViewBuilder
     private func topBar() -> some View {
         HStack(spacing: 18) {
-            Button {
-                presentingQuitAlert = true
-
-            } label: {
-                Text("Quit")
-            }
-            .buttonStyle(.paper(wide: true, maxHeight: .infinity))
-            .alert("", isPresented: $presentingQuitAlert) {
-                Button("Quit", role: .destructive) {
-                    dismiss()
-                }
-            } message: {
-                Text("Quit without submitting test? You will not be able to return to it.")
-            }
+            quitButton()
             
 //            if horizontalSizeClass == .regular {
 //                Text(viewModel.quiz.name)
@@ -125,38 +109,58 @@ struct QuizView: View {
             Spacer()
             
             HStack {
-                Button {
-                    presentingAppearancePopover = true
-                    
-                } label: {
-                    Image(systemName: "textformat.el")
-                }
-                .buttonStyle(.paper(wide: true, maxHeight: .infinity))
-                .popover(isPresented: $presentingAppearancePopover) {
-                    QuizAppearanceView(dynamicTypeSizeOverride: $dynamicTypeSizeOverride)
-                }
-                
-                Button {
-                    presentingSubmitAlert = true
-                    
-                } label: {
-                    Text("Submit")
-                }
-                // .disabled(!didFinishRespondent)
-                .buttonStyle(.paper(prominent: true, wide: true, maxHeight: .infinity))
-                .alert("", isPresented: $presentingSubmitAlert) {
-                    Button("Submit") {
-                        handleSubmit()
-                    }
-                    
-                    Button("Cancel", role: .cancel) {}
-                } message: {
-                    Text("Submit test?")
-                }
+                appearanceButton()
+                submitButton()
             }
         }
         .fixedSize(horizontal: false, vertical: true)
         .padding()
+    }
+    
+    @ViewBuilder
+    private func quitButton() -> some View {
+        Button {
+            ps.presentAlert(message: "Quit without submitting test? You will not be able to return to it.") {
+                Button("Quit", role: .destructive) {
+                    dismiss()
+                }
+            }
+
+        } label: {
+            Text("Quit")
+        }
+        .buttonStyle(.paper(wide: true, maxHeight: .infinity))
+    }
+    
+    @ViewBuilder
+    private func appearanceButton() -> some View {
+        Button {
+            presentingAppearancePopover = true
+            
+        } label: {
+            Image(systemName: "textformat.el")
+        }
+        .buttonStyle(.paper(wide: true, maxHeight: .infinity))
+        .popover(isPresented: $presentingAppearancePopover) {
+            QuizAppearanceView(dynamicTypeSizeOverride: $dynamicTypeSizeOverride)
+        }
+    }
+    
+    @ViewBuilder
+    private func submitButton() -> some View {
+        Button {
+            ps.presentAlert(message: "Submit test?") {
+                Button("Submit") {
+                    handleSubmit()
+                }
+                
+                Button("Cancel", role: .cancel) {}
+            }
+            
+        } label: {
+            Text("Submit")
+        }
+        .buttonStyle(.paper(prominent: true, wide: true, maxHeight: .infinity))
     }
     
     @ViewBuilder
@@ -301,19 +305,24 @@ struct QuizView: View {
     
     private func handleSubmit() {
         Task {
-            viewModel.quizResponse.submittedDate = Date()
-            
-            submitting = true
-            defer { submitting = false }
-            
             do {
+                ps.presentProgressHUD(title: "Submitting")
+                
+                viewModel.quizResponse.submittedDate = Date()
+                    
                 try await Task.sleep(for: .seconds(2))
                 try await API.shared.submitQuizResponse(viewModel.quizResponse)
                 
-                presentingSubmittedAlert = true
+                ps.dismiss()
+                
+                ps.presentAlert(title: "Test submitted") {
+                    Button("Close") {
+                        dismiss()
+                    }
+                }
                 
             } catch {
-                
+                ps.presentAlert(error: error)
             }
         }
     }
