@@ -12,13 +12,17 @@ const SetPasswordModal: React.FC<SetPasswordModalProps> = ({ user, opened, onClo
 
   const form = useForm({
     initialValues: {
-      password: ''
+      password: '',
+      passwordConfirm: '',
     },
     validate: {
       password: (
         isNotEmpty('Required') &&
         hasLength({ min: 8 }, 'Password must be at least 8 characters')
-      )
+      ),
+      passwordConfirm: (value, values) => {
+        return value != values.password ? 'Password does not match' : null
+      }
     }
   })
 
@@ -54,6 +58,13 @@ const SetPasswordModal: React.FC<SetPasswordModalProps> = ({ user, opened, onClo
             required
             autoComplete='new-password'
             {...form.getInputProps('password')}
+          />
+          <PasswordInput
+            label='Confirm New Password'
+            data-autofocus
+            required
+            autoComplete='off'
+            {...form.getInputProps('passwordConfirm')}
           />
           {mutation.error && <Text c='red'>{formatError(mutation.error)}</Text>}
           <Group justify='flex-end' mt='md'>
