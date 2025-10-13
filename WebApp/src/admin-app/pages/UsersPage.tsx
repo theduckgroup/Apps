@@ -10,7 +10,7 @@ import AddUserModal from './AddUserModal'
 import EditUserModal from './EditUserModal'
 import DeleteUserModal from './DeleteUserModal'
 import SetPasswordModal from './SetPasswordModal'
-import useRepeatedModal from 'src/common/use-repeated-modal'
+import useRepeatedModal from 'src/utils/use-repeated-modal'
 import formatError from 'src/common/format-error'
 
 export default function UsersPage() {

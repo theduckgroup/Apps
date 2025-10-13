@@ -10,7 +10,7 @@ import EditItemModal, { EditItemModalOptions } from './EditItemModal'
 import EditSectionModal, { EditSectionModalOptions } from './EditSectionModal'
 import ConfirmDeleteModal, { ConfirmDeleteModalOptions } from './ConfirmDeleteModal'
 import ReadonlyItemComponent from './ReadonlyItemComponent'
-import useRepeatedModal from 'src/common/use-repeated-modal'
+import useRepeatedModal from 'src/utils/use-repeated-modal'
 
 export default function QuizItemsEditor({ items, sections, onChange }: {
   items: Quiz.Item[],

@@ -10,7 +10,7 @@ import { usePath, useApi } from 'src/app/contexts'
 import { Quiz } from 'src/quiz-app/models/Quiz'
 import { EditQuizMetadataModal } from './EditQuizMetadataModal'
 import QuizItemsEditor from './QuizItemsEditor'
-import useRepeatedModal from 'src/common/use-repeated-modal'
+import useRepeatedModal from 'src/utils/use-repeated-modal'
 import formatError from 'src/common/format-error'
 
 export default function QuizPage() {

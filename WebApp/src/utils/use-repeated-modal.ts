@@ -2,7 +2,7 @@
  IMPORTANT: Modify this in Common.
  */
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 /**
  * Returns states needed for repeatedly opening the same modal but with fresh
@@ -12,7 +12,7 @@ export default function useRepeatedModal(): ReturnValue {
   const [modalIDs, setModalIDs] = useState<number[]>([])
   const [openedModalId, setOpenedModalId] = useState<number>()
 
-  return {
+  return useMemo(() => ({
     modalIDs,
     isOpened: (id: number) => openedModalId == id,
     open: () => {
@@ -30,7 +30,7 @@ export default function useRepeatedModal(): ReturnValue {
         setModalIDs([])
       }, 500)
     }
-  }
+  }), [modalIDs, openedModalId])
 }
 
 interface ReturnValue {
