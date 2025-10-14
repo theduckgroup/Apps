@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router'
 import { Anchor, Button, Group, Loader, Stack, Text, Title } from '@mantine/core'
 import { useMutation } from '@tanstack/react-query'
@@ -12,12 +12,15 @@ import { EditQuizMetadataModal } from './EditQuizMetadataModal'
 import QuizItemsEditor from './QuizItemsEditor'
 import useRepeatedModal from 'src/utils/use-repeated-modal'
 import formatError from 'src/common/format-error'
+import { Dispatch, ReduceState } from 'src/utils/types-lib'
 
 export default function QuizPage() {
   const { quizId } = useParams()
   const { axios } = useApi()
   const { navigate } = usePath()
   const [quiz, setQuiz] = useState<Quiz | null>(null)
+  const [dirty, setDirty] = useState(false)
+  const quizRef = useRef<Quiz | null>(null)
 
   const { mutate: loadQuiz, error: loadError, isPending: isLoading } = useMutation({
     mutationFn: async () => {
@@ -26,7 +29,7 @@ export default function QuizPage() {
 
       } else {
         const quiz: Quiz = {
-          id: (new ObjectId()).toString(),
+          id: new ObjectId().toString(),
           name: 'New Test',
           code: 'NEW_TEST',
           itemsPerPage: 10,
@@ -53,35 +56,23 @@ export default function QuizPage() {
   }, [loadQuiz])
 
   const { mutate: saveQuiz, error: saveError, isPending: isSaving } = useMutation({
-    mutationFn: async () => {
-      await axios.put(`/quiz/${quiz!.id}`, quiz)
+    mutationFn: async (quiz: Quiz) => {
+      await axios.put(`/quiz/${quiz.id}`, quiz)
     }
   })
 
-  const editModal = useRepeatedModal()
-  const [editModalOptions, setEditModalOptions] = useState<EditQuizMetadataModal.Options | undefined>()
+  useEffect(() => {
+    if (dirty) {
+      saveQuiz(quiz!)
+      setDirty(false)
+    }
 
-  function handleEdit() {
-    setEditModalOptions({
-      data: {
-        name: quiz!.name,
-        code: quiz!.code,
-        itemsPerPage: quiz!.itemsPerPage
-      },
-      onSave: data => {
-        const modifiedQuiz = produce(quiz!, quiz => {
-          quiz.name = data.name
-          quiz.code = data.code
-          quiz.itemsPerPage = data.itemsPerPage
-        })
+  }, [dirty, setDirty, quiz, saveQuiz])
 
-        setQuiz(modifiedQuiz)
-        saveQuiz()
-      }
-    })
-
-    editModal.open()
-  }
+  const setQuizAndSave: React.Dispatch<React.SetStateAction<Quiz | null>> = useCallback((reduceQuiz) => {
+    setQuiz(reduceQuiz)
+    setDirty(true)
+  }, [setQuiz, setDirty])
 
   return (
     <Stack>
@@ -92,7 +83,7 @@ export default function QuizPage() {
           <Group>
             <Text c='red'>{formatError(saveError)}</Text>
             {/* <Button variant='subtle' size='compact-md'>Retry</Button> */}
-            <Anchor href='#' onClick={() => saveQuiz()}>Retry</Anchor>
+            <Anchor href='#' onClick={() => saveQuiz(quiz!)}>Retry</Anchor>
           </Group>
         </Stack>
       }
@@ -119,49 +110,96 @@ export default function QuizPage() {
           return <>???</>
         }
 
-        return (
-          <Stack gap='lg'>
-            {/* Quiz metadata + Save loader */}
-            <Group align='flex-start'>
-              {/* Quiz metadata + Edit button */}
-              <Stack gap='xs' align='flex-start' mr='auto'>
-                {/* Quiz title + Edit button */}
-                <Group gap='md' align='baseline'>
-                  <Title order={3}>{quiz!.name}</Title>
-                  <Button variant='light' size='compact-xs' onClick={handleEdit}>
-                    <Group gap='0.25rem'>
-                      <IconPencil size={14} />
-                      Edit
-                    </Group>
-                  </Button>
-                </Group>
-                {/* Code, items per page */}
-                <Stack gap='0'>
-                  <Text>Code: {quiz.code}</Text>
-                  <Text>Items per Page: {quiz.itemsPerPage}</Text>
-                </Stack>
-              </Stack>
-              {/* Save loader */}
-              {isSaving && <Loader size='sm' />}
-            </Group>
-
-            {/* Items editor */}
-            <QuizItemsEditor
-              items={quiz.items}
-              sections={quiz.sections}
-              onChange={(items, sections) => {
-                setQuiz(quiz => ({ ...quiz!, items, sections }))
-                saveQuiz()
-              }}
-            />
-          </Stack>
-        )
+        return <Content quiz={quiz} setQuiz={setQuizAndSave} isSaving={isSaving} />
       })()}
+    </Stack>
+  )
+}
+
+function Content({ quiz, setQuiz, isSaving }: {
+  quiz: Quiz,
+  setQuiz: React.Dispatch<React.SetStateAction<Quiz | null>>,
+  isSaving: boolean
+}) {
+
+  const editModal = useRepeatedModal()
+  const [editModalOptions, setEditModalOptions] = useState<EditQuizMetadataModal.Options | undefined>()
+
+  function handleEdit() {
+    setEditModalOptions({
+      data: {
+        name: quiz!.name,
+        code: quiz!.code,
+        itemsPerPage: quiz!.itemsPerPage
+      },
+      onSave: data => {
+        const modifiedQuiz = produce(quiz!, quiz => {
+          quiz.name = data.name
+          quiz.code = data.code
+          quiz.itemsPerPage = data.itemsPerPage
+        })
+
+        setQuiz(modifiedQuiz)
+      }
+    })
+
+    editModal.open()
+  }
+
+  const setData: Dispatch<ReduceState<[Quiz.Item[], Quiz.Section[]]>> = useCallback(fn => {
+    setQuiz(quiz => {
+      const [items, sections] = fn([quiz!.items, quiz!.sections])
+
+      return {
+        ...quiz!,
+        items: items,
+        sections: sections
+      }
+    })
+  }, [setQuiz])
+
+  return (
+    <Stack gap='lg'>
+      {/* Quiz metadata + Save loader */}
+      <Group align='flex-start'>
+        {/* Quiz metadata + Edit button */}
+        <Stack gap='xs' align='flex-start' mr='auto'>
+          {/* Quiz title + Edit button */}
+          <Group gap='md' align='baseline'>
+            <Title order={3}>{quiz!.name}</Title>
+            <Button variant='light' size='compact-xs' onClick={handleEdit}>
+              <Group gap='0.25rem'>
+                <IconPencil size={14} />
+                Edit
+              </Group>
+            </Button>
+          </Group>
+          {/* Code, items per page */}
+          <Stack gap='0'>
+            <Text>Code: {quiz.code}</Text>
+            <Text>Items per Page: {quiz.itemsPerPage}</Text>
+          </Stack>
+        </Stack>
+        {/* Save loader */}
+        {isSaving && <Loader size='sm' />}
+      </Group>
+
+      {/* Items editor */}
+      <QuizItemsEditor
+        items={quiz.items}
+        sections={quiz.sections}
+        // onChange={(items, sections) => {
+        //   setQuiz(quiz => ({ ...quiz!, items, sections }))
+        //   saveQuiz()
+        // }}
+        setData={setData}
+      />
 
       {/* Modals */}
       {editModal.modalIDs.map(id =>
         <EditQuizMetadataModal key={id} opened={editModal.isOpened(id)} close={editModal.close} options={editModalOptions} />
       )}
+
     </Stack>
   )
 }
