@@ -9,6 +9,7 @@ import eventHub from './event-hub'
 import QuizSchema from './QuizSchema'
 import QuizResponseSchema from './QuizResponseSchema'
 import logger from 'src/logger'
+import z from 'zod'
 
 const privateRouter = express.Router()
 
@@ -82,6 +83,8 @@ privateRouter.get('/quiz' /* ?code=XYZ */, async (req, res) => {
 privateRouter.put('/quiz/:id', async (req, res) => {
   const id = req.params.id
 
+  // Validate schema
+
   const { data, error: schemaError } = QuizSchema.safeParse(req.body)
 
   if (schemaError) {
@@ -92,6 +95,12 @@ privateRouter.put('/quiz/:id', async (req, res) => {
   if (id != data.id) {
     throw createHttpError(400, 'Inconsistent body ID')
   }
+
+  // Validate sections & items
+
+  validateQuiz(data)
+
+  // Upsert
 
   const db = await getDb()
 
@@ -113,6 +122,46 @@ privateRouter.put('/quiz/:id', async (req, res) => {
 
   eventHub.emitQuizzesChanged()
 })
+
+type QuizSchemaInferredType = z.infer<typeof QuizSchema>
+
+function validateQuiz(quiz: QuizSchemaInferredType) {
+  // All items are used and each one is exactly once
+
+  const rowItemIDs = new Set<string>()
+
+  let errors: string[] = []
+
+  for (const section of quiz.sections) {
+    for (const row of section.rows) {
+      if (rowItemIDs.has(row.itemId)) {
+        errors.push(`Item ID used more than once: ${row.itemId}`)
+      }
+
+      rowItemIDs.add(row.itemId)
+    }
+  }
+
+  const itemIDs = new Set(quiz.items.map(x => x.id))
+
+  const diff1 = [...rowItemIDs].filter(x => !itemIDs.has(x))
+
+  if (diff1.length > 0) {
+    const diffErrors = diff1.map(x => `Row item IDs not found: ${x}`)
+    errors.push(...diffErrors)
+  }
+
+  const diff2 = [...itemIDs].filter(x => !rowItemIDs.has(x))
+
+  if (diff2.length > 0) {
+    const diffErrors = diff2.map(x => `Item IDs not used in rows: ${x}`)
+    errors.push(...diffErrors)
+  }
+
+  if (errors.length > 0) {
+    throw new Error('Item ID errors:\n' + errors.map(x => `- ${x}`).join('\n'))
+  }
+}
 
 privateRouter.post('/quiz-response/submit', async (req, res) => {
   const { data, error: schemaError } = QuizResponseSchema.safeParse(req.body)
