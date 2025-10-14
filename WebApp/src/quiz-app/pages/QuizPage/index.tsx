@@ -20,8 +20,7 @@ export default function QuizPage() {
   const { navigate } = usePath()
   const [quiz, setQuiz] = useState<Quiz | null>(null)
   const [dirty, setDirty] = useState(false)
-  const quizRef = useRef<Quiz | null>(null)
-
+  
   const { mutate: loadQuiz, error: loadError, isPending: isLoading } = useMutation({
     mutationFn: async () => {
       if (quizId) {
@@ -121,7 +120,6 @@ function Content({ quiz, setQuiz, isSaving }: {
   setQuiz: React.Dispatch<React.SetStateAction<Quiz | null>>,
   isSaving: boolean
 }) {
-
   const editModal = useRepeatedModal()
   const [editModalOptions, setEditModalOptions] = useState<EditQuizMetadataModal.Options | undefined>()
 

@@ -3,7 +3,7 @@ import { Button, Group, Menu, MenuItem, Stack, Table, Text, Title } from '@manti
 import { IconEdit, IconKey, IconPlus, IconTrash } from '@tabler/icons-react'
 import { useQuery } from '@tanstack/react-query'
 
-import { useAuth, usePath, useApi } from 'src/app/contexts'
+import { useAuth, useApi } from 'src/app/contexts'
 import { User, type SBUser } from 'src/app/models/User'
 import eventHub from '../event-hub'
 import AddUserModal from './AddUserModal'

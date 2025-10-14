@@ -1,5 +1,16 @@
 import { z } from "zod"
 
+// Metadata
+
+const MetadataSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  code: z.string(),
+  itemsPerPage: z.number().int(),
+})
+
+// Body
+
 const SelectedResponseItem = z.strictObject({
   kind: z.literal("selectedResponseItem"),
   id: z.string(),
@@ -47,11 +58,7 @@ const SectionSchema = z.strictObject({
   ),
 })
 
-export default z.strictObject({
-  id: z.string(),
-  name: z.string(),
-  code: z.string(),
-  itemsPerPage: z.number().int(),
+const BodySchema = z.object({
   items: z.array(
     z.discriminatedUnion("kind", [
       SelectedResponseItem,
@@ -61,3 +68,16 @@ export default z.strictObject({
   ),
   sections: z.array(SectionSchema),
 })
+
+// Schema
+
+const Schema = z.object({
+  ...MetadataSchema.shape, // Need this shape thing!
+  ...BodySchema.shape
+})
+
+export { 
+  MetadataSchema as QuizMetadataSchema, 
+  BodySchema as QuizBodySchema,
+  Schema as QuizSchema
+}
