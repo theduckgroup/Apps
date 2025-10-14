@@ -101,6 +101,14 @@ export namespace Quiz {
         }
     }
   }
+
+  export function createDefaultSection(): Quiz.Section {
+    return {
+      id: new ObjectId().toString(),
+      name: '',
+      rows: []
+    }
+  }
 }
 
 export interface QuizMetadata {
