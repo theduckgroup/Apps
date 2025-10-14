@@ -22,6 +22,7 @@ export default function PromptInput({ value, onChange, ref }: {
     <Textarea
       label='Prompt'
       autosize
+      required
       value={value}
       onChange={e => onChange(e.currentTarget.value)}
       ref={useMergedRef(ref, localRef)}

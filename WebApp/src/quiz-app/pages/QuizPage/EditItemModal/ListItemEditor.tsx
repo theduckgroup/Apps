@@ -61,15 +61,6 @@ export default function ListItemEditor({ item, onChange }: {
     return expandedSubitemIDs.has(id)
   }
 
-  // function areAllSubitemsExpanded() {
-  //   function areEqual(a: Set<string>, b: Set<string>) {
-  //     return a.size == b.size && a.forEach(x => b.has(x))
-  //   }
-
-  //   const allSubitemIDs = new Set(item.data.items.map(x => x.id))
-  //   return areEqual(expandedSubitemIDs, allSubitemIDs)
-  // }
-
   function setSubitemExpanded(id: string, value: boolean) {
     const modified = produce(expandedSubitemIDs, set => {
       if (value) {

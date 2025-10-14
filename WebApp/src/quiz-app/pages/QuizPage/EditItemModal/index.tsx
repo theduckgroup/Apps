@@ -35,6 +35,20 @@ function Content({ opened, close, options }: {
     }
   })()
 
+  const isValid = (() => {
+    switch (item.kind) {
+      case 'selectedResponseItem': {
+        return item.data.prompt != '' && item.data.options.filter(x => x.value != '').length > 0
+      }
+      case 'textInputItem': {
+        return item.data.prompt != ''
+      }
+      case 'listItem': {
+        return item.data.items.some(x => x.data.prompt != '')
+      }
+    }
+  })()
+
   function handleSave() {
     // Sanitize data
     const sanitizedItem = produce(item, item => {
@@ -97,7 +111,7 @@ function Content({ opened, close, options }: {
           </HoverCard> */}
           <Group gap='sm' ml='auto'>
             <Button variant='default' w='6rem' onClick={close}>Cancel</Button>
-            <Button type='submit' w='6rem' onClick={handleSave}>Save</Button>
+            <Button type='submit' w='6rem' disabled={!isValid} onClick={handleSave}>Save</Button>
           </Group>
         </Group>
       </Stack>

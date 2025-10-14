@@ -113,7 +113,7 @@ export default function SelectedResponseItemEditor({ item, onChange, promptRef }
               style={{ width: '100%' }}
             >
               <Stack gap='0.5rem'>
-                <Text fz='sm' fw='500'>Options</Text>
+                <Text fz='sm' fw='500'>Options <Text span c='red.8'>*</Text></Text>
                 <Stack gap={0}>
                   {item.data.options.map((option, index) => (
                     <Draggable key={option.id} draggableId={option.id} index={index}>

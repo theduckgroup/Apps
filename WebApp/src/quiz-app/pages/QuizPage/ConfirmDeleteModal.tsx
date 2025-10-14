@@ -4,7 +4,7 @@ import { ReactNode } from "react"
 export default function ConfirmDeleteModal({ opened, close, options }: {
   opened: boolean,
   close: () => void,
-  options: ConfirmDeleteModalOptions
+  options: ConfirmDeleteModalOptions | null
 }) {
   if (options) {
     return <Content opened={opened} close={close} options={options} />
@@ -49,11 +49,4 @@ function Content({ opened, close, options }: {
 export interface ConfirmDeleteModalOptions {
   message: ReactNode
   onDelete: () => void
-}
-
-export namespace ConfirmDeleteModalOptions {
-  export const empty: ConfirmDeleteModalOptions = {
-    message: '',
-    onDelete: () => { }
-  }
 }

@@ -39,7 +39,7 @@ function SelectedResponseItemComponent({ item }: {
           item.data.options.length > 0 ?
             item.data.options.map(option => (
               <Group key={option.id} gap='0.45rem' wrap='nowrap' align='baseline'>
-                <IconSquare size={16} strokeWidth={1.5} className='flex-none translate-y-0.5' />
+                <IconSquare size={16} strokeWidth={1.5} className='flex-none translate-y-[0.15rem]' />
                 <Text className='whitespace-pre-wrap'>{option.value}</Text>
               </Group>
             )) : 

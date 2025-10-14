@@ -146,7 +146,7 @@ function Content({ quiz, setQuiz, isSaving }: {
     editModal.open()
   }
 
-  const setData: Dispatch<ReduceState<[Quiz.Item[], Quiz.Section[]]>> = useCallback(fn => {
+  const setData: Dispatch<ReduceState<[Quiz.Item[], Quiz.Section[]]>> = (fn) => {
     setQuiz(quiz => {
       const [items, sections] = fn([quiz!.items, quiz!.sections])
 
@@ -156,7 +156,7 @@ function Content({ quiz, setQuiz, isSaving }: {
         sections: sections
       }
     })
-  }, [setQuiz])
+  }
 
   return (
     <Stack gap='lg'>

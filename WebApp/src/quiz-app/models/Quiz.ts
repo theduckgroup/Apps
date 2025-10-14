@@ -72,10 +72,6 @@ export namespace Quiz {
               {
                 id: new ObjectId().toString(),
                 value: ''
-              },
-              {
-                id: new ObjectId().toString(),
-                value: ''
               }
             ]
           }
