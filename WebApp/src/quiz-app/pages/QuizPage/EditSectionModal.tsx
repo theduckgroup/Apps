@@ -1,8 +1,21 @@
 import { Button, Group, Modal, Stack, TextInput } from "@mantine/core"
 import { isNotEmpty, useForm } from "@mantine/form"
 import { useEffect, useRef } from "react"
+import { Quiz } from 'src/quiz-app/models/Quiz'
 
 export default function EditSectionModal({ opened, close, options }: {
+  opened: boolean,
+  close: () => void,
+  options: EditSectionModalOptions | null
+}) {
+  if (options) {
+    return <Content opened={opened} close={close} options={options} />
+  } else {
+    return null
+  }
+}
+
+function Content({ opened, close, options }: {
   opened: boolean,
   close: () => void,
   options: EditSectionModalOptions
@@ -10,26 +23,18 @@ export default function EditSectionModal({ opened, close, options }: {
   const form = useForm({
     mode: 'controlled',
     initialValues: {
-      name: ''
+      name: options.section.name
     },
     validate: {
-      name: isNotEmpty('Name is required')
+      name: isNotEmpty('Required')
     }
   })
 
   const nameRef = useRef<HTMLInputElement | null>(null)
 
   useEffect(() => {
-    if (options) {
-      form.setValues({
-        name: options.fields.name
-      })
-
-      nameRef.current?.focus()
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [options])
+    nameRef.current?.focus()    
+  }, [])
 
   useEffect(() => {
     if (opened) {
@@ -43,7 +48,8 @@ export default function EditSectionModal({ opened, close, options }: {
   function handleSubmit(values: typeof form.values) {
     close()
     options.onSave({
-      name: values.name.trim()
+      ...options.section,
+      name: values.name
     })
   }
 
@@ -75,16 +81,6 @@ export default function EditSectionModal({ opened, close, options }: {
 
 export interface EditSectionModalOptions {
   title: string
-  fields: {
-    name: string
-  }
-  onSave: (fields: { name: string }) => void
-}
-
-export namespace EditSectionModalOptions {
-  export const empty: EditSectionModalOptions = {
-    title: '',
-    fields: { name: '' },
-    onSave: () => { }
-  }
+  section: Quiz.Section,
+  onSave: (modifiedSection: Quiz.Section) => void
 }

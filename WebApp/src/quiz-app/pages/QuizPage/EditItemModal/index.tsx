@@ -13,13 +13,13 @@ export default function EditItemModal({ opened, close, options }: {
   options: EditItemModalOptions | null
 }) {
   if (options) {
-    return <EditItemModalImpl opened={opened} close={close} options={options} />
+    return <Content opened={opened} close={close} options={options} />
   } else {
     return null
   }
 }
 
-function EditItemModalImpl({ opened, close, options }: {
+function Content({ opened, close, options }: {
   opened: boolean,
   close: () => void,
   options: EditItemModalOptions
