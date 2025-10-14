@@ -447,7 +447,7 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
   const [editSectionModalOptions, setEditSectionModalOptions] = useState<EditSectionModalOptions | null>(null)
 
   const deleteModal = useRepeatedModal()
-  const [deleteModalOptions, setDeleteModalOptions] = useState<ConfirmDeleteModalOptions>(ConfirmDeleteModalOptions.empty)
+  const [deleteModalOptions, setDeleteModalOptions] = useState<ConfirmDeleteModalOptions | null>(null)
 
   const handleClickAdd = useCallback((position: 'before' | 'after') => {
     setEditSectionModalOptions({
@@ -581,7 +581,7 @@ function Row({ item, rowIndex, onAddItem, onEditItem, onDeleteItem, dragHandlePr
   const [editItemModalOptions, setEditItemModalOptions] = useState<EditItemModalOptions | null>(null)
 
   const deleteModal = useRepeatedModal()
-  const [deleteModalOptions, setDeleteModalOptions] = useState<ConfirmDeleteModalOptions>(ConfirmDeleteModalOptions.empty)
+  const [deleteModalOptions, setDeleteModalOptions] = useState<ConfirmDeleteModalOptions | null>(null)
 
   const handleClickAdd = useCallback((kind: Quiz.ItemKind) => {
     setEditItemModalOptions({
@@ -611,7 +611,7 @@ function Row({ item, rowIndex, onAddItem, onEditItem, onDeleteItem, dragHandlePr
     setDeleteModalOptions({
       message: (
         <Stack gap='xs'>
-          <Text>Delete item '{item.id}'?</Text>
+          <Text>Delete item '{item.data.prompt}'?</Text>
           <Text fw='bold'>This cannot be undone.</Text>
         </Stack>
       ),

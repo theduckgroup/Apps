@@ -6,6 +6,18 @@ export default function ConfirmDeleteModal({ opened, close, options }: {
   close: () => void,
   options: ConfirmDeleteModalOptions
 }) {
+  if (options) {
+    return <Content opened={opened} close={close} options={options} />
+  } else {
+    return null
+  }
+}
+
+function Content({ opened, close, options }: {
+  opened: boolean,
+  close: () => void,
+  options: ConfirmDeleteModalOptions
+}) {
   return (
     <Modal
       opened={opened}
