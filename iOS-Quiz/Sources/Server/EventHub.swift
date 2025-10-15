@@ -30,7 +30,7 @@ class EventHub {
     
     func quizzesChanged() -> AsyncStream<Void> {
         print("Creating quizzes changed stream")
-        return events("event:quizzes:changed")
+        return events("quiz-app:quizzes:changed")
     }
     
     private func events(_ eventName: String) -> AsyncStream<Void> {
