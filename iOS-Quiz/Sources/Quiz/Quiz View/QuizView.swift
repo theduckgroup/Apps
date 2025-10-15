@@ -23,7 +23,7 @@ struct QuizView: View {
             ScrollView(.vertical) {
                 VStack(spacing: 0) {
                     RespondentView()
-                    SectionsView()
+                    ItemsView()
                 }
             }
             .contentMargins(

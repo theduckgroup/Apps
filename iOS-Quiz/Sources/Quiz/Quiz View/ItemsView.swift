@@ -2,12 +2,12 @@ import Foundation
 import SwiftUI
 import Equatable
 
-struct SectionsView: View {
+struct ItemsView: View {
     @Environment(QuizViewModel.self) private var viewModel
-    @ScaledMetric private var spacing = 18
+    @ScaledMetric private var itemSpacing = 24
     
     var body: some View {
-        VStack(alignment: .leading, spacing: spacing) {
+        VStack(alignment: .leading, spacing: itemSpacing) {
             ForEach(viewModel.quiz.sections, id: \.id) { section in
                 ForEach(Array(section.rows.enumerated()), id: \.offset) { rowIndex, row in
                     let itemResponse = viewModel.itemResponseForItemID(row.itemId)
@@ -97,16 +97,16 @@ private struct SelectedResponseItemResponseView: View {
     var item: Quiz.SelectedResponseItem
     @Binding var response: QuizResponse.SelectedResponseItemResponse
     var compact: Bool
-    @ScaledMetric private var promptSpacing = 6
-    @ScaledMetric private var itemSpacing = 3
-    @ScaledMetric private var itemVerticalPadding = 6
+    @ScaledMetric private var promptOptionSpacing = 12
+    @ScaledMetric private var optionSpacing = 3
+    @ScaledMetric private var optionVerticalPadding = 6
     
     var body: some View {
-        VStack(alignment: .leading, spacing: promptSpacing) {
+        VStack(alignment: .leading, spacing: promptOptionSpacing) {
             Text(item.data.prompt)
                 // .fixedSize(horizontal: false, vertical: true)
             
-            VStack(alignment: .leading, spacing: itemSpacing) {
+            VStack(alignment: .leading, spacing: optionSpacing) {
                 ForEach(item.data.options) { option in
                     Button {
                         UIApplication.dismissKeyboard()
@@ -136,7 +136,8 @@ private struct SelectedResponseItemResponseView: View {
                                 // .foregroundStyle(selected ? .tint : .primary)
                         }
                         .foregroundStyle(Color.primary)
-                        .padding(.vertical, itemVerticalPadding)
+                        .padding(.top, option.id != item.data.options.first?.id ? optionVerticalPadding : 0)
+                        .padding(.bottom, option.id != item.data.options.last?.id ? optionVerticalPadding : 0)
                         .contentShape(Rectangle())
                         .transaction { $0.animation = nil }
                     }
@@ -152,30 +153,38 @@ private struct TextInputItemResponseView: View {
     var item: Quiz.TextInputItem
     @Binding var response: QuizResponse.TextInputItemResponse
     var compact: Bool
-    @ScaledMetric private var spacing = 6
-    @ScaledMetric private var compactSpacing = 2
+    @ScaledMetric private var stackSpacing = 6
+    @ScaledMetric private var compactStackSpacing = 2
     @FocusState private var focused: Bool
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
     var body: some View {
         Group {
-            HStack(alignment: .firstTextBaseline, spacing: 15) {
-                Text(item.data.prompt)
-                     .layoutPriority(1)
-                    
-                PaperTextField(text: $response.data.value, multiline: false)
-                    .focused($focused)
-                    .foregroundStyle(.blue)
-                    .frame(minWidth: 100)
-            }
+            // TODO: Check
+            let isCompactSizeClass = horizontalSizeClass == .compact
             
-//            VStack(alignment: .leading, spacing: compact ? compactSpacing : spacing) {
-//                Text(item.data.prompt)
-//                    .fixedSize(horizontal: false, vertical: true)
-//                
-//                PaperTextField(text: $response.data.value, multiline: true)
-//                    .focused($focused)
-//                    .foregroundStyle(.blue)
-//            }
+            switch (isCompactSizeClass, item.data.layout) {
+            case (_, .stack), (true, .inline):
+                VStack(alignment: .leading, spacing: compact ? compactStackSpacing : stackSpacing) {
+                    Text(item.data.prompt)
+                        .fixedSize(horizontal: false, vertical: true)
+                    
+                    PaperTextField(text: $response.data.value, multiline: true)
+                        .focused($focused)
+                        .foregroundStyle(.blue)
+                }
+
+            case (false, .inline):
+                HStack(alignment: .firstTextBaseline, spacing: 15) {
+                    Text(item.data.prompt)
+                         .layoutPriority(1)
+                        
+                    PaperTextField(text: $response.data.value, multiline: false)
+                        .focused($focused)
+                        .foregroundStyle(.blue)
+                        .frame(minWidth: 100)
+                }
+            }
         }
         .contentShape(Rectangle())
         .onTapGesture {
@@ -188,8 +197,8 @@ private struct TextInputItemResponseView: View {
 private struct ListItemResponseView: View {
     var item: Quiz.ListItem
     @Binding var response: QuizResponse.ListItemResponse
-    @ScaledMetric var promptItemSpacing = 12
-    @ScaledMetric var itemSpacing = 18
+    @ScaledMetric var promptItemSpacing = 15
+    @ScaledMetric var itemSpacing = 21
     @ScaledMetric var bulletSize = 9
     @ScaledMetric var bulletWidth = 21
     @ScaledMetric var bulletOffset = -2

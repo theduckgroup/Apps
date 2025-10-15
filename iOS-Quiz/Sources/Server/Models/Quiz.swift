@@ -112,6 +112,12 @@ extension Quiz {
         
         struct Data: Equatable, Codable {
             var prompt: String
+            var layout: Layout
+            
+            enum Layout: String, Equatable, Codable {
+                case inline
+                case stack
+            }
         }
     }
     
