@@ -1,7 +1,9 @@
 import { ObjectId } from 'mongodb'
+import { DbQuiz } from './DbQuiz'
 
 export interface DbQuizResponse {
   // _id: ObjectId
+  quiz: DbQuiz
   createdDate: Date
   submittedDate: Date
   itemResponses: DbQuizResponse.ItemResponse[]

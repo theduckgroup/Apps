@@ -1,12 +1,9 @@
 import nodemailer from 'nodemailer'
 import env from 'src/env'
 
-export default {
+export const mailer = {
   async sendMail({ recipients, subject, contentHtml }: {
-    recipients: {
-      name: string
-      email: string
-    }[],
+    recipients: mailer.Recipient[],
     subject: string,
     contentHtml: string
   }) {
@@ -37,3 +34,11 @@ export default {
     await transporter.sendMail(mail)
   }
 }
+
+export namespace mailer {
+  export interface Recipient {
+    name: string
+    email: string
+  }
+}
+

@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-import QuizSchema from './QuizSchema'
+import { QuizSchema } from './QuizSchema'
 
 const SelectedResponseItemResponse = z.strictObject({
   itemKind: z.literal("selectedResponseItem"),

@@ -4,7 +4,7 @@ export interface DbQuiz {
   // _id: ObjectId
   name: string
   code: string
-  itemsPerPage: number
+  emailRecipients: string[]
   items: DbQuiz.Item[]
   sections: DbQuiz.Section[]
 }

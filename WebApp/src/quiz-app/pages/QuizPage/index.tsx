@@ -31,7 +31,7 @@ export default function QuizPage() {
           id: new ObjectId().toString(),
           name: 'New Test',
           code: 'NEW_TEST',
-          itemsPerPage: 10,
+          emailRecipients: [],
           items: [],
           sections: [
             {
@@ -126,15 +126,15 @@ function Content({ quiz, setQuiz, isSaving }: {
   function handleEdit() {
     setEditModalOptions({
       data: {
-        name: quiz!.name,
-        code: quiz!.code,
-        itemsPerPage: quiz!.itemsPerPage
+        name: quiz.name,
+        code: quiz.code,
+        emailRecipients: quiz.emailRecipients,
       },
       onSave: data => {
         const modifiedQuiz = produce(quiz!, quiz => {
           quiz.name = data.name
           quiz.code = data.code
-          quiz.itemsPerPage = data.itemsPerPage
+          quiz.emailRecipients = data.emailRecipients
         })
 
         setQuiz(modifiedQuiz)
@@ -175,7 +175,7 @@ function Content({ quiz, setQuiz, isSaving }: {
           {/* Code, items per page */}
           <Stack gap='0'>
             <Text>Code: {quiz.code}</Text>
-            <Text>Items per Page: {quiz.itemsPerPage}</Text>
+            <Text>Email Recipients: {quiz.emailRecipients.join(', ')}</Text>
           </Stack>
         </Stack>
         {/* Save loader */}

@@ -149,6 +149,8 @@ struct QuizView: View {
     @ViewBuilder
     private func submitButton() -> some View {
         Button {
+            UIApplication.dismissKeyboard()
+            
             ps.presentAlert(message: "Submit test?") {
                 Button("Submit") {
                     handleSubmit()

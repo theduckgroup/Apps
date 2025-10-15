@@ -8,7 +8,7 @@ import { authorizeAdmin } from 'src/auth/authorize'
 import eventHub from './event-hub'
 import { Role, Roles, getUserName, getUserRoles } from './user-extensions'
 import logger from 'src/logger'
-import mailer from 'src/utils/mailer'
+import { mailer } from 'src/utils/mailer'
 
 const router = express.Router()
 

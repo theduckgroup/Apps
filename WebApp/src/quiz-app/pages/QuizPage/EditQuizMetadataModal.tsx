@@ -1,5 +1,5 @@
-import { Button, Group, Modal, NumberInput, Stack, TextInput } from "@mantine/core"
-import { isInRange, isNotEmpty, useForm } from "@mantine/form"
+import { Button, Group, Modal, NumberInput, Stack, Textarea, TextInput, Text } from "@mantine/core"
+import { isNotEmpty, useForm } from "@mantine/form"
 import { useEffect, useRef } from "react"
 
 export function EditQuizMetadataModal(
@@ -18,11 +18,10 @@ function EditQuizMetadataModalImpl({ opened, close, options }: EditQuizMetadataM
     initialValues: {
       name: options.data.name,
       code: options.data.code,
-      itemsPerPage: options.data.itemsPerPage
+      emailRecipients: options.data.emailRecipients.join('\n')
     },
     validate: {
-      name: isNotEmpty('Required'),
-      itemsPerPage: (value) => isNotEmpty('Required')(value) || isInRange({ min: 5, max: 100 }, 'Out of range')(value)
+      name: isNotEmpty('Required')
     }
   })
 
@@ -42,11 +41,16 @@ function EditQuizMetadataModalImpl({ opened, close, options }: EditQuizMetadataM
   }, [opened])
 
   function handleSave(values: typeof form.values) {
+    const emailRecipients = values.emailRecipients
+      .split(/[,;\n]+/) // split by comma, semicolon, or newline (one or more)
+      .map(part => part.trim()) // remove surrounding whitespace
+      .filter(Boolean) // remove empty strings
+
     close()
     options.onSave({
       name: values.name.trim(),
       code: values.code.trim(),
-      itemsPerPage: values.itemsPerPage
+      emailRecipients
     })
   }
 
@@ -71,14 +75,23 @@ function EditQuizMetadataModalImpl({ opened, close, options }: EditQuizMetadataM
             key={form.key('code')}
             {...form.getInputProps('code')}
           />
-          <NumberInput
+          {/* <NumberInput
             label="Items per Page"
             min={5}
             max={100}
             clampBehavior='none'
             key={form.key('itemsPerPage')}
             {...form.getInputProps('itemsPerPage')}
-          />
+          /> */}
+          <Stack gap='0.25rem'>
+            <Textarea
+              label='Email Recipients'
+              autosize
+              key={form.key('emailRecipients')}
+              {...form.getInputProps('emailRecipients')}
+            />
+            <Text fz='sm' c='dark.2'>* Separated by newlines, comma or semicolon</Text>
+          </Stack>
           <Group gap='xs' ml='auto'>
             <Button variant='default' onClick={close} w='6rem'>Cancel</Button>
             <Button type='submit' w='6rem'>Save</Button>
@@ -104,7 +117,7 @@ export namespace EditQuizMetadataModal {
   interface Data {
     name: string
     code: string
-    itemsPerPage: number
+    emailRecipients: string[]
   }
 }
 

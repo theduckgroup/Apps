@@ -6,7 +6,7 @@ const MetadataSchema = z.object({
   id: z.string(),
   name: z.string(),
   code: z.string(),
-  itemsPerPage: z.number().int(),
+  emailRecipients: z.array(z.email())
 })
 
 // Body

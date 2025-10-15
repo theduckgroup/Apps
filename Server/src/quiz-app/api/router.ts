@@ -1,5 +1,7 @@
 import express from 'express'
-import { ObjectId, WithoutId } from 'mongodb'
+import { ObjectId } from 'mongodb'
+import React from 'react'
+import ReactDOMServer from 'react-dom/server'
 import createHttpError from 'http-errors'
 
 import { getDb } from 'src/db'
@@ -10,6 +12,8 @@ import { QuizSchema } from './QuizSchema'
 import QuizResponseSchema from './QuizResponseSchema'
 import logger from 'src/logger'
 import z from 'zod'
+import { mailer } from 'src/utils/mailer'
+import env from 'src/env'
 
 const privateRouter = express.Router()
 
@@ -179,10 +183,41 @@ privateRouter.post('/quiz-response/submit', async (req, res) => {
     submittedDate: new Date(data.submittedDate)
   }
 
-  await db.collection_quizResponses.insertOne(doc)
+  const insertResult = await db.collection_quizResponses.insertOne(doc)
+  const docId = insertResult.insertedId
 
   res.send()
+
+  const recipients: mailer.Recipient[] = doc.quiz.emailRecipients.map(x => ({
+    name: '',
+    email: x
+  }))
+
+  mailer.sendMail({
+    recipients: recipients,
+    subject: `${doc.quiz.name} submitted`,
+    contentHtml: quizResponseNotificationMailHtml(doc.quiz.name, docId)
+
+  })
 })
+
+function quizResponseNotificationMailHtml(quizName: string, docId: ObjectId) {
+  const htmlDoctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
+
+  const html = `
+<p>
+${quizName} has been submitted.
+</p>
+
+<p>
+<a href='${env.webappUrl}/fohtest/view/${docId.toString()}'>View Test</a>
+</p>
+    `
+    
+  return htmlDoctype + html
+
+  // return htmlDoctype + ReactDOMServer.renderToStaticMarkup(React.createElement(OrderEmailHtml, { order: order }, null));
+}
 
 // Public router
 

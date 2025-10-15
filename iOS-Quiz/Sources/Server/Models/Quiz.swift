@@ -4,7 +4,7 @@ struct Quiz: Equatable, Identifiable {
     var id: String
     var name: String
     var code: String
-    var itemsPerPage: Int
+    var emailRecipients: [String]
     var items: [any Item]
     var sections: [Section]
     
@@ -12,7 +12,7 @@ struct Quiz: Equatable, Identifiable {
         x.id == y.id &&
         x.name == y.name &&
         x.code == y.code &&
-        x.itemsPerPage == y.itemsPerPage &&
+        x.emailRecipients == y.emailRecipients &&
         x.items.elementsEqual(y.items, by: areEqual) &&
         x.sections == y.sections
     }
@@ -39,7 +39,7 @@ extension Quiz: Codable {
         id = try container.decode(String.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
         code = try container.decode(String.self, forKey: .code)
-        itemsPerPage = try container.decode(Int.self, forKey: .itemsPerPage)
+        emailRecipients = try container.decode([String].self, forKey: .emailRecipients)
         items = try container.decode([Quiz.Item].self, forKey: .items)
         sections = try container.decode([Section].self, forKey: .sections)
     }
@@ -49,7 +49,7 @@ extension Quiz: Codable {
         try container.encode(id, forKey: .id)
         try container.encode(name, forKey: .name)
         try container.encode(code, forKey: .code)
-        try container.encode(itemsPerPage, forKey: .itemsPerPage)
+        try container.encode(emailRecipients, forKey: .emailRecipients)
         try container.encode(items, forKey: .items)
         try container.encode(sections, forKey: .sections)
     }
@@ -58,7 +58,7 @@ extension Quiz: Codable {
         case id
         case name
         case code
-        case itemsPerPage
+        case emailRecipients
         case items
         case sections
     }
@@ -229,7 +229,7 @@ extension Quiz {
         id: "mock",
         name: "FOH Kitchen Staff Knowledge",
         code: "FOH_KITCHEN_STAFF",
-        itemsPerPage: 10,
+        emailRecipients: ["john.doe@mail.com"],
         items: [],
         sections: []
     )

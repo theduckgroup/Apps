@@ -4,7 +4,7 @@ export interface Quiz {
   id: string
   name: string
   code: string
-  itemsPerPage: number
+  emailRecipients: string[]
   items: Quiz.Item[]
   sections: Quiz.Section[]
 }

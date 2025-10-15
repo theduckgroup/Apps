@@ -2,7 +2,7 @@
 
 export default {
   // serverUrl: load('SERVER_URL'),
-  // webappUrl: load('WEBAPP_URL'),
+  webappUrl: load('WEBAPP_URL'),
   mongodb: {
     uri: load('MONGODB_URI'),
     dbName: load('MONGODB_DB_NAME'),

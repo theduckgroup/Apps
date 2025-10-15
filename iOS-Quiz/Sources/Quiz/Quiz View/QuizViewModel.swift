@@ -33,9 +33,9 @@ class QuizViewModel {
                     continue
                 }
             
-                if currentPageRows.count >= quiz.itemsPerPage {
-                    endPage()
-                }
+//                if currentPageRows.count >= quiz.itemsPerPage {
+//                    endPage()
+//                }
                 
                 currentPageRows.append(.itemResponse(id: itemResponse.id, indexInSection: rowIndex))
             }
