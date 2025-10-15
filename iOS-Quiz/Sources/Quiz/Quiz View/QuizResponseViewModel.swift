@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 
 @Observable
-class QuizViewModel {
+class QuizResponseViewModel {
     var quizResponse: QuizResponse
     private let itemIDToItemRepsonseIndexMap: [String: Int]
     private let itemResponseIDToIndexMap: [String: Int]

@@ -1,8 +1,8 @@
 import Foundation
 import SwiftUI
 
-struct RespondentView: View {
-    @Environment(QuizViewModel.self) var viewModel
+struct QRRespondentView: View {
+    @Environment(QuizResponseViewModel.self) var viewModel
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @FocusState private var nameFocused: Bool
     
@@ -14,7 +14,7 @@ struct RespondentView: View {
                 .font(.title)
                 .fontWeight(.semibold)
             
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 15) {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Name")
                     PaperTextField(text: $viewModel.quizResponse.respondent.name)

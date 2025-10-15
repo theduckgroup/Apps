@@ -1,20 +1,20 @@
 import Foundation
 import SwiftUI
 
-struct QuizView: View {
-    @State private var viewModel: QuizViewModel
+struct QuizResponseView: View {
+    @State private var viewModel: QuizResponseViewModel
     @State private var topBarSize: CGSize?
     @State private var presentingAppearancePopover = false
     @State private var ps = PresentationState()
-    @AppStorage("QuizView:dynamicTypeSizeOverride") var dynamicTypeSizeOverride: DynamicTypeSizeOverride?
+    @AppStorage("QuizResponseView:dynamicTypeSizeOverride") var dynamicTypeSizeOverride: DynamicTypeSizeOverride?
     @Environment(\.dynamicTypeSize) private var systemDynamicTypeSize
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.dismiss) private var dismiss
     
     init(quiz: Quiz) {
         viewModel = {
-            let response = QuizResponse(from: quiz)
-            return QuizViewModel(quizResponse: response)
+            let response = QuizResponse(from: quiz, store: Auth.shared.user!.name)
+            return QuizResponseViewModel(quizResponse: response)
         }()
     }
     
@@ -22,8 +22,8 @@ struct QuizView: View {
         VStack {
             ScrollView(.vertical) {
                 VStack(spacing: 0) {
-                    RespondentView()
-                    ItemsView()
+                    QRRespondentView()
+                    QRItemsView()
                 }
             }
             .contentMargins(
@@ -101,7 +101,7 @@ struct QuizView: View {
         }
         .buttonStyle(.paper(wide: true, maxHeight: .infinity))
         .popover(isPresented: $presentingAppearancePopover) {
-            QuizAppearanceView(dynamicTypeSizeOverride: $dynamicTypeSizeOverride)
+            QRAppearanceView(dynamicTypeSizeOverride: $dynamicTypeSizeOverride)
         }
     }
     
@@ -198,7 +198,7 @@ extension View {
             }
         }
         .fullScreenCover(item: $quiz) { quiz in
-            QuizView(quiz: quiz)
+            QuizResponseView(quiz: quiz)
                 .tint(.blue)
         }
         .environment(AppDefaults())

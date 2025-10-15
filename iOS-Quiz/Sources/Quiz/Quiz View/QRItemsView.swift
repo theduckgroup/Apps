@@ -2,8 +2,9 @@ import Foundation
 import SwiftUI
 import Equatable
 
-struct ItemsView: View {
-    @Environment(QuizViewModel.self) private var viewModel
+// QR = Quiz Response
+struct QRItemsView: View {
+    @Environment(QuizResponseViewModel.self) private var viewModel
     @ScaledMetric private var itemSpacing = 24
     
     var body: some View {
@@ -39,7 +40,7 @@ struct ItemsView: View {
 // Equatable DOES make a significant difference
 // Check this by typing random letters quickly
 
-struct ItemResponseView: View, Equatable {
+private struct ItemResponseView: View, Equatable {
     var item: Quiz.Item
     @Binding var itemResponse: QuizResponse.ItemResponse
     var compact: Bool = false
@@ -153,8 +154,8 @@ private struct TextInputItemResponseView: View {
     var item: Quiz.TextInputItem
     @Binding var response: QuizResponse.TextInputItemResponse
     var compact: Bool
-    @ScaledMetric private var stackSpacing = 6
-    @ScaledMetric private var compactStackSpacing = 2
+    @ScaledMetric private var stackSpacing = 9
+    @ScaledMetric private var compactStackSpacing = 6
     @FocusState private var focused: Bool
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     

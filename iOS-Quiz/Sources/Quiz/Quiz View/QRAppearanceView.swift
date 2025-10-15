@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 
-struct QuizAppearanceView: View {
+struct QRAppearanceView: View {
     @Binding var dynamicTypeSizeOverride: DynamicTypeSizeOverride?
     @Environment(\.dynamicTypeSize) private var systemDynamicTypeSize
     
