@@ -4,54 +4,45 @@ import SwiftUI
 @Observable
 class QuizViewModel {
     var quizResponse: QuizResponse
-    var pages: [Page]
+    private let itemIDToItemRepsonseIndexMap: [String: Int]
+    private let itemResponseIDToIndexMap: [String: Int]
     
     init(quizResponse: QuizResponse) {
         self.quizResponse = quizResponse
-        self.pages = [.respondentPage] + Self.pagesFromQuizResponse(quizResponse)
-    }
-    
-    private static func pagesFromQuizResponse(_ quizResponse: QuizResponse) -> [Page] {
-        let quiz = quizResponse.quiz
-        var pages: [Page] = []
-        var currentPageRows: [QuizResponsePage.Row] = []
         
-        func endPage() {
-            let page = Page.quizResponsePage(QuizResponsePage(rows: currentPageRows))
-            pages.append(page)
-            currentPageRows.removeAll()
-        }
-        
-        for section in quiz.sections {
-            // Section header will go here
+        do {
+            // Item ID -> Item response index map
             
-            for (rowIndex, row) in section.rows.enumerated() {
-                let itemResponse = quizResponse.itemResponses.first { $0.itemId == row.itemId }
-                
-                guard let itemResponse else {
-                    assertionFailure()
-                    continue
-                }
+            let itemIDs = quizResponse.quiz.items.map(\.id)
             
-//                if currentPageRows.count >= quiz.itemsPerPage {
-//                    endPage()
-//                }
-                
-                currentPageRows.append(.itemResponse(id: itemResponse.id, indexInSection: rowIndex))
+            let itemResponseIndexes = itemIDs.map { itemID in
+                quizResponse.itemResponses.firstIndex { $0.itemId == itemID }!
             }
             
-            endPage()
+            itemIDToItemRepsonseIndexMap = Dictionary(uniqueKeysWithValues: zip(itemIDs, itemResponseIndexes))
         }
         
-        return pages
+        do {
+            // Item response -> Item repsonse index map
+            
+            let indexesWithValues = quizResponse.itemResponses.map(\.id).enumerated()
+            let valuesWithIndexes = indexesWithValues.map { ($1, $0) }
+            itemResponseIDToIndexMap = Dictionary(uniqueKeysWithValues: valuesWithIndexes)
+        }
     }
     
     var quiz: Quiz {
         quizResponse.quiz
     }
     
-    func itemResponseBindingForID(_ id: String) -> Binding<QuizResponse.ItemResponse> {
-        let index = quizResponse.itemResponses.firstIndex { $0.id == id }!
+    func itemResponseForItemID(_ itemID: String) -> QuizResponse.ItemResponse {
+        let index = itemIDToItemRepsonseIndexMap[itemID]!
+        return quizResponse.itemResponses[index]
+    }
+    
+    func itemResponseBindingForID(_ itemResponseID: String) -> Binding<QuizResponse.ItemResponse> {
+        let index = itemResponseIDToIndexMap[itemResponseID]!
+        // let index = quizResponse.itemResponses.firstIndex { $0.id == id }!
         
         let binding = Binding {
             self.quizResponse.itemResponses[index]
@@ -60,26 +51,5 @@ class QuizViewModel {
         }
         
         return binding
-    }
-}
-
-extension QuizViewModel {
-//    struct Page: Identifiable {
-//        let id = UUID()
-//        let rows: [Row]
-//    }
-    
-    enum Page {
-        case respondentPage
-        case quizResponsePage(QuizResponsePage)
-    }
-    
-    struct QuizResponsePage {
-        var rows: [Row]
-        
-        enum Row {
-            // Section header will go here
-            case itemResponse(id: String, indexInSection: Int)
-        }
     }
 }

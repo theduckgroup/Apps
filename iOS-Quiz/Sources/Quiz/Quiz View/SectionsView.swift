@@ -2,83 +2,37 @@ import Foundation
 import SwiftUI
 import Equatable
 
-struct QuizPageView: View {
-    var page: QuizViewModel.QuizResponsePage
-    var nextVisible: Bool
-    var onNext: () -> Void
-    var submitVisible: Bool
-    var onSubmit: () -> Void
-    @Environment(QuizViewModel.self) private var quizViewModel
-    @ScaledMetric private var spacing = 15
+struct SectionsView: View {
+    @Environment(QuizViewModel.self) private var viewModel
+    @ScaledMetric private var spacing = 18
     
     var body: some View {
-        @Bindable var quizViewModel = quizViewModel
-        
-//        ScrollViewReader { reader in
-//            ScrollView(.vertical) {
-                VStack(alignment: .leading, spacing: 0) {
-                    Color.clear.frame(height: 0).id("top")
-                    
-                    VStack(spacing: spacing) {
-                        ForEach(Array(page.rows.enumerated()), id: \.offset) { rowIndex, row in
-                            Group {
-                                switch row {
-                                case .itemResponse(let id, let indexInSection):
-                                    let itemResponse = quizViewModel.itemResponseBindingForID(id)
-                                    itemResponseRow(itemResponse, index: indexInSection)
-                                }
-                            }
-                            .id(rowIndex)
-                        }
-                        
-                        // bottomButtons()
-                    }
-                    .padding()
+        VStack(alignment: .leading, spacing: spacing) {
+            ForEach(viewModel.quiz.sections, id: \.id) { section in
+                ForEach(Array(section.rows.enumerated()), id: \.offset) { rowIndex, row in
+                    let itemResponse = viewModel.itemResponseForItemID(row.itemId)
+                    let itemResponseBinding = viewModel.itemResponseBindingForID(itemResponse.id)
+                    itemResponseRow(itemResponseBinding, rowIndex: rowIndex)
                 }
-//            }
-//            .scrollDismissesKeyboard(.automatic)
-//            .onAppear {
-//                reader.scrollTo("top")
-//            }
-//        }
+            }
+        }
+        .padding()
     }
     
     @ViewBuilder
-    private func itemResponseRow(_ itemResponse: Binding<QuizResponse.ItemResponse>, index: Int) -> some View {
+    private func itemResponseRow(_ itemResponse: Binding<QuizResponse.ItemResponse>, rowIndex: Int) -> some View {
         HStack(alignment: .firstTextBaseline) {
             ZStack(alignment: .leading) {
-                Text("\(index + 1).")
+                Text("\(rowIndex + 1).")
                     .fontWeight(.bold)
                 
                 Text("00")
                     .opacity(0)
             }
             
-            let item = quizViewModel.quiz.itemForID(itemResponse.wrappedValue.itemId)!
+            let item = viewModel.quiz.itemForID(itemResponse.wrappedValue.itemId)!
             ItemResponseView(item: item, itemResponse: itemResponse)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-    
-    @ViewBuilder
-    private func bottomButtons() -> some View {
-        HStack {
-            Spacer()
-            
-            if nextVisible {
-                PageNavButton("Next", systemImage: "chevron.right") {
-                    onNext()
-                }
-            }
-
-            if submitVisible {
-                PageNavButton("Submit") {
-                    onSubmit()
-                }
-                .bold()
-            }
-        }
-        .padding(.top, 21)
     }
 }
 
@@ -106,7 +60,7 @@ struct ItemResponseView: View, Equatable {
             } set: {
                 itemResponse = $0
             }
-                        
+
             SelectedResponseItemResponseView(item: castItem, response: castItemResponse, compact: compact)
             
         case is QuizResponse.TextInputItemResponse:
@@ -138,7 +92,7 @@ struct ItemResponseView: View, Equatable {
 
 }
 
-@Equatable
+// @Equatable
 private struct SelectedResponseItemResponseView: View {
     var item: Quiz.SelectedResponseItem
     @Binding var response: QuizResponse.SelectedResponseItemResponse
@@ -150,7 +104,7 @@ private struct SelectedResponseItemResponseView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: promptSpacing) {
             Text(item.data.prompt)
-                .fixedSize(horizontal: false, vertical: true)
+                // .fixedSize(horizontal: false, vertical: true)
             
             VStack(alignment: .leading, spacing: itemSpacing) {
                 ForEach(item.data.options) { option in
@@ -179,13 +133,6 @@ private struct SelectedResponseItemResponseView: View {
                             
                             Text(option.value)
                                 .multilineTextAlignment(.leading)
-//                                .modified {
-//                                    if selected {
-//                                        $0.foregroundStyle(.blue)
-//                                    } else {
-//                                        $0.foregroundStyle(.primary)
-//                                    }
-//                                }
                                 // .foregroundStyle(selected ? .tint : .primary)
                         }
                         .foregroundStyle(Color.primary)
@@ -210,13 +157,25 @@ private struct TextInputItemResponseView: View {
     @FocusState private var focused: Bool
     
     var body: some View {
-        VStack(alignment: .leading, spacing: compact ? compactSpacing : spacing) {
-            Text(item.data.prompt)
-                .fixedSize(horizontal: false, vertical: true)
+        Group {
+            HStack(alignment: .firstTextBaseline, spacing: 15) {
+                Text(item.data.prompt)
+                     .layoutPriority(1)
+                    
+                PaperTextField(text: $response.data.value, multiline: false)
+                    .focused($focused)
+                    .foregroundStyle(.blue)
+                    .frame(minWidth: 100)
+            }
             
-            PaperTextField(text: $response.data.value, multiline: true)
-                .focused($focused)
-                .foregroundStyle(.blue)
+//            VStack(alignment: .leading, spacing: compact ? compactSpacing : spacing) {
+//                Text(item.data.prompt)
+//                    .fixedSize(horizontal: false, vertical: true)
+//                
+//                PaperTextField(text: $response.data.value, multiline: true)
+//                    .focused($focused)
+//                    .foregroundStyle(.blue)
+//            }
         }
         .contentShape(Rectangle())
         .onTapGesture {
@@ -229,17 +188,18 @@ private struct TextInputItemResponseView: View {
 private struct ListItemResponseView: View {
     var item: Quiz.ListItem
     @Binding var response: QuizResponse.ListItemResponse
+    @ScaledMetric var promptItemSpacing = 12
+    @ScaledMetric var itemSpacing = 18
     @ScaledMetric var bulletSize = 9
     @ScaledMetric var bulletWidth = 21
     @ScaledMetric var bulletOffset = -2
-    @ScaledMetric var spacing = 12
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: spacing) {
-            Text(item.data.prompt)
-                .fixedSize(horizontal: false, vertical: true)
 
-            VStack(alignment: .leading, spacing: spacing) {
+    var body: some View {
+        VStack(alignment: .leading, spacing: promptItemSpacing) {
+            Text(item.data.prompt)
+                // .fixedSize(horizontal: false, vertical: true)
+
+            VStack(alignment: .leading, spacing: itemSpacing) {
                 ForEach($response.data.itemResponses, id: \.id) { $subitemResponse in
                     HStack(alignment: .firstTextBaseline, spacing: 0) {
                         Text("■")
