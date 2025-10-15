@@ -1,6 +1,7 @@
 import { Divider, Group, Stack, Text } from '@mantine/core'
 import { useViewportSize } from '@mantine/hooks'
 import { IconCheckbox, IconSquare, IconSquareCheck, IconSquareCheckFilled, IconSquareFilled, IconSquareRoundedCheckFilled } from '@tabler/icons-react'
+import { CheckSquareIcon, SquareIcon } from '@phosphor-icons/react'
 import { Quiz } from 'src/quiz-app/models/Quiz'
 import { QuizResponse } from 'src/quiz-app/models/QuizResponse'
 
@@ -51,11 +52,11 @@ function SelectedResponseItemResponseComponent({ item, itemResponse }: {
                   gap='0.45rem' wrap='nowrap' align='baseline'
                 >
                   {selected ?
-                    <Text c='indigo.6'>
-                      <IconCheckbox size={16} strokeWidth={2.5} className='flex-none translate-y-0.5' />
+                    <Text c='#0437F2'>
+                      <CheckSquareIcon size={18} weight='fill' className='flex-none translate-y-0.75' />
                     </Text> :
                     <Text c='gray.5'>
-                      <IconSquare size={16} strokeWidth={2} className='flex-none translate-y-0.5' />
+                      <SquareIcon size={18} weight='bold' className='flex-none translate-y-0.75' />
                     </Text>
                   }
                   < Text className='whitespace-pre-wrap'>{option.value}</Text>
@@ -84,7 +85,7 @@ function TextInputItemResponseComponent({ item, itemResponse }: {
         <Text mr='auto' className='whitespace-pre-wrap'>{item.data.prompt}</Text>
         <Stack gap='0rem' className='grow'>
           {itemResponse.data.value.trim().length ?
-            <Text c='indigo.5'>{itemResponse.data.value}</Text> :
+            <Text c='#0437F2'>{itemResponse.data.value}</Text> :
             <Text opacity={0}>'Z'</Text>
           }
           <Divider />
@@ -97,7 +98,7 @@ function TextInputItemResponseComponent({ item, itemResponse }: {
         <Text mr='auto' className='whitespace-pre-wrap'>{item.data.prompt}</Text>
         <Stack gap='0rem'>
           {itemResponse.data.value.trim().length ?
-            <Text c='indigo.5'>{itemResponse.data.value}</Text> :
+            <Text c='#0437F2'>{itemResponse.data.value}</Text> :
             <Text opacity={0}>'ZZ'</Text>
           }
           <Divider />
