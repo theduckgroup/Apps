@@ -1,4 +1,4 @@
-import { Box, Divider, Flex, Group, Paper, Stack, Text } from '@mantine/core'
+import { Divider, Group, Stack, Text } from '@mantine/core'
 import { IconSquare, IconSquareFilled } from '@tabler/icons-react'
 import { Quiz } from 'src/quiz-app/models/Quiz'
 
@@ -42,7 +42,7 @@ function SelectedResponseItemComponent({ item }: {
                 <IconSquare size={16} strokeWidth={1.5} className='flex-none translate-y-[0.15rem]' />
                 <Text className='whitespace-pre-wrap'>{option.value}</Text>
               </Group>
-            )) : 
+            )) :
             (
               <Text c='red'>(No option)</Text>
             )
@@ -55,15 +55,25 @@ function SelectedResponseItemComponent({ item }: {
 function TextInputItemComponent({ item }: {
   item: Quiz.TextInputItem
 }) {
-  return (
-    <Stack w='100%' gap='0.25rem'>
-      <Text mr='auto' className='whitespace-pre-wrap'>{item.data.prompt}</Text>
-      <Stack w='45%' gap='0'>
-        <Text opacity={0}>(Text)</Text>
-        <Divider />
-      </Stack>
-    </Stack>
-  )
+  switch (item.data.layout) {
+    case 'inline':
+      return (
+        <Stack w='100%' gap='0.25rem'>
+          <Text mr='auto' className='whitespace-pre-wrap'>{item.data.prompt}</Text>
+          <Stack w='45%' gap='0'>
+            <Text opacity={0}>(Text)</Text>
+            <Divider />
+          </Stack>
+        </Stack>
+      )
+    case 'stack':
+      return (
+        <Group w='100%' align='flex-end' gap='md'>
+          <Text className='whitespace-pre-wrap'>{item.data.prompt}</Text>
+          <Divider miw='40%'/>
+        </Group>
+      )
+  }
 }
 
 function ListItemComponent({ item }: {

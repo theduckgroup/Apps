@@ -1,4 +1,4 @@
-import { Button, Group, Modal, NumberInput, Stack, Textarea, TextInput, Text } from "@mantine/core"
+import { Button, Group, Modal, Stack, Textarea, TextInput, Text } from "@mantine/core"
 import { isNotEmpty, useForm } from "@mantine/form"
 import { useEffect, useRef } from "react"
 

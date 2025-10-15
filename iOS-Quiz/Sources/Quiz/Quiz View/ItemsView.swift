@@ -161,20 +161,10 @@ private struct TextInputItemResponseView: View {
     var body: some View {
         Group {
             // TODO: Check
-            let isCompactSizeClass = horizontalSizeClass == .compact
+            let isRegularSizeClass = horizontalSizeClass == .regular
             
-            switch (isCompactSizeClass, item.data.layout) {
-            case (_, .stack), (true, .inline):
-                VStack(alignment: .leading, spacing: compact ? compactStackSpacing : stackSpacing) {
-                    Text(item.data.prompt)
-                        .fixedSize(horizontal: false, vertical: true)
-                    
-                    PaperTextField(text: $response.data.value, multiline: true)
-                        .focused($focused)
-                        .foregroundStyle(.blue)
-                }
-
-            case (false, .inline):
+            switch (isRegularSizeClass, item.data.layout) {
+            case (true, .inline):
                 HStack(alignment: .firstTextBaseline, spacing: 15) {
                     Text(item.data.prompt)
                          .layoutPriority(1)
@@ -183,6 +173,16 @@ private struct TextInputItemResponseView: View {
                         .focused($focused)
                         .foregroundStyle(.blue)
                         .frame(minWidth: 100)
+                }
+                
+            case (_, .stack), (false, .inline):
+                VStack(alignment: .leading, spacing: compact ? compactStackSpacing : stackSpacing) {
+                    Text(item.data.prompt)
+                        .fixedSize(horizontal: false, vertical: true)
+                    
+                    PaperTextField(text: $response.data.value, multiline: true)
+                        .focused($focused)
+                        .foregroundStyle(.blue)
                 }
             }
         }

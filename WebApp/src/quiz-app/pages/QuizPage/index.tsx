@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 import { Anchor, Button, Group, Loader, Stack, Text, Title } from '@mantine/core'
 import { useMutation } from '@tanstack/react-query'
@@ -102,7 +102,7 @@ export default function QuizPage() {
         }
 
         if (loadError) {
-          return <Text c='red'>{loadError.message}</Text>
+          return <Text c='red'>{formatError(loadError)}</Text>
         }
 
         if (!quiz) {
