@@ -371,7 +371,7 @@ function SectionComponent({
               <Stack
                 ref={provided.innerRef}
                 {...provided.droppableProps}
-                gap='md'
+                gap='1.5rem'
                 m='md'
                 align='start'
                 hidden={!isExpanded}

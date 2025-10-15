@@ -32,7 +32,7 @@ function SelectedResponseItemComponent({ item }: {
   item: Quiz.SelectedResponseItem
 }) {
   return (
-    <Stack w='100%' gap='0.4rem'>
+    <Stack w='100%' gap='0.5rem'>
       <Text mr='auto' className='whitespace-pre-wrap'>{item.data.prompt}</Text>
       <Stack gap='0.5rem'>
         {
@@ -56,21 +56,21 @@ function TextInputItemComponent({ item }: {
   item: Quiz.TextInputItem
 }) {
   switch (item.data.layout) {
-    case 'inline':
+    case 'stack':
       return (
-        <Stack w='100%' gap='0.25rem'>
+        <Stack w='100%' gap='0.5rem'>
           <Text mr='auto' className='whitespace-pre-wrap'>{item.data.prompt}</Text>
-          <Stack w='45%' gap='0'>
+          <Stack w='100%' gap='0'>
             <Text opacity={0}>(Text)</Text>
-            <Divider />
+            <Divider/>
           </Stack>
         </Stack>
       )
-    case 'stack':
+    case 'inline':
       return (
         <Group w='100%' align='flex-end' gap='md'>
           <Text className='whitespace-pre-wrap'>{item.data.prompt}</Text>
-          <Divider miw='40%'/>
+          <Divider className='grow'/>
         </Group>
       )
   }
@@ -80,9 +80,9 @@ function ListItemComponent({ item }: {
   item: Quiz.ListItem
 }) {
   return (
-    <Stack w='100%' gap='0.5rem'>
+    <Stack w='100%' gap='0.8rem'>
       <Text mr='auto' className='whitespace-pre-wrap'>{item.data.prompt}</Text>
-      <Stack gap='0.4rem'>
+      <Stack gap='1rem'>
         {
           item.data.items.map(subitem => (
             <Group key={subitem.id} gap='sm' align='baseline' wrap='nowrap'>

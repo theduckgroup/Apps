@@ -1,5 +1,6 @@
 import { Divider, Group, Stack, Text } from '@mantine/core'
-import { IconCheckbox, IconSquare, IconSquareCheck, IconSquareCheckFilled, IconSquareFilled } from '@tabler/icons-react'
+import { useViewportSize } from '@mantine/hooks'
+import { IconCheckbox, IconSquare, IconSquareCheck, IconSquareCheckFilled, IconSquareFilled, IconSquareRoundedCheckFilled } from '@tabler/icons-react'
 import { Quiz } from 'src/quiz-app/models/Quiz'
 import { QuizResponse } from 'src/quiz-app/models/QuizResponse'
 
@@ -50,7 +51,7 @@ function SelectedResponseItemResponseComponent({ item, itemResponse }: {
                   gap='0.45rem' wrap='nowrap' align='baseline'
                 >
                   {selected ?
-                    <Text>
+                    <Text c='indigo.6'>
                       <IconCheckbox size={16} strokeWidth={2.5} className='flex-none translate-y-0.5' />
                     </Text> :
                     <Text c='gray.5'>
@@ -75,18 +76,35 @@ function TextInputItemResponseComponent({ item, itemResponse }: {
   item: Quiz.TextInputItem,
   itemResponse: QuizResponse.TextInputItemResponse
 }) {
-  return (
-    <Stack w='100%' gap='0.25rem'>
-      <Text mr='auto' className='whitespace-pre-wrap'>{item.data.prompt}</Text>
-      <Stack gap='0rem'>
-        {itemResponse.data.value.trim().length ?
-          <Text>{itemResponse.data.value}</Text> :
-          <Text opacity={0}>'ZZ'</Text>
-        }
-        <Divider />
+  const { width } = useViewportSize()
+
+  if (width > 480 && item.data.layout == 'inline') {
+    return (
+      <Group w='100%' align='flex-start'>
+        <Text mr='auto' className='whitespace-pre-wrap'>{item.data.prompt}</Text>
+        <Stack gap='0rem' className='grow'>
+          {itemResponse.data.value.trim().length ?
+            <Text c='indigo.5'>{itemResponse.data.value}</Text> :
+            <Text opacity={0}>'Z'</Text>
+          }
+          <Divider />
+        </Stack>
+      </Group>
+    )
+  } else {
+    return (
+      <Stack w='100%' gap='0.25rem'>
+        <Text mr='auto' className='whitespace-pre-wrap'>{item.data.prompt}</Text>
+        <Stack gap='0rem'>
+          {itemResponse.data.value.trim().length ?
+            <Text c='indigo.5'>{itemResponse.data.value}</Text> :
+            <Text opacity={0}>'ZZ'</Text>
+          }
+          <Divider />
+        </Stack>
       </Stack>
-    </Stack>
-  )
+    )
+  }
 }
 
 function ListItemResponseComponent({ item, itemResponse }: {
@@ -94,9 +112,9 @@ function ListItemResponseComponent({ item, itemResponse }: {
   itemResponse: QuizResponse.ListItemResponse
 }) {
   return (
-    <Stack w='100%' gap='0.5rem'>
+    <Stack w='100%' gap='0.75rem'>
       <Text mr='auto' className='whitespace-pre-wrap'>{item.data.prompt}</Text>
-      <Stack gap='0.4rem'>
+      <Stack gap='0.75rem'>
         {
           item.data.items.map(subitem => {
             const subitemResponse = itemResponse.data.itemResponses.find(x => x.itemId == subitem.id)

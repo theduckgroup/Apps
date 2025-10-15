@@ -143,6 +143,8 @@ struct QuizView: View {
                 }
                 
             } catch {
+                ps.dismiss()
+                
                 ps.presentAlert(error: error)
             }
         }
