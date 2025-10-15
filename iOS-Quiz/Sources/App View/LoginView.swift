@@ -4,7 +4,7 @@ import SwiftUI
 struct LoginView: View {
     @State var email: String = ""
     @State var password: String = ""
-    @FocusState var usernameFocused: Bool
+    @FocusState var emailFocused: Bool
     @State var loading = false
     @State var presentingSettings = false
     @State var presentingError = false
@@ -32,7 +32,7 @@ struct LoginView: View {
             Text("\(error)")
         })
         .onAppear {
-            usernameFocused = true
+            emailFocused = true
         }
     }
     
@@ -43,23 +43,18 @@ struct LoginView: View {
             
             VStack {
                 InputField("Email", text: $email)
-                    .focused($usernameFocused)
+                    .focused($emailFocused)
                     .textContentType(.emailAddress)
                     .keyboardType(.emailAddress)
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.never)
                 
                 InputField("Password", text: $password, secure: true)
-                    .onKeyPress(.return) {
-                        guard !email.isEmpty && !password.isEmpty else {
-                            return .ignored
-                        }
-                        
+                    .submitLabel(.go)
+                    .onSubmit {
                         Task {
                             await login()
                         }
-                        
-                        return .handled
                     }
             }
             
@@ -85,6 +80,7 @@ struct LoginView: View {
                 .frame(height: 33)
             }
             .buttonStyle(.borderedProminent)
+            .disabled(email.isEmpty || password.isEmpty)
         }
         .disabled(loading)
         .frame(width: 320)
@@ -142,5 +138,4 @@ private struct InputField: View {
 
 #Preview {
     LoginView()
-        .preferredColorScheme(.dark)
 }
