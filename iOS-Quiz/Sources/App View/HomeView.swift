@@ -15,7 +15,7 @@ struct HomeView: View {
     var body: some View {
         bodyContent()
             .fullScreenCover(item: $presentedQuiz) { quiz in
-                QuizView(quiz: quiz)
+                QuizResponseView(quiz: quiz)
             }
             .onAppear {
                 fetchQuiz()
@@ -83,6 +83,7 @@ struct HomeView: View {
                 HStack {
                     ProgressView()
                         .progressViewStyle(.circular)
+                        .tint(.secondary)
                     
                     Text("Loading...")
                         .foregroundStyle(.secondary)
@@ -110,7 +111,6 @@ struct HomeView: View {
                         .fill(Color(UIColor.tertiarySystemFill))
                 }
                 .padding()
-                
             }
         }
     }

@@ -38,10 +38,13 @@ struct AppView: View {
         } else {
             ProgressView()
                 .progressViewStyle(.circular)
+                .scaleEffect(1.5)
+                .foregroundStyle(.secondary)
         }
     }
 }
 
 #Preview {
     AppView()
+        .environment(AppDefaults())
 }
