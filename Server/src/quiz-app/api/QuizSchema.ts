@@ -30,6 +30,7 @@ const TextInputItem = z.strictObject({
   id: z.string(),
   data: z.strictObject({
     prompt: z.string(),
+    layout: z.enum(['inline', 'stack'])
   }),
 })
 

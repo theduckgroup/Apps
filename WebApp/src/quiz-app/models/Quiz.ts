@@ -39,6 +39,7 @@ export namespace Quiz {
     kind: 'textInputItem'
     data: {
       prompt: string
+      layout: 'inline' | 'stack'
     }
   }
 
@@ -82,7 +83,8 @@ export namespace Quiz {
           id,
           kind,
           data: {
-            prompt: ''
+            prompt: '',
+            layout: 'stack'
           }
         }
 

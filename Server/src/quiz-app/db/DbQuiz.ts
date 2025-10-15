@@ -38,6 +38,7 @@ export namespace DbQuiz {
     kind: 'textInputItem'
     data: {
       prompt: string
+      layout: 'inline' | 'stack'
     }
   }
 

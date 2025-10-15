@@ -57,9 +57,29 @@ privateRouter.get('/quiz/:id', async (req, res) => {
     throw createHttpError(400, 'Document not found')
   }
 
-  const resQuiz = normalizeId(dbQuiz)
+  const quiz = normalizeId(dbQuiz)
 
-  res.send(resQuiz)
+  // Fix data
+
+  for (const item of quiz.items) {
+    if (item.kind == 'textInputItem') {
+      if (!item.data.layout) {
+        item.data.layout = 'stack'
+      }
+    }
+
+    if (item.kind == 'listItem') {
+      for (const subitem of item.data.items) {
+        if (subitem.kind == 'textInputItem') {
+          if (!subitem.data.layout) {
+            subitem.data.layout = 'stack'
+          }
+        }
+      }
+    }
+  }
+
+  res.send(quiz)
 })
 
 privateRouter.get('/quiz' /* ?code=XYZ */, async (req, res) => {
@@ -79,9 +99,9 @@ privateRouter.get('/quiz' /* ?code=XYZ */, async (req, res) => {
     throw createHttpError(400, 'Document not found')
   }
 
-  const resQuiz = normalizeId(dbQuiz)
+  const quiz = normalizeId(dbQuiz)
 
-  res.send(resQuiz)
+  res.send(quiz)
 })
 
 privateRouter.put('/quiz/:id', async (req, res) => {
