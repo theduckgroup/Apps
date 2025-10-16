@@ -1,4 +1,4 @@
-import { Divider, Group, Stack, Text } from '@mantine/core'
+import { Divider, Group, Stack, Text, useMantineColorScheme } from '@mantine/core'
 import { useViewportSize } from '@mantine/hooks'
 import { IconCheckbox, IconSquare, IconSquareCheck, IconSquareCheckFilled, IconSquareFilled, IconSquareRoundedCheckFilled } from '@tabler/icons-react'
 import { CheckSquareIcon, SquareIcon } from '@phosphor-icons/react'
@@ -37,6 +37,8 @@ function SelectedResponseItemResponseComponent({ item, itemResponse }: {
   item: Quiz.SelectedResponseItem,
   itemResponse: QuizResponse.SelectedResponseItemResponse
 }) {
+  const blue = useBlueColor()
+
   return (
     <Stack w='100%' gap='0.4rem'>
       <Text mr='auto' className='whitespace-pre-wrap'>{item.data.prompt}</Text>
@@ -52,8 +54,8 @@ function SelectedResponseItemResponseComponent({ item, itemResponse }: {
                   gap='0.45rem' wrap='nowrap' align='baseline'
                 >
                   {selected ?
-                    <Text c='#0437F2'>
-                      <CheckSquareIcon size={18} weight='fill' className='flex-none translate-y-0.75' />
+                    <Text c={blue}>
+                      <CheckSquareIcon size={18} weight='fill'  className='flex-none translate-y-0.75' />
                     </Text> :
                     <Text c='gray.5'>
                       <SquareIcon size={18} weight='bold' className='flex-none translate-y-0.75' />
@@ -78,6 +80,7 @@ function TextInputItemResponseComponent({ item, itemResponse }: {
   itemResponse: QuizResponse.TextInputItemResponse
 }) {
   const { width } = useViewportSize()
+  const blue = useBlueColor()
 
   if (width > 480 && item.data.layout == 'inline') {
     return (
@@ -85,7 +88,7 @@ function TextInputItemResponseComponent({ item, itemResponse }: {
         <Text mr='auto' className='whitespace-pre-wrap'>{item.data.prompt}</Text>
         <Stack gap='0rem' className='grow'>
           {itemResponse.data.value.trim().length ?
-            <Text c='#0437F2'>{itemResponse.data.value}</Text> :
+            <Text c={blue}>{itemResponse.data.value}</Text> :
             <Text opacity={0}>'Z'</Text>
           }
           <Divider />
@@ -98,7 +101,7 @@ function TextInputItemResponseComponent({ item, itemResponse }: {
         <Text mr='auto' className='whitespace-pre-wrap'>{item.data.prompt}</Text>
         <Stack gap='0rem'>
           {itemResponse.data.value.trim().length ?
-            <Text c='#0437F2'>{itemResponse.data.value}</Text> :
+            <Text c={blue}>{itemResponse.data.value}</Text> :
             <Text opacity={0}>'ZZ'</Text>
           }
           <Divider />
@@ -142,4 +145,9 @@ function Error({ message }: {
   return (
     <Text c='red'>{message ?? 'Error'}</Text>
   )
+}
+
+function useBlueColor() {
+  const { colorScheme } = useMantineColorScheme()
+  return colorScheme === 'dark' ? '#4477FF' : '#0437F2'
 }
