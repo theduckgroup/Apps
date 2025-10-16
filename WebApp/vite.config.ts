@@ -1,7 +1,8 @@
 import { defineConfig } from 'vite'
-import path from "node:path";
+import path from 'node:path'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 // @vitejs/plugin-react-swc does not yet support react compiler
 // https://www.reddit.com/r/react/comments/1m4mxgg/react_compiler_swc_vite/
@@ -10,7 +11,8 @@ export default defineConfig(() => {
   return {
     build: {
       outDir: '../Server/public',
-      emptyOutDir: true
+      emptyOutDir: true,
+      chunkSizeWarningLimit: 2000
     },
     server: {
       port: 8022,
@@ -32,6 +34,9 @@ export default defineConfig(() => {
         },
       }),
       tailwindcss(),
+      visualizer({
+        filename: 'tmp/rollup-visualiser-stats.html'
+      }),
     ],
     resolve: {
       alias: {
