@@ -1,19 +1,14 @@
-import { Text, Modal, Button, TextInput, PasswordInput, Group, Stack, Grid, Select, Box, List, Paper } from '@mantine/core'
-import { useRef, useEffect } from 'react'
+import { Text, Modal, Button, TextInput, PasswordInput, Group, Stack, Grid } from '@mantine/core'
 import { hasLength, isEmail, isNotEmpty, useForm } from '@mantine/form'
 import { useMutation } from '@tanstack/react-query'
 
-import { useAuth, useApi } from 'src/app/contexts'
+import { useApi } from 'src/app/contexts'
 import formatError from 'src/common/format-error'
 import sleep from 'src/common/sleep'
 import RoleSelect from './RoleSelect'
 
 export default function AddUserModal({ opened, onClose }: AddUserModalProps) {
-  const { user: currentUser } = useAuth()
   const { axios } = useApi()
-  const isOwner = currentUser?.isOwner ?? false
-
-  const emailRef = useRef<HTMLInputElement>(null)
 
   const form = useForm<FormValues>({
     initialValues: {
@@ -21,13 +16,15 @@ export default function AddUserModal({ opened, onClose }: AddUserModalProps) {
       firstName: '',
       lastName: '',
       password: '',
+      passwordConfirm: '',
       role: 'user',
     },
     validate: {
       email: isEmail('Invalid email'),
       password: isNotEmpty('Required') && hasLength({ min: 8 }, 'Password must be at least 8 characters'),
-      // firstName: isNotEmpty('Required'),
-      // lastName: isNotEmpty('Required'),
+      passwordConfirm: (value, values) => {
+        return value != values.password ? 'Password does not match' : null
+      }
     },
   })
 
@@ -72,14 +69,6 @@ export default function AddUserModal({ opened, onClose }: AddUserModalProps) {
     form.reset()
   }
 
-  useEffect(() => {
-    setTimeout(() => {
-      if (opened && emailRef.current) {
-        emailRef.current.focus()
-      }
-    }, 50)
-  }, [opened])
-
   return (
     <>
       <Modal
@@ -90,15 +79,17 @@ export default function AddUserModal({ opened, onClose }: AddUserModalProps) {
       >
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Stack gap='md'>
+            {/* Email */}
             <TextInput
               label='Email'
               type='email'
               required
+              data-autofocus
               autoComplete='off'
               {...form.getInputProps('email')}
-              ref={emailRef}
             />
 
+            {/* Password */}
             <PasswordInput
               label='Password'
               autoComplete='off'
@@ -106,6 +97,14 @@ export default function AddUserModal({ opened, onClose }: AddUserModalProps) {
               {...form.getInputProps('password')}
             />
 
+            <PasswordInput
+              label='Confirm Password'
+              required
+              autoComplete='off'
+              {...form.getInputProps('passwordConfirm')}
+            />
+
+            {/* First & Last Name */}
             <Grid>
               <Grid.Col span={6}>
                 <TextInput
@@ -156,5 +155,6 @@ interface FormValues {
   lastName: string
   email: string
   password: string
+  passwordConfirm: string
   role: 'owner' | 'admin' | 'user'
 }
