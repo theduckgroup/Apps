@@ -7,7 +7,7 @@ extension API {
         auth: .shared,
         baseURL: {
             switch AppInfo.buildTarget {
-            case .prod: fatalError()
+            case .prod: URL(string: "https://apps.theduckgroup.com.au/api/quiz-app")!
             case .local: URL(string: "http://192.168.0.207:8021/api/quiz-app")!
             }
         }()

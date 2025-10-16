@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		732A1B072E9CC4D900F0E507 /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 732A1B062E9CC4D900F0E507 /* Algorithms */; };
+		732A1CD82EA0FCF800F0E507 /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 732A1CD72EA0FCF800F0E507 /* Algorithms */; };
 		738F34192E97315000F876DB /* SwiftBSON in Frameworks */ = {isa = PBXBuildFile; productRef = 738F34182E97315000F876DB /* SwiftBSON */; };
 		738F341B2E97315D00F876DB /* SwiftBSON in Frameworks */ = {isa = PBXBuildFile; productRef = 738F341A2E97315D00F876DB /* SwiftBSON */; };
 		73B0BDDC2E968F0100501694 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = 73B0BDDB2E968F0100501694 /* Auth */; };
@@ -70,6 +71,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				732A1CD82EA0FCF800F0E507 /* Algorithms in Frameworks */,
 				738F341B2E97315D00F876DB /* SwiftBSON in Frameworks */,
 				73B0BDDC2E968F0100501694 /* Auth in Frameworks */,
 				73E01ED32E99CC7C004570BF /* Equatable in Frameworks */,
@@ -145,6 +147,7 @@
 				73B0BDE72E968FBF00501694 /* Supabase */,
 				738F341A2E97315D00F876DB /* SwiftBSON */,
 				73E01ED22E99CC7C004570BF /* Equatable */,
+				732A1CD72EA0FCF800F0E507 /* Algorithms */,
 			);
 			productName = Inventory;
 			productReference = 73B1F29E2D694E8F0069610E /* FOH Test.app */;
@@ -405,7 +408,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -437,7 +440,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -592,6 +595,11 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		732A1B062E9CC4D900F0E507 /* Algorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 732A1B052E9CC4D900F0E507 /* XCRemoteSwiftPackageReference "swift-algorithms" */;
+			productName = Algorithms;
+		};
+		732A1CD72EA0FCF800F0E507 /* Algorithms */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 732A1B052E9CC4D900F0E507 /* XCRemoteSwiftPackageReference "swift-algorithms" */;
 			productName = Algorithms;
