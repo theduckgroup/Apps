@@ -28,7 +28,7 @@
 /* Begin PBXFileReference section */
 		73F1F9E12EA10C9E00BC2209 /* Quiz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Quiz.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		73F1FAFB2EA10E6100BC2209 /* Quiz-local.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Quiz-local.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		73F1FAFC2EA1154B00BC2209 /* iOS-Common */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "iOS-Common"; path = "../iOS-Common"; sourceTree = SOURCE_ROOT; };
+		73F1FAFC2EA1154B00BC2209 /* Common */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Common; path = ../Common; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -98,7 +98,7 @@
 			isa = PBXGroup;
 			children = (
 				73F1FB4B2EA1172B00BC2209 /* Sources */,
-				73F1FAFC2EA1154B00BC2209 /* iOS-Common */,
+				73F1FAFC2EA1154B00BC2209 /* Common */,
 				73F1FAFD2EA1164A00BC2209 /* Frameworks */,
 				73F1F9E22EA10C9E00BC2209 /* Products */,
 			);

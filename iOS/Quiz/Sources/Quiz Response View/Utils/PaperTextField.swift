@@ -14,12 +14,10 @@ struct PaperTextField: View {
     }
     
     var body: some View {
-//         TextField("", text: $text, axis: multiline ? .vertical : .horizontal)
-        TextField("", text: $text)
+        TextField("", text: $text, axis: multiline ? .vertical : .horizontal)
+//        TextField("", text: $text)
             .lineLimit(5)
             .focused($focused)
-//            .padding(.top, verticalPadding)
-//            .padding(.bottom, verticalPadding)
             .autocorrectionDisabled()
             .contentShape(Rectangle())
             .overlay(alignment: .bottom) {
