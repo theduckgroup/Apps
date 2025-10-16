@@ -3,12 +3,14 @@ import { useMutation } from '@tanstack/react-query'
 import { Modal, Text, Button, Group, Stack, PasswordInput } from '@mantine/core'
 import { hasLength, isNotEmpty, useForm } from '@mantine/form'
 
-import { useApi } from 'src/app/contexts'
+import { useApi, useAuth } from 'src/app/contexts'
 import { User } from 'src/app/models/User'
 import formatError from 'src/common/format-error'
 
 const SetPasswordModal: React.FC<SetPasswordModalProps> = ({ user, opened, onClose }) => {
+  const { user: currentUser } = useAuth()
   const { axios } = useApi()
+  const userIsCurrentUser = currentUser?.id == user.id
 
   const form = useForm({
     initialValues: {
@@ -51,21 +53,30 @@ const SetPasswordModal: React.FC<SetPasswordModalProps> = ({ user, opened, onClo
       closeOnClickOutside={false}
     >
       <form onSubmit={form.onSubmit(handleSubmit)}>
-        <Stack gap='md'>
-          <PasswordInput
-            label='New Password'
-            data-autofocus
-            required
-            autoComplete='new-password'
-            {...form.getInputProps('password')}
-          />
-          <PasswordInput
-            label='Confirm New Password'
-            data-autofocus
-            required
-            autoComplete='off'
-            {...form.getInputProps('passwordConfirm')}
-          />
+        <Stack gap='xs'>
+          {/* Password & Confirm password */}
+          <Stack gap='md'>
+            <PasswordInput
+              label='New Password'
+              data-autofocus
+              required
+              autoComplete='new-password'
+              {...form.getInputProps('password')}
+            />
+
+            <PasswordInput
+              label='Confirm New Password'
+              data-autofocus
+              required
+              autoComplete='off'
+              {...form.getInputProps('passwordConfirm')}
+            />
+          </Stack>
+
+          <Text c='yellow' fz='sm'>
+            {userIsCurrentUser ? 'You' : 'User'} will be logged out after changing password
+          </Text>
+
           {mutation.error && <Text c='red'>{formatError(mutation.error)}</Text>}
           <Group justify='flex-end' mt='md'>
             <Button variant='default' miw='6rem' onClick={onClose}>
