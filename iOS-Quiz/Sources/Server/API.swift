@@ -30,7 +30,7 @@ class API {
         decodeAs type: T.Type
     ) async throws -> T {
         try await handle401 {
-            let request = try makeRequest(authenticated: authenticated, method: "GET", path: path, queryItems: queryItems)
+            let request = try await makeRequest(authenticated: authenticated, method: "GET", path: path, queryItems: queryItems)
             let data = try await HTTPClient().get(request)
             let decoded = try JSONDecoder().decode(T.self, from: data)
             return decoded
@@ -44,7 +44,7 @@ class API {
         body: T
     ) async throws {
         try await handle401 {
-            var request = try makeRequest(authenticated: authenticated, method: method, path: path, queryItems: [])
+            var request = try await makeRequest(authenticated: authenticated, method: method, path: path, queryItems: [])
 
             let encoder = JSONEncoder()
             encoder.dateEncodingStrategy = .iso8601
@@ -54,7 +54,7 @@ class API {
         }
     }
     
-    private func makeRequest(authenticated: Bool, method: String, path: String, queryItems: [URLQueryItem]) throws -> URLRequest {
+    private func makeRequest(authenticated: Bool, method: String, path: String, queryItems: [URLQueryItem]) async throws -> URLRequest {
         var url = baseURL.appending(path: path)
         
         if queryItems.count > 0 {
@@ -65,10 +65,7 @@ class API {
         request.httpMethod = method
         
         if authenticated {
-            guard let accessToken = auth.accessToken else {
-                throw GenericError("Not signed in")
-            }
-            
+            let accessToken = try await auth.accessToken
             request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
         }
         

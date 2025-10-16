@@ -38,8 +38,10 @@ class Auth {
         return session?.user
     }
     
-    var accessToken: String? {
-        session?.accessToken
+    var accessToken: String {
+        get async throws {
+            try await supabaseClient.auth.session.accessToken
+        }        
     }
     
     func signIn(email: String, password: String) async throws {
