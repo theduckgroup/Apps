@@ -20,13 +20,13 @@ struct QRRespondentView: View {
                     Text("Name")
                     PaperTextField(text: $viewModel.quizResponse.respondent.name)
                         .focused($nameFocused)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.blue)
                 }
                 
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Store")
                     PaperTextField(text: $viewModel.quizResponse.respondent.store)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.blue)
                 }
             }
         }
