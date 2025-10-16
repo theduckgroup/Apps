@@ -116,40 +116,40 @@ private struct ProgressHUDModifier: ViewModifier {
 
 private struct ProgressHUDView: View {
     var state: ProgressHUDState
-    @ScaledMetric var progressViewSize: CGFloat = 20
+    @ScaledMetric var progressViewSize: CGFloat = 33
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     var body: some View {
         VStack(spacing: 0) {
-            VStack(spacing: 12) {
-                HStack {
-                    Group {
-                        switch state.progress {
-                        case .indeterminate:
-                            ProgressView()
-                                .progressViewStyle(.circular)
-                            
-                        case .determinate(_):
-                            Text("TODO")
-//                            CircularProgressView(progress: fraction)
-//                                .completeColor(.blue)
-                        }
+            VStack(spacing: 18) {
+                Group {
+                    switch state.progress {
+                    case .indeterminate:
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                            .scaleEffect(1.75)
+                        
+                    case .determinate(_):
+                        Text("TODO")
+                        // CircularProgressView(progress: fraction)
+                            // .completeColor(.blue)
                     }
-                    .frame(width: progressViewSize, height: progressViewSize)
-                    
-                    Text(state.title)
                 }
+                .frame(width: progressViewSize, height: progressViewSize)
+                .padding(.top, 6)
                 
-                if !state.message.isEmpty {
-                    Text(state.message)
-                        .multilineTextAlignment(.center)
+                VStack(spacing: 9) {
+                    Text(state.title)
+                        .bold()
+                    
+                    if !state.message.isEmpty {
+                        Text(state.message)
+                            .multilineTextAlignment(.center)
+                    }
                 }
             }
-            .padding()
             
             if let cancelAction = state.cancelAction {
-                Divider()
-                
                 Button {
                     cancelAction.handler()
                     
@@ -157,13 +157,33 @@ private struct ProgressHUDView: View {
                     Text(cancelAction.title)
                         .padding(.horizontal)
                         .padding(.vertical, 12)
+                        .frame(maxWidth: .infinity)
+                        .background {
+                            Capsule()
+                                .fill(Color(UIColor.secondarySystemBackground))
+                        }
                         .contentShape(Rectangle())
                 }
+                
+                // Old UI
+//                Divider()
+//                
+//                Button {
+//                    cancelAction.handler()
+//                    
+//                } label: {
+//                    Text(cancelAction.title)
+//                        .padding(.horizontal)
+//                        .padding(.vertical, 12)
+//                        .contentShape(Rectangle())
+//                }
+                
             }
         }
+        .padding()
         // It is difficult to get the size right without a maxWidth here -- without it the
         // available width (window width) is not available immediately, leading to wrong height)
-        .frame(minWidth: 240, maxWidth: horizontalSizeClass == .compact ? 320 : 480)
+        .frame(minWidth: 300, maxWidth: horizontalSizeClass == .compact ? 320 : 480)
     }
 }
 
@@ -209,5 +229,13 @@ private struct ProgressHUDView: View {
             )
         }
         .progressHUD($indeterminateState)
+        .onAppear {            
+            indeterminateState = .init(
+                title: "Submitting Test...",
+                progress: .indeterminate,
+                message: "",
+                cancelAction: nil
+            )
+        }
     }
 }

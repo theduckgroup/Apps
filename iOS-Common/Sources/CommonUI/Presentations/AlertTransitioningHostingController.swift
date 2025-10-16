@@ -32,7 +32,7 @@ class AlertTransitioningHostingController<Content: View>: UIViewController {
         transitioningDelegate = transitioningDelegateRef
         
         view.backgroundColor = .white
-        view.layer.cornerRadius = 15
+        view.layer.cornerRadius = 30
         view.layer.cornerCurve = .continuous
         view.clipsToBounds = true
     }

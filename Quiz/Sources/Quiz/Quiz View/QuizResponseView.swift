@@ -112,7 +112,7 @@ struct QuizResponseView: View {
         Button {
             UIApplication.dismissKeyboard()
             
-            ps.presentAlert(message: "Submit test?") {
+            ps.presentAlert(title: "Submit test?") {
                 Button("Submit") {
                     handleSubmit()
                 }
@@ -129,7 +129,7 @@ struct QuizResponseView: View {
     private func handleSubmit() {
         Task {
             do {
-                ps.presentProgressHUD(title: "Submitting")
+                ps.presentProgressHUD(title: "Submitting Test...")
                 
                 viewModel.quizResponse.submittedDate = Date()
                 
@@ -138,7 +138,7 @@ struct QuizResponseView: View {
                 
                 ps.dismiss()
                 
-                ps.presentAlert(title: "Test submitted") {
+                ps.presentAlert(title: "Test Submitted") {
                     Button("Close") {
                         dismiss()
                     }
