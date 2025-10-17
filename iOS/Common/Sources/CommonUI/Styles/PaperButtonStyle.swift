@@ -6,8 +6,9 @@ public struct PaperButtonStyle: ButtonStyle {
     var wide: Bool
     var maxHeight: CGFloat?
     @Environment(\.isEnabled) private var isEnabled: Bool
+    @Environment(\.colorScheme) private var colorScheme
     
-    init(prominent: Bool = false, wide: Bool = false, maxHeight: CGFloat? = nil) {
+    public init(prominent: Bool = false, wide: Bool = false, maxHeight: CGFloat? = nil) {
         self.prominent = prominent
         self.wide = wide
         self.maxHeight = maxHeight
@@ -18,7 +19,7 @@ public struct PaperButtonStyle: ButtonStyle {
             if prominent {
                 configuration.label
                     .bold(isEnabled)
-                    .foregroundStyle(.white.opacity(isEnabled ? 1 : 0.5))
+                    .foregroundStyle(.white.opacity(isEnabled && !configuration.isPressed ? 1 : 0.5))
                 
             } else {
                 if configuration.isPressed {
@@ -51,9 +52,16 @@ public struct PaperButtonStyle: ButtonStyle {
                     }
                 }
             } else {
-                Capsule()
-                    .fill(.background)
-                    .paperShadow()
+                ZStack {
+                    Capsule()
+                        .fill(.background)
+                        .paperShadow()
+                    
+                    if colorScheme == .dark {
+                        Capsule()
+                            .strokeBorder(Color(UIColor.systemGray6), lineWidth: 1)
+                    }
+                }
             }
         }
     }
@@ -64,28 +72,3 @@ public extension ButtonStyle where Self == PaperButtonStyle {
         PaperButtonStyle(prominent: prominent, wide: wide, maxHeight: maxHeight)
     }
 }
-
-//struct MyGlassButtonStyle: ButtonStyle {
-//    var prominent = false
-//    
-//    func makeBody(configuration: Configuration) -> some View {
-//        Group {
-//            if prominent {
-//                configuration.label
-//                    .bold()
-//                    .foregroundStyle(.white)
-//            } else {
-//                configuration.label
-//                    .foregroundStyle(.tint)
-//            }
-//        }
-//        .padding(.horizontal, 24)
-//        .padding(.vertical, 9)
-//        .frame(minHeight: 44, maxHeight: .infinity)
-//        .contentShape(Rectangle())
-//        .background {
-//            prominent ? Capsule().fill(.tint) : nil
-//        }
-//        .glassEffectShim()
-//    }
-//}
