@@ -10,6 +10,7 @@ struct AppView: View {
         bodyContent()
             .tint(.red)
             .onAppear {
+                _ = KeyboardDoneButtonManager.shared
                 applyStylingOverride()
             }
             .onChange(of: appDefaults.colorSchemeOverride) {
@@ -40,7 +41,7 @@ struct AppView: View {
             ProgressView()
                 .progressViewStyle(.circular)
                 .scaleEffect(1.5)
-                .foregroundStyle(.secondary)
+                .tint(.secondary)
         }
     }
 }

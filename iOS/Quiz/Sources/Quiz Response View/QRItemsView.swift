@@ -106,7 +106,7 @@ private struct SelectedResponseItemResponseView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: promptOptionSpacing) {
             Text(item.data.prompt)
-                // .fixedSize(horizontal: false, vertical: true)
+                .fixedSize(horizontal: false, vertical: true) // Broken layout sometimes without this
             
             VStack(alignment: .leading, spacing: optionSpacing) {
                 ForEach(item.data.options) { option in
@@ -162,7 +162,6 @@ private struct TextInputItemResponseView: View {
     
     var body: some View {
         Group {
-            // TODO: Check
             let isRegularSizeClass = horizontalSizeClass == .regular
             
             switch (isRegularSizeClass, item.data.layout) {
@@ -208,7 +207,7 @@ private struct ListItemResponseView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: promptItemSpacing) {
             Text(item.data.prompt)
-                // .fixedSize(horizontal: false, vertical: true)
+                .fixedSize(horizontal: false, vertical: true)
 
             VStack(alignment: .leading, spacing: itemSpacing) {
                 ForEach($response.data.itemResponses, id: \.id) { $subitemResponse in

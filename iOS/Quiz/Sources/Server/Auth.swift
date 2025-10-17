@@ -8,13 +8,20 @@ class Auth {
     
     private var session: Session?
     private(set) var isLoaded = false
-    private let supabaseClient = SupabaseClient(supabaseURL: URL(string: "https://ahvebevkycanekqtnthy.supabase.co")!, supabaseKey: "sb_publishable_RYskGh0Y71aGJoncWRLZDQ_rp9Z0U2u")
+    private let supabase = SupabaseClient(supabaseURL: URL(string: "https://ahvebevkycanekqtnthy.supabase.co")!, supabaseKey: "sb_publishable_RYskGh0Y71aGJoncWRLZDQ_rp9Z0U2u")
     
     private init() {
         Task {
-            for await (event, session) in supabaseClient.auth.authStateChanges {
-                logger.info("Receive auth event \(event.rawValue)")
-                self.session = session
+            for await (event, session) in supabase.auth.authStateChanges {
+                logger.info("Received auth event \(event.rawValue), session = \(session, default: "")")
+                
+                // Fallback to supabase.auth.currentSession because in case of network issue, Supabase
+                // may fail to obtain access token and we only receive an INITIAL_SESSION event with a nil session
+                // However supabase.auth.currentSession still holds a session (albeit with invalid JWT)
+                // (Setting session to nil will cause UI to display Login screen)
+                // Must assign session to a property for observable to work
+                self.session = session ?? supabase.auth.currentSession
+                
                 self.isLoaded = true
             }
         }
@@ -26,7 +33,7 @@ class Auth {
                 id: UUID(),
                 appMetadata: [:],
                 userMetadata: [
-                    "first_name": "The Duck Group App",
+                    "first_name": "Mock User",
                     "last_name": ""
                 ],
                 aud: "",
@@ -41,32 +48,23 @@ class Auth {
     
     var accessToken: String {
         get async throws {
-            try await supabaseClient.auth.session.accessToken
+            try await supabase.auth.session.accessToken
         }        
     }
     
     func signIn(email: String, password: String) async throws {
-        try await supabaseClient.auth.signIn(email: email, password: password)
+        try await supabase.auth.signIn(email: email, password: password)
+        
+        // Supabase needs a bit of time to send auth event
+        try await Task.sleep(for: .seconds(0.5))
     }
     
     func signOut() async throws {
-        try await supabaseClient.auth.signOut(scope: .local)
+        try await supabase.auth.signOut(scope: .local)
     }
     
     func handleOAuthURL(_ url: URL) {
-        supabaseClient.auth.handle(url)
-    }
-    
-    func authorize(_ request: URLRequest) throws -> URLRequest {
-        var request = request
-        
-        guard let session else {
-            throw GenericError("User is not signed in")
-        }
-        
-        request.setValue("Bearer \(session.accessToken)", forHTTPHeaderField: "Authorization")
-        
-        return request
+        supabase.auth.handle(url)
     }
 }
 

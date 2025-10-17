@@ -7,7 +7,6 @@ struct LoginView: View {
     @State var password: String = ""
     @FocusState var emailFocused: Bool
     @State var loading = false
-    @State var presentingSettings = false
     @State var presentingError = false
     @State var error: String?
     @Environment(\.colorScheme) private var colorScheme
@@ -18,15 +17,8 @@ struct LoginView: View {
         VStack {
             loginView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-            
-            Button("Settings") {
-                presentingSettings = true
-            }
         }
         .padding()
-        .sheet(isPresented: $presentingSettings) {
-            SettingsView()
-        }
         .alert("Error", isPresented: $presentingError, presenting: error, actions: { _ in
             Button("OK") {}
         }, message: { error in
