@@ -180,7 +180,8 @@ private struct ProgressHUDView: View {
                 
             }
         }
-        .padding()
+        .padding(.horizontal)
+        .padding(.vertical, 24)
         // It is difficult to get the size right without a maxWidth here -- without it the
         // available width (window width) is not available immediately, leading to wrong height)
         .frame(minWidth: 300, maxWidth: horizontalSizeClass == .compact ? 320 : 480)

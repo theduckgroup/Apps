@@ -53,13 +53,10 @@ struct HomeView: View {
                         self.presentedQuiz = quiz
                     }
                 } label: {
-                    Text("Start")
-                        .font(.title2)
-                        .padding(.horizontal)
+                    Text("Start Test")
                 }
+                .buttonStyle(PaperButtonStyle(prominent: true, wide: true))
                 .disabled(quiz == nil)
-                .buttonStyle_glassProminent_shim()
-                .glassEffectShim()
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -151,7 +148,7 @@ struct HomeView: View {
                 
                 isFetching = false
                 
-                logger.error("Unable to parse quiz: \(error)")
+                logger.error("Unable to load quiz: \(error)")
                 self.quizResult = .failure(error)
             }
         }

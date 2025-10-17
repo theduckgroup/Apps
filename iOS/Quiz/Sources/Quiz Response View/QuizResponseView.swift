@@ -43,6 +43,7 @@ struct QuizResponseView: View {
                     .readSize(assignTo: $topBarSize)
             }
             .dynamicTypeSize(dynamicTypeSizeOverride?.dynamicTypeSize ?? systemDynamicTypeSize)
+            .scrollDismissesKeyboard(.immediately)
         }
         .presentations(ps)
         .environment(viewModel)
@@ -112,6 +113,11 @@ struct QuizResponseView: View {
         Button {
             UIApplication.dismissKeyboard()
             
+            if let error = validateSubmit() {
+                ps.presentAlert(title: "Error", message: error, actions: {})
+                return
+            }
+            
             ps.presentAlert(title: "Submit test?") {
                 Button("Submit") {
                     handleSubmit()
@@ -150,6 +156,18 @@ struct QuizResponseView: View {
                 ps.presentAlert(error: error)
             }
         }
+    }
+    
+    private func validateSubmit() -> String? {
+        guard viewModel.quizResponse.respondent.name != "" else {
+            return "Enter your name"
+        }
+        
+        guard viewModel.quizResponse.respondent.name != "" else {
+            return "Enter store"
+        }
+        
+        return nil
     }
     
     /*
