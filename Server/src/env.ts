@@ -3,7 +3,7 @@
 export default {
   // serverUrl: load('SERVER_URL'),
   webappUrl: load('WEBAPP_URL'),
-  simulateHelpSubdomain: load('SIMULATE_HELP_SUBDOMAIN'),
+  simulateHelpSubdomain: loadOptional('SIMULATE_HELP_SUBDOMAIN'),
   mongodb: {
     uri: load('MONGODB_URI'),
     dbName: load('MONGODB_DB_NAME'),
@@ -32,4 +32,8 @@ function load(name: string): string {
   }
 
   return value
+}
+
+function loadOptional(name: string): string | undefined {
+  return process.env[name]
 }
