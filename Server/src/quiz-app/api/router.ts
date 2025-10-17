@@ -5,7 +5,7 @@ import ReactDOMServer from 'react-dom/server'
 import createHttpError from 'http-errors'
 
 import { getDb } from 'src/db'
-import { authorizeAdmin } from 'src/auth/authorize'
+import { authorize, authorizeAdmin } from 'src/auth/authorize'
 import { DbQuizResponse } from '../db/DbQuizResponse'
 import eventHub from './event-hub'
 import { QuizSchema } from './QuizSchema'
@@ -15,11 +15,13 @@ import z from 'zod'
 import { mailer } from 'src/utils/mailer'
 import env from 'src/env'
 
-const privateRouter = express.Router()
+// Admin router
 
-privateRouter.use(authorizeAdmin)
+const adminRouter = express.Router()
 
-privateRouter.get('/quizzes', async (req, res) => {
+adminRouter.use(authorizeAdmin)
+
+adminRouter.get('/quizzes', async (req, res) => {
   const db = await getDb()
 
   const dbQuizzes = await db.collection_quizzes.find({}).toArray()
@@ -44,7 +46,7 @@ privateRouter.get('/quizzes', async (req, res) => {
   res.send(resData)
 })
 
-privateRouter.get('/quiz/:id', async (req, res) => {
+adminRouter.get('/quiz/:id', async (req, res) => {
   const id = req.params.id
 
   const db = await getDb()
@@ -82,29 +84,7 @@ privateRouter.get('/quiz/:id', async (req, res) => {
   res.send(quiz)
 })
 
-privateRouter.get('/quiz' /* ?code=XYZ */, async (req, res) => {
-  const code = req.query.code
-
-  if (!code) {
-    throw createHttpError(400, 'Missing required query parameter: code')
-  }
-
-  const db = await getDb()
-
-  const dbQuiz = await db.collection_quizzes.findOne({
-    code: code
-  })
-
-  if (!dbQuiz) {
-    throw createHttpError(400, 'Document not found')
-  }
-
-  const quiz = normalizeId(dbQuiz)
-
-  res.send(quiz)
-})
-
-privateRouter.put('/quiz/:id', async (req, res) => {
+adminRouter.put('/quiz/:id', async (req, res) => {
   const id = req.params.id
 
   // Validate schema
@@ -187,7 +167,35 @@ function validateQuiz(quiz: QuizSchemaInferredType) {
   }
 }
 
-privateRouter.post('/quiz-response/submit', async (req, res) => {
+// User router
+
+const userRouter = express.Router()
+
+userRouter.use(authorize)
+
+userRouter.get('/quiz' /* ?code=XYZ */, async (req, res) => {
+  const code = req.query.code
+
+  if (!code) {
+    throw createHttpError(400, 'Missing required query parameter: code')
+  }
+
+  const db = await getDb()
+
+  const dbQuiz = await db.collection_quizzes.findOne({
+    code: code
+  })
+
+  if (!dbQuiz) {
+    throw createHttpError(400, 'Document not found')
+  }
+
+  const quiz = normalizeId(dbQuiz)
+
+  res.send(quiz)
+})
+
+userRouter.post('/quiz-response/submit', async (req, res) => {
   const { data, error: schemaError } = QuizResponseSchema.safeParse(req.body)
 
   if (schemaError) {
@@ -292,10 +300,12 @@ function normalizeId<T extends { _id: ObjectId }>(object: T) {
 }
 
 // Exported router
+// Order is important -- if adminRouter is first, it will fail the authorization
 
 const router = express.Router()
 
-router.use(publicRouter) // Order is important
-router.use(privateRouter)
+router.use(publicRouter) 
+router.use(userRouter)
+router.use(adminRouter)
 
 export default router
