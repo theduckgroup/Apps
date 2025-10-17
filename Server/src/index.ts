@@ -13,7 +13,7 @@ import logger from './logger'
 
 // Env
 
-import _ from './env'
+import env from './env'
 const publicDir = path.resolve(path.join(__dirname, '../public'))
 
 // Express
@@ -30,6 +30,25 @@ app.use(rateLimiter())
 
 import eventHub from './event-hub'
 eventHub.init(server)
+
+// Help App
+// To test, use localhost:8021 (NOT 8022 due to the proxy)
+
+import helpAppRouter from './help-app/router'
+
+app.use((req, res, next) => {
+  let isHelpSubdomain = req.hostname === 'help.theduckgroup.com'
+
+  if (env.simulateHelpSubdomain == 'YES') {
+    isHelpSubdomain = true
+  }
+
+  if (isHelpSubdomain) {
+    return helpAppRouter(req, res, next)
+  }
+
+  next()
+})
 
 // API
 

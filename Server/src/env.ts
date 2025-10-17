@@ -3,6 +3,7 @@
 export default {
   // serverUrl: load('SERVER_URL'),
   webappUrl: load('WEBAPP_URL'),
+  simulateHelpSubdomain: load('SIMULATE_HELP_SUBDOMAIN'),
   mongodb: {
     uri: load('MONGODB_URI'),
     dbName: load('MONGODB_DB_NAME'),
