@@ -91,7 +91,7 @@ export default function QuizPage() {
       <Anchor size='sm' href='#' onClick={() => navigate(`/list`)}>
         <Group gap='0.2rem'>
           <IconChevronLeft size={18} />
-          Home
+          Back to Tests
         </Group>
       </Anchor>
 
@@ -164,7 +164,7 @@ function Content({ quiz, setQuiz, isSaving }: {
         <Stack gap='xs' align='flex-start' mr='auto'>
           {/* Quiz title + Edit button */}
           <Group gap='md' align='baseline'>
-            <Title order={3}>{quiz!.name}</Title>
+            <Title order={3} c='gray.1'>{quiz!.name}</Title>
             <Button variant='light' size='compact-xs' onClick={handleEdit}>
               <Group gap='0.25rem'>
                 <IconPencil size={14} />
