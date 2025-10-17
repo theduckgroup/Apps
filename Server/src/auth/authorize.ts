@@ -8,7 +8,7 @@ import supabase from './supabase-client'
  * 
  * If authorization is successful, `req.user` is set to the authorized user.
  */
-export async function authorize(req: Request, res: Response, next: NextFunction) {
+export async function authorizeUser(req: Request, res: Response, next: NextFunction) {
   await authorizeImpl(req)
   next()
 }

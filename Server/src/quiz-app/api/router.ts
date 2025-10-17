@@ -1,11 +1,11 @@
 import express from 'express'
 import { ObjectId } from 'mongodb'
-import React from 'react'
-import ReactDOMServer from 'react-dom/server'
+// import React from 'react'
+// import ReactDOMServer from 'react-dom/server'
 import createHttpError from 'http-errors'
 
 import { getDb } from 'src/db'
-import { authorize, authorizeAdmin } from 'src/auth/authorize'
+import { authorizeUser, authorizeAdmin } from 'src/auth/authorize'
 import { DbQuizResponse } from '../db/DbQuizResponse'
 import eventHub from './event-hub'
 import { QuizSchema } from './QuizSchema'
@@ -171,7 +171,7 @@ function validateQuiz(quiz: QuizSchemaInferredType) {
 
 const userRouter = express.Router()
 
-userRouter.use(authorize)
+userRouter.use(authorizeUser)
 
 userRouter.get('/quiz' /* ?code=XYZ */, async (req, res) => {
   const code = req.query.code
