@@ -1,14 +1,14 @@
 import { useEffect, useRef } from 'react'
 import { useMutation } from '@tanstack/react-query'
-import { Navigate } from 'react-router'
 import { Text, TextInput, Button, Stack, Box, PasswordInput, Title } from '@mantine/core'
 import { useForm, isNotEmpty } from '@mantine/form'
 
 import { useAuth } from '../contexts'
+import formatError from 'src/common/format-error'
 
 const LoginPage = () => {
   const auth = useAuth()
-
+  
   const form = useForm({
     mode: 'controlled',
     validateInputOnChange: true,
@@ -40,16 +40,20 @@ const LoginPage = () => {
     await login(values)
   }
 
-  if (auth.user) {
-    return <Navigate to='/' />
-  }
+  // if (auth.user) {
+  //   return <Navigate to='/' />
+  // }
 
   return (
     <div className='w-screen h-screen flex'>
       <Stack align='center' m='auto'>
-        <Title order={2} mb='lg'>Duck Group</Title>
+        {/* Title */}
+        <Title order={2} mb='lg'>The Duck Group</Title>
+
+        {/* Form */}
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Stack w='250' gap='sm'>
+            {/* Email */}
             <TextInput
               ref={emailRef}
               label='Email'
@@ -57,12 +61,14 @@ const LoginPage = () => {
               key={form.key('email')}
               {...form.getInputProps('email')}
             />
+            {/* Password */}
             <PasswordInput
               label='Password'
               placeholder=''
               key={form.key('password')}
               {...form.getInputProps('password')}
             />
+            {/* Login button */}
             <Button
               type='submit'
               variant='filled'
@@ -73,11 +79,11 @@ const LoginPage = () => {
             </Button>
           </Stack>
         </form>
+
+        {/* Error */}
         <Box mih='24px'>
-          {(error && !isPending) && <Text c='red' ta='center' fz='sm'>{error.message}</Text>}
+          {(error && !isPending) && <Text c='red' ta='center' fz='sm'>{formatError(error)}</Text>}
         </Box>
-        {/* To align vertically */}
-        {/* <Box h='90px' /> */}
       </Stack>
     </div>
   )

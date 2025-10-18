@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router'
-import { MantineProvider, Loader } from '@mantine/core'
+import { MantineProvider, Loader, Text } from '@mantine/core'
 
 import { AuthProvider, useAuth, PathProvider, ApiProvider } from './contexts'
 import theme from './mantine-theme'
@@ -34,17 +34,17 @@ function AppRoutes() {
       <Routes>
         <>
           <Route path='login' element={
-            <RedirectToRootIfAuthenticated>
+            <RedirectToRootIfAuthorized>
               <LoginPage />
-            </RedirectToRootIfAuthenticated>
+            </RedirectToRootIfAuthorized>
           } />
 
           {fohTestRoute}
 
           <Route path='/' element={
-            <RedirectToLoginIfUnauthenticated>
+            <RedirectToLoginIfUnauthorized>
               <DashboardLayout />
-            </RedirectToLoginIfUnauthenticated>
+            </RedirectToLoginIfUnauthorized>
           }>
             <Route index element={<Navigate to='quiz-app' />} />
             {subappRoutes}
@@ -106,17 +106,27 @@ function LoadingPage() {
   )
 }
 
-function RedirectToLoginIfUnauthenticated({ children }: { children: ReactNode }) {
-  const { user } = useAuth()
+function RedirectToLoginIfUnauthorized({ children }: { children: ReactNode }) {
+  const { user, logout } = useAuth()
 
   if (!user) {
     return <Navigate to='/login' replace />
   }
 
+  if (!user.isOwner && !user.isAdmin) {
+    setTimeout(() => logout(), 2000)
+
+    return (
+      <>
+        <Text c='red' p='lg'>Not Permitted</Text>
+      </>
+    )
+  }
+
   return children
 }
 
-function RedirectToRootIfAuthenticated({ children }: { children: ReactNode }) {
+function RedirectToRootIfAuthorized({ children }: { children: ReactNode }) {
   const { user } = useAuth()
 
   if (user) {
