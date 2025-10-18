@@ -15,7 +15,7 @@ Each iOS app have their own folder.
 
 vite.config.js:
 - Dev server runs on port 8022
-- Dev server forwards request starting `/api` to server
+- Dev server forwards requests starting with `/api` to server
 - For prod, the app is built with output at Server/public folder
 
 Notes:
