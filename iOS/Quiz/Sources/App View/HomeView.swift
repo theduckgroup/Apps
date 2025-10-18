@@ -54,8 +54,9 @@ struct HomeView: View {
                     }
                 } label: {
                     Text("Start Test")
+                        .padding(.horizontal, 9)
                 }
-                .buttonStyle(PaperButtonStyle(prominent: true, wide: true))
+                .buttonStyle(.paperProminent)
                 .disabled(quiz == nil)
             }
         }
@@ -67,10 +68,10 @@ struct HomeView: View {
                     
                 } label: {
                     Image(systemName: "person.fill")
-                        .contentShape(Rectangle())
+                        .imageScale(.large)
                 }
-                .buttonStyle(.paper())
-                .padding(.bottom, 3)
+                .buttonStyle(.paper)
+                .padding(.bottom, 6)
                 .popover(isPresented: $presentingSettings) {
                     SettingsView()
                 }

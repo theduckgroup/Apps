@@ -51,6 +51,7 @@ struct QRAppearanceView: View {
                 dynamicTypeSizeOverride = nil
             }
             .padding(.top, 6)
+            .disabled(dynamicTypeSizeOverride == nil || dynamicTypeSizeOverride?.dynamicTypeSize == systemDynamicTypeSize)
         }
     }
 }

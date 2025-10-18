@@ -1,14 +1,16 @@
 import { ReactNode } from 'react'
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router'
-import { MantineProvider, Loader } from '@mantine/core'
+import { MantineProvider, Loader, Text } from '@mantine/core'
 
 import { AuthProvider, useAuth, PathProvider, ApiProvider } from './contexts'
 import theme from './mantine-theme'
 import LoginPage from 'src/app/pages/LoginPage'
 import DashboardLayout from './pages/DashboardLayout'
 import ProfilePage from './pages/ProfilePage'
-import quizAppRoutes from 'src/quiz-app/routes'
+import ResetPasswordPage from './pages/ResetPasswordPage'
+import ResetPassword2Page from './pages/ResetPassword2Page'
 import adminAppRoutes from 'src/admin-app/routes'
+import quizAppRoutes from 'src/quiz-app/routes'
 import QuizResponsePage from 'src/quiz-app/pages/QuizResponsePage'
 
 function App() {
@@ -29,32 +31,43 @@ function AppRoutes() {
   // Then redirect to default authenticated page after session is restored
   const { isLoaded } = useAuth()
 
+  if (!isLoaded) {
+    return <LoadingPage />
+  }
+
   return (
-    isLoaded ?
-      <Routes>
-        <>
-          <Route path='login' element={
-            <RedirectToRootIfAuthenticated>
-              <LoginPage />
-            </RedirectToRootIfAuthenticated>
-          } />
+    <Routes>
+      <Route path='login' element={
+        <RedirectToRootIfAuthorized>
+          <LoginPage />
+        </RedirectToRootIfAuthorized>
+      } />
 
-          {fohTestRoute}
+      <Route path='reset-password' element={
+        <RedirectToRootIfAuthorized>
+          <ResetPasswordPage />
+        </RedirectToRootIfAuthorized>
+      } />
 
-          <Route path='/' element={
-            <RedirectToLoginIfUnauthenticated>
-              <DashboardLayout />
-            </RedirectToLoginIfUnauthenticated>
-          }>
-            <Route index element={<Navigate to='quiz-app' />} />
-            {subappRoutes}
-            <Route path='profile' element={<ProfilePage />} />
-            <Route path='*' element={<NoMatch />} />
-          </Route>
-        </>
-      </Routes >
-      :
-      <LoadingPage />
+      <Route path='reset-password-2' element={
+        <RedirectToLoginIfUnauthorized>
+          <ResetPassword2Page />
+        </RedirectToLoginIfUnauthorized>
+      } />
+
+      {fohTestRoute}
+
+      <Route path='/' element={
+        <RedirectToLoginIfUnauthorized>
+          <DashboardLayout />
+        </RedirectToLoginIfUnauthorized>
+      }>
+        <Route index element={<Navigate to='quiz-app' />} />
+        {subappRoutes}
+        <Route path='profile' element={<ProfilePage />} />
+        <Route path='*' element={<NoMatch />} />
+      </Route>
+    </Routes>
   )
 }
 
@@ -62,15 +75,15 @@ function AppRoutes() {
 
 const subappRoutes = (
   <>
-    <Route path='quiz-app' element={
-      <SubappLayout path='/quiz-app' apiPath='/api/quiz-app' />
-    }>
-      {quizAppRoutes}
-    </Route>
     <Route path='admin' element={
       <SubappLayout path='/admin' apiPath='/api/admin' />
     }>
       {adminAppRoutes}
+    </Route>
+    <Route path='quiz-app' element={
+      <SubappLayout path='/quiz-app' apiPath='/api/quiz-app' />
+    }>
+      {quizAppRoutes}
     </Route>
   </>
 )
@@ -106,17 +119,27 @@ function LoadingPage() {
   )
 }
 
-function RedirectToLoginIfUnauthenticated({ children }: { children: ReactNode }) {
-  const { user } = useAuth()
+function RedirectToLoginIfUnauthorized({ children }: { children: ReactNode }) {
+  const { user, logout } = useAuth()
 
   if (!user) {
     return <Navigate to='/login' replace />
   }
 
+  if (!user.isOwner && !user.isAdmin) {
+    setTimeout(() => logout(), 3000)
+
+    return (
+      <>
+        <Text c='red' p='lg'>Not Permitted</Text>
+      </>
+    )
+  }
+
   return children
 }
 
-function RedirectToRootIfAuthenticated({ children }: { children: ReactNode }) {
+function RedirectToRootIfAuthorized({ children }: { children: ReactNode }) {
   const { user } = useAuth()
 
   if (user) {

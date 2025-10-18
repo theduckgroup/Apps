@@ -64,16 +64,17 @@ function HeaderContent({ navbarOpened, toggleNavbar, closeNavbar }: {
       >
         <Center>
           <Group>
+            {/* Burger menu */}
             <Burger
               opened={navbarOpened}
               onClick={toggleNavbar}
               hiddenFrom='sm'
               size='sm'
             />
+            {/* The Duck Group title */}
             <Anchor href='#' underline='never' onClick={() => navigate('/')}>
-              <Text fw='bold' fz={20} c='gray.0'>Duck Group</Text>
+              <Text fw='bold' fz={20} c='gray.0'>The Duck Group</Text>
             </Anchor>
-            {/* <Text fw='bold' fz={20}>Quiz App</Text> */}
           </Group>
         </Center>
 
