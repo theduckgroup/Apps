@@ -3,6 +3,7 @@ import { Session, createClient } from '@supabase/supabase-js'
 
 import { AuthContext, AuthContextValue } from './AuthContext'
 import { User } from '../models/User'
+import axios from 'axios'
 
 // This is part of AuthContext, but split into separate file
 // due to fast refresh restrictions 
@@ -63,6 +64,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } finally {
         removeSession()
       }
+    },
+    resetPassword: async (email: string) => {
+      await axios.post(`/api/reset-password?email=${email}`)
     },
     getSession: async () => {
       return (await supabase.auth.getSession()).data.session

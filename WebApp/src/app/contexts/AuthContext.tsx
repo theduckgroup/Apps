@@ -7,6 +7,7 @@ export interface AuthContextValue {
   user: User | null
   login: (options: {email: string, password: string}) => Promise<void>
   logout: () => Promise<void>,
+  resetPassword: (email: string) => Promise<void>,
   getSession: () => Promise<Session | null>,
   removeSession: () => void
 }

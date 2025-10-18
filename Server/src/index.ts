@@ -58,6 +58,9 @@ app.use('/api/quiz-app', quizAppRouter)
 import adminAppRouter from './admin-app/api/router'
 app.use('/api/admin', adminAppRouter)
 
+import resetPasswordRouter from './auth/reset-password-router'
+app.use('/api/reset-password', resetPasswordRouter)
+
 app.use('/api/*splat', (req, res) => {
   throw createHttpError(404, `Invalid Route`)
 })

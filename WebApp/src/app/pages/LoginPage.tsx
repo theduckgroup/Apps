@@ -1,14 +1,16 @@
 import { useEffect, useRef } from 'react'
 import { useMutation } from '@tanstack/react-query'
-import { Text, TextInput, Button, Stack, Box, PasswordInput, Title } from '@mantine/core'
+import { Text, TextInput, Button, Stack, Box, PasswordInput, Title, Anchor } from '@mantine/core'
 import { useForm, isNotEmpty } from '@mantine/form'
 
 import { useAuth } from '../contexts'
 import formatError from 'src/common/format-error'
+import { useNavigate } from 'react-router'
 
 const LoginPage = () => {
   const auth = useAuth()
-  
+  const navigate = useNavigate()
+
   const form = useForm({
     mode: 'controlled',
     validateInputOnChange: true,
@@ -52,7 +54,7 @@ const LoginPage = () => {
 
         {/* Form */}
         <form onSubmit={form.onSubmit(handleSubmit)}>
-          <Stack w='250' gap='sm'>
+          <Stack w='270' gap='sm'>
             {/* Email */}
             <TextInput
               ref={emailRef}
@@ -77,15 +79,28 @@ const LoginPage = () => {
             >
               <Text>Log in</Text>
             </Button>
+            {/* Reset Password */}
+            <Stack w='100%' align='center'>
+              <Anchor
+                fz='sm'
+                onClick={e => {
+                  e.preventDefault()
+                  navigate('/reset-password')
+                }}
+              >
+                Reset Password
+              </Anchor>
+            </Stack>
           </Stack>
+
         </form>
 
         {/* Error */}
         <Box mih='24px'>
           {(error && !isPending) && <Text c='red' ta='center' fz='sm'>{formatError(error)}</Text>}
         </Box>
-      </Stack>
-    </div>
+      </Stack >
+    </div >
   )
 }
 
