@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import Common
+import CommonUI
 
 struct LoginView: View {
     @State var email: String = ""
@@ -70,9 +71,8 @@ struct LoginView: View {
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .frame(height: 33)
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(.paperProminent)
             .disabled(email.isEmpty || password.isEmpty)
         }
         .disabled(loading)

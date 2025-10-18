@@ -38,12 +38,12 @@ struct QuizResponseView: View {
                 ),
                 for: .scrollContent
             )
+            .scrollDismissesKeyboard(.immediately)
+            .dynamicTypeSize(dynamicTypeSizeOverride?.dynamicTypeSize ?? systemDynamicTypeSize)
             .overlay(alignment: .top) {
                 topBar()
                     .readSize(assignTo: $topBarSize)
             }
-            .dynamicTypeSize(dynamicTypeSizeOverride?.dynamicTypeSize ?? systemDynamicTypeSize)
-            .scrollDismissesKeyboard(.immediately)
         }
         .presentations(ps)
         .environment(viewModel)
@@ -70,7 +70,7 @@ struct QuizResponseView: View {
             
             Spacer()
             
-            HStack {
+            HStack(spacing: 15) {
                 appearanceButton()
                 submitButton()
             }
@@ -90,8 +90,10 @@ struct QuizResponseView: View {
             
         } label: {
             Text("Quit")
+                .padding(.horizontal, 9)
+                .frame(maxHeight: .infinity)
         }
-        .buttonStyle(.paper(wide: true, maxHeight: .infinity))
+        .buttonStyle(.paper)
     }
     
     @ViewBuilder
@@ -101,8 +103,10 @@ struct QuizResponseView: View {
             
         } label: {
             Image(systemName: "textformat.el")
+                .padding(.horizontal, 3)
+                .frame(maxHeight: .infinity)
         }
-        .buttonStyle(.paper(wide: true, maxHeight: .infinity))
+        .buttonStyle(.paper)
         .popover(isPresented: $presentingAppearancePopover) {
             QRAppearanceView(dynamicTypeSizeOverride: $dynamicTypeSizeOverride)
         }
@@ -128,8 +132,10 @@ struct QuizResponseView: View {
             
         } label: {
             Text("Submit")
+                .padding(.horizontal, 9)
+                .frame(maxHeight: .infinity)
         }
-        .buttonStyle(.paper(prominent: true, wide: true, maxHeight: .infinity))
+        .buttonStyle(.paperProminent)
     }
     
     private func handleSubmit() {
