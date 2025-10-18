@@ -124,7 +124,7 @@ function ResetPasswordPage2() {
                     navigate('/login')
                   }}
                 >
-                  Back to Home
+                  Back to Login
                 </Anchor>
               </Stack>
             </Stack>
