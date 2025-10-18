@@ -300,7 +300,7 @@ function normalizeId<T extends { _id: ObjectId }>(object: T) {
 }
 
 // Exported router
-// Order is important -- if adminRouter is first, it will fail the authorization
+// Order is important -- if adminRouter is first, it will attempt to authorize
 
 const router = express.Router()
 
