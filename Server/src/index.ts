@@ -32,7 +32,7 @@ import eventHub from './event-hub'
 eventHub.init(server)
 
 // Help App
-// To test, use localhost:8021 (NOT 8022 due to the proxy)
+// To test, use localhost:8021 (NOT 8022 due to Vite proxy)
 
 import helpAppRouter from './help-app/router'
 
