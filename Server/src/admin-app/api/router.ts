@@ -137,7 +137,7 @@ router.patch('/user/:id', async (req, res) => {
 
   eventHub.emitUsersChanged()
 
-  sendOwnerChangedEmail(req.user!, targetUser, 'updated')
+  sendOwnerUpdatedEmail(req.user!, targetUser, 'updated')
 })
 
 // Delete a user
@@ -165,7 +165,7 @@ router.delete('/user/:id', async (req, res) => {
 
   eventHub.emitUsersChanged()
 
-  sendOwnerChangedEmail(req.user!, targetUser, 'deleted')
+  sendOwnerUpdatedEmail(req.user!, targetUser, 'deleted')
 })
 
 /**
@@ -217,12 +217,16 @@ async function getUser(uid: string) {
   return user
 }
 
-function sendOwnerChangedEmail(currentUser: User, targetUser: User, action: string) {
+function sendOwnerUpdatedEmail(currentUser: User, targetUser: User, action: string) {
   if (!getUserRoles(targetUser).includes('org:owner')) {
     return
   }
 
-  logger.info('Sending owner changed email')
+  if (currentUser.id == targetUser.id) {
+    return
+  }
+
+  logger.info('Sending owner updated email')
 
   // Not waiting
   mailer.sendMail({
