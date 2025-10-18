@@ -8,10 +8,16 @@ router.get('/naked-blend-app/privacy', async (req, res) => {
   res.sendFile(file)
 })
 
+router.get('/static/nakedblend/privacy-policy', async (req, res) => { 
+  res.redirect('/naked-blend-app/privacy')
+})
+
 router.get('/foh-test-app/privacy', async (req, res) => {
   const file = path.resolve(path.join(__dirname, 'pages/foh-test-app-privacy.html'))
   res.sendFile(file)
 })
+
+
 
 router.get('/contact-us', async (req, res) => {
   const file = path.resolve(path.join(__dirname, 'pages/contact-us.html'))
