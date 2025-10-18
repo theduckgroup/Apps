@@ -37,7 +37,10 @@ eventHub.init(server)
 import helpAppRouter from './help-app/router'
 
 app.use((req, res, next) => {
-  let isHelpSubdomain = req.hostname == 'help.theduckgroup.com.au'
+  let isHelpSubdomain = (
+    req.hostname == 'help.theduckgroup.com.au' ||
+    req.hostname == 'support.theduckgroup.com.au'
+  )
 
   if (env.simulateHelpSubdomain) {
     isHelpSubdomain = true
