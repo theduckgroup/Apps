@@ -2,9 +2,8 @@ import { produce } from 'immer'
 import { ComponentType, useCallback, useState } from 'react'
 
 export default function useModal<Options>(ModalComponentType: ModalComponentType<Options>) {
-  type ModalState = { id: number, opened: boolean, options: Options }
-
   // Data is structured so that we can use updater variant of setState and avoid costly dependencies
+  type ModalState = { id: number, opened: boolean, options: Options }
   const [data, setData] = useState<ModalState[]>([])
 
   const open = useCallback((options: Options) => {
