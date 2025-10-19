@@ -5,7 +5,8 @@ import { IconChevronDown, IconChevronRight, IconDots, IconGripVertical, IconList
 import { produce } from 'immer'
 
 import { Quiz } from 'src/quiz-app/models/Quiz'
-import EditItemModal, { EditItemModalOptions } from './EditItemModal'
+// import EditItemModal, { EditItemModalOptions } from './EditItemModal'
+import EditItemModal from './EditItemModal'
 import EditSectionModal, { EditSectionModalOptions } from './EditSectionModal'
 // import ConfirmDeleteModal, { ConfirmDeleteModalOptions } from './ConfirmDeleteModal'
 import { ConfirmModal } from 'src/utils/ConfirmModal'
@@ -318,19 +319,17 @@ function SectionComponent({
   onOpenConfirmDeleteModal: (options: ConfirmModal.Options) => void,
   provided: DraggableProvided
 }) {
-  const editItemModal = useRepeatedModal() // For 'Add Item' button
-  const [editItemModalOptions, setEditItemModalOptions] = useState<EditItemModalOptions | null>(null)
+  const addItemModal = useModal(EditItemModal)
+  // const [editItemModalOptions, setEditItemModalOptions] = useState<EditItemModalOptions | null>(null)
 
   function handleClickAddItem(kind: Quiz.ItemKind) {
-    setEditItemModalOptions({
+    addItemModal.open({
       title: 'Add Item',
       item: Quiz.createDefaultItem(kind),
       onSave: newItem => {
         onAddItemToSection(newItem, section)
       }
     })
-
-    editItemModal.open()
   }
 
   return (
@@ -437,9 +436,7 @@ function SectionComponent({
       </Stack>
 
       {/* Modals */}
-      {editItemModal.modalIDs.map(id =>
-        <EditItemModal key={id} opened={editItemModal.isOpened(id)} close={editItemModal.close} options={editItemModalOptions} />
-      )}
+      {addItemModal.element}
     </Paper>
   )
 }
@@ -494,15 +491,13 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
           <Text fw='bold'>This will delete the section and all of its items. This cannot be undone.</Text>
         </Stack>
       ),
-      actions: [
-        {
-          label: 'Delete',
-          role: 'destructive',
-          handler: () => {
-            onDeleteSection(section)
-          }
+      action: {
+        label: 'Delete',
+        role: 'destructive',
+        handler: () => {
+          onDeleteSection(section)
         }
-      ]
+      }
     })
   }
 
@@ -589,31 +584,26 @@ function Row({ item, rowIndex, onAddItem, onEditItem, onDeleteItem, onOpenConfir
   onOpenConfirmDeleteModal: (options: ConfirmModal.Options) => void,
   dragHandleProps: DraggableProvidedDragHandleProps | null,
 }) {
-  const editItemModal = useRepeatedModal()
-  const [editItemModalOptions, setEditItemModalOptions] = useState<EditItemModalOptions | null>(null)
+  const editItemModal = useModal(EditItemModal)
 
   const handleClickAdd = useCallback((kind: Quiz.ItemKind) => {
-    setEditItemModalOptions({
+    editItemModal.open({
       title: 'Add Item',
       item: Quiz.createDefaultItem(kind),
       onSave: newItem => {
         onAddItem(newItem, item)
       }
     })
-
-    editItemModal.open()
   }, [item, onAddItem, editItemModal])
 
   const handleClickEdit = useCallback(() => {
-    setEditItemModalOptions({
+    editItemModal.open({
       title: 'Edit Item',
       item,
       onSave: modifiedItem => {
         onEditItem(modifiedItem)
       }
     })
-
-    editItemModal.open()
   }, [item, onEditItem, editItemModal])
 
   const handleClickDelete = useCallback(() => {
@@ -625,15 +615,13 @@ function Row({ item, rowIndex, onAddItem, onEditItem, onDeleteItem, onOpenConfir
           <Text fw='bold'>This cannot be undone.</Text>
         </Stack>
       ),
-      actions: [
-        {
-          label: 'Delete',
-          role: 'destructive',
-          handler: () => {
-            onDeleteItem(item)
-          }
+      action: {
+        label: 'Delete',
+        role: 'destructive',
+        handler: () => {
+          onDeleteItem(item)
         }
-      ]
+      }
     })
   }, [item, onDeleteItem, onOpenConfirmDeleteModal])
 
@@ -682,9 +670,7 @@ function Row({ item, rowIndex, onAddItem, onEditItem, onDeleteItem, onOpenConfir
       <ReadonlyItemComponent item={item} controlSection={controlSection} />
 
       {/* Modals */}
-      {editItemModal.modalIDs.map(id =>
-        <EditItemModal key={id} opened={editItemModal.isOpened(id)} close={editItemModal.close} options={editItemModalOptions} />
-      )}
+      {editItemModal.element}
     </Group>
   )
 }

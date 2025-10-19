@@ -7,21 +7,9 @@ import SelectedResponseItemEditor from './SelectedResponseItemEditor'
 import TextInputItemEditor from './TextInputItemEditor'
 import { produce } from 'immer'
 
-export default function EditItemModal({ opened, close, options }: {
+export default function EditItemModal({ opened, onClose, options }: {
   opened: boolean,
-  close: () => void,
-  options: EditItemModalOptions | null
-}) {
-  if (options) {
-    return <Content opened={opened} close={close} options={options} />
-  } else {
-    return null
-  }
-}
-
-function Content({ opened, close, options }: {
-  opened: boolean,
-  close: () => void,
+  onClose: () => void,
   options: EditItemModalOptions
 }) {
   const [item, setItem] = useState<Quiz.Item>(options.item)
@@ -57,7 +45,7 @@ function Content({ opened, close, options }: {
       }
     })
 
-    close()
+    onClose()
     options.onSave(sanitizedItem)
   }
 
@@ -75,7 +63,7 @@ function Content({ opened, close, options }: {
   return (
     <Modal
       opened={opened}
-      onClose={close}
+      onClose={onClose}
       title={title}
       size='lg'
       returnFocus={false}

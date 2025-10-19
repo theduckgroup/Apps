@@ -3,12 +3,15 @@ import { Box, Button, FocusTrap, Group, Modal, Text } from '@mantine/core'
 import formatError from 'src/common/format-error'
 import { useState } from 'react'
 
-export function ConfirmModal({
-  options: { title, message, actions },
-  opened, onClose
-}: ConfirmModal.Props) {
+export function ConfirmModal({ opened, onClose, options }: {
+  opened: boolean
+  onClose: () => void
+  options: ConfirmModal.Options
+}) {
+  const { title, message } = options
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<Error | undefined>()
+  const actions = 'action' in options ? [options.action] : options.actions
 
   async function handleActionClick(action: ConfirmModal.Action) {
     try {
@@ -20,7 +23,7 @@ export function ConfirmModal({
       }
 
       onClose()
-      
+
     } catch (e) {
       setError(e as Error)
     } finally {
@@ -48,10 +51,6 @@ export function ConfirmModal({
           Cancel
         </Button>
         {actions.map(action => {
-          const handleClick = async () => {
-
-          }
-
           return (
             <Button
               variant='filled'
@@ -70,19 +69,19 @@ export function ConfirmModal({
 }
 
 export namespace ConfirmModal {
-  export interface Props {
-    opened: boolean
-    onClose: () => void
-    options: Options
-  }
-
-  export interface Options {
+  export type Options = {
     title: string
-    message: React.ReactNode
-    actions: Action[]
-  }
+    message: React.ReactNode    
+  } & (
+    | {
+      actions: Action[]
+    }
+    | {
+      action: Action
+    }
+  )
 
-  export interface Action {
+  export type Action = {
     label: React.ReactNode
     role?: 'confirm' | 'destructive'
     handler: () => void | Promise<void>
