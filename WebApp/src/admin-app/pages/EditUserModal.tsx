@@ -1,4 +1,3 @@
-import React from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { Modal, Text, TextInput, Button, Group, Grid, Stack } from '@mantine/core'
 import { useForm } from '@mantine/form'
@@ -9,7 +8,14 @@ import sleep from 'src/common/sleep'
 import formatError from 'src/common/format-error'
 import RoleSelect from './RoleSelect'
 
-const EditUserModal: React.FC<EditUserModalProps> = ({ title, user, opened, onClose }) => {
+export function EditUserModal({ opened, onClose, options: { title, user } }: {
+  opened: boolean
+  onClose: () => void
+  options: {
+    title: string
+    user: User
+  }
+}) {
   const { axios } = useApi()
   const { user: currentUser } = useAuth()
   const isOwner = currentUser?.isOwner ?? false
@@ -113,13 +119,4 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ title, user, opened, onCl
       </form>
     </Modal>
   )
-}
-
-export default EditUserModal
-
-interface EditUserModalProps {
-  title: string
-  user: User
-  opened: boolean
-  onClose: () => void
 }

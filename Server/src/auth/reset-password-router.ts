@@ -30,6 +30,7 @@ router.post('/', async (req, res) => {
 
   if (!user) {
     logger.error(`User with email ${email} not found`)
+    await new Promise(resolve => setTimeout(resolve, 5000))
     res.send() // Fake OK
     return
   }
@@ -40,6 +41,7 @@ router.post('/', async (req, res) => {
 
   if (!roles.includes('org:owner')) {
     logger.error(`Non-owner user ${email} trying to reset email`)
+    await new Promise(resolve => setTimeout(resolve, 5000))
     res.send() // Fake OK
     return
   }

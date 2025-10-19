@@ -6,12 +6,14 @@ import { useQuery } from '@tanstack/react-query'
 import { useAuth, useApi } from 'src/app/contexts'
 import { User, type SBUser } from 'src/app/models/User'
 import eventHub from '../event-hub'
-import AddUserModal from './AddUserModal'
-import EditUserModal from './EditUserModal'
-import DeleteUserModal from './DeleteUserModal'
-import SetPasswordModal from './SetPasswordModal'
+import { AddUserModal } from './AddUserModal'
+import { EditUserModal } from './EditUserModal'
+import { ConfirmModal } from 'src/utils/ConfirmModal'
+import { EditPasswordModal } from './EditPasswordModal'
 import useRepeatedModal from 'src/utils/use-repeated-modal'
+import useModal from 'src/utils/use-modal'
 import formatError from 'src/common/format-error'
+import sleep from 'src/common/sleep'
 
 export default function UsersPage() {
   const { axios } = useApi()
@@ -57,11 +59,25 @@ export default function UsersPage() {
 }
 
 function Content({ users }: { users: User[] }) {
-  const addModal = useRepeatedModal()
+  const { axios } = useApi()
 
-  // Delete modal must not be inside UserRow because the row will be gone
-  const [deleteUser, setDeleteUser] = useState<User>()
-  const [deleteModalOpened, setDeleteModalOpened] = useState(false)
+  const addModal = useModal(AddUserModal)
+  const confirmDeleteModal = useModal(ConfirmModal) // Must not be inside UserRow because the row will be gone
+
+  function handleClickDelete(user: User) {
+    confirmDeleteModal.open({
+      title: 'Delete User',
+      message: `Are you sure you want to delete user ${user.name} (${user.email})?`,
+      actions: [{
+        label: 'Delete',
+        role: 'destructive',
+        handler: async () => {
+          await sleep(500)
+          await axios.delete(`/user/${user.id}`)
+        }
+      }]
+    })
+  }
 
   return (
     <>
@@ -88,10 +104,7 @@ function Content({ users }: { users: User[] }) {
               <UserRow
                 key={user.id}
                 user={user}
-                onDelete={() => {
-                  setDeleteUser(user)
-                  setDeleteModalOpened(true)
-                }}
+                onDelete={() => handleClickDelete(user)}
               />
             ))}
           </Table.Tbody>
@@ -101,16 +114,14 @@ function Content({ users }: { users: User[] }) {
         <Button
           variant='filled' size='sm'
           leftSection={<IconPlus size={15} stroke={2.5} />}
-          onClick={addModal.open}
+          onClick={e => addModal.open()}
         >
           Add User
         </Button>
       </Stack>
 
-      {addModal.modalIDs.map(id => (
-        <AddUserModal opened={addModal.isOpened(id)} onClose={addModal.close} />
-      ))}
-      <DeleteUserModal userId={deleteUser?.id ?? ''} opened={deleteModalOpened} onClose={() => setDeleteModalOpened(false)} />
+      {addModal.element}
+      {confirmDeleteModal.element}
     </>
   )
 }
@@ -121,8 +132,8 @@ function UserRow({ user, onDelete }: {
 }) {
   const { user: currentUser } = useAuth()
   const [manageMenuOpened, setManageMenuOpened] = useState(false)
-  const editModal = useRepeatedModal()
-  const passwordModal = useRepeatedModal()
+  const editModal = useModal(EditUserModal)
+  const passwordModal = useModal(EditPasswordModal)
 
   function checkRoles(action: 'update' | 'delete') {
     if (!currentUser) {
@@ -182,7 +193,10 @@ function UserRow({ user, onDelete }: {
                     leftSection={<IconEdit size={14} />}
                     onClick={() => {
                       setManageMenuOpened(false)
-                      editModal.open()
+                      editModal.open({
+                        title: 'Edit User',
+                        user,
+                      })
                     }}
                   >
                     Edit
@@ -191,7 +205,7 @@ function UserRow({ user, onDelete }: {
                     leftSection={<IconKey size={14} />}
                     onClick={() => {
                       setManageMenuOpened(false)
-                      passwordModal.open()
+                      passwordModal.open({ user })
                     }}
                   >
                     Set Password
@@ -216,12 +230,8 @@ function UserRow({ user, onDelete }: {
         }
       </Table.Td>
 
-      {editModal.modalIDs.map(id => (
-        <EditUserModal key={id} title='Edit User' user={user} opened={editModal.isOpened(id)} onClose={editModal.close} />
-      ))}
-      {passwordModal.modalIDs.map(id => (
-        <SetPasswordModal key={id} user={user} opened={passwordModal.isOpened(id)} onClose={passwordModal.close} />
-      ))}
+      {editModal.element}
+      {passwordModal.element}
     </Table.Tr>
   )
 }

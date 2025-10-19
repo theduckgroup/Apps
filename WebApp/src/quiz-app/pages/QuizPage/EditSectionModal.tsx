@@ -3,22 +3,14 @@ import { isNotEmpty, useForm } from "@mantine/form"
 import { useEffect, useRef } from "react"
 import { Quiz } from 'src/quiz-app/models/Quiz'
 
-export default function EditSectionModal({ opened, close, options }: {
+export function EditSectionModal({ opened, onClose, options }: {
   opened: boolean,
-  close: () => void,
-  options: EditSectionModalOptions | null
-}) {
-  if (options) {
-    return <Content opened={opened} close={close} options={options} />
-  } else {
-    return null
+  onClose: () => void,
+  options: {
+    title: string
+    section: Quiz.Section,
+    onSave: (_: Quiz.Section) => void
   }
-}
-
-function Content({ opened, close, options }: {
-  opened: boolean,
-  close: () => void,
-  options: EditSectionModalOptions
 }) {
   const form = useForm({
     mode: 'controlled',
@@ -33,7 +25,7 @@ function Content({ opened, close, options }: {
   const nameRef = useRef<HTMLInputElement | null>(null)
 
   useEffect(() => {
-    nameRef.current?.focus()    
+    nameRef.current?.focus()
   }, [])
 
   useEffect(() => {
@@ -46,7 +38,7 @@ function Content({ opened, close, options }: {
   }, [opened])
 
   function handleSubmit(values: typeof form.values) {
-    close()
+    onClose()
     options.onSave({
       ...options.section,
       name: values.name
@@ -56,7 +48,7 @@ function Content({ opened, close, options }: {
   return (
     <Modal
       opened={opened}
-      onClose={close}
+      onClose={onClose}
       title={options?.title}
       returnFocus={false}
       closeOnClickOutside={false}
@@ -70,17 +62,11 @@ function Content({ opened, close, options }: {
             {...form.getInputProps('name')}
           />
           <Group gap='xs' ml='auto'>
-            <Button variant='default' onClick={close} w='6rem'>Cancel</Button>
+            <Button variant='default' onClick={onClose} w='6rem'>Cancel</Button>
             <Button type='submit' w='6rem'>Save</Button>
           </Group>
         </Stack>
       </form>
     </Modal>
   )
-}
-
-export interface EditSectionModalOptions {
-  title: string
-  section: Quiz.Section,
-  onSave: (modifiedSection: Quiz.Section) => void
 }

@@ -7,17 +7,22 @@ import formatError from 'src/common/format-error'
 import sleep from 'src/common/sleep'
 import RoleSelect from './RoleSelect'
 
-export default function AddUserModal({ opened, onClose }: AddUserModalProps) {
+export function AddUserModal({ opened, onClose }: {
+  opened: boolean
+  onClose: () => void
+}) {
   const { axios } = useApi()
 
-  const form = useForm<FormValues>({
+  type Role = 'owner' | 'admin' | 'user'
+
+  const form = useForm({
     initialValues: {
       email: '',
       firstName: '',
       lastName: '',
       password: '',
       passwordConfirm: '',
-      role: 'user',
+      role: 'user' as Role,
     },
     validate: {
       email: isEmail('Invalid email'),
@@ -28,7 +33,7 @@ export default function AddUserModal({ opened, onClose }: AddUserModalProps) {
     },
   })
 
-  const mutation = useMutation<void, Error, FormValues>({
+  const mutation = useMutation<void, Error, typeof form.values>({
     mutationFn: async (data) => {
       await sleep(500)
 
@@ -58,7 +63,7 @@ export default function AddUserModal({ opened, onClose }: AddUserModalProps) {
     }
   })
 
-  const handleSubmit = (values: FormValues) => {
+  const handleSubmit = (values: typeof form.values) => {
     mutation.mutate(form.values)
   }
 
@@ -143,18 +148,4 @@ export default function AddUserModal({ opened, onClose }: AddUserModalProps) {
       </Modal>
     </>
   )
-}
-
-interface AddUserModalProps {
-  opened: boolean
-  onClose: () => void
-}
-
-interface FormValues {
-  firstName: string
-  lastName: string
-  email: string
-  password: string
-  passwordConfirm: string
-  role: 'owner' | 'admin' | 'user'
 }
