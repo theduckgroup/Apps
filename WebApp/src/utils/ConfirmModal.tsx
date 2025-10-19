@@ -18,6 +18,8 @@ export function ConfirmModal({
         setLoading(true)
         await result
       }
+
+      onClose()
       
     } catch (e) {
       setError(e as Error)
