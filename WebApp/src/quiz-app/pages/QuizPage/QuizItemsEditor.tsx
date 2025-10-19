@@ -478,13 +478,13 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
           <Text fw='bold'>This will delete the section and all of its items. This cannot be undone.</Text>
         </Stack>
       ),
-      action: {
+      actions: [{
         label: 'Delete',
         role: 'destructive',
         handler: () => {
           onDeleteSection(section)
         }
-      }
+      }]
     })
   }
 
@@ -600,13 +600,13 @@ function Row({ item, rowIndex, onAddItem, onEditItem, onDeleteItem, onOpenConfir
           <Text fw='bold'>This cannot be undone.</Text>
         </Stack>
       ),
-      action: {
+      actions: [{
         label: 'Delete',
         role: 'destructive',
         handler: () => {
           onDeleteItem(item)
         }
-      }
+      }]
     })
   }, [item, onDeleteItem, onOpenConfirmDeleteModal])
 

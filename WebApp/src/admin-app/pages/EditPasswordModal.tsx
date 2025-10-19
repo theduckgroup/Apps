@@ -1,4 +1,3 @@
-import React from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { Modal, Text, Button, Group, Stack, PasswordInput } from '@mantine/core'
 import { hasLength, isNotEmpty, useForm } from '@mantine/form'
@@ -7,7 +6,13 @@ import { useApi, useAuth } from 'src/app/contexts'
 import { User } from 'src/app/models/User'
 import formatError from 'src/common/format-error'
 
-const SetPasswordModal: React.FC<SetPasswordModalProps> = ({ user, opened, onClose }) => {
+export function EditPasswordModal({ opened, onClose, options: { user } }: {
+  opened: boolean
+  onClose: () => void
+  options: {
+    user: User
+  }
+}) {
   const { user: currentUser } = useAuth()
   const { axios } = useApi()
   const userIsCurrentUser = currentUser?.id == user.id
@@ -88,12 +93,4 @@ const SetPasswordModal: React.FC<SetPasswordModalProps> = ({ user, opened, onClo
       </form>
     </Modal>
   )
-}
-
-export default SetPasswordModal
-
-interface SetPasswordModalProps {
-  user: User
-  opened: boolean
-  onClose: () => void
 }
