@@ -1,4 +1,3 @@
-import React from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { Modal, Text, TextInput, Button, Group, Grid, Stack } from '@mantine/core'
 import { useForm } from '@mantine/form'
