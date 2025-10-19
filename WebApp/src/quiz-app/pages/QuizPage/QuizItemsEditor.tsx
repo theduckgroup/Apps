@@ -8,9 +8,11 @@ import { Quiz } from 'src/quiz-app/models/Quiz'
 import EditItemModal, { EditItemModalOptions } from './EditItemModal'
 import EditSectionModal, { EditSectionModalOptions } from './EditSectionModal'
 import ConfirmDeleteModal, { ConfirmDeleteModalOptions } from './ConfirmDeleteModal'
+import { ConfirmModal } from 'src/utils/ConfirmModal'
 import ReadonlyItemComponent from './ReadonlyItemComponent'
 import useRepeatedModal from 'src/utils/use-repeated-modal'
 import { Dispatch, ReduceState } from 'src/utils/types-lib'
+import useModal from 'src/utils/use-modal'
 
 export default function QuizItemsEditor({ items, sections, setData }: {
   items: Quiz.Item[],
@@ -446,8 +448,9 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
   const editSectionModal = useRepeatedModal()
   const [editSectionModalOptions, setEditSectionModalOptions] = useState<EditSectionModalOptions | null>(null)
 
-  const deleteModal = useRepeatedModal()
-  const [deleteModalOptions, setDeleteModalOptions] = useState<ConfirmDeleteModalOptions | null>(null)
+  // const confirmModal = useRepeatedModal()
+  // const [deleteModalOptions, setDeleteModalOptions] = useState<ConfirmModal.Props | null>(null)
+  const confirmModal = useModal<ConfirmModal.Options>(ConfirmModal)
 
   const handleClickAdd = useCallback((position: 'before' | 'after') => {
     setEditSectionModalOptions({
@@ -476,20 +479,43 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
     editSectionModal.open()
   }
 
+  // const handleDelete = () => {
+  //   setDeleteModalOptions({
+  //     title: 'Delete Section'
+  //     message: (
+  //       <Stack gap='xs'>
+  //         <Text>Delete section '{section.name}'?</Text>
+  //         <Text fw='bold'>This will delete the section and all of its items. This cannot be undone.</Text>
+  //       </Stack>
+  //     ),
+
+  //     onDelete: () => {
+  //       onDeleteSection(section)
+  //     }
+  //   })
+
+  //   confirmModal.open()
+  // }
+
   const handleDelete = () => {
-    setDeleteModalOptions({
+    confirmModal.open({
+      title: 'Delete',
       message: (
         <Stack gap='xs'>
           <Text>Delete section '{section.name}'?</Text>
           <Text fw='bold'>This will delete the section and all of its items. This cannot be undone.</Text>
         </Stack>
       ),
-      onDelete: () => {
-        onDeleteSection(section)
-      }
+      actions: [
+        {
+          label: 'Delete',
+          role: 'destructive',
+          handler: () => {
+            onDeleteSection(section)
+          }
+        }
+      ]
     })
-
-    deleteModal.open()
   }
 
   return (
@@ -562,9 +588,10 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
       {editSectionModal.modalIDs.map(id =>
         <EditSectionModal key={id} opened={editSectionModal.isOpened(id)} close={editSectionModal.close} options={editSectionModalOptions} />
       )}
-      {deleteModal.modalIDs.map(id =>
-        <ConfirmDeleteModal key={id} opened={deleteModal.isOpened(id)} close={deleteModal.close} options={deleteModalOptions} />
-      )}
+      {/* {confirmModal.modalIDs.map(id =>
+        <ConfirmModal key={id} opened={confirmModal.isOpened(id)} close={confirmModal.close} options={deleteModalOptions} />
+      )} */}
+      {confirmModal.element}
     </Group>
   )
 }
@@ -580,8 +607,11 @@ function Row({ item, rowIndex, onAddItem, onEditItem, onDeleteItem, dragHandlePr
   const editItemModal = useRepeatedModal()
   const [editItemModalOptions, setEditItemModalOptions] = useState<EditItemModalOptions | null>(null)
 
-  const deleteModal = useRepeatedModal()
-  const [deleteModalOptions, setDeleteModalOptions] = useState<ConfirmDeleteModalOptions | null>(null)
+  // const confirmModal = useRepeatedModal()
+  // const [confirmModalOptions, setConfirmModalOptions] = useState<ConfirmModal.Options | null>(null)
+  // const deleteModal = useRepeatedModal()
+  // const [deleteModalOptions, setDeleteModalOptions] = useState<ConfirmDeleteModalOptions | null>(null)
+  const confirmModal = useModal(ConfirmModal)
 
   const handleClickAdd = useCallback((kind: Quiz.ItemKind) => {
     setEditItemModalOptions({
@@ -607,21 +637,59 @@ function Row({ item, rowIndex, onAddItem, onEditItem, onDeleteItem, dragHandlePr
     editItemModal.open()
   }, [item, onEditItem, editItemModal])
 
+  // const handleClickDelete = useCallback(() => {
+  //   setConfirmModalOptions({
+  //     message: (
+  //       <Stack gap='xs'>
+  //         <Text>Delete item '{item.data.prompt}'?</Text>
+  //         <Text fw='bold'>This cannot be undone.</Text>
+  //       </Stack>
+  //     ),
+  //     onDelete: () => {
+  //       onDeleteItem(item)
+  //     }
+  //   })
+
+  //   confirmModal.open()
+  // }, [item, onDeleteItem, confirmModal])
+
+  // const handleClickDelete = useCallback(() => {
+  //   setDeleteModalOptions({
+
+  //     message: (
+  //       <Stack gap='xs'>
+  //         <Text>Delete item '{item.data.prompt}'?</Text>
+  //         <Text fw='bold'>This cannot be undone.</Text>
+  //       </Stack>
+  //     ),
+  //     onDelete: () => {
+  //       onDeleteItem(item)
+  //     }
+  //   })
+
+  //   deleteModal.open()
+  // }, [item, onDeleteItem, deleteModal])
+
   const handleClickDelete = useCallback(() => {
-    setDeleteModalOptions({
+    confirmModal.open({
+      title: 'Delete Item',
       message: (
         <Stack gap='xs'>
           <Text>Delete item '{item.data.prompt}'?</Text>
           <Text fw='bold'>This cannot be undone.</Text>
         </Stack>
       ),
-      onDelete: () => {
-        onDeleteItem(item)
-      }
+      actions: [
+        {
+          label: 'Delete',
+          role: 'destructive',
+          handler: () => {
+            onDeleteItem(item)
+          }
+        }
+      ]
     })
-
-    deleteModal.open()
-  }, [item, onDeleteItem, deleteModal])
+  }, [item, onDeleteItem, confirmModal])
 
   const controlSection = useMemo(() => (
     <Group gap='xs' wrap='nowrap'>
@@ -671,9 +739,13 @@ function Row({ item, rowIndex, onAddItem, onEditItem, onDeleteItem, dragHandlePr
       {editItemModal.modalIDs.map(id =>
         <EditItemModal key={id} opened={editItemModal.isOpened(id)} close={editItemModal.close} options={editItemModalOptions} />
       )}
-      {deleteModal.modalIDs.map(id =>
+      {/* {confirmModal.modalIDs.map(id =>
+        <ConfirmDeleteModal key={id} opened={confirmModal.isOpened(id)} close={confirmModal.close} options={confirmModalOptions} />
+      )} */}
+      {/* {deleteModal.modalIDs.map(id =>
         <ConfirmDeleteModal key={id} opened={deleteModal.isOpened(id)} close={deleteModal.close} options={deleteModalOptions} />
-      )}
+      )} */}
+      {confirmModal.element}
     </Group>
   )
 }
