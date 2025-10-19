@@ -1,53 +1,50 @@
-import { Button } from '@mantine/core'
+import { produce } from 'immer'
 import { ComponentType, useCallback, useState } from 'react'
 
 export default function useModal<Options>(ModalComponentType: ModalComponentType<Options>) {
-  const [data, setData] = useState<{id: number, options: Options}[]>([])
-  const [openedModalId, setOpenedModalId] = useState<number>()
+  type ModalState = { id: number, opened: boolean, options: Options }
+
+  // Data is structured so that we can use updater variant of setState and avoid costly dependencies
+  const [data, setData] = useState<ModalState[]>([])
 
   const open = useCallback((options: Options) => {
-    const id = data.length
-    setData(data.concat({id, options}))
+    setData(data => (
+      data.concat({
+        id: data.length,
+        opened: false,
+        options
+      })
+    ))
 
-    // Need to wait for modal IDs to be updated, otherwise no in animation
-    setTimeout(() => setOpenedModalId(id), 0)
-  }, [data])
+    // Wait for modal IDs to be updated, otherwise no in animation
+    setTimeout(() => {
+      setData(data => produce(data, data => {
+        data[data.length - 1].opened = true
+      }))
+    }, 0)
+  }, [])
 
   const close = useCallback(() => {
-    const modalId = openedModalId
-    setOpenedModalId(undefined)
+    setData(data => produce(data, data => {
+      for (const x of data) {
+        x.opened = false
+      }
+    }))
 
-    // Wait & remove old (never used again) modals
+    // Wait for dismiss animation & remove old (never used again) modals
     setTimeout(() => {
-      // data = data.filter(x => x.id != modalId)
       setData([])
-    }, 5000)
-  }, [openedModalId])
+    }, 1000)
+  }, [])
 
   return {
     open,
     close,
-    element: data.map(({id, options}) => (
-      <ModalComponentType key={id} opened={id == openedModalId} onClose={close} options={options} />
+    element: data.map(({ id, opened, options }) => (
+      <ModalComponentType key={id} opened={opened} onClose={close} options={options} />
     ))
   }
 }
-
-
-// function XXX() {
-//   const confirmModal = useModal()
-
-//   const handleClick = () => {
-//     confirmModal.open()
-//   }
-
-//   return (
-//     <>
-//       <Button onClick={handleClick} />
-//       {confirmModal.element}
-//     </>
-//   )
-// }
 
 export type ModalComponentType<Options> = ComponentType<{
   opened: boolean
