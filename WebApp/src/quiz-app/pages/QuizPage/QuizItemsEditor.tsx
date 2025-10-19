@@ -5,13 +5,10 @@ import { IconChevronDown, IconChevronRight, IconDots, IconGripVertical, IconList
 import { produce } from 'immer'
 
 import { Quiz } from 'src/quiz-app/models/Quiz'
-// import EditItemModal, { EditItemModalOptions } from './EditItemModal'
-import EditItemModal from './EditItemModal'
-import EditSectionModal, { EditSectionModalOptions } from './EditSectionModal'
-// import ConfirmDeleteModal, { ConfirmDeleteModalOptions } from './ConfirmDeleteModal'
+import { EditItemModal } from './EditItemModal'
+import { EditSectionModal } from './EditSectionModal'
 import { ConfirmModal } from 'src/utils/ConfirmModal'
 import ReadonlyItemComponent from './ReadonlyItemComponent'
-import useRepeatedModal from 'src/utils/use-repeated-modal'
 import { Dispatch, ReduceState } from 'src/utils/types-lib'
 import useModal from 'src/utils/use-modal'
 
@@ -20,11 +17,10 @@ export default function QuizItemsEditor({ items, sections, setData }: {
   sections: Quiz.Section[],
   setData: Dispatch<ReduceState<[Quiz.Item[], Quiz.Section[]]>>
 }) {
-  const editSectionModal = useRepeatedModal() // For adding section
-  const [editSectionModalOptions, setEditSectionModalOptions] = useState<EditSectionModalOptions | null>(null)
-
+  const editSectionModal = useModal(EditSectionModal)
+  
   // Can't hold this inside SectionHeader or Row because they will be deleted
-  const confirmDeleteModal = useModal<ConfirmModal.Options>(ConfirmModal)
+  const confirmDeleteModal = useModal(ConfirmModal)
 
   // Can't hold this inside SectionComponent because it gets reset during drag/drop
   const [collapsedSectionIDs, setCollapsedSectionIDs] = useState<Set<string>>(new Set())
@@ -205,7 +201,7 @@ export default function QuizItemsEditor({ items, sections, setData }: {
   }
 
   function handleClickAddSection() {
-    setEditSectionModalOptions({
+    editSectionModal.open({
       title: 'Add Section',
       section: Quiz.createDefaultSection(),
       onSave: newSection => {
@@ -215,8 +211,6 @@ export default function QuizItemsEditor({ items, sections, setData }: {
         })
       }
     })
-
-    editSectionModal.open()
   }
 
   return (
@@ -288,9 +282,7 @@ export default function QuizItemsEditor({ items, sections, setData }: {
       </DragDropContext>
 
       {/* Modals */}
-      {editSectionModal.modalIDs.map(id =>
-        <EditSectionModal key={id} opened={editSectionModal.isOpened(id)} close={editSectionModal.close} options={editSectionModalOptions} />
-      )}
+      {editSectionModal.element}
       {confirmDeleteModal.element}
     </>
   )
@@ -452,34 +444,29 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
   onExpandedChange: (_: boolean) => void
   dragHandleProps: DraggableProvidedDragHandleProps | null
 }) {
-  const editSectionModal = useRepeatedModal()
-  const [editSectionModalOptions, setEditSectionModalOptions] = useState<EditSectionModalOptions | null>(null)
-
+  const editSectionModal = useModal(EditSectionModal)
+  
   const handleClickAdd = useCallback((position: 'before' | 'after') => {
-    setEditSectionModalOptions({
+    editSectionModal.open({
       title: 'Add Section',
       section: Quiz.createDefaultSection(),
       onSave: newSection => {
         onAddSection(newSection, section, position)
       }
     })
-
-    editSectionModal.open()
   }, [onAddSection, section, editSectionModal])
 
   const handleClickAddBefore = () => handleClickAdd('before')
   const handleClickAddAfter = () => handleClickAdd('after')
 
   const handleClickEdit = () => {
-    setEditSectionModalOptions({
+    editSectionModal.open({
       title: 'Edit Section',
       section: section,
       onSave: modified => {
         onEditSection(modified)
       }
     })
-
-    editSectionModal.open()
   }
 
   const handleDelete = () => {
@@ -568,9 +555,7 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
       </Group>
 
       {/* Modals */}
-      {editSectionModal.modalIDs.map(id =>
-        <EditSectionModal key={id} opened={editSectionModal.isOpened(id)} close={editSectionModal.close} options={editSectionModalOptions} />
-      )}
+      {editSectionModal.element}
     </Group>
   )
 }

@@ -7,10 +7,14 @@ import SelectedResponseItemEditor from './SelectedResponseItemEditor'
 import TextInputItemEditor from './TextInputItemEditor'
 import { produce } from 'immer'
 
-export default function EditItemModal({ opened, onClose, options }: {
+export function EditItemModal({ opened, onClose, options }: {
   opened: boolean,
   onClose: () => void,
-  options: EditItemModalOptions
+  options: {
+    title: string
+    item: Quiz.Item
+    onSave: (_: Quiz.Item) => void
+  }
 }) {
   const [item, setItem] = useState<Quiz.Item>(options.item)
   const ref = useRef<HTMLDivElement | null>(null)
@@ -105,10 +109,4 @@ export default function EditItemModal({ opened, onClose, options }: {
       </Stack>
     </Modal>
   )
-}
-
-export interface EditItemModalOptions {
-  title: string
-  item: Quiz.Item
-  onSave: (_: Quiz.Item) => void
 }
