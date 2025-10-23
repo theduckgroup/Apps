@@ -2,6 +2,7 @@
 
 export default {
   // serverUrl: load('SERVER_URL'),
+  nodeEnv: load('NODE_ENV'),
   webappUrl: load('WEBAPP_URL'),
   simulateHelpSubdomain: loadOptional('SIMULATE_HELP_SUBDOMAIN'),
   mongodb: {

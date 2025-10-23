@@ -1,4 +1,3 @@
-import { ObjectId } from 'mongodb'
 import { DbQuiz } from './DbQuiz'
 
 export interface DbQuizResponse {
@@ -21,6 +20,8 @@ export namespace DbQuizResponse {
 
   export interface ListItemResponse {
     itemKind: "listItem"
+    id: string
+    itemId: string
     data: {
       itemResponses: ItemResponse[]
     }
@@ -28,6 +29,8 @@ export namespace DbQuizResponse {
 
   export interface SelectedResponseItemResponse {
     itemKind: "selectedResponseItem"
+    id: string
+    itemId: string
     data: {
       selectedOptions: {
         id: string
@@ -38,6 +41,8 @@ export namespace DbQuizResponse {
 
   export interface TextInputItemResponse {
     itemKind: "textInputItem"
+    id: string
+    itemId: string
     data: {
       value: string
     }

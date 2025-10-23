@@ -6,14 +6,16 @@ import createHttpError from 'http-errors'
 
 import { getDb } from 'src/db'
 import { authorizeUser, authorizeAdmin } from 'src/auth/authorize'
-import { DbQuizResponse } from '../db/DbQuizResponse'
 import eventHub from './event-hub'
-import { QuizSchema } from './QuizSchema'
-import QuizResponseSchema from './QuizResponseSchema'
+import { WsTemplateSchema } from './WsTemplateSchema'
+import { WsReportSchema } from './WsReportSchema'
 import logger from 'src/logger'
 import z from 'zod'
 import { mailer } from 'src/utils/mailer'
 import env from 'src/env'
+import { DbWsTemplate } from '../db/DbWsTemplate'
+import { DbWsReport } from '../db/DbWsReport'
+import '../db/Db+collections'
 
 // Admin router
 
@@ -21,75 +23,53 @@ const adminRouter = express.Router()
 
 adminRouter.use(authorizeAdmin)
 
-adminRouter.get('/quizzes', async (req, res) => {
+adminRouter.get('/templates', async (req, res) => {
   const db = await getDb()
 
-  const dbQuizzes = await db.collection_quizzes.find({}).toArray()
+  const dbTemplates = await db.collection_wsTemplates.find({}).toArray()
 
-  interface QuizMetadata {
+  interface WsTemplateMetadata {
     id: string
     code: string
-    sectionCount: number
-    itemCount: number
+    supplierCount: number
   }
 
-  const resData: QuizMetadata[] = dbQuizzes.map(dbQuiz => {
+  const data: WsTemplateMetadata[] = dbTemplates.map(dbQuiz => {
     return {
       id: dbQuiz._id.toString(),
       name: dbQuiz.name,
       code: dbQuiz.code,
-      sectionCount: dbQuiz.sections.length,
-      itemCount: dbQuiz.sections.map(x => x.rows.length).reduce((x, y) => x + y, 0)
+      supplierCount: dbQuiz.sections.map(x => x.rows.length).reduce((x, y) => x + y, 0)
     }
   })
 
-  res.send(resData)
+  res.send(data)
 })
 
-adminRouter.get('/quiz/:id', async (req, res) => {
+adminRouter.get('/template/:id', async (req, res) => {
   const id = req.params.id
 
   const db = await getDb()
 
-  const dbQuiz = await db.collection_quizzes.findOne({
+  const dbTemplate = await db.collection_wsTemplates.findOne({
     _id: new ObjectId(id)
   })
 
-  if (!dbQuiz) {
+  if (!dbTemplate) {
     throw createHttpError(400, 'Document not found')
   }
 
-  const quiz = normalizeId(dbQuiz)
+  const data = normalizeId(dbTemplate)
 
-  // Fix data
-
-  for (const item of quiz.items) {
-    if (item.kind == 'textInputItem') {
-      if (!item.data.layout) {
-        item.data.layout = 'stack'
-      }
-    }
-
-    if (item.kind == 'listItem') {
-      for (const subitem of item.data.items) {
-        if (subitem.kind == 'textInputItem') {
-          if (!subitem.data.layout) {
-            subitem.data.layout = 'stack'
-          }
-        }
-      }
-    }
-  }
-
-  res.send(quiz)
+  res.send(data)
 })
 
-adminRouter.put('/quiz/:id', async (req, res) => {
+adminRouter.put('/template/:id', async (req, res) => {
   const id = req.params.id
 
   // Validate schema
 
-  const { data, error: schemaError } = QuizSchema.safeParse(req.body)
+  const { data, error: schemaError } = WsTemplateSchema.safeParse(req.body)
 
   if (schemaError) {
     logger.error(schemaError)
@@ -102,7 +82,7 @@ adminRouter.put('/quiz/:id', async (req, res) => {
 
   // Validate sections & items
 
-  validateQuiz(data)
+  validateTemplate(data)
 
   // Upsert
 
@@ -114,7 +94,7 @@ adminRouter.put('/quiz/:id', async (req, res) => {
     id: undefined
   }
 
-  await db.collection_quizzes.findOneAndUpdate({
+  await db.collection_wsTemplates.findOneAndUpdate({
     _id: new ObjectId(id)
   }, {
     $set: doc
@@ -127,59 +107,59 @@ adminRouter.put('/quiz/:id', async (req, res) => {
   eventHub.emitQuizzesChanged()
 })
 
-adminRouter.post('/quiz/:id/duplicate', async (req, res) => {
+adminRouter.post('/template/:id/duplicate', async (req, res) => {
   const id = req.params.id
 
   const db = await getDb()
 
-  const dbQuiz = await db.collection_quizzes.findOne({
+  const doc = await db.collection_wsTemplates.findOne({
     _id: new ObjectId(id)
   })
 
-  if (!dbQuiz) {
+  if (!doc) {
     throw createHttpError(400, 'Document not found')
   }
 
-  dbQuiz._id = new ObjectId()
-  dbQuiz.name = `${dbQuiz.name} Copy`
-  dbQuiz.code = ''
+  doc._id = new ObjectId()
+  doc.name = `${doc.name} Copy`
+  doc.code = ''
 
-  await db.collection_quizzes.insertOne(dbQuiz)
+  await db.collection_wsTemplates.insertOne(doc)
 
   res.send()
 
   eventHub.emitQuizzesChanged()
 })
 
-type QuizSchemaInferredType = z.infer<typeof QuizSchema>
+type WsTemplateSchemaInferredType = z.infer<typeof WsTemplateSchema>
 
-function validateQuiz(quiz: QuizSchemaInferredType) {
+function validateTemplate(template: WsTemplateSchemaInferredType) {
   // All items are used and each one is exactly once
 
-  const rowItemIDs = new Set<string>()
+  const rowSupplierIDs = new Set<string>()
 
   let errors: string[] = []
 
-  for (const section of quiz.sections) {
+  for (const section of template.sections) {
     for (const row of section.rows) {
-      if (rowItemIDs.has(row.itemId)) {
-        errors.push(`Item ID used more than once: ${row.itemId}`)
+      if (rowSupplierIDs.has(row.supplierId)) {
+        errors.push(`Supplier ID used more than once: ${row.supplierId}`)
       }
 
-      rowItemIDs.add(row.itemId)
+      rowSupplierIDs.add(row.supplierId)
     }
   }
 
-  const itemIDs = new Set(quiz.items.map(x => x.id))
+  const supplierIDs = new Set(template.suppliers.map(x => x.id))
 
-  const diff1 = [...rowItemIDs].filter(x => !itemIDs.has(x))
+  const diff1 = [...rowSupplierIDs].filter(x => !supplierIDs.has(x))
 
   if (diff1.length > 0) {
     const diffErrors = diff1.map(x => `Row item IDs not found: ${x}`)
     errors.push(...diffErrors)
   }
 
-  const diff2 = [...itemIDs].filter(x => !rowItemIDs.has(x))
+  const diff2 = [...supplierIDs].filter(x => !rowSupplierIDs.has(x))
 
   if (diff2.length > 0) {
     const diffErrors = diff2.map(x => `Item IDs not used in rows: ${x}`)
@@ -197,7 +177,7 @@ const userRouter = express.Router()
 
 userRouter.use(authorizeUser)
 
-userRouter.get('/quiz' /* ?code=XYZ */, async (req, res) => {
+userRouter.get('/template' /* ?code=XYZ */, async (req, res) => {
   const code = req.query.code
 
   if (!code) {
@@ -219,8 +199,8 @@ userRouter.get('/quiz' /* ?code=XYZ */, async (req, res) => {
   res.send(quiz)
 })
 
-userRouter.post('/quiz-response/submit', async (req, res) => {
-  const { data, error: schemaError } = QuizResponseSchema.safeParse(req.body)
+userRouter.post('/submit', async (req, res) => {
+  const { data, error: schemaError } = WsReportSchema.safeParse(req.body)
 
   if (schemaError) {
     logger.error(schemaError)
@@ -229,26 +209,25 @@ userRouter.post('/quiz-response/submit', async (req, res) => {
 
   const db = await getDb()
 
-  const doc: DbQuizResponse = {
+  const doc: DbWsReport = {
     ...data,
-    createdDate: new Date(data.createdDate),
     submittedDate: new Date(data.submittedDate)
   }
 
-  const insertResult = await db.collection_quizResponses.insertOne(doc)
+  const insertResult = await db.collection_wsReports.insertOne(doc)
   const docId = insertResult.insertedId
 
   res.send()
 
-  const recipients: mailer.Recipient[] = doc.quiz.emailRecipients.map(x => ({
+  const recipients: mailer.Recipient[] = doc.template.emailRecipients.map(x => ({
     name: '',
     email: x
   }))
 
   mailer.sendMail({
     recipients: recipients,
-    subject: `${doc.quiz.name} submitted`,
-    contentHtml: quizResponseNotificationMailHtml(doc.quiz.name, docId)
+    subject: `${doc.template.name} submitted`,
+    contentHtml: quizResponseNotificationMailHtml(doc.template.name, docId)
 
   })
 })
@@ -265,7 +244,7 @@ ${quizName} has been submitted.
 <a href='${env.webappUrl}/fohtest/view/${docId.toString()}'>View Test</a>
 </p>
     `
-
+    
   return htmlDoctype + html
 
   // return htmlDoctype + ReactDOMServer.renderToStaticMarkup(React.createElement(OrderEmailHtml, { order: order }, null));
@@ -275,47 +254,43 @@ ${quizName} has been submitted.
 
 const publicRouter = express.Router()
 
-if (env.nodeEnv == 'local') {
-  publicRouter.get('/mock-quiz', async (req, res) => {
-    console.info(`In mock-quiz`)
-    const db = await getDb()
-
-    const dbQuiz = await db.collection_quizzes.findOne({
-      code: 'FOH_STAFF_KNOWLEDGE'
-    })
-
-    if (!dbQuiz) {
-      throw createHttpError(400, 'Document not found')
-    }
-
-    const resQuiz = normalizeId(dbQuiz)
-    console.info(`id = ${resQuiz.id}`)
-
-    res.send(resQuiz)
-  })
-}
-
-publicRouter.get('/quiz-response/:id', async (req, res) => {
+publicRouter.get('/mock-template', async (req, res) => {
   const db = await getDb()
 
-  const doc = await db.collection_quizResponses.findOne({
-    _id: new ObjectId(req.params.id)
+  const dbQuiz = await db.collection_quizzes.findOne({
+    code: 'MAIN'
   })
 
-  if (!doc) {
-    throw createHttpError(404)
+  if (!dbQuiz) {
+    throw createHttpError(400, 'Document not found')
   }
 
-  const data = {
-    ...doc,
-    _id: undefined,
-    id: doc._id.toString(),
-    createdDate: doc.createdDate.toISOString(),
-    submittedDate: doc.submittedDate.toISOString()
-  }
-
-  res.send(data)
+  const resQuiz = normalizeId(dbQuiz)
+  
+  res.send(resQuiz)
 })
+
+// publicRouter.get('/quiz-response/:id', async (req, res) => {
+//   const db = await getDb()
+
+//   const doc = await db.collection_quizResponses.findOne({
+//     _id: new ObjectId(req.params.id)
+//   })
+
+//   if (!doc) {
+//     throw createHttpError(404)
+//   }
+
+//   const data = {
+//     ...doc,
+//     _id: undefined,
+//     id: doc._id.toString(),
+//     createdDate: doc.createdDate.toISOString(),
+//     submittedDate: doc.submittedDate.toISOString()
+//   }
+
+//   res.send(data)
+// })
 
 // Helpers
 
@@ -330,7 +305,7 @@ function normalizeId<T extends { _id: ObjectId }>(object: T) {
 
 const router = express.Router()
 
-router.use(publicRouter)
+router.use(publicRouter) 
 router.use(userRouter)
 router.use(adminRouter)
 
