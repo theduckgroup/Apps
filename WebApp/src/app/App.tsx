@@ -12,6 +12,8 @@ import ResetPassword2Page from './pages/ResetPassword2Page'
 import adminAppRoutes from 'src/admin-app/routes'
 import quizAppRoutes from 'src/quiz-app/routes'
 import QuizResponsePage from 'src/quiz-app/pages/QuizResponsePage'
+import weeklySpendingApp from 'src/ws-app/routes'
+import env from 'src/env'
 
 function App() {
   return (
@@ -55,7 +57,7 @@ function AppRoutes() {
         </RedirectToLoginIfUnauthorized>
       } />
 
-      {fohTestRoute}
+      {fohTestViewQuizResponseRoute}
 
       <Route path='/' element={
         <RedirectToLoginIfUnauthorized>
@@ -85,10 +87,18 @@ const subappRoutes = (
     }>
       {quizAppRoutes}
     </Route>
+    {
+      env.features.wsApp &&
+      <Route path='ws-app' element={
+      <SubappLayout path='/ws-app' apiPath='/api/ws-app' />
+    }>
+      {weeklySpendingApp}
+    </Route>
+    }
   </>
 )
 
-const fohTestRoute = (
+const fohTestViewQuizResponseRoute = (
   <Route path='/fohtest/view/:id' element={
     <ApiProvider baseUrl='/api/quiz-app'>
       <QuizResponsePage />

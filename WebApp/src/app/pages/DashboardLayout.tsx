@@ -4,6 +4,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router'
 import { IconChevronRight, IconLogout2, IconUserCircle } from '@tabler/icons-react'
 
 import { useAuth } from 'src/app/contexts'
+import env from 'src/env'
 
 function DashboardLayout() {
   const [navbarOpened, { toggle: toggleNavbar, close: closeNavbar }] = useDisclosure() // Mobile only
@@ -157,6 +158,7 @@ function NavbarContent({ close }: {
 }) {
   const location = useLocation()
   const navigate = useNavigate()
+  console.info(`flag = ${import.meta.env['VITE_FEATURES_WEEKLY_SPENDING']}`)
 
   return (
     <>
@@ -170,13 +172,26 @@ function NavbarContent({ close }: {
         active={location.pathname.startsWith('/quiz-app')}
         onClick={() => navigate('/quiz-app')}
       />
+      {
+        env.features.wsApp &&
+        <NavLink
+          href='#'
+          label='Weekly Spending'
+          rightSection={
+            < IconChevronRight size={12} stroke={1.5} className='mantine-rotate-rtl' />
+          }
+          variant='filled'
+          active={location.pathname.startsWith('/ws-app')}
+          onClick={() => navigate('/ws-app')}
+        />
+      }
       <NavLink
         href='#'
         label='Admin'
         rightSection={
           < IconChevronRight size={12} stroke={1.5} className='mantine-rotate-rtl' />
         }
-        variant='filled'        
+        variant='filled'
         active={location.pathname.startsWith('/admin')}
         onClick={() => navigate('/admin')}
       />
