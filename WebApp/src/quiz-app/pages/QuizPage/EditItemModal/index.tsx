@@ -102,7 +102,7 @@ export function EditItemModal({ opened, onClose, options }: {
             </HoverCard.Dropdown>
           </HoverCard> */}
           <Group gap='sm' ml='auto'>
-            <Button variant='default' w='6rem' onClick={close}>Cancel</Button>
+            <Button variant='default' w='6rem' onClick={onClose}>Cancel</Button>
             <Button type='submit' w='6rem' disabled={!isValid} onClick={handleSave}>Save</Button>
           </Group>
         </Group>
