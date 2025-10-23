@@ -55,8 +55,12 @@ export namespace Quiz {
 }
 
 export namespace Quiz {
-  export function createDefaultItem(kind: Quiz.ItemKind): Quiz.Item {
+  export function createDefaultItem({ kind, isSubitem: isSubitemParam }: {
+    kind: Quiz.ItemKind,
+    isSubitem?: boolean
+  }): Quiz.Item {
     const id = new ObjectId().toString()
+    const isSubitem = isSubitemParam ?? false
 
     switch (kind) {
       case 'selectedResponseItem':
@@ -84,7 +88,7 @@ export namespace Quiz {
           kind,
           data: {
             prompt: '',
-            layout: 'stack'
+            layout: isSubitem ? 'inline' : 'stack'
           }
         }
 

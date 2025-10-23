@@ -18,7 +18,7 @@ export default function QuizItemsEditor({ items, sections, setData }: {
   setData: Dispatch<ReduceState<[Quiz.Item[], Quiz.Section[]]>>
 }) {
   const editSectionModal = useModal(EditSectionModal)
-  
+
   // Can't hold this inside SectionHeader or Row because they will be deleted
   const confirmDeleteModal = useModal(ConfirmModal)
 
@@ -317,7 +317,7 @@ function SectionComponent({
   function handleClickAddItem(kind: Quiz.ItemKind) {
     addItemModal.open({
       title: 'Add Item',
-      item: Quiz.createDefaultItem(kind),
+      item: Quiz.createDefaultItem({ kind }),
       onSave: newItem => {
         onAddItemToSection(newItem, section)
       }
@@ -445,7 +445,7 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
   dragHandleProps: DraggableProvidedDragHandleProps | null
 }) {
   const editSectionModal = useModal(EditSectionModal)
-  
+
   const handleClickAdd = useCallback((position: 'before' | 'after') => {
     editSectionModal.open({
       title: 'Add Section',
@@ -574,7 +574,7 @@ function Row({ item, rowIndex, onAddItem, onEditItem, onDeleteItem, onOpenConfir
   const handleClickAdd = useCallback((kind: Quiz.ItemKind) => {
     editItemModal.open({
       title: 'Add Item',
-      item: Quiz.createDefaultItem(kind),
+      item: Quiz.createDefaultItem({ kind }),
       onSave: newItem => {
         onAddItem(newItem, item)
       }

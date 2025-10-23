@@ -1,4 +1,4 @@
-import { Box, Button, FocusTrap, Group, Modal, Stack, Text } from '@mantine/core'
+import { Button, FocusTrap, Group, Modal, Stack, Text } from '@mantine/core'
 
 import formatError from 'src/common/format-error'
 import { useState } from 'react'
@@ -54,7 +54,7 @@ export function ConfirmModal({ opened, onClose, options: { title, message, actio
             return (
               <Button
                 variant='filled'
-                color={action.role == 'confirm' ? undefined : 'red'}
+                color={(action.role ?? 'confirm') == 'confirm' ? undefined : 'red'}
                 onClick={() => handleActionClick(action)}
                 loading={loading}
                 disabled={loading}
