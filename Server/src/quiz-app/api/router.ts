@@ -127,6 +127,30 @@ adminRouter.put('/quiz/:id', async (req, res) => {
   eventHub.emitQuizzesChanged()
 })
 
+adminRouter.post('/quiz/:id/duplicate', async (req, res) => {
+  const id = req.params.id
+
+  const db = await getDb()
+
+  const dbQuiz = await db.collection_quizzes.findOne({
+    _id: new ObjectId(id)
+  })
+
+  if (!dbQuiz) {
+    throw createHttpError(400, 'Document not found')
+  }
+
+  dbQuiz._id = new ObjectId()
+  dbQuiz.name = `${dbQuiz.name} Copy`
+  dbQuiz.code = ''
+
+  await db.collection_quizzes.insertOne(dbQuiz)
+
+  res.send()
+
+  eventHub.emitQuizzesChanged()
+})
+
 type QuizSchemaInferredType = z.infer<typeof QuizSchema>
 
 function validateQuiz(quiz: QuizSchemaInferredType) {

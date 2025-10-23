@@ -1,12 +1,14 @@
 import { useEffect } from 'react'
-import { Button, Grid, Group, Paper, Stack, Text, Title } from '@mantine/core'
-import { IconPlus } from '@tabler/icons-react'
+import { ActionIcon, Button, Grid, Group, Menu, Paper, Stack, Text, Title } from '@mantine/core'
+import { IconDots, IconPlus } from '@tabler/icons-react'
 import { useQuery } from '@tanstack/react-query'
 
 import { usePath, useApi } from 'src/app/contexts'
 import { QuizMetadata } from 'src/quiz-app/models/Quiz'
 import quizEventHub from 'src/quiz-app/event-hub'
 import formatError from 'src/common/format-error'
+import useModal from 'src/utils/use-modal'
+import { ConfirmModal } from 'src/utils/ConfirmModal'
 
 const QuizListPage = () => {
   const { axios } = useApi()
@@ -52,12 +54,19 @@ function Content({ data }: {
   data: QuizMetadata[]
 }) {
   const { navigate } = usePath()
+  const confirmModal = useModal(ConfirmModal)
 
   return (
     <Stack align='flex-start' w='100%'>
       <Grid w='100%'>
         {
-          data.map(metaquiz => <QuizComponent key={metaquiz.id} metaquiz={metaquiz} />)
+          data.map(metaquiz => (
+            <QuizComponent
+              key={metaquiz.id}
+              metaquiz={metaquiz}
+              openConfirmModal={confirmModal.open}
+            />
+          ))
         }
       </Grid>
       {
@@ -70,39 +79,80 @@ function Content({ data }: {
           [dev] Add Test
         </Button>
       }
+      {/* Modals */}
+      {confirmModal.element}
     </Stack>
   )
 }
 
-function QuizComponent({ metaquiz }: {
-  metaquiz: QuizMetadata
+function QuizComponent({ metaquiz, openConfirmModal }: {
+  metaquiz: QuizMetadata,
+  openConfirmModal: (_: ConfirmModal.Options) => void
 }) {
+  const { axios } = useApi()
   const { navigate } = usePath()
+
+  function handleDuplicate() {
+    openConfirmModal({
+      title: '',
+      message: 'Duplicate this quiz?',
+      actions: [{
+        label: 'Duplicate',
+        handler: async () => {
+          return await axios.post(`quiz/${metaquiz.id}/duplicate`)
+        }
+      }]
+    })
+  }
 
   return (
     <Grid.Col span={{ base: 12, sm: 4 }}>
       <Paper px='md' py='sm' bg='dark.8' withBorder>
         <Stack align='flex-start' gap='md'>
+          {/* Title + Code */}
           <Stack gap='0.25rem'>
             <Title order={5}>{metaquiz.name}</Title>
             <Stack gap='0'>
-              {metaquiz.code && <Text fz='sm' fw={500} opacity={0.5}> {metaquiz.code}</Text>}
+              {<Text fz='sm' fw={500} opacity={0.5}> {metaquiz.code.length > 0 ? metaquiz.code : '[No Code]'}</Text>}
               <Text fz='sm'>{metaquiz.itemCount} items</Text>
             </Stack>
           </Stack>
-          <Button
-            variant='default'
-            size='xs'
-            // leftSection={<IconPencil size={14}/>}
-            // rightSection={<IconArrowNarrowRight size={14}/>}
-            onClick={() => navigate(`/quiz/${metaquiz.id}`)}
-          >
-            <Group gap='0.25rem' align='center'>
-              {/* <IconPencil size={14} strokeWidth={1.25} /> */}
-              View/Edit
-              {/* <IconArrowNarrowRight size={14} /> */}
-            </Group>
-          </Button>
+
+          <Group w='100%'>
+            {/* View/Edit button */}
+            <Button
+              variant='default'
+              size='xs'
+              // leftSection={<IconPencil size={14}/>}
+              // rightSection={<IconArrowNarrowRight size={14}/>}
+              onClick={() => navigate(`/quiz/${metaquiz.id}`)}
+            >
+              <Group gap='0.25rem' align='center'>
+                {/* <IconPencil size={14} strokeWidth={1.25} /> */}
+                View/Edit
+                {/* <IconArrowNarrowRight size={14} /> */}
+              </Group>
+            </Button>
+            {/* Dropdown menu */}
+            {
+              import.meta.env.DEV &&
+              <Menu position='bottom-end' width={150}>
+                <Menu.Target>
+                  <ActionIcon
+                    variant='default'
+                    ml='auto'
+                  >
+                    <IconDots size={16} />
+                  </ActionIcon>
+                </Menu.Target>
+                <Menu.Dropdown>
+                  <Menu.Item onClick={handleDuplicate}>
+                    Duplicate
+                  </Menu.Item>
+                </Menu.Dropdown>
+              </Menu>
+            }
+          </Group>
         </Stack>
       </Paper>
     </Grid.Col>
