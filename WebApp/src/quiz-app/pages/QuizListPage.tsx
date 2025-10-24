@@ -106,7 +106,7 @@ function QuizComponent({ metaquiz, openConfirmModal }: {
   }
 
   return (
-    <Grid.Col span={{ base: 12, md: 4, sm: 6 }}>
+    <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
       <Paper px='md' py='sm' bg='dark.8' withBorder>
         <Stack align='flex-start' gap='md'>
           {/* Title + Code */}
