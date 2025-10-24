@@ -158,8 +158,7 @@ function NavbarContent({ close }: {
 }) {
   const location = useLocation()
   const navigate = useNavigate()
-  console.info(`flag = ${import.meta.env['VITE_FEATURES_WEEKLY_SPENDING']}`)
-
+  
   return (
     <>
       <NavLink
