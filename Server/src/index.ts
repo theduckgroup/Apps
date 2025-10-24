@@ -55,14 +55,17 @@ app.use((req, res, next) => {
 
 // API
 
-import quizAppRouter from './quiz-app/api/router'
-app.use('/api/quiz-app', quizAppRouter)
-
 import adminAppRouter from './admin-app/api/router'
 app.use('/api/admin', adminAppRouter)
 
 import resetPasswordRouter from './auth/reset-password-router'
 app.use('/api/reset-password', resetPasswordRouter)
+
+import quizAppRouter from './quiz-app/api/router'
+app.use('/api/quiz-app', quizAppRouter)
+
+import wsAppRouter from './ws-app/api/router'
+app.use('/api/ws-app', wsAppRouter)
 
 app.use('/api/*splat', (req, res) => {
   throw createHttpError(404, `Invalid Route`)
