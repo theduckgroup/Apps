@@ -25,7 +25,7 @@ function DashboardLayout() {
       }}
       navbar={{
         width: 250,
-        breakpoint: 'sm',
+        breakpoint: 'md', // Same as burger menu in HeaderContent
         collapsed: { mobile: !navbarOpened }
       }}
       padding={{ base: '0', sm: 'md' }}
@@ -69,7 +69,7 @@ function HeaderContent({ navbarOpened, toggleNavbar, closeNavbar }: {
             <Burger
               opened={navbarOpened}
               onClick={toggleNavbar}
-              hiddenFrom='sm'
+              hiddenFrom='md' // Same as AppShell navbar breakpoint
               size='sm'
             />
             {/* The Duck Group title */}
@@ -169,7 +169,10 @@ function NavbarContent({ close }: {
           <IconChevronRight size={14} stroke={2} className='mantine-rotate-rtl' />
         }
         active={location.pathname.startsWith('/quiz-app')}
-        onClick={() => navigate('/quiz-app')}
+        onClick={() => {
+          navigate('/quiz-app')
+          close()
+        }}
       />
       {
         env.features.wsApp &&
@@ -181,7 +184,10 @@ function NavbarContent({ close }: {
           }
           variant='filled'
           active={location.pathname.startsWith('/ws-app')}
-          onClick={() => navigate('/ws-app')}
+          onClick={() => {
+            navigate('/ws-app')
+            close()
+          }}
         />
       }
       <NavLink
@@ -192,7 +198,10 @@ function NavbarContent({ close }: {
         }
         variant='filled'
         active={location.pathname.startsWith('/admin')}
-        onClick={() => navigate('/admin')}
+        onClick={() => {
+          navigate('/admin')
+          close()
+        }}
       />
     </>
   )
