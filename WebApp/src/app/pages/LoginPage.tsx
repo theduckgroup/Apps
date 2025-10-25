@@ -60,6 +60,7 @@ const LoginPage = () => {
               ref={emailRef}
               label='Email'
               placeholder=''
+              autoCapitalize='none'
               key={form.key('email')}
               {...form.getInputProps('email')}
             />
