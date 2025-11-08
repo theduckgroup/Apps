@@ -26,7 +26,7 @@ adminRouter.use(authorizeAdmin)
 adminRouter.get('/templates', async (req, res) => {
   const db = await getDb()
 
-  const dbTemplates = await db.collection_wsTemplates.find({}).toArray()
+  const docs = await db.collection_wsTemplates.find({}).toArray()
 
   interface WsTemplateMetadata {
     id: string
@@ -34,12 +34,12 @@ adminRouter.get('/templates', async (req, res) => {
     supplierCount: number
   }
 
-  const data: WsTemplateMetadata[] = dbTemplates.map(dbQuiz => {
+  const data: WsTemplateMetadata[] = docs.map(doc => {
     return {
-      id: dbQuiz._id.toString(),
-      name: dbQuiz.name,
-      code: dbQuiz.code,
-      supplierCount: dbQuiz.sections.map(x => x.rows.length).reduce((x, y) => x + y, 0)
+      id: doc._id.toString(),
+      name: doc.name,
+      code: doc.code,
+      supplierCount: doc.sections.map(x => x.rows.length).reduce((x, y) => x + y, 0)
     }
   })
 
@@ -104,7 +104,7 @@ adminRouter.put('/template/:id', async (req, res) => {
 
   res.send()
 
-  eventHub.emitQuizzesChanged()
+  eventHub.emitTemplatesChanged()
 })
 
 adminRouter.post('/template/:id/duplicate', async (req, res) => {
@@ -128,7 +128,7 @@ adminRouter.post('/template/:id/duplicate', async (req, res) => {
 
   res.send()
 
-  eventHub.emitQuizzesChanged()
+  eventHub.emitTemplatesChanged()
 })
 
 type WsTemplateSchemaInferredType = z.infer<typeof WsTemplateSchema>
@@ -186,17 +186,17 @@ userRouter.get('/template' /* ?code=XYZ */, async (req, res) => {
 
   const db = await getDb()
 
-  const dbQuiz = await db.collection_quizzes.findOne({
+  const doc = await db.collection_wsTemplates.findOne({
     code: code
   })
 
-  if (!dbQuiz) {
+  if (!doc) {
     throw createHttpError(400, 'Document not found')
   }
 
-  const quiz = normalizeId(dbQuiz)
+  const data = normalizeId(doc)
 
-  res.send(quiz)
+  res.send(data)
 })
 
 userRouter.post('/submit', async (req, res) => {
@@ -227,17 +227,17 @@ userRouter.post('/submit', async (req, res) => {
   mailer.sendMail({
     recipients: recipients,
     subject: `${doc.template.name} submitted`,
-    contentHtml: quizResponseNotificationMailHtml(doc.template.name, docId)
+    contentHtml: reportNotificationMailHtml(doc.template.name, docId)
 
   })
 })
 
-function quizResponseNotificationMailHtml(quizName: string, docId: ObjectId) {
+function reportNotificationMailHtml(templateName: string, docId: ObjectId) {
   const htmlDoctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
 
   const html = `
 <p>
-${quizName} has been submitted.
+${templateName} has been submitted.
 </p>
 
 <p>
@@ -257,17 +257,17 @@ const publicRouter = express.Router()
 publicRouter.get('/mock-template', async (req, res) => {
   const db = await getDb()
 
-  const dbQuiz = await db.collection_quizzes.findOne({
+  const doc = await db.collection_wsTemplates.findOne({
     code: 'MAIN'
   })
 
-  if (!dbQuiz) {
+  if (!doc) {
     throw createHttpError(400, 'Document not found')
   }
 
-  const resQuiz = normalizeId(dbQuiz)
+  const data = normalizeId(doc)
   
-  res.send(resQuiz)
+  res.send(data)
 })
 
 // publicRouter.get('/quiz-response/:id', async (req, res) => {

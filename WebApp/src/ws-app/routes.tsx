@@ -6,6 +6,7 @@ export default (
   <>
     <Route index element={<Navigate to='templates' replace />} />
     <Route path='templates' element={<TemplateListPage />} />
-    <Route path='template-edit' element={<TemplateEditorPage />} />
+    <Route path='template' element={<TemplateEditorPage />} />
+    <Route path='template/:templateId' element={<TemplateEditorPage />} />
   </>
 )
