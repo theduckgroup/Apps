@@ -3,19 +3,19 @@ import Combine
 import Common
 @preconcurrency import SocketIO
 
-class EventHub {
-    static let shared = EventHub()
+final public class EventHub: Sendable {
+    private let socketManager: SocketManager
     
-    private let socketManager = SocketManager(
-        socketURL: API.shared.baseURL,
-        config: [
-            .path("/socketio"), // url.append(path:) doesn't work
-            .compress,
-            // .log(true),
-        ]
-    )
-    
-    private init() {
+    public init(baseURL: URL) {
+        socketManager = SocketManager(
+            socketURL: baseURL,
+            config: [
+                .path("/socketio"), // url.append(path:) doesn't work
+                .compress,
+                // .log(true),
+            ]
+        )
+        
         let socket = socketManager.defaultSocket
         
         socket.on(clientEvent: .connect) { data, ack in
@@ -29,12 +29,7 @@ class EventHub {
         socket.connect()
     }
     
-    func quizzesChanged() -> AsyncStream<Void> {
-        print("Creating quizzes changed stream")
-        return events("quiz-app:quizzes:changed")
-    }
-    
-    private func events(_ eventName: String) -> AsyncStream<Void> {
+    public func events(_ eventName: String) -> AsyncStream<Void> {
         let (stream, cont) = AsyncStream<Void>.makeStream()
         let socket = socketManager.defaultSocket
         
@@ -55,13 +50,13 @@ class EventHub {
 //        EventPublisher(socket: socketManager.defaultSocket, eventName: "connect")
 //            .map { _ in () }
 //    }
-//    
+//
 //    // NOT TESTED
 //    func disconnected() -> some Publisher<Void, Never> {
 //        EventPublisher(socket: socketManager.defaultSocket, eventName: "disconnect")
 //            .map { _ in () }
 //    }
-//    
+//
 //    func vendorChanged(vendorId: String) -> some Publisher<Void, Never> {
 //        let eventName = "event.vendor:\(vendorId).change"
 //

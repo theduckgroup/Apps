@@ -2,29 +2,16 @@ import Foundation
 import Common
 import Supabase
 
-/// Server API.
-extension API {
-    static let shared = API(
-        auth: .shared,
-        baseURL: {
-            switch AppInfo.buildTarget {
-            case .prod: URL(string: "https://apps.theduckgroup.com.au/api/quiz-app")!
-            case .local: URL(string: "http://192.168.0.207:8021/api/quiz-app")!
-            }
-        }()
-    )
-}
-
-class API {
-    let auth: Auth
-    let baseURL: URL
+final public class API: Sendable {
+    public let auth: Auth
+    public let baseURL: URL
     
-    init(auth: Auth, baseURL: URL) {
+    public init(auth: Auth, baseURL: URL) {
         self.auth = auth
         self.baseURL = baseURL
     }
     
-    func get<T: Decodable>(
+    public func get<T: Decodable>(
         authenticated: Bool = true,
         path: String,
         queryItems: [URLQueryItem] = [],
@@ -38,7 +25,7 @@ class API {
         }
     }
     
-    func post<T: Encodable>(
+    public func post<T: Encodable>(
         authenticated: Bool = true,
         method: String,
         path: String,
@@ -85,23 +72,5 @@ class API {
         
             throw error
         }
-    }
-}
-
-extension API {
-    func quiz(code: String) async throws -> Quiz {
-        try await get(
-            path: "/quiz",
-            queryItems: [.init(name: "code", value: "FOH_STAFF_KNOWLEDGE")],
-            decodeAs: Quiz.self
-        )
-    }
-    
-    func mockQuiz() async throws -> Quiz {
-        try await get(authenticated: false, path: "/mock-quiz", decodeAs: Quiz.self)
-    }
-    
-    func submitQuizResponse(_ quizResponse: QuizResponse) async throws {
-        try await post(method: "POST", path: "/quiz-response/submit", body: quizResponse)
     }
 }

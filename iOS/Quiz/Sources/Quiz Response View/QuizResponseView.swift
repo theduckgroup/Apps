@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 import Common
 import CommonUI
+import Backend
 
 struct QuizResponseView: View {
     @State private var viewModel: QuizResponseViewModel

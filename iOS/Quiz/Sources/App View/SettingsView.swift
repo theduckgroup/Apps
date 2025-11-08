@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import Auth
+import Backend
 
 struct SettingsView: View {
     @State var auth = Auth.shared

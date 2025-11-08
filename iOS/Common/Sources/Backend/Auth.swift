@@ -3,11 +3,12 @@ import Common
 import Supabase
 
 @Observable
-class Auth {
-    static let shared = Auth()
+@MainActor
+final public class Auth {
+    public static let shared = Auth()
     
+    public private(set) var isLoaded = false
     private var session: Session?
-    private(set) var isLoaded = false
     private let supabase = SupabaseClient(supabaseURL: URL(string: "https://ahvebevkycanekqtnthy.supabase.co")!, supabaseKey: "sb_publishable_RYskGh0Y71aGJoncWRLZDQ_rp9Z0U2u")
     
     private init() {
@@ -27,7 +28,7 @@ class Auth {
         }
     }
     
-    var user: User? {
+    public var user: User? {
         if isRunningForPreviews {
             return User(
                 id: UUID(),
@@ -46,38 +47,38 @@ class Auth {
         return session?.user
     }
     
-    var accessToken: String {
+    public var accessToken: String {
         get async throws {
             try await supabase.auth.session.accessToken
-        }        
+        }
     }
     
-    func signIn(email: String, password: String) async throws {
+    public func signIn(email: String, password: String) async throws {
         try await supabase.auth.signIn(email: email, password: password)
         
         // Supabase needs a bit of time to send auth event
         try await Task.sleep(for: .seconds(0.5))
     }
     
-    func signOut() async throws {
+    public func signOut() async throws {
         try await supabase.auth.signOut(scope: .local)
     }
     
-    func handleOAuthURL(_ url: URL) {
+    public func handleOAuthURL(_ url: URL) {
         supabase.auth.handle(url)
     }
 }
 
 extension User {
-    var firstName: String {
+    public var firstName: String {
         userMetadata["first_name"]?.value as? String ?? ""
     }
     
-    var lastName: String {
+    public var lastName: String {
         userMetadata["last_name"]?.value as? String ?? ""
     }
     
-    var name: String {
+    public var name: String {
         [firstName, lastName].filter { !$0.isEmpty }.joined(separator: " ")
     }
 }

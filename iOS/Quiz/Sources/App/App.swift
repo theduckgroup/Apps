@@ -1,5 +1,5 @@
 import SwiftUI
-import SwiftData
+import Backend
 
 @main
 struct App: SwiftUI.App {

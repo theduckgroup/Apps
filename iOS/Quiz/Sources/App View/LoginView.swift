@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 import Common
 import CommonUI
+import Backend
 
 struct LoginView: View {
     @State var email: String = ""

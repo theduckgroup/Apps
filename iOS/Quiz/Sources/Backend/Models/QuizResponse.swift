@@ -3,7 +3,7 @@ import Foundation
 // TODO
 // private typealias DefaultIsolation = nonisolated
 
-nonisolated struct QuizResponse: Equatable {
+nonisolated struct QuizResponse: Equatable, @unchecked Sendable {
     let quiz: Quiz
     var respondent: Respondent
     var createdDate: Date
