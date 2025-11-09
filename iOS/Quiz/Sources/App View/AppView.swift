@@ -1,8 +1,8 @@
 import Foundation
 import SwiftUI
-import Backend
-import AppUI
 import CommonUI
+import AppUI
+import Backend
 
 struct AppView: View {
     @State var auth = Auth.shared
@@ -10,7 +10,7 @@ struct AppView: View {
     
     var body: some View {
         bodyContent()
-            .tint(.red)
+            // .tint(.red)
             .onAppear {
                 _ = KeyboardDoneButtonManager.shared
                 applyStylingOverride()

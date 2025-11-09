@@ -19,7 +19,7 @@ extension API {
     func quiz(code: String) async throws -> Quiz {
         try await get(
             path: "/quiz",
-            queryItems: [.init(name: "code", value: "FOH_STAFF_KNOWLEDGE")],
+            queryItems: [.init(name: "code", value: code)],
             decodeAs: Quiz.self
         )
     }

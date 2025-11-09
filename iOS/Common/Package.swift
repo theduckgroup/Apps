@@ -27,15 +27,16 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-algorithms", from: "1.2.0"),
+        .package(url: "https://github.com/socketio/socket.io-client-swift", from: "16.1.1"),
         .package(url: "https://github.com/supabase/supabase-swift.git", from: "2.5.1")
     ],
     targets: [
         .target(
             name: "AppUI",
             dependencies: [
-                .target(name: "Common"),
-                .target(name: "CommonUI"),
-                .target(name: "Backend"),
+                "Common",
+                "CommonUI",
+                "Backend",
                 .product(name: "Supabase", package: "supabase-swift")
             ],
             swiftSettings: [
@@ -45,8 +46,9 @@ let package = Package(
         .target(
             name: "Backend",
             dependencies: [
-                .target(name: "Common"),
-                .target(name: "CommonUI"),
+                "Common",
+                "CommonUI",
+                .product(name: "SocketIO", package: "socket.io-client-swift"),
                 .product(name: "Supabase", package: "supabase-swift")
             ],
             swiftSettings: [
@@ -56,6 +58,7 @@ let package = Package(
         .target(
             name: "Common",
             dependencies: [
+                // "Algorithms"
                 .product(name: "Algorithms", package: "swift-algorithms")
             ],
             swiftSettings: [
@@ -65,7 +68,7 @@ let package = Package(
         .target(
             name: "CommonUI",
             dependencies: [
-                .target(name: "Common")
+                "Common"
             ],
             swiftSettings: [
                 .defaultIsolation(MainActor.self)

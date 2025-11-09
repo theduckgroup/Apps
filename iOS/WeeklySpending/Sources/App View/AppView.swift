@@ -1,17 +1,54 @@
+import Foundation
 import SwiftUI
+import CommonUI
+import AppUI
+import Backend
 
 struct AppView: View {
+    @State var auth = Auth.shared
+    @Environment(AppDefaults.self) var appDefaults
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        bodyContent()
+            // .tint(.red)
+            .onAppear {
+                _ = KeyboardDoneButtonManager.shared
+                applyStylingOverride()
+            }
+            .onChange(of: appDefaults.colorSchemeOverride) {
+                applyStylingOverride()
+            }
+    }
+    
+    private func applyStylingOverride() {
+        let window = UIApplication.shared.anyKeyWindow
+        
+        window?.overrideUserInterfaceStyle = switch appDefaults.colorSchemeOverride {
+        case .light: .light
+        case .dark: .dark
+        case .none: .unspecified
         }
-        .padding()
+    }
+    
+    @ViewBuilder
+    private func bodyContent() -> some View {
+        if auth.isLoaded {
+            if auth.user != nil {
+                HomeView()
+                
+            } else {
+                LoginView()
+            }
+        } else {
+            ProgressView()
+                .progressViewStyle(.circular)
+                .scaleEffect(1.5)
+                .tint(.secondary)
+        }
     }
 }
 
 #Preview {
     AppView()
+        .environment(AppDefaults())
 }
