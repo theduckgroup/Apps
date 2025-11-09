@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import Backend
+import AppUI
 import CommonUI
 
 struct AppView: View {

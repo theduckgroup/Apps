@@ -4,31 +4,25 @@ import Common
 import CommonUI
 import Backend
 
-struct LoginView: View {
+public struct LoginView: View {
     @State var email: String = ""
     @State var password: String = ""
     @FocusState var emailFocused: Bool
     @State var loading = false
-    @State var presentingError = false
-    @State var error: String?
-    @Environment(\.colorScheme) private var colorScheme
+    @State var ps = PresentationState()
     
-    init() {}
+    public init() {}
     
-    var body: some View {
+    public var body: some View {
         VStack {
             loginView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .padding()
-        .alert("Error", isPresented: $presentingError, presenting: error, actions: { _ in
-            Button("OK") {}
-        }, message: { error in
-            Text("\(error)")
-        })
         .onAppear {
             emailFocused = true
         }
+        .presentations(ps)
     }
     
     @ViewBuilder
@@ -97,8 +91,9 @@ struct LoginView: View {
             try await Auth.shared.signIn(email: email, password: password)
             
         } catch {
-            self.error = formatError(error)
-            presentingError = true
+            ps.presentAlert(title: "", message: formatError(error)) {
+                Button("OK") {}
+            }
         }
     }
 }

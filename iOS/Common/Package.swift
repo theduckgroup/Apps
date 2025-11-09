@@ -9,6 +9,10 @@ let package = Package(
     ],
     products: [
         .library(
+            name: "AppUI",
+            targets: ["AppUI"]
+        ),
+        .library(
             name: "Backend",
             targets: ["Backend"]
         ),
@@ -23,15 +27,26 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-algorithms", from: "1.2.0"),
-        
         .package(url: "https://github.com/supabase/supabase-swift.git", from: "2.5.1")
     ],
     targets: [
         .target(
+            name: "AppUI",
+            dependencies: [
+                .target(name: "Common"),
+                .target(name: "CommonUI"),
+                .target(name: "Backend"),
+                .product(name: "Supabase", package: "supabase-swift")
+            ],
+            swiftSettings: [
+                .defaultIsolation(MainActor.self)
+            ]
+        ),
+        .target(
             name: "Backend",
             dependencies: [
-                .byName(name: "Common"),
-                .byName(name: "CommonUI"),
+                .target(name: "Common"),
+                .target(name: "CommonUI"),
                 .product(name: "Supabase", package: "supabase-swift")
             ],
             swiftSettings: [

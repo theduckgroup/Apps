@@ -2,8 +2,7 @@ import Foundation
 import Common
 import Supabase
 
-@Observable
-@MainActor
+@MainActor @Observable
 final public class Auth {
     public static let shared = Auth()
     
