@@ -48,6 +48,8 @@ const LoginPage = () => {
 
   return (
     <div className='w-screen h-screen flex'>
+      <title>Login | The Duck Group</title>
+
       <Stack align='center' m='auto'>
         {/* Title */}
         <Title order={2} mb='lg'>The Duck Group</Title>

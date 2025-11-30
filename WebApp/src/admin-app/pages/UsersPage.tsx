@@ -36,6 +36,7 @@ export default function UsersPage() {
 
   return (
     <Stack align='flex-start'>
+      <title>Admin | The Duck Group</title>
       <Title order={2} c='gray.0' pb='xs'>Users</Title>
 
       {(() => {

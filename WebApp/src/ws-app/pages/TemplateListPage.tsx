@@ -31,6 +31,7 @@ const TemplateListPage = () => {
 
   return (
     <Stack gap='md' align='flex-start'>
+      <title>Weekly Spending | The Duck Group</title>
       <Title order={2} c='gray.0'>Templates</Title>
       {(() => {
         if (isLoading) {

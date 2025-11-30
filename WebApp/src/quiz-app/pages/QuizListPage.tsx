@@ -31,6 +31,7 @@ const QuizListPage = () => {
 
   return (
     <Stack gap='md' align='flex-start'>
+      <title>FOH Tests | The Duck Group</title>
       <Title order={2} c='gray.0'>Tests</Title>
       {(() => {
         if (isLoading) {
