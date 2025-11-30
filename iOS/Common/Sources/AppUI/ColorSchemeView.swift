@@ -10,16 +10,12 @@ public struct ColorSchemeView: View {
     }
     
     public var body: some View {
-        VStack(alignment: .leading, spacing: 9) {
-            Text("Appearance")
-            
-            Picker("", selection: $colorSchemeOverride) {
-                Text("Light").tag(ColorSchemeOverride.light)
-                Text("Dark").tag(ColorSchemeOverride.dark)
-                Text("Default").tag(nil as ColorSchemeOverride?)
-            }
-            .pickerStyle(.segmented)
+        Picker("", selection: $colorSchemeOverride) {
+            Text("Light").tag(ColorSchemeOverride.light)
+            Text("Dark").tag(ColorSchemeOverride.dark)
+            Text("Default").tag(nil as ColorSchemeOverride?)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .pickerStyle(.segmented)
+        
     }
 }

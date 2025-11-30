@@ -12,7 +12,12 @@ struct QRAppearanceView: View {
         @Bindable var appDefaults = appDefaults
 
         VStack(alignment: .leading, spacing: 18) {
-            ColorSchemeView(colorSchemeOverride: $appDefaults.colorSchemeOverride)
+            VStack(alignment: .leading, spacing: 9) {
+                Text("Appearance")
+                ColorSchemeView(colorSchemeOverride: $appDefaults.colorSchemeOverride)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            
             Divider()
             textSizeView()
         }

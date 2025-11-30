@@ -77,7 +77,11 @@ struct HomeView: View {
                 .padding(.bottom, 6)
                 .popover(isPresented: $presentingSettings) {
                     @Bindable var appDefaults = appDefaults
-                    SettingsView(colorSchemeOverride: $appDefaults.colorSchemeOverride)
+                    SettingsView(
+                        colorSchemeOverride: $appDefaults.colorSchemeOverride,
+                        accentColor: $appDefaults.accentColor,
+                        containerHorizontalSizeClass: horizontalSizeClass
+                    )
                 }
             }
             .padding()

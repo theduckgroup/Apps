@@ -18,16 +18,26 @@ struct AppView: View {
             .onChange(of: appDefaults.colorSchemeOverride) {
                 applyStylingOverride()
             }
+            .onChange(of: appDefaults.accentColor) {
+                applyStylingOverride()
+            }
     }
     
     private func applyStylingOverride() {
         let window = UIApplication.shared.anyKeyWindow
         
-        window?.overrideUserInterfaceStyle = switch appDefaults.colorSchemeOverride {
+        guard let window else {
+            assertionFailure()
+            return
+        }
+        
+        window.overrideUserInterfaceStyle = switch appDefaults.colorSchemeOverride {
         case .light: .light
         case .dark: .dark
         case .none: .unspecified
         }
+        
+        window.tintColor = UIColor(appDefaults.accentColor)
     }
     
     @ViewBuilder
