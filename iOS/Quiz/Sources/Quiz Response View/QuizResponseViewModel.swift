@@ -1,55 +1,94 @@
 import Foundation
 import SwiftUI
 
+/// Quiz response view model.
+///
+/// This takes a `QuizResponse`, breaks it down into individual parts. Main purpose is to have
+/// separate observable objects for each items, otherwise it slows down view update because the
+/// `QuizResponse` is a fairly large object.
+///
+/// Breaking `QuizResponse` down also simplifies the code around sections -- sections are
+/// pre-computed when initializing the view model, rather than being resolved dynamically during
+/// view update (doing so requires having a method to compute the binding for each row/item).
 @Observable
 class QuizResponseViewModel {
-    var quizResponse: QuizResponse
-    private let itemIDToItemRepsonseIndexMap: [String: Int]
-    private let itemResponseIDToIndexMap: [String: Int]
+    let quiz: Quiz
+    var respondent: QuizResponse.Respondent
+    var createdDate: Date
+    var submittedDate: Date?
+    var sections: [SectionViewModel] = []
     
+    /// Initializes from a quiz response. The quiz response is broken down into view model properties.
     init(quizResponse: QuizResponse) {
-        self.quizResponse = quizResponse
+        self.quiz = quizResponse.quiz
+        self.respondent = quizResponse.respondent
+        self.createdDate = quizResponse.createdDate
+        self.submittedDate = quizResponse.submittedDate
         
-        do {
-            // Item ID -> Item response index map
-            
+        let itemIDToItemRepsonseIndexMap: [String: QuizResponse.ItemResponse] = {
             let itemIDs = quizResponse.quiz.items.map(\.id)
             
             let itemResponseIndexes = itemIDs.map { itemID in
-                quizResponse.itemResponses.firstIndex { $0.itemId == itemID }!
+                quizResponse.itemResponses.first { $0.itemId == itemID }!
             }
             
-            itemIDToItemRepsonseIndexMap = Dictionary(uniqueKeysWithValues: zip(itemIDs, itemResponseIndexes))
-        }
+            return Dictionary(uniqueKeysWithValues: zip(itemIDs, itemResponseIndexes))
+        }()
         
-        do {
-            // Item response -> Item repsonse index map
+        self.sections = quizResponse.quiz.sections.map { quizSection in
+            let itemResponseVMs = quizSection.rows.map { row in
+                let itemResponse = itemIDToItemRepsonseIndexMap[row.itemId]!
+                return ItemResponseViewModel(data: itemResponse)
+            }
             
-            let indexesWithValues = quizResponse.itemResponses.map(\.id).enumerated()
-            let valuesWithIndexes = indexesWithValues.map { ($1, $0) }
-            itemResponseIDToIndexMap = Dictionary(uniqueKeysWithValues: valuesWithIndexes)
+            return SectionViewModel(id: quizSection.id, itemResponses: itemResponseVMs)
         }
     }
     
-    var quiz: Quiz {
-        quizResponse.quiz
-    }
-    
-    func itemResponseForItemID(_ itemID: String) -> QuizResponse.ItemResponse {
-        let index = itemIDToItemRepsonseIndexMap[itemID]!
-        return quizResponse.itemResponses[index]
-    }
-    
-    func itemResponseBindingForID(_ itemResponseID: String) -> Binding<QuizResponse.ItemResponse> {
-        let index = itemResponseIDToIndexMap[itemResponseID]!
-        // let index = quizResponse.itemResponses.firstIndex { $0.id == id }!
+    /// Quiz response. Computed from the view model's properties.
+    var quizResponse: QuizResponse {
+        let itemResponses: [QuizResponse.ItemResponse] = {
+            var itemIDToItemResponsesMap: [String: QuizResponse.ItemResponse] = [:]
+            
+            for section in sections {
+                for itemResponseVM in section.itemResponses {
+                    itemIDToItemResponsesMap[itemResponseVM.data.itemId] = itemResponseVM.data
+                }
+            }
+            
+            return quiz.items.map { itemIDToItemResponsesMap[$0.id]! }
+        }()
         
-        let binding = Binding {
-            self.quizResponse.itemResponses[index]
-        } set: {
-            self.quizResponse.itemResponses[index] = $0
+        let quizResponse = QuizResponse(
+            quiz: quiz,
+            respondent: respondent,
+            createdDate: createdDate,
+            submittedDate: submittedDate,
+            itemResponses: itemResponses
+        )
+        
+        return quizResponse
+    }
+}
+
+extension QuizResponseViewModel {
+    @Observable
+    class SectionViewModel {
+        var id: String
+        var itemResponses: [ItemResponseViewModel]
+        
+        init(id: String, itemResponses: [ItemResponseViewModel]) {
+            self.id = id
+            self.itemResponses = itemResponses
         }
+    }
+    
+    @Observable
+    class ItemResponseViewModel {
+        var data: QuizResponse.ItemResponse
         
-        return binding
+        init(data: QuizResponse.ItemResponse) {
+            self.data = data
+        }
     }
 }

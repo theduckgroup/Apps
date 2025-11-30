@@ -144,7 +144,7 @@ struct QuizResponseView: View {
             do {
                 ps.presentProgressHUD(title: "Submitting Test...")
                 
-                viewModel.quizResponse.submittedDate = Date()
+                viewModel.submittedDate = Date()
                 
                 try await Task.sleep(for: .seconds(2))
                 try await API.shared.submitQuizResponse(viewModel.quizResponse)
@@ -176,26 +176,6 @@ struct QuizResponseView: View {
         
         return nil
     }
-    
-    /*
-    @ViewBuilder
-    private func oldPagesView(_ geometry: GeometryProxy) -> some View {
-        // PagesView(selection: $pageIndex, values: Array(viewModel.pages.indices)) { pageIndex in
-        TabView(selection: $pageIndex) {
-            ForEach(Array(viewModel.pages.enumerated()), id: \.offset) { pageIndex, page in
-                viewForPage(page)
-                    .frame(width: geometry.size.width)
-                    .id(pageIndex)
-            }
-        }
-        .tabViewStyle(.page(indexDisplayMode: .never))
-        .indexViewStyle(.page(backgroundDisplayMode: .interactive))
-        // Enable this breaks the Next/Prev badly!
-        // Issue: Next button (on Respondent page) doesn't work after dismissing keyboard
-        // Safe area is not even ignored correctly
-        // .ignoresSafeArea([.container], edges: [.bottom])
-    }
-    */
 }
 
 extension View {
