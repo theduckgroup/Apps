@@ -107,12 +107,12 @@ public class PresentationState {
         )
     }
     
-    private func presentImpl<P: Presentation>(_ presentation: P) {
+    private func presentImpl(_ presentation: any Presentation) {
         guard isAddedToView else {
             assertionFailureAndLogError("Attempting to use a presentation state that is not added to a view. Use `presentations` modifier to add the presentation state to a view.")
             return
         }
-                
+        
         let lastTask = self.lastTask
         
         self.lastTask = Task {
@@ -153,7 +153,7 @@ public class PresentationState {
             
             await withCheckedContinuation { cont in
                 uikitContext.onAddedToWindow {
-                    let controller = self.uikitContext.viewController!
+                    let controller = self.uikitContext.viewController
                         
                     if controller.presentedViewController != nil {
                         // Wait for presentedViewController to be nil
@@ -249,7 +249,7 @@ private struct PresentationsModifier: ViewModifier {
                         }
                 }
             }
-            .uikitContext(state.uikitContext)
+            .attach(state.uikitContext)
 
         let _ = state.isAddedToView = true
     }
@@ -258,6 +258,7 @@ private struct PresentationsModifier: ViewModifier {
 /// A presentation. Conforming types correspond to different ways SwiftUI does presentation.
 ///
 /// A presentation is always created with `isPresented == false`.
+@MainActor
 private protocol Presentation: AnyObject {
     var id: UUID { get }
     
