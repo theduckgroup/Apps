@@ -10,6 +10,11 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
+  "engines" : { 
+    "npm" : ">=11.4.2",
+    "node" : ">=20.17.0"
+  },
+  "engineStrict": true,
   "dependencies": {
     "@bwip-js/browser": "4.5.1",
     "@hello-pangea/dnd": "18.0.1",
