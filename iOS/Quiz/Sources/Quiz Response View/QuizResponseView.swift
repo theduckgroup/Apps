@@ -83,6 +83,8 @@ struct QuizResponseView: View {
     @ViewBuilder
     private func quitButton() -> some View {
         Button {
+            UIApplication.dismissKeyboard()
+            
             ps.presentAlert(message: "Quit without submitting test? You will not be able to return to it.") {
                 Button("Quit", role: .destructive) {
                     dismiss()
@@ -100,6 +102,8 @@ struct QuizResponseView: View {
     @ViewBuilder
     private func appearanceButton() -> some View {
         Button {
+            UIApplication.dismissKeyboard()
+            
             presentingAppearancePopover = true
             
         } label: {
@@ -205,6 +209,10 @@ struct QuizResponseView: View {
             } else {
                 ranges.append(index...index)
             }
+        }
+        
+        if debugging {
+            return nil
         }
         
         if ranges.count > 0 {

@@ -47,8 +47,6 @@ public struct SettingsView: View {
     
     @ViewBuilder
     private func bodyContent() -> some View {
-        let marketingVersion = Bundle.main.infoDictionary!["CFBundleShortVersionString"] as! String
-        
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 if let user = auth.user {
@@ -77,11 +75,12 @@ public struct SettingsView: View {
                 
                 Divider()
                 
+                let marketingVersion = Bundle.main.infoDictionary!["CFBundleShortVersionString"] as! String
                 Text("Version: \(marketingVersion)")
             }
+            .padding()
         }
-        .frame(minWidth: 240)
-        .padding()
+        .frame(width: containerHorizontalSizeClass == .regular ? 400 : nil)
     }
     
     @ViewBuilder

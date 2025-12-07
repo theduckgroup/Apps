@@ -1,8 +1,11 @@
+import path from 'path'
+import fs from 'fs/promises'
 import express from 'express'
 import { ObjectId } from 'mongodb'
 // import React from 'react'
 // import ReactDOMServer from 'react-dom/server'
 import createHttpError from 'http-errors'
+import { formatInTimeZone } from 'date-fns-tz'
 
 import { getDb } from 'src/db'
 import { authorizeUser, authorizeAdmin } from 'src/auth/authorize'
@@ -14,6 +17,9 @@ import logger from 'src/logger'
 import z from 'zod'
 import { mailer } from 'src/utils/mailer'
 import env from 'src/env'
+
+type QuizSchemaInferredType = z.infer<typeof QuizSchema>
+type QuizResponseSchemaInferredType = z.infer<typeof QuizResponseSchema>
 
 // Admin router
 
@@ -151,8 +157,6 @@ adminRouter.post('/quiz/:id/duplicate', async (req, res) => {
   eventHub.emitQuizzesChanged()
 })
 
-type QuizSchemaInferredType = z.infer<typeof QuizSchema>
-
 function validateQuiz(quiz: QuizSchemaInferredType) {
   // All items are used and each one is exactly once
 
@@ -239,34 +243,47 @@ userRouter.post('/quiz-response/submit', async (req, res) => {
   const docId = insertResult.insertedId
 
   res.send()
-
+  
   const recipients: mailer.Recipient[] = doc.quiz.emailRecipients.map(x => ({
     name: '',
     email: x
   }))
 
-  mailer.sendMail({
-    recipients: recipients,
-    subject: `${doc.quiz.name} submitted`,
-    contentHtml: quizResponseNotificationMailHtml(doc.quiz.name, docId)
+  const formattedDate = formatInTimeZone(new Date(), 'Australia/Sydney', 'MMM d, h:mm a')
+  const subject = `[FOH Test] ${data.respondent.name} - ${data.respondent.store} (${formattedDate})`
+  const contentHtml = await quizResponseNotificationMailHtml(data, docId)
 
-  })
+  mailer.sendMail({ recipients, subject, contentHtml })
 })
 
-function quizResponseNotificationMailHtml(quizName: string, docId: ObjectId) {
-  const htmlDoctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
+async function quizResponseNotificationMailHtml(quizResponse: QuizResponseSchemaInferredType, docId: ObjectId) {
+  const templatePath = path.join(__dirname, 'email-template.html')
+  let html = await fs.readFile(templatePath, 'utf-8')
+  const formattedDate = formatInTimeZone(new Date(), 'Australia/Sydney', 'EEEE, MMM d, yyyy, h:mm a')
+  const viewUrl = `${env.webappUrl}/fohtest/view/${docId.toString()}`
 
-  const html = `
-<p>
-${quizName} has been submitted.
-</p>
+  html = html
+    .replace(`{quizName}`, quizResponse.quiz.name)
+    .replace(`{respondentName}`, quizResponse.respondent.name)
+    .replace(`{respondentStore}`, quizResponse.respondent.store)
+    .replace(`{timestamp}`, formattedDate)
+    .replace(`{viewUrl}`, viewUrl)
 
-<p>
-<a href='${env.webappUrl}/fohtest/view/${docId.toString()}'>View Test</a>
-</p>
-    `
+  return html
 
-  return htmlDoctype + html
+//   const htmlDoctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
+
+//   const html = `
+// <p>
+// ${quizResponse.quiz.name} has been submitted by ${quizResponse.respondent.name} (${quizResponse.respondent.store}).
+// </p>
+
+// <p>
+// <a href='${env.webappUrl}/fohtest/view/${docId.toString()}'>View Test</a>
+// </p>
+//     `
+
+//  return htmlDoctype + html
 
   // return htmlDoctype + ReactDOMServer.renderToStaticMarkup(React.createElement(OrderEmailHtml, { order: order }, null));
 }

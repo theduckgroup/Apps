@@ -8,7 +8,6 @@ extension EventHub {
     static let shared = EventHub(baseURL: API.shared.baseURL)
     
     func quizzesChanged() -> AsyncStream<Void> {
-        print("Creating quizzes changed stream")
-        return events("quiz-app:quizzes:changed")
+        events("quiz-app:quizzes:changed")
     }
 }

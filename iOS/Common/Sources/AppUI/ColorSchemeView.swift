@@ -16,6 +16,5 @@ public struct ColorSchemeView: View {
             Text("Default").tag(nil as ColorSchemeOverride?)
         }
         .pickerStyle(.segmented)
-        
     }
 }
