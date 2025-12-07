@@ -58,7 +58,7 @@ public struct PresentationStatePreviewView: View {
                 .fill(.background)
         }
         .presentations(state)
-        .uikitContext(uikitContext)
+        .attach(uikitContext)
     }
     
     private func present() async throws {

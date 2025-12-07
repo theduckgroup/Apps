@@ -10,11 +10,10 @@ struct QRItemsView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: itemSpacing) {
-            ForEach(viewModel.quiz.sections, id: \.id) { section in
-                ForEach(Array(section.rows.enumerated()), id: \.offset) { rowIndex, row in
-                    let itemResponse = viewModel.itemResponseForItemID(row.itemId)
-                    let itemResponseBinding = viewModel.itemResponseBindingForID(itemResponse.id)
-                    itemResponseRow(itemResponseBinding, rowIndex: rowIndex)
+            ForEach(viewModel.sections, id: \.id) { section in
+                ForEach(Array(section.itemResponses.enumerated()), id: \.offset) { rowIndex, itemResponseVM in
+                    @Bindable var itemResponseVM1 = itemResponseVM
+                    itemResponseRow($itemResponseVM1.data, rowIndex: rowIndex)
                 }
             }
         }
@@ -38,8 +37,11 @@ struct QRItemsView: View {
     }
 }
 
-// Equatable DOES make a significant difference
-// Check this by typing random letters quickly
+// Equatable is to provide correct implementation for view diffing
+// This made significant difference back when QuizResponse was used a state
+// It is no longer as important since we broke QuizResponse into one observable per item
+// However the difference can still be seen by looking at CPU usage
+// To see the difference, comment out the Equatable, run the app and type very quickly in any text field
 
 private struct ItemResponseView: View, Equatable {
     var item: Quiz.Item

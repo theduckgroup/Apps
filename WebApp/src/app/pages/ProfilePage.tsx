@@ -8,6 +8,7 @@ const ProfilePage = () => {
   
   return (
     <>
+      <title>Profile | The Duck Group</title>
       <Stack>
         {user &&
           <>

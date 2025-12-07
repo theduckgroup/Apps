@@ -20,7 +20,7 @@ export default function QuizPage() {
   const { navigate } = usePath()
   const [quiz, setQuiz] = useState<Quiz | null>(null)
   const [dirty, setDirty] = useState(false)
-  
+
   const { mutate: loadQuiz, error: loadError, isPending: isLoading } = useMutation({
     mutationFn: async () => {
       if (quizId) {
@@ -75,6 +75,9 @@ export default function QuizPage() {
 
   return (
     <Stack>
+      {/* <title>{quiz ? quiz.name : 'FOH Test'} | The Duck Group</title> */}
+      <title>'FOH Test | The Duck Group</title>
+
       {/* Save error */}
       {
         saveError &&
@@ -109,7 +112,12 @@ export default function QuizPage() {
           return <>???</>
         }
 
-        return <Content quiz={quiz} setQuiz={setQuizAndSave} isSaving={isSaving} />
+        return (
+          <>
+            <title>{quiz!.name + ' | The Duck Group'}</title>
+            <Content quiz={quiz} setQuiz={setQuizAndSave} isSaving={isSaving} />
+          </>
+        )
       })()}
     </Stack>
   )

@@ -1,9 +1,10 @@
 import Foundation
+import Common
 
 // TODO
 // private typealias DefaultIsolation = nonisolated
 
-nonisolated struct QuizResponse: Equatable {
+nonisolated struct QuizResponse: Equatable, @unchecked Sendable {
     let quiz: Quiz
     var respondent: Respondent
     var createdDate: Date
@@ -47,6 +48,8 @@ extension QuizResponse {
     nonisolated protocol ItemResponse: Encodable {
         var id: String { get }
         var itemId: String { get }
+        
+        var isAnswered: Bool { get }
     }
     
     struct SelectedResponseItemResponse: ItemResponse, Equatable, Encodable {
@@ -54,6 +57,10 @@ extension QuizResponse {
         let itemId: String
         let itemKind: Quiz.ItemKind
         var data = Data()
+        
+        var isAnswered: Bool {
+            !data.selectedOptions.isEmpty
+        }
         
         struct Data: Equatable, Encodable {
             var selectedOptions: [SelectedOption] = []
@@ -71,6 +78,10 @@ extension QuizResponse {
         let itemKind: Quiz.ItemKind
         var data = Data()
         
+        var isAnswered: Bool {
+            data.value.trimmed() != ""
+        }
+        
         struct Data: Equatable, Encodable {
             var value: String = ""
         }
@@ -81,6 +92,10 @@ extension QuizResponse {
         let itemId: String
         let itemKind: Quiz.ItemKind
         var data: Data
+        
+        var isAnswered: Bool {
+            data.itemResponses.allSatisfy(\.isAnswered)
+        }
         
         struct Data: Equatable, Encodable {
             var itemResponses: [any ItemResponse]

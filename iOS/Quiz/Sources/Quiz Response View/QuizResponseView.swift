@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 import Common
 import CommonUI
+import Backend
 
 struct QuizResponseView: View {
     @State private var viewModel: QuizResponseViewModel
@@ -143,7 +144,7 @@ struct QuizResponseView: View {
             do {
                 ps.presentProgressHUD(title: "Submitting Test...")
                 
-                viewModel.quizResponse.submittedDate = Date()
+                viewModel.submittedDate = Date()
                 
                 try await Task.sleep(for: .seconds(2))
                 try await API.shared.submitQuizResponse(viewModel.quizResponse)
@@ -165,36 +166,69 @@ struct QuizResponseView: View {
     }
     
     private func validateSubmit() -> String? {
-        guard viewModel.quizResponse.respondent.name != "" else {
-            return "Enter your name"
+        guard viewModel.respondent.name != "" else {
+            return "Please enter your name"
         }
         
-        guard viewModel.quizResponse.respondent.name != "" else {
-            return "Enter store"
+        guard viewModel.respondent.name != "" else {
+            return "Please enter store name"
+        }
+        
+        if let error = validateAnswers() {
+            return error
         }
         
         return nil
     }
     
-    /*
-    @ViewBuilder
-    private func oldPagesView(_ geometry: GeometryProxy) -> some View {
-        // PagesView(selection: $pageIndex, values: Array(viewModel.pages.indices)) { pageIndex in
-        TabView(selection: $pageIndex) {
-            ForEach(Array(viewModel.pages.enumerated()), id: \.offset) { pageIndex, page in
-                viewForPage(page)
-                    .frame(width: geometry.size.width)
-                    .id(pageIndex)
+    private func validateAnswers() -> String? {
+        // Rewrite this if multiple sections are needed
+        
+        let indexes: [Int] = viewModel.sections.flatMap { section in
+            section.itemResponses.enumerated().compactMap { index, itemResponse in
+                let itemResponse = itemResponse.data
+                return itemResponse.isAnswered ? nil : index
             }
         }
-        .tabViewStyle(.page(indexDisplayMode: .never))
-        .indexViewStyle(.page(backgroundDisplayMode: .interactive))
-        // Enable this breaks the Next/Prev badly!
-        // Issue: Next button (on Respondent page) doesn't work after dismissing keyboard
-        // Safe area is not even ignored correctly
-        // .ignoresSafeArea([.container], edges: [.bottom])
+        
+        var ranges: [ClosedRange<Int>] = []
+        
+        for index in indexes {
+            guard let last = ranges.last else {
+                ranges.append(index...index)
+                continue
+            }
+            
+            if last.upperBound == index - 1 {
+                ranges[ranges.count - 1] = last.lowerBound...index
+                
+            } else {
+                ranges.append(index...index)
+            }
+        }
+        
+        if ranges.count > 0 {
+            func format(_ range: ClosedRange<Int>) -> String {
+                if range.lowerBound == range.upperBound {
+                    "\(range.lowerBound + 1)"
+                } else {
+                    "\(range.lowerBound + 1)-\(range.upperBound + 1)"
+                }
+            }
+            
+            let formattedRanges = ranges.map(format).joined(separator: ", ")
+            
+            let noun = ranges.count == 1 && ranges[0].count == 1 ? "question" : "questions"
+            
+            return """
+            All questions must be answered before submitting.
+            
+            Please answer \(noun) \(formattedRanges).
+            """
+        }
+        
+        return nil
     }
-    */
 }
 
 extension View {

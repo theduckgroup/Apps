@@ -56,7 +56,7 @@ private struct AlertCoverModifier<C: View>: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .uikitContext(uikitContext)
+            .attach(uikitContext)
             .onFirstAppear {
                 if isPresented {
                     let controller = AlertTransitioningHostingController(rootView: alertContent())

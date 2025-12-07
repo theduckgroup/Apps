@@ -95,7 +95,7 @@ private struct ProgressHUDModifier: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .uikitContext(uikitContext)
+            .attach(uikitContext)
             .onFirstAppear {
                 if let state = state.wrappedValue {
                     let controller = AlertTransitioningHostingController(rootView: ProgressHUDView(state: state))

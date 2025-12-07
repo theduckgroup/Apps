@@ -44,6 +44,8 @@ function ResetPasswordPage() {
 
   return (
     <div className='w-screen h-screen flex'>
+      <title>Reset Password | The Duck Group</title>
+
       <Stack align='center' m='auto'>
         {/* Title */}
         <Title order={4} mb='lg'>Reset Password</Title>

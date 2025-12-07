@@ -25,7 +25,7 @@ private struct MessageHUDModifier: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .uikitContext(uikitContext)
+            .attach(uikitContext)
             .onFirstAppear {
                 if isPresented.wrappedValue {
                     let controller = AlertTransitioningHostingController(rootView: MessageHUDView(message: message))

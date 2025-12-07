@@ -38,12 +38,12 @@ public class KeyboardDoneButtonManager {
 //        
 //        doneBarItem.tintColor = .secondaryLabel
         
-        let doneBarItem = UIBarButtonItem(title: "Done", style: .done, target: view, action: #selector(view.resignFirstResponder))
+        let doneBarItem = UIBarButtonItem(title: "Done", style: .plain, target: view, action: #selector(view.resignFirstResponder))
         // doneBarItem.tintColor = UIApplication.shared.anyKeyWindow?.tintColor
         doneBarItem.tintColor = .tintColor
         // doneBarItem.tintColor = .secondaryLabel
         
-        let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 320, height: 44))
+        let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 600, height: 54))
         // toolbar.barTintColor = .tintColor
         
         toolbar.items = [

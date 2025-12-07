@@ -40,6 +40,10 @@ export default function QuizResponsePage() {
       defaultColorScheme='light'
       theme={theme}
     >
+      <title>
+        {'FOH Test' + (data ? (' | ' + data.respondent.name) : '')}        
+      </title>
+
       <Container p='md'>
         {(() => {
           if (isLoading) {
@@ -50,7 +54,12 @@ export default function QuizResponsePage() {
             return <Text c='red'>{formatError(error)}</Text>
           }
 
-          return <Content data={data!} />
+          return (
+            <>
+              
+              <Content data={data!} />
+            </>
+          )
         })()}
       </Container>
     </MantineProvider>

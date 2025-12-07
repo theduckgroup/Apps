@@ -2,6 +2,8 @@ import axios from 'axios'
 import { useAuth } from './AuthContext'
 import { ApiContext, ApiContextValue } from './ApiContext'
 
+export { ApiContext }
+
 export function ApiProvider({ baseUrl, children }: {
   baseUrl: string,
   children: React.ReactNode
@@ -46,8 +48,8 @@ export function ApiProvider({ baseUrl, children }: {
   }
 
   return (
-    <ApiContext.Provider value={value}>
+    <ApiContext value={value}>
       {children}
-    </ApiContext.Provider>
+    </ApiContext>
   )
 }

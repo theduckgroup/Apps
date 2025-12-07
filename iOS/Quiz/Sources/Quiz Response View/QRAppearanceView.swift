@@ -1,13 +1,23 @@
 import Foundation
 import SwiftUI
+import CommonUI
+import AppUI
 
 struct QRAppearanceView: View {
     @Binding var dynamicTypeSizeOverride: DynamicTypeSizeOverride?
     @Environment(\.dynamicTypeSize) private var systemDynamicTypeSize
+    @Environment(AppDefaults.self) private var appDefaults
     
     var body: some View {
+        @Bindable var appDefaults = appDefaults
+
         VStack(alignment: .leading, spacing: 18) {
-            ColorSchemeView()
+            VStack(alignment: .leading, spacing: 9) {
+                Text("Appearance")
+                ColorSchemeView(colorSchemeOverride: $appDefaults.colorSchemeOverride)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            
             Divider()
             textSizeView()
         }

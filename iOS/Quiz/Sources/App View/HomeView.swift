@@ -2,6 +2,8 @@ import Foundation
 import SwiftUI
 import Common
 import CommonUI
+import Backend
+import AppUI
 
 struct HomeView: View {
     @AppStorage("App:persistedQuizName") var persistedQuizName: String = ""
@@ -13,6 +15,7 @@ struct HomeView: View {
     @State var presentingSettings = false
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(AppDefaults.self) private var appDefaults
     
     var body: some View {
         bodyContent()
@@ -73,7 +76,12 @@ struct HomeView: View {
                 .buttonStyle(.paper)
                 .padding(.bottom, 6)
                 .popover(isPresented: $presentingSettings) {
-                    SettingsView()
+                    @Bindable var appDefaults = appDefaults
+                    SettingsView(
+                        colorSchemeOverride: $appDefaults.colorSchemeOverride,
+                        accentColor: $appDefaults.accentColor,
+                        containerHorizontalSizeClass: horizontalSizeClass
+                    )
                 }
             }
             .padding()
@@ -152,37 +160,6 @@ struct HomeView: View {
                 logger.error("Unable to load quiz: \(error)")
                 self.quizResult = .failure(error)
             }
-        }
-    }
-}
-
-extension View {
-    @ViewBuilder
-    func onReceive<T>(_ stream: AsyncStream<T>, assignTo: Binding<T>) -> some View {
-        task {
-            for await value in stream {
-                assignTo.wrappedValue = value
-            }
-        }
-    }
-    
-    @ViewBuilder
-    func onReceive<T>(_ createStream: @escaping () -> AsyncStream<T>, perform: @escaping (T) -> Void) -> some View {
-        task {
-            print("Creating task")
-            
-            for await value in createStream() {
-                perform(value)
-            }
-        }
-    }
-    
-    @ViewBuilder
-    func buttonStyle_glassProminent_shim() -> some View {
-        if #available(iOS 26, *) {
-            buttonStyle(.glassProminent)
-        } else {
-            buttonStyle(.borderedProminent)
         }
     }
 }

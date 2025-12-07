@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		73A5A2842EBFFED200CC4CF0 /* Backend in Frameworks */ = {isa = PBXBuildFile; productRef = 73A5A2832EBFFED200CC4CF0 /* Backend */; };
+		73A5A2862EBFFED700CC4CF0 /* Backend in Frameworks */ = {isa = PBXBuildFile; productRef = 73A5A2852EBFFED700CC4CF0 /* Backend */; };
+		73A5A2882EC0138100CC4CF0 /* AppUI in Frameworks */ = {isa = PBXBuildFile; productRef = 73A5A2872EC0138100CC4CF0 /* AppUI */; };
+		73A5A28A2EC0138600CC4CF0 /* AppUI in Frameworks */ = {isa = PBXBuildFile; productRef = 73A5A2892EC0138600CC4CF0 /* AppUI */; };
 		73F1FA912EA10D4F00BC2209 /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 73F1FA902EA10D4F00BC2209 /* Algorithms */; };
 		73F1FA942EA10D5A00BC2209 /* Equatable in Frameworks */ = {isa = PBXBuildFile; productRef = 73F1FA932EA10D5A00BC2209 /* Equatable */; };
 		73F1FA972EA10D8900BC2209 /* SwiftBSON in Frameworks */ = {isa = PBXBuildFile; productRef = 73F1FA962EA10D8900BC2209 /* SwiftBSON */; };
@@ -28,7 +32,6 @@
 /* Begin PBXFileReference section */
 		73F1F9E12EA10C9E00BC2209 /* Quiz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Quiz.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		73F1FAFB2EA10E6100BC2209 /* Quiz-local.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Quiz-local.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		73F1FAFC2EA1154B00BC2209 /* Common */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Common; path = ../Common; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -68,8 +71,10 @@
 				73F1FA9C2EA10DA500BC2209 /* Supabase in Frameworks */,
 				73F1FA912EA10D4F00BC2209 /* Algorithms in Frameworks */,
 				73F1FA942EA10D5A00BC2209 /* Equatable in Frameworks */,
+				73A5A2842EBFFED200CC4CF0 /* Backend in Frameworks */,
 				73F1FA9A2EA10DA500BC2209 /* Auth in Frameworks */,
 				73F1FAFF2EA1164A00BC2209 /* Common in Frameworks */,
+				73A5A28A2EC0138600CC4CF0 /* AppUI in Frameworks */,
 				73F1FA972EA10D8900BC2209 /* SwiftBSON in Frameworks */,
 				73F1FA9F2EA10DF500BC2209 /* SocketIO in Frameworks */,
 				73F1FB012EA1164A00BC2209 /* CommonUI in Frameworks */,
@@ -83,8 +88,10 @@
 				73F1FAF02EA10E6100BC2209 /* Supabase in Frameworks */,
 				73F1FAF12EA10E6100BC2209 /* Algorithms in Frameworks */,
 				73F1FAF22EA10E6100BC2209 /* Equatable in Frameworks */,
+				73A5A2862EBFFED700CC4CF0 /* Backend in Frameworks */,
 				73F1FAF32EA10E6100BC2209 /* Auth in Frameworks */,
 				73F1FB032EA1164F00BC2209 /* Common in Frameworks */,
+				73A5A2882EC0138100CC4CF0 /* AppUI in Frameworks */,
 				73F1FAF42EA10E6100BC2209 /* SwiftBSON in Frameworks */,
 				73F1FAF52EA10E6100BC2209 /* SocketIO in Frameworks */,
 				73F1FB052EA1164F00BC2209 /* CommonUI in Frameworks */,
@@ -98,7 +105,6 @@
 			isa = PBXGroup;
 			children = (
 				73F1FB4B2EA1172B00BC2209 /* Sources */,
-				73F1FAFC2EA1154B00BC2209 /* Common */,
 				73F1FAFD2EA1164A00BC2209 /* Frameworks */,
 				73F1F9E22EA10C9E00BC2209 /* Products */,
 			);
@@ -148,6 +154,8 @@
 				73F1FA9E2EA10DF500BC2209 /* SocketIO */,
 				73F1FAFE2EA1164A00BC2209 /* Common */,
 				73F1FB002EA1164A00BC2209 /* CommonUI */,
+				73A5A2832EBFFED200CC4CF0 /* Backend */,
+				73A5A2892EC0138600CC4CF0 /* AppUI */,
 			);
 			productName = Quiz;
 			productReference = 73F1F9E12EA10C9E00BC2209 /* Quiz.app */;
@@ -178,6 +186,8 @@
 				73F1FAAA2EA10E6100BC2209 /* SocketIO */,
 				73F1FB022EA1164F00BC2209 /* Common */,
 				73F1FB042EA1164F00BC2209 /* CommonUI */,
+				73A5A2852EBFFED700CC4CF0 /* Backend */,
+				73A5A2872EC0138100CC4CF0 /* AppUI */,
 			);
 			productName = Quiz;
 			productReference = 73F1FAFB2EA10E6100BC2209 /* Quiz-local.app */;
@@ -631,6 +641,22 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		73A5A2832EBFFED200CC4CF0 /* Backend */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Backend;
+		};
+		73A5A2852EBFFED700CC4CF0 /* Backend */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Backend;
+		};
+		73A5A2872EC0138100CC4CF0 /* AppUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AppUI;
+		};
+		73A5A2892EC0138600CC4CF0 /* AppUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AppUI;
+		};
 		73F1FA902EA10D4F00BC2209 /* Algorithms */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 73F1FA8F2EA10D4F00BC2209 /* XCRemoteSwiftPackageReference "swift-algorithms" */;
