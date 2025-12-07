@@ -30,6 +30,8 @@ final public class EventHub: Sendable {
     }
     
     public func events(_ eventName: String) -> AsyncStream<Void> {
+        logger.info("Create event stream for \(eventName)")
+        
         let (stream, cont) = AsyncStream<Void>.makeStream()
         let socket = socketManager.defaultSocket
         
