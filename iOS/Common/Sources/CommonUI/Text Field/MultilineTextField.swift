@@ -21,10 +21,10 @@ public struct MultilineTextField: View {
     
     public var placeholder: String
     @Binding public var text: String
+    public var bindingUpdateMode: TextFieldBindingUpdateMode
     public var editable: Bool
     public var textStyle: UIFont.TextStyle
-    public var textColor: UIColor
-    public var updatesBindingImmediately = true
+    public var textColor: Color
     public var minimumHeight: CGFloat = 0
     public var mininumNumberOfLines: Int = 0
     public var insertsNewLineOnBeginEditing = false
@@ -39,25 +39,19 @@ public struct MultilineTextField: View {
     public init(
         _ placeholder: String = "",
         text: Binding<String>,
+        bindingUpdateMode: TextFieldBindingUpdateMode = .immediate,
         editable: Bool = true,
         textStyle: UIFont.TextStyle = .body,
-        textColor: UIColor = .secondaryLabel
+        textColor: Color = .secondary
     ) {
         self.placeholder = placeholder
         self._text = text
         self.internalText = text.wrappedValue
+        self.bindingUpdateMode = bindingUpdateMode
         self.editable = editable
         self.textStyle = textStyle
         self.textColor = textColor
         self.font = .preferredFont(forTextStyle: textStyle)
-    }
-    
-    /// If `true` binding is updated immediately as user types, otherwise it will be updated when
-    /// editing ends.
-    ///
-    /// - Important: If set to `false`, make sure to unfocus the text field to trigger binding update.
-    public func updatesBindingImmediately(_ value: Bool) -> Self {
-        mutated(\.updatesBindingImmediately, value)
     }
     
     public func minimumHeight(_ value: CGFloat) -> Self {
@@ -165,7 +159,7 @@ private struct HeightPreferenceKey: PreferenceKey {
 
 private struct UITextViewRepresentable: UIViewRepresentable {
     let view: MultilineTextField
-    @Environment(\.autocorrectionDisabled) var autocorrectionDisabled // DOES THIS WORK??
+    @Environment(\.autocorrectionDisabled) var autocorrectionDisabled
     @Environment(\.dynamicTypeSize) var dynamicTypeSize
     
     func makeUIView(context: Context) -> UITextView {
@@ -190,7 +184,7 @@ private struct UITextViewRepresentable: UIViewRepresentable {
         textView.adjustsFontForContentSizeCategory = true
         textView.isEditable = view.editable
         textView.font = view.font
-        textView.textColor = view.textColor
+        textView.textColor = UIColor(view.textColor)
         textView.autocorrectionType = autocorrectionDisabled ? .no : .default
     }
 
@@ -212,7 +206,7 @@ private struct UITextViewRepresentable: UIViewRepresentable {
         func textViewDidChange(_ textView: UITextView) {
             view.internalText = textView.text
             
-            if view.updatesBindingImmediately {
+            if view.bindingUpdateMode == .immediate {
                 view.text = textView.text.trimmed()
             }
         }
@@ -252,7 +246,7 @@ private struct UITextViewRepresentable: UIViewRepresentable {
             view.internalText = view.internalText.trimmed()
             view.onEndEditing?()
             
-            if !view.updatesBindingImmediately {
+            if view.bindingUpdateMode == .onEndEditing {
                 view.text = view.internalText
             }
         }
