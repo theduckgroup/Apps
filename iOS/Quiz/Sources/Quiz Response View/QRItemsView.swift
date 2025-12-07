@@ -38,6 +38,7 @@ struct QRItemsView: View {
 }
 
 // Equatable is to provide correct implementation for view diffing
+// The difference is much pronounced if SwiftUI text fields (instead of MultilineTextField with updateBindingMode == .none)
 // This made significant difference back when QuizResponse was used a state
 // It is no longer as important since we broke QuizResponse into one observable per item
 // However the difference can still be seen by looking at CPU usage
@@ -55,6 +56,8 @@ private struct ItemResponseView: View, Equatable {
     }
     
     var body: some View {
+        // let _ = print("! ItemResponseView item ID = \(item)")
+        
         switch itemResponse {
         case is QuizResponse.SelectedResponseItemResponse:
             let castItem = item as! Quiz.SelectedResponseItem
@@ -93,7 +96,6 @@ private struct ItemResponseView: View, Equatable {
             preconditionFailure()
         }
     }
-
 }
 
 @Equatable(isolation: .main)
@@ -172,9 +174,8 @@ private struct TextInputItemResponseView: View {
                     Text(item.data.prompt)
                          .layoutPriority(1)
                         
-                    PaperTextField(text: $response.data.value, multiline: false)
+                    PaperTextField(text: $response.data.value, multiline: false, textColor: .blue)
                         .focused($focused)
-                        .foregroundStyle(.blue)
                         .frame(minWidth: 100)
                 }
                 
@@ -183,9 +184,8 @@ private struct TextInputItemResponseView: View {
                     Text(item.data.prompt)
                         .fixedSize(horizontal: false, vertical: true)
                     
-                    PaperTextField(text: $response.data.value, multiline: true)
+                    PaperTextField(text: $response.data.value, multiline: true, textColor: .blue)
                         .focused($focused)
-                        .foregroundStyle(.blue)
                 }
             }
         }

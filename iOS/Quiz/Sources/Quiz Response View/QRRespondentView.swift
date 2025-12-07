@@ -18,14 +18,14 @@ struct QRRespondentView: View {
             VStack(alignment: .leading, spacing: 15) {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Name")
-                    PaperTextField(text: $viewModel.respondent.name)
+                    PaperTextField(text: $viewModel.respondent.name, multiline: false, textColor: .blue)
                         .focused($nameFocused)
                         .foregroundStyle(.blue)
                 }
                 
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Store")
-                    PaperTextField(text: $viewModel.respondent.store)
+                    PaperTextField(text: $viewModel.respondent.store, multiline: false, textColor: .blue)
                         .foregroundStyle(.blue)
                 }
             }
