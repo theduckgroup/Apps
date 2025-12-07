@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import Flow
 
 struct AccentColorView: View {
     @Binding var accentColor: Color
@@ -15,7 +16,8 @@ struct AccentColorView: View {
     ]
     
     var body: some View {
-        HStack(spacing: 15) {
+        // `distributeItemsEvenly: true`: breaks into two rows with even number of items
+        HFlow(itemSpacing: 15, rowSpacing: 15, justified: true) {
             ForEach(Array(colorWithLightness.enumerated()), id: \.offset) { index, colorWithLightness in
                 let (color, _) = colorWithLightness
                 
@@ -42,12 +44,8 @@ struct AccentColorView: View {
                 }
                 .buttonStyle(.plain)
             }
-            
-//            ColorPicker("", selection: $accentColor)
-//                .fixedSize()
-            
-            Spacer()
         }
+        .frame(maxWidth: 600) // Must not be .infinite for `justified: true` to work
     }
     
     private enum Lightness {
