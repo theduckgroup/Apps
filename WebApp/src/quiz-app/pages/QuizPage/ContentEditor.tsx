@@ -155,8 +155,8 @@ export default function QuizItemsEditor({ items, sections, setData }: {
         return [items, sections] // Dropped at the same position
       }
 
-      if (type === 'item') {
-        // Reordering items within a section or moving between sections
+      if (type === 'row') {
+        // Reordering rows within a section or moving between sections
 
         const sourceSectionId = source.droppableId
         const destinationSectionId = destination.droppableId
@@ -315,8 +315,7 @@ function SectionComponent({
   provided: DraggableProvided
 }) {
   const addItemModal = useModal(EditItemModal)
-  // const [editItemModalOptions, setEditItemModalOptions] = useState<EditItemModalOptions | null>(null)
-
+  
   function handleClickAddItem(kind: Quiz.ItemKind) {
     addItemModal.open({
       title: 'Add Item',
@@ -356,7 +355,7 @@ function SectionComponent({
           <Droppable
             droppableId={section.id}
             direction='vertical'
-            type='item'
+            type='row'
             renderClone={(provided, snapshot, rubric) => {
               return (
                 <Paper
@@ -371,7 +370,7 @@ function SectionComponent({
             }}
           >
             {(provided) => (
-              // Stack of rows/items and Add Item button
+              // Stack of rows and Add Item button
               <Stack
                 ref={provided.innerRef}
                 {...provided.droppableProps}
@@ -533,13 +532,6 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
             <Menu.Item leftSection={<IconPlus size={16} />} onClick={handleClickAddAfter}>Add Below</Menu.Item>
           </Menu.Dropdown>
         </Menu>
-        {/* Drag Handle */}
-        {/* <ActionIcon
-          variant='default'
-          size='md'
-          color='gray'
-          {...dragHandleProps}
-        > */}
         <Box
           className='cursor-move'
           p='0.33rem'
@@ -548,14 +540,7 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
         >
           {/* Old: IconGripVertical */}
           <IconSelector size={16} />
-          {/* <IconMenuOrder />
-            <IconArrowsMoveVertical />
-            <IconArrowsSort />
-            <IconBaselineDensityMedium /> 
-            <IconMenu size={21} strokeWidth={1.75} /> */}
         </Box>
-        {/* </ActionIcon> */}
-        {/* </Button.Group> */}
       </Group>
 
       {/* Modals */}
@@ -641,14 +626,6 @@ function Row({ item, rowIndex, onAddItem, onEditItem, onDeleteItem, onOpenConfir
         {/* Old icon: IconGripVertical */}
         <IconSelector size={16} />
       </Box>
-      {/* <ActionIcon
-        variant='default'
-        size='md'
-        color='gray'
-        {...dragHandleProps}
-      >
-        <IconGripVertical size={16} />
-      </ActionIcon> */}
     </Group>
   ), [dragHandleProps, handleClickAdd, handleClickDelete, handleClickEdit])
 

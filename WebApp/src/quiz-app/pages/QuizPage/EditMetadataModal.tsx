@@ -2,17 +2,7 @@ import { Button, Group, Modal, Stack, Textarea, TextInput, Text } from "@mantine
 import { isNotEmpty, useForm } from "@mantine/form"
 import { useEffect, useRef } from "react"
 
-export function EditQuizMetadataModal(
-  props: Omit<EditQuizMetadataModal.Props, 'options'> & { options: EditQuizMetadataModal.Options | undefined }
-) {
-  if (props.options) {
-    return EditQuizMetadataModalImpl({ ...props, options: props.options })
-  } else {
-    return null
-  }
-}
-
-function EditQuizMetadataModalImpl({ opened, close, options }: EditQuizMetadataModal.Props) {
+export function EditMetadataModal({ opened, onClose, options }: EditMetadataModal.Props) {
   const form = useForm({
     mode: 'controlled',
     initialValues: {
@@ -46,7 +36,7 @@ function EditQuizMetadataModalImpl({ opened, close, options }: EditQuizMetadataM
       .map(part => part.trim()) // remove surrounding whitespace
       .filter(Boolean) // remove empty strings
 
-    close()
+    onClose()
     options.onSave({
       name: values.name.trim(),
       code: values.code.trim(),
@@ -57,7 +47,7 @@ function EditQuizMetadataModalImpl({ opened, close, options }: EditQuizMetadataM
   return (
     <Modal
       opened={opened}
-      onClose={close}
+      onClose={onClose}
       title='Edit Test'
       returnFocus={false}
       closeOnClickOutside={false}
@@ -93,7 +83,7 @@ function EditQuizMetadataModalImpl({ opened, close, options }: EditQuizMetadataM
             <Text fz='sm' c='dark.2'>* Separated by newlines, comma or semicolon</Text>
           </Stack>
           <Group gap='xs' ml='auto'>
-            <Button variant='default' onClick={close} w='6rem'>Cancel</Button>
+            <Button variant='default' onClick={onClose} w='6rem'>Cancel</Button>
             <Button type='submit' w='6rem'>Save</Button>
           </Group>
         </Stack>
@@ -102,10 +92,10 @@ function EditQuizMetadataModalImpl({ opened, close, options }: EditQuizMetadataM
   )
 }
 
-export namespace EditQuizMetadataModal {
+export namespace EditMetadataModal {
   export interface Props {
     opened: boolean,
-    close: () => void,
+    onClose: () => void,
     options: Options
   }
 

@@ -8,9 +8,9 @@ import { produce } from 'immer'
 
 import { usePath, useApi } from 'src/app/contexts'
 import { Quiz } from 'src/quiz-app/models/Quiz'
-import { EditQuizMetadataModal } from './EditQuizMetadataModal'
-import QuizItemsEditor from './QuizItemsEditor'
-import useRepeatedModal from 'src/utils/use-repeated-modal'
+import { EditMetadataModal } from './EditMetadataModal'
+import ContentEditor from './ContentEditor'
+import useModal from 'src/utils/use-modal'
 import formatError from 'src/common/format-error'
 import { Dispatch, ReduceState } from 'src/utils/types-lib'
 
@@ -128,11 +128,10 @@ function Content({ quiz, setQuiz, isSaving }: {
   setQuiz: React.Dispatch<React.SetStateAction<Quiz | null>>,
   isSaving: boolean
 }) {
-  const editModal = useRepeatedModal()
-  const [editModalOptions, setEditModalOptions] = useState<EditQuizMetadataModal.Options | undefined>()
-
+  const editModal = useModal(EditMetadataModal)
+  
   function handleEdit() {
-    setEditModalOptions({
+    editModal.open({
       data: {
         name: quiz.name,
         code: quiz.code,
@@ -148,8 +147,6 @@ function Content({ quiz, setQuiz, isSaving }: {
         setQuiz(modifiedQuiz)
       }
     })
-
-    editModal.open()
   }
 
   const setData: Dispatch<ReduceState<[Quiz.Item[], Quiz.Section[]]>> = (fn) => {
@@ -191,7 +188,7 @@ function Content({ quiz, setQuiz, isSaving }: {
       </Group>
 
       {/* Items editor */}
-      <QuizItemsEditor
+      <ContentEditor
         items={quiz.items}
         sections={quiz.sections}
         // onChange={(items, sections) => {
@@ -202,9 +199,7 @@ function Content({ quiz, setQuiz, isSaving }: {
       />
 
       {/* Modals */}
-      {editModal.modalIDs.map(id =>
-        <EditQuizMetadataModal key={id} opened={editModal.isOpened(id)} close={editModal.close} options={editModalOptions} />
-      )}
+      {editModal.element}
 
     </Stack>
   )
