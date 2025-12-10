@@ -35,9 +35,10 @@ export default function useModal<Options = undefined>(ModalComponentType: ModalC
     }))
 
     // Wait for dismiss animation & remove old (never used again) modals
+    // Duration must not be too long otherwise it glitches out when modals are presented quickly
     setTimeout(() => {
       setData([])
-    }, 1000)
+    }, 250)
   }, [])
 
   return {
