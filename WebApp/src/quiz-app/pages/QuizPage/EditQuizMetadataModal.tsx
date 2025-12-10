@@ -58,7 +58,7 @@ function EditQuizMetadataModalImpl({ opened, close, options }: EditQuizMetadataM
     <Modal
       opened={opened}
       onClose={close}
-      title='Edit Quiz'
+      title='Edit Test'
       returnFocus={false}
       closeOnClickOutside={false}
     >
