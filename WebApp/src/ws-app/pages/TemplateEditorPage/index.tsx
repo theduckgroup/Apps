@@ -9,8 +9,8 @@ import { produce } from 'immer'
 import { usePath, useApi } from 'src/app/contexts'
 import { WsTemplate } from 'src/ws-app/models/WsTemplate'
 import { EditMetadataModal } from './EditMetadataModal'
-import ContentEditor from './ContentEditor'
-import useRepeatedModal from 'src/utils/use-repeated-modal'
+import { ContentEditor } from './ContentEditor'
+import useModal from 'src/utils/use-modal'
 import formatError from 'src/common/format-error'
 import { Dispatch, ReduceState } from 'src/utils/types-lib'
 
@@ -128,11 +128,10 @@ function Content({ template, setTemplate, isSaving }: {
   setTemplate: React.Dispatch<React.SetStateAction<WsTemplate | null>>,
   isSaving: boolean
 }) {
-  const editModal = useRepeatedModal()
-  const [editModalOptions, setEditModalOptions] = useState<EditMetadataModal.Options | undefined>()
-
+  const editModal = useModal(EditMetadataModal)
+  
   function handleEdit() {
-    setEditModalOptions({
+    editModal.open({
       data: {
         name: template.name,
         code: template.code,
@@ -148,8 +147,6 @@ function Content({ template, setTemplate, isSaving }: {
         setTemplate(modifiedTemplate)
       }
     })
-
-    editModal.open()
   }
 
   const setData: Dispatch<ReduceState<[WsTemplate.Supplier[], WsTemplate.Section[]]>> = (fn) => {
@@ -198,9 +195,7 @@ function Content({ template, setTemplate, isSaving }: {
       />
 
       {/* Modals */}
-      {editModal.modalIDs.map(id =>
-        <EditMetadataModal key={id} opened={editModal.isOpened(id)} close={editModal.close} options={editModalOptions} />
-      )}
+      {editModal.element}
 
     </Stack>
   )

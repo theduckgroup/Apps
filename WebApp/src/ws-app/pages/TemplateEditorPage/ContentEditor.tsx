@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { ActionIcon, Box, Button, Divider, Group, Menu, Paper, Stack, Text, Title } from '@mantine/core'
 import { DragDropContext, Draggable, DraggableProvided, DraggableProvidedDragHandleProps, Droppable, DropResult } from '@hello-pangea/dnd'
-import { IconChevronDown, IconChevronRight, IconDots, IconGripVertical, IconPencil, IconPlus, IconTrash } from '@tabler/icons-react'
+import { IconChevronDown, IconChevronRight, IconDots, IconGripVertical, IconPencil, IconPlus, IconSelector, IconTrash } from '@tabler/icons-react'
 import { produce } from 'immer'
 import { ObjectID } from 'bson'
 
@@ -26,7 +26,7 @@ export function ContentEditor({ suppliers, sections, setData }: {
   const [collapsedSectionIDs, setCollapsedSectionIDs] = useState<Set<string>>(new Set())
 
   const handleAddSection: AddSectionHandler = (newSection, anchor, position) => {
-    setData(([items, sections]) => {
+    setData(([suppliers, sections]) => {
       const newSections = produce(sections, sections => {
         const anchorIndex = sections.findIndex(x => x.id == anchor.id)
 
@@ -40,36 +40,36 @@ export function ContentEditor({ suppliers, sections, setData }: {
         }
       })
 
-      return [items, newSections]
+      return [suppliers, newSections]
     })
   }
 
   const handleEditSection: EditSectionHandler = (section) => {
-    setData(([items, sections]) => {
+    setData(([suppliers, sections]) => {
       const newSections = [...sections]
       const sectionIndex = newSections.findIndex(x => x.id == section.id)!
       newSections[sectionIndex] = section
 
-      return [items, newSections]
+      return [suppliers, newSections]
     })
   }
 
   const handleDeleteSection: DeleteSectionHandler = (section) => {
-    setData(([items, sections]) => {
+    setData(([suppliers, sections]) => {
       const newSections = [...sections]
       const sectionIndex = newSections.findIndex(x => x.id == section.id)!
       newSections.splice(sectionIndex, 1)
 
-      // Delete items in section
-      const sectionItemIDs = new Set(section.rows.map(x => x.supplierId))
-      const newItems = items.filter(x => !sectionItemIDs.has(x.id))
+      // Delete suppliers in section
+      const sectionSupplierIDs = new Set(section.rows.map(x => x.supplierId))
+      const newSuppliers = suppliers.filter(x => !sectionSupplierIDs.has(x.id))
 
-      return [newItems, newSections]
+      return [newSuppliers, newSections]
     })
 
   }
 
-  const handleAddItem: AddSupplierHandler = (supplier, afterSupplier) => {
+  const handleAddSupplier: AddSupplierHandler = (supplier, afterSupplier) => {
     setData(([suppliers, sections]) => {
       const newSuppliers = [...suppliers, supplier]
 
@@ -91,7 +91,7 @@ export function ContentEditor({ suppliers, sections, setData }: {
     })
   }
 
-  const handleAddItemToSection: AddSupplierToSectionHandler = (supplier, section) => {
+  const handleAddSupplierToSection: AddSupplierToSectionHandler = (supplier, section) => {
     setData(([suppliers, sections]) => {
       const newSuppliers = [...suppliers, supplier]
 
@@ -108,7 +108,7 @@ export function ContentEditor({ suppliers, sections, setData }: {
     })
   }
 
-  const handleEditItem: EditSupplierHandler = (supplier) => {
+  const handleEditSupplier: EditSupplierHandler = (supplier) => {
     setData(([suppliers, sections]) => {
       const newSuppliers = produce(suppliers, suppliers => {
         const index = suppliers.findIndex(x => x.id == supplier.id)
@@ -119,7 +119,7 @@ export function ContentEditor({ suppliers, sections, setData }: {
     })
   }
 
-  const handleDeleteItem: DeleteSupplierHandler = (supplier) => {
+  const handleDeleteSupplier: DeleteSupplierHandler = (supplier) => {
     setData(([suppliers, sections]) => {
       const newSuppliers = produce(suppliers, suppliers => {
         const index = suppliers.findIndex(x => x.id == supplier.id)!
@@ -141,19 +141,19 @@ export function ContentEditor({ suppliers, sections, setData }: {
   }
 
   const onDragEnd = (result: DropResult) => {
-    setData(([items, sections]) => {
+    setData(([suppliers, sections]) => {
       const { destination, source, type } = result
 
       if (!destination) {
-        return [items, sections] // Dragged outside of a droppable area
+        return [suppliers, sections] // Dragged outside of a droppable area
       }
 
       if (destination.droppableId === source.droppableId && destination.index === source.index) {
-        return [items, sections] // Dropped at the same position
+        return [suppliers, sections] // Dropped at the same position
       }
 
-      if (type === 'item') {
-        // Reordering items within a section or moving between sections
+      if (type === 'row') {
+        // Reordering rows within a section or moving between sections
 
         const sourceSectionId = source.droppableId
         const destinationSectionId = destination.droppableId
@@ -162,11 +162,11 @@ export function ContentEditor({ suppliers, sections, setData }: {
         const destinationSectionIndex = sections.findIndex(section => section.id === destinationSectionId)
 
         const newSections = produce(sections, sections => {
-          const [draggedItem] = sections[sourceSectionIndex].rows.splice(source.index, 1)
-          sections[destinationSectionIndex].rows.splice(destination.index, 0, draggedItem)
+          const [draggedRow] = sections[sourceSectionIndex].rows.splice(source.index, 1)
+          sections[destinationSectionIndex].rows.splice(destination.index, 0, draggedRow)
         })
 
-        return [items, newSections]
+        return [suppliers, newSections]
 
       } else if (type === 'section') {
         // Reordering sections
@@ -176,7 +176,7 @@ export function ContentEditor({ suppliers, sections, setData }: {
           sections.splice(destination.index, 0, draggedSection)
         })
 
-        return [items, newSections]
+        return [suppliers, newSections]
 
       } else {
         throw new Error('')
@@ -254,10 +254,10 @@ export function ContentEditor({ suppliers, sections, setData }: {
                       onAddSection={handleAddSection}
                       onEditSection={handleEditSection}
                       onDeleteSection={handleDeleteSection}
-                      onAddItem={handleAddItem}
-                      onAddItemToSection={handleAddItemToSection}
-                      onEditItem={handleEditItem}
-                      onDeleteItem={handleDeleteItem}
+                      onAddItem={handleAddSupplier}
+                      onAddItemToSection={handleAddSupplierToSection}
+                      onEditItem={handleEditSupplier}
+                      onDeleteItem={handleDeleteSupplier}
                       onOpenConfirmDeleteModal={confirmDeleteModal.open}
                       provided={provided}
                     />
@@ -289,10 +289,10 @@ export function ContentEditor({ suppliers, sections, setData }: {
 }
 
 function SectionComponent({
-  section, sectionIndex, itemForId,
+  section, sectionIndex, itemForId: supplierForId,
   isExpanded, onExpandedChange,
   onAddSection, onEditSection, onDeleteSection,
-  onAddItem, onAddItemToSection, onEditItem, onDeleteItem,
+  onAddItem: onAddSupplier, onAddItemToSection, onEditItem: onEditSupplier, onDeleteItem: onDeleteSupplier,
   onOpenConfirmDeleteModal,
   provided
 }: {
@@ -311,11 +311,11 @@ function SectionComponent({
   onOpenConfirmDeleteModal: (options: ConfirmModal.Options) => void,
   provided: DraggableProvided
 }) {
-  const addItemModal = useModal(EditSupplierModal)
+  const addSupplierModal = useModal(EditSupplierModal)
   // const [editItemModalOptions, setEditItemModalOptions] = useState<EditItemModalOptions | null>(null)
 
-  function handleClickAddItem() {
-    addItemModal.open({
+  function handleClickAddSupplier() {
+    addSupplierModal.open({
       title: 'Add Item',
       supplier: {
         id: new ObjectID().toString(),
@@ -351,13 +351,13 @@ function SectionComponent({
         />
         {/*  */}
         {isExpanded && <Divider />}
-        {/* Droppable of items */}
+        {/* Droppable of rows */}
         {
           // isExpanded &&
           <Droppable
             droppableId={section.id}
             direction='vertical'
-            type='item'
+            type='row'
             renderClone={(provided, snapshot, rubric) => {
               return (
                 <Paper
@@ -372,7 +372,7 @@ function SectionComponent({
             }}
           >
             {(provided) => (
-              // Stack of rows/items and Add Item button
+              // Stack of rows and Add Supplier button
               <Stack
                 ref={provided.innerRef}
                 {...provided.droppableProps}
@@ -396,11 +396,11 @@ function SectionComponent({
                         {(() => {
                           return (
                             <Row
-                              supplier={itemForId(row.supplierId)!}
+                              supplier={supplierForId(row.supplierId)!}
                               rowIndex={rowIndex}
-                              onAddItem={onAddItem}
-                              onEditItem={onEditItem}
-                              onDeleteItem={onDeleteItem}
+                              onAddSupplier={onAddSupplier}
+                              onEditSupplier={onEditSupplier}
+                              onDeleteSupplier={onDeleteSupplier}
                               onOpenConfirmDeleteModal={onOpenConfirmDeleteModal}
                               dragHandleProps={provided.dragHandleProps}
                             />
@@ -415,9 +415,9 @@ function SectionComponent({
                   variant='default' size='sm'
                   mt={section.rows.length > 0 ? '0.5rem' : 0}
                   leftSection={<IconPlus size={12} />}
-                  onClick={handleClickAddItem}
+                  onClick={handleClickAddSupplier}
                 >
-                  Add Item
+                  Add Supplier
                 </Button>
               </Stack>
             )}
@@ -426,7 +426,7 @@ function SectionComponent({
       </Stack>
 
       {/* Modals */}
-      {addItemModal.element}
+      {addSupplierModal.element}
     </Paper>
   )
 }
@@ -473,7 +473,7 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
       message: (
         <Stack gap='xs'>
           <Text>Delete section '{section.name}'?</Text>
-          <Text fw='bold'>This will delete the section and all of its items. This cannot be undone.</Text>
+          <Text fw='bold'>This will delete the section and its suppliers. This cannot be undone.</Text>
         </Stack>
       ),
       actions: [{
@@ -541,12 +541,7 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
           pr='0'
           {...dragHandleProps}
         >
-          <IconGripVertical size={16} />
-          {/* <IconMenuOrder />
-            <IconArrowsMoveVertical />
-            <IconArrowsSort />
-            <IconBaselineDensityMedium /> 
-            <IconMenu size={21} strokeWidth={1.75} /> */}
+          <IconSelector size={16} />
         </Box>
         {/* </ActionIcon> */}
         {/* </Button.Group> */}
@@ -558,38 +553,38 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
   )
 }
 
-function Row({ supplier, rowIndex, onAddItem, onEditItem, onDeleteItem, onOpenConfirmDeleteModal, dragHandleProps }: {
+function Row({ supplier, rowIndex, onAddSupplier, onEditSupplier, onDeleteSupplier, onOpenConfirmDeleteModal, dragHandleProps }: {
   supplier: WsTemplate.Supplier,
   rowIndex: number,
-  onAddItem: AddSupplierHandler,
-  onEditItem: EditSupplierHandler,
-  onDeleteItem: DeleteSupplierHandler,
+  onAddSupplier: AddSupplierHandler,
+  onEditSupplier: EditSupplierHandler,
+  onDeleteSupplier: DeleteSupplierHandler,
   onOpenConfirmDeleteModal: (options: ConfirmModal.Options) => void,
   dragHandleProps: DraggableProvidedDragHandleProps | null,
 }) {
-  const editItemModal = useModal(EditSupplierModal)
+  const editModal = useModal(EditSupplierModal)
 
-  const handleClickAdd = useCallback(() => {
-    editItemModal.open({
+  const handleClickAdd = () => {
+    editModal.open({
       title: 'Add Supplier',
       supplier: WsTemplate.createDefaultSupplier(),
       onSave: newSupplier => {
-        onAddItem(newSupplier, /* after */ supplier)
+        onAddSupplier(newSupplier, /* after */ supplier)
       }
     })
-  }, [supplier, onAddItem, editItemModal])
+  }
 
-  const handleClickEdit = useCallback(() => {
-    editItemModal.open({
+  const handleClickEdit = () => {
+    editModal.open({
       title: 'Edit Item',
       supplier,
       onSave: modifiedSupplier => {
-        onEditItem(modifiedSupplier)
+        onEditSupplier(modifiedSupplier)
       }
     })
-  }, [supplier, onEditItem, editItemModal])
+  }
 
-  const handleClickDelete = useCallback(() => {
+  const handleClickDelete = () => {
     onOpenConfirmDeleteModal({
       title: 'Delete Supplier',
       message: (
@@ -602,47 +597,11 @@ function Row({ supplier, rowIndex, onAddItem, onEditItem, onDeleteItem, onOpenCo
         label: 'Delete',
         role: 'destructive',
         handler: () => {
-          onDeleteItem(supplier)
+          onDeleteSupplier(supplier)
         }
       }]
     })
-  }, [supplier, onDeleteItem, onOpenConfirmDeleteModal])
-
-  const controlSection = useMemo(() => (
-    <Group gap='xs' wrap='nowrap'>
-      {/* Action Button */}
-      <Menu offset={6} position='bottom-end'>
-        <Menu.Target>
-          <ActionIcon variant='default' size='md' color='gray'>
-            <IconDots size={16} />
-          </ActionIcon>
-        </Menu.Target>
-        <Menu.Dropdown>
-          <Menu.Item leftSection={<IconPlus size={16} />} onClick={handleClickAdd}>Add Supplier</Menu.Item>
-          <Menu.Item leftSection={<IconPencil size={16} />} onClick={handleClickEdit}>Edit</Menu.Item>
-          <Menu.Item leftSection={<IconTrash size={16} />} onClick={handleClickDelete}>Delete</Menu.Item>
-          <Menu.Divider />
-        </Menu.Dropdown>
-      </Menu>
-      {/* Drag Handle */}
-      <Box
-        className='cursor-move'
-        p='0.33rem'
-        pr='0'
-        {...dragHandleProps}
-      >
-        <IconGripVertical size={16} />
-      </Box>
-      {/* <ActionIcon
-        variant='default'
-        size='md'
-        color='gray'
-        {...dragHandleProps}
-      >
-        <IconGripVertical size={16} />
-      </ActionIcon> */}
-    </Group>
-  ), [dragHandleProps, handleClickAdd, handleClickDelete, handleClickEdit])
+  }
 
   const gstMethodName = (() => {
     switch (supplier.gstMethod) {
@@ -659,11 +618,36 @@ function Row({ supplier, rowIndex, onAddItem, onEditItem, onDeleteItem, onOpenCo
         <Text>{supplier.name}</Text>
         <Text>GST: {gstMethodName}</Text>
       </Stack>
-      {controlSection}
-      {/* <ReadonlyItemComponent item={item} controlSection={controlSection} /> */}
+
+      {/* Control section (action button, drag handle) */}
+      <Group gap='xs' wrap='nowrap'>
+        {/* Action Button */}
+        <Menu offset={6} position='bottom-end'>
+          <Menu.Target>
+            <ActionIcon variant='default' size='md' color='gray'>
+              <IconDots size={16} />
+            </ActionIcon>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Item leftSection={<IconPlus size={16} />} onClick={handleClickAdd}>Add Supplier</Menu.Item>
+            <Menu.Item leftSection={<IconPencil size={16} />} onClick={handleClickEdit}>Edit</Menu.Item>
+            <Menu.Item leftSection={<IconTrash size={16} />} onClick={handleClickDelete}>Delete</Menu.Item>
+            <Menu.Divider />
+          </Menu.Dropdown>
+        </Menu>
+        {/* Drag Handle */}
+        <Box
+          className='cursor-move'
+          p='0.33rem'
+          pr='0'
+          {...dragHandleProps}
+        >
+          <IconSelector size={16} />
+        </Box>
+      </Group>
 
       {/* Modals */}
-      {editItemModal.element}
+      {editModal.element}
     </Group>
   )
 }
