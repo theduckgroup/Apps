@@ -11,15 +11,16 @@ export namespace DbWsTemplate {
   export interface Supplier {
     id: string
     name: string
-    bsb: string
-    accountNumber: string
+    gstMethod: 'notApplicable' | 'tenPercent' | 'input'
   }
 
   export interface Section {
     id: string
     name: string
-    rows: {
-      supplierId: string
-    }[]
+    rows: Row[]
+  }
+
+  export interface Row {
+supplierId: string
   }
 }

@@ -1,21 +1,21 @@
 import { useCallback, useMemo, useState } from 'react'
 import { ActionIcon, Box, Button, Divider, Group, Menu, Paper, Stack, Text, Title } from '@mantine/core'
 import { DragDropContext, Draggable, DraggableProvided, DraggableProvidedDragHandleProps, Droppable, DropResult } from '@hello-pangea/dnd'
-import { IconChevronDown, IconChevronRight, IconDots, IconGripVertical, IconListNumbers, IconPencil, IconPlus, IconSquareCheck, IconSquareLetterT, IconTrash } from '@tabler/icons-react'
+import { IconChevronDown, IconChevronRight, IconDots, IconGripVertical, IconPencil, IconPlus, IconSelector, IconTrash } from '@tabler/icons-react'
 import { produce } from 'immer'
+import { ObjectID } from 'bson'
 
-import { Quiz } from 'src/quiz-app/models/Quiz'
-import { EditItemModal } from './EditItemModal'
+import { WsTemplate } from 'src/ws-app/models/WsTemplate'
+import { EditSupplierModal } from './EditSupplierModal'
 import { EditSectionModal } from './EditSectionModal'
 import { ConfirmModal } from 'src/utils/ConfirmModal'
-import ReadonlyItemComponent from './ReadonlyItemComponent'
 import { Dispatch, ReduceState } from 'src/utils/types-lib'
 import useModal from 'src/utils/use-modal'
 
-export default function QuizItemsEditor({ items, sections, setData }: {
-  items: Quiz.Item[],
-  sections: Quiz.Section[],
-  setData: Dispatch<ReduceState<[Quiz.Item[], Quiz.Section[]]>>
+export function ContentEditor({ suppliers, sections, setData }: {
+  suppliers: WsTemplate.Supplier[],
+  sections: WsTemplate.Section[],
+  setData: Dispatch<ReduceState<[WsTemplate.Supplier[], WsTemplate.Section[]]>>
 }) {
   const editSectionModal = useModal(EditSectionModal)
 
@@ -26,7 +26,7 @@ export default function QuizItemsEditor({ items, sections, setData }: {
   const [collapsedSectionIDs, setCollapsedSectionIDs] = useState<Set<string>>(new Set())
 
   const handleAddSection: AddSectionHandler = (newSection, anchor, position) => {
-    setData(([items, sections]) => {
+    setData(([suppliers, sections]) => {
       const newSections = produce(sections, sections => {
         const anchorIndex = sections.findIndex(x => x.id == anchor.id)
 
@@ -40,46 +40,46 @@ export default function QuizItemsEditor({ items, sections, setData }: {
         }
       })
 
-      return [items, newSections]
+      return [suppliers, newSections]
     })
   }
 
   const handleEditSection: EditSectionHandler = (section) => {
-    setData(([items, sections]) => {
+    setData(([suppliers, sections]) => {
       const newSections = [...sections]
       const sectionIndex = newSections.findIndex(x => x.id == section.id)!
       newSections[sectionIndex] = section
 
-      return [items, newSections]
+      return [suppliers, newSections]
     })
   }
 
   const handleDeleteSection: DeleteSectionHandler = (section) => {
-    setData(([items, sections]) => {
+    setData(([suppliers, sections]) => {
       const newSections = [...sections]
       const sectionIndex = newSections.findIndex(x => x.id == section.id)!
       newSections.splice(sectionIndex, 1)
 
-      // Delete items in section
-      const sectionItemIDs = new Set(section.rows.map(x => x.itemId))
-      const newItems = items.filter(x => !sectionItemIDs.has(x.id))
+      // Delete suppliers in section
+      const sectionSupplierIDs = new Set(section.rows.map(x => x.supplierId))
+      const newSuppliers = suppliers.filter(x => !sectionSupplierIDs.has(x.id))
 
-      return [newItems, newSections]
+      return [newSuppliers, newSections]
     })
 
   }
 
-  const handleAddItem: AddItemHandler = (item, afterItem) => {
-    setData(([items, sections]) => {
-      const newItems = [...items, item]
+  const handleAddSupplier: AddSupplierHandler = (supplier, afterSupplier) => {
+    setData(([suppliers, sections]) => {
+      const newSuppliers = [...suppliers, supplier]
 
       const newSections = produce(sections, sections => {
-        const newRow: Quiz.Row = {
-          itemId: item.id
+        const newRow: WsTemplate.Row = {
+          supplierId: supplier.id
         }
 
         for (const section of sections) {
-          const rowIndex = section.rows.findIndex(x => x.itemId == afterItem.id)
+          const rowIndex = section.rows.findIndex(x => x.supplierId == afterSupplier.id)
 
           if (rowIndex >= 0) {
             section.rows.splice(rowIndex + 1, 0, newRow)
@@ -87,48 +87,48 @@ export default function QuizItemsEditor({ items, sections, setData }: {
         }
       })
 
-      return [newItems, newSections]
+      return [newSuppliers, newSections]
     })
   }
 
-  const handleAddItemToSection: AddItemToSectionHandler = (item, section) => {
-    setData(([items, sections]) => {
-      const newItems = [...items, item]
+  const handleAddSupplierToSection: AddSupplierToSectionHandler = (supplier, section) => {
+    setData(([suppliers, sections]) => {
+      const newSuppliers = [...suppliers, supplier]
 
       const newSections = produce(sections, sections => {
-        const newRow: Quiz.Row = {
-          itemId: item.id
+        const newRow: WsTemplate.Row = {
+          supplierId: supplier.id
         }
 
         const anchorSection = sections.find(x => x.id == section.id)!
         anchorSection.rows.push(newRow)
       })
 
-      return [newItems, newSections]
+      return [newSuppliers, newSections]
     })
   }
 
-  const handleEditItem: EditItemHandler = (item) => {
-    setData(([items, sections]) => {
-      const newItems = produce(items, items => {
-        const index = items.findIndex(x => x.id == item.id)
-        items[index] = item
+  const handleEditSupplier: EditSupplierHandler = (supplier) => {
+    setData(([suppliers, sections]) => {
+      const newSuppliers = produce(suppliers, suppliers => {
+        const index = suppliers.findIndex(x => x.id == supplier.id)
+        suppliers[index] = supplier
       })
 
-      return [newItems, sections]
+      return [newSuppliers, sections]
     })
   }
 
-  const handleDeleteItem: EditItemHandler = (item) => {
-    setData(([items, sections]) => {
-      const newItems = produce(items, items => {
-        const index = items.findIndex(x => x.id == item.id)!
-        items.splice(index, 1)
+  const handleDeleteSupplier: DeleteSupplierHandler = (supplier) => {
+    setData(([suppliers, sections]) => {
+      const newSuppliers = produce(suppliers, suppliers => {
+        const index = suppliers.findIndex(x => x.id == supplier.id)!
+        suppliers.splice(index, 1)
       })
 
       const newSections = produce(sections, sections => {
         for (const section of sections) {
-          const rowIndex = section.rows.findIndex(x => x.itemId == item.id)
+          const rowIndex = section.rows.findIndex(x => x.supplierId == supplier.id)
 
           if (rowIndex != -1) {
             section.rows.splice(rowIndex, 1)
@@ -136,24 +136,24 @@ export default function QuizItemsEditor({ items, sections, setData }: {
         }
       })
 
-      return [newItems, newSections]
+      return [newSuppliers, newSections]
     })
   }
 
   const onDragEnd = (result: DropResult) => {
-    setData(([items, sections]) => {
+    setData(([suppliers, sections]) => {
       const { destination, source, type } = result
 
       if (!destination) {
-        return [items, sections] // Dragged outside of a droppable area
+        return [suppliers, sections] // Dragged outside of a droppable area
       }
 
       if (destination.droppableId === source.droppableId && destination.index === source.index) {
-        return [items, sections] // Dropped at the same position
+        return [suppliers, sections] // Dropped at the same position
       }
 
-      if (type === 'item') {
-        // Reordering items within a section or moving between sections
+      if (type === 'row') {
+        // Reordering rows within a section or moving between sections
 
         const sourceSectionId = source.droppableId
         const destinationSectionId = destination.droppableId
@@ -162,11 +162,11 @@ export default function QuizItemsEditor({ items, sections, setData }: {
         const destinationSectionIndex = sections.findIndex(section => section.id === destinationSectionId)
 
         const newSections = produce(sections, sections => {
-          const [draggedItem] = sections[sourceSectionIndex].rows.splice(source.index, 1)
-          sections[destinationSectionIndex].rows.splice(destination.index, 0, draggedItem)
+          const [draggedRow] = sections[sourceSectionIndex].rows.splice(source.index, 1)
+          sections[destinationSectionIndex].rows.splice(destination.index, 0, draggedRow)
         })
 
-        return [items, newSections]
+        return [suppliers, newSections]
 
       } else if (type === 'section') {
         // Reordering sections
@@ -176,7 +176,7 @@ export default function QuizItemsEditor({ items, sections, setData }: {
           sections.splice(destination.index, 0, draggedSection)
         })
 
-        return [items, newSections]
+        return [suppliers, newSections]
 
       } else {
         throw new Error('')
@@ -203,11 +203,11 @@ export default function QuizItemsEditor({ items, sections, setData }: {
   function handleClickAddSection() {
     editSectionModal.open({
       title: 'Add Section',
-      section: Quiz.createDefaultSection(),
+      section: WsTemplate.createDefaultSection(),
       onSave: newSection => {
-        setData(([items, sections]) => {
+        setData(([suppliers, sections]) => {
           const newSections = [...sections, newSection]
-          return [items, newSections]
+          return [suppliers, newSections]
         })
       }
     })
@@ -248,16 +248,16 @@ export default function QuizItemsEditor({ items, sections, setData }: {
                     <SectionComponent
                       section={section}
                       sectionIndex={sectionIndex}
-                      itemForId={id => items.find(x => x.id == id)}
+                      itemForId={id => suppliers.find(x => x.id == id)}
                       isExpanded={isSectionExpanded(section.id)}
                       onExpandedChange={value => setSectionExpanded(section.id, value)}
                       onAddSection={handleAddSection}
                       onEditSection={handleEditSection}
                       onDeleteSection={handleDeleteSection}
-                      onAddItem={handleAddItem}
-                      onAddItemToSection={handleAddItemToSection}
-                      onEditItem={handleEditItem}
-                      onDeleteItem={handleDeleteItem}
+                      onAddItem={handleAddSupplier}
+                      onAddItemToSection={handleAddSupplierToSection}
+                      onEditItem={handleEditSupplier}
+                      onDeleteItem={handleDeleteSupplier}
                       onOpenConfirmDeleteModal={confirmDeleteModal.open}
                       provided={provided}
                     />
@@ -289,37 +289,37 @@ export default function QuizItemsEditor({ items, sections, setData }: {
 }
 
 function SectionComponent({
-  section, sectionIndex, itemForId,
+  section, sectionIndex, itemForId: supplierForId,
   isExpanded, onExpandedChange,
   onAddSection, onEditSection, onDeleteSection,
-  onAddItem, onAddItemToSection, onEditItem, onDeleteItem,
+  onAddItem: onAddSupplier, onAddItemToSection, onEditItem: onEditSupplier, onDeleteItem: onDeleteSupplier,
   onOpenConfirmDeleteModal,
   provided
 }: {
-  section: Quiz.Section,
+  section: WsTemplate.Section,
   sectionIndex: number,
-  itemForId: (id: string) => Quiz.Item | undefined,
+  itemForId: (id: string) => WsTemplate.Supplier | undefined,
   isExpanded: boolean,
   onExpandedChange: (_: boolean) => void,
   onAddSection: AddSectionHandler,
   onEditSection: EditSectionHandler,
   onDeleteSection: DeleteSectionHandler,
-  onAddItem: AddItemHandler,
-  onAddItemToSection: AddItemToSectionHandler,
-  onEditItem: EditItemHandler,
-  onDeleteItem: EditItemHandler,
+  onAddItem: AddSupplierHandler,
+  onAddItemToSection: AddSupplierToSectionHandler,
+  onEditItem: EditSupplierHandler,
+  onDeleteItem: EditSupplierHandler,
   onOpenConfirmDeleteModal: (options: ConfirmModal.Options) => void,
   provided: DraggableProvided
 }) {
-  const addItemModal = useModal(EditItemModal)
+  const addSupplierModal = useModal(EditSupplierModal)
   // const [editItemModalOptions, setEditItemModalOptions] = useState<EditItemModalOptions | null>(null)
 
-  function handleClickAddItem(kind: Quiz.ItemKind) {
-    addItemModal.open({
-      title: 'Add Item',
-      item: Quiz.createDefaultItem({ kind }),
-      onSave: newItem => {
-        onAddItemToSection(newItem, section)
+  function handleClickAddSupplier() {
+    addSupplierModal.open({
+      title: 'Add Suplier',
+      supplier: WsTemplate.createDefaultSupplier(),
+      onSave: newSupplier => {
+        onAddItemToSection(newSupplier, section)
       }
     })
   }
@@ -347,13 +347,13 @@ function SectionComponent({
         />
         {/*  */}
         {isExpanded && <Divider />}
-        {/* Droppable of items */}
+        {/* Droppable of rows */}
         {
           // isExpanded &&
           <Droppable
             droppableId={section.id}
             direction='vertical'
-            type='item'
+            type='row'
             renderClone={(provided, snapshot, rubric) => {
               return (
                 <Paper
@@ -368,38 +368,43 @@ function SectionComponent({
             }}
           >
             {(provided) => (
-              // Stack of rows/items and Add Item button
+              // Stack of rows and Add Supplier button
               <Stack
                 ref={provided.innerRef}
                 {...provided.droppableProps}
-                gap='1.5rem'
-                m='md'
+                // gap='1.5rem'
+                gap='0px'
+                // m='md'
                 align='start'
                 hidden={!isExpanded}
               >
                 {section.rows.map((row, rowIndex) => (
                   // Draggable of row
-                  <Draggable draggableId={row.itemId} index={rowIndex} key={row.itemId}>
+                  <Draggable draggableId={row.supplierId} index={rowIndex} key={row.supplierId}>
                     {(provided) => (
                       // Row
                       <Box
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         style={{ ...provided.draggableProps.style }}
+                        // className='border-b border-zinc-600'
                         w='100%' // Important
                       // bg='var(--mantine-color-body)'
                       >
                         {(() => {
                           return (
-                            <Row
-                              item={itemForId(row.itemId)!}
-                              rowIndex={rowIndex}
-                              onAddItem={onAddItem}
-                              onEditItem={onEditItem}
-                              onDeleteItem={onDeleteItem}
-                              onOpenConfirmDeleteModal={onOpenConfirmDeleteModal}
-                              dragHandleProps={provided.dragHandleProps}
-                            />
+                            <>
+                              <Row
+                                supplier={supplierForId(row.supplierId)!}
+                                rowIndex={rowIndex}
+                                onAddSupplier={onAddSupplier}
+                                onEditSupplier={onEditSupplier}
+                                onDeleteSupplier={onDeleteSupplier}
+                                onOpenConfirmDeleteModal={onOpenConfirmDeleteModal}
+                                dragHandleProps={provided.dragHandleProps}
+                              />
+                              {rowIndex < section.rows.length - 1 && <Divider />}
+                            </>
                           )
                         })()}
                       </Box>
@@ -407,20 +412,18 @@ function SectionComponent({
                   </Draggable>
                 ))}
                 {provided.placeholder}
-                <Menu offset={6} position='right-start'>
-                  <Menu.Target>
-                    <Button
-                      variant='default' size='sm'
-                      mt={section.rows.length > 0 ? '0.5rem' : 0}
-                      leftSection={<IconPlus size={12} />}
-                    >
-                      Add Item
-                    </Button>
-                  </Menu.Target>
-                  <Menu.Dropdown>
-                    <AddItemMenuSection onAddItem={handleClickAddItem} />
-                  </Menu.Dropdown>
-                </Menu>
+                {section.rows.length == 0 &&
+                  <Button
+                    variant='default' size='sm'
+                    // color='dark.1'
+                    // mt={section.rows.length > 0 ? '0.5rem' : 0}
+                    m='md'
+                    leftSection={<IconPlus size={12} />}
+                    onClick={handleClickAddSupplier}
+                  >
+                    Add Supplier
+                  </Button>
+                }
               </Stack>
             )}
           </Droppable>
@@ -428,13 +431,13 @@ function SectionComponent({
       </Stack>
 
       {/* Modals */}
-      {addItemModal.element}
+      {addSupplierModal.element}
     </Paper>
   )
 }
 
 function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onDeleteSection, onOpenConfirmDeleteModal, isExpanded, onExpandedChange, dragHandleProps }: {
-  section: Quiz.Section
+  section: WsTemplate.Section
   sectionIndex: number,
   onAddSection: AddSectionHandler,
   onEditSection: EditSectionHandler,
@@ -449,7 +452,7 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
   const handleClickAdd = useCallback((position: 'before' | 'after') => {
     editSectionModal.open({
       title: 'Add Section',
-      section: Quiz.createDefaultSection(),
+      section: WsTemplate.createDefaultSection(),
       onSave: newSection => {
         onAddSection(newSection, section, position)
       }
@@ -475,7 +478,7 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
       message: (
         <Stack gap='xs'>
           <Text>Delete section '{section.name}'?</Text>
-          <Text fw='bold'>This will delete the section and all of its items. This cannot be undone.</Text>
+          <Text fw='bold'>This will delete the section and its suppliers. This cannot be undone.</Text>
         </Stack>
       ),
       actions: [{
@@ -543,12 +546,7 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
           pr='0'
           {...dragHandleProps}
         >
-          <IconGripVertical size={16} />
-          {/* <IconMenuOrder />
-            <IconArrowsMoveVertical />
-            <IconArrowsSort />
-            <IconBaselineDensityMedium /> 
-            <IconMenu size={21} strokeWidth={1.75} /> */}
+          <IconSelector size={16} />
         </Box>
         {/* </ActionIcon> */}
         {/* </Button.Group> */}
@@ -560,43 +558,43 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
   )
 }
 
-function Row({ item, rowIndex, onAddItem, onEditItem, onDeleteItem, onOpenConfirmDeleteModal, dragHandleProps }: {
-  item: Quiz.Item,
+function Row({ supplier, rowIndex, onAddSupplier, onEditSupplier, onDeleteSupplier, onOpenConfirmDeleteModal, dragHandleProps }: {
+  supplier: WsTemplate.Supplier,
   rowIndex: number,
-  onAddItem: AddItemHandler,
-  onEditItem: EditItemHandler,
-  onDeleteItem: DeleteItemHandler,
+  onAddSupplier: AddSupplierHandler,
+  onEditSupplier: EditSupplierHandler,
+  onDeleteSupplier: DeleteSupplierHandler,
   onOpenConfirmDeleteModal: (options: ConfirmModal.Options) => void,
   dragHandleProps: DraggableProvidedDragHandleProps | null,
 }) {
-  const editItemModal = useModal(EditItemModal)
+  const editModal = useModal(EditSupplierModal)
 
-  const handleClickAdd = useCallback((kind: Quiz.ItemKind) => {
-    editItemModal.open({
-      title: 'Add Item',
-      item: Quiz.createDefaultItem({ kind }),
-      onSave: newItem => {
-        onAddItem(newItem, item)
+  const handleClickAdd = () => {
+    editModal.open({
+      title: 'Add Supplier',
+      supplier: WsTemplate.createDefaultSupplier(),
+      onSave: newSupplier => {
+        onAddSupplier(newSupplier, /* after */ supplier)
       }
     })
-  }, [item, onAddItem, editItemModal])
+  }
 
-  const handleClickEdit = useCallback(() => {
-    editItemModal.open({
-      title: 'Edit Item',
-      item,
-      onSave: modifiedItem => {
-        onEditItem(modifiedItem)
+  const handleClickEdit = () => {
+    editModal.open({
+      title: 'Edit Supplier',
+      supplier,
+      onSave: modifiedSupplier => {
+        onEditSupplier(modifiedSupplier)
       }
     })
-  }, [item, onEditItem, editItemModal])
+  }
 
-  const handleClickDelete = useCallback(() => {
+  const handleClickDelete = () => {
     onOpenConfirmDeleteModal({
-      title: 'Delete Item',
+      title: '',
       message: (
         <Stack gap='xs'>
-          <Text>Delete item '{item.data.prompt}'?</Text>
+          <Text>Delete supplier '{supplier.name}'?</Text>
           <Text fw='bold'>This cannot be undone.</Text>
         </Stack>
       ),
@@ -604,92 +602,57 @@ function Row({ item, rowIndex, onAddItem, onEditItem, onDeleteItem, onOpenConfir
         label: 'Delete',
         role: 'destructive',
         handler: () => {
-          onDeleteItem(item)
+          onDeleteSupplier(supplier)
         }
       }]
     })
-  }, [item, onDeleteItem, onOpenConfirmDeleteModal])
-
-  const controlSection = useMemo(() => (
-    <Group gap='xs' wrap='nowrap'>
-      {/* Action Button */}
-      <Menu offset={6} position='bottom-end'>
-        <Menu.Target>
-          <ActionIcon variant='default' size='md' color='gray'>
-            <IconDots size={16} />
-          </ActionIcon>
-        </Menu.Target>
-        <Menu.Dropdown>
-          <Menu.Item leftSection={<IconPencil size={16} />} onClick={handleClickEdit}>Edit</Menu.Item>
-          <Menu.Item leftSection={<IconTrash size={16} />} onClick={handleClickDelete}>Delete</Menu.Item>
-          <Menu.Divider />
-          <Menu.Label>Add Item</Menu.Label>
-          <AddItemMenuSection onAddItem={handleClickAdd} />
-        </Menu.Dropdown>
-      </Menu>
-      {/* Drag Handle */}
-      <Box
-        className='cursor-move'
-        p='0.33rem'
-        pr='0'
-        {...dragHandleProps}
-      >
-        <IconGripVertical size={16} />
-      </Box>
-      {/* <ActionIcon
-        variant='default'
-        size='md'
-        color='gray'
-        {...dragHandleProps}
-      >
-        <IconGripVertical size={16} />
-      </ActionIcon> */}
-    </Group>
-  ), [dragHandleProps, handleClickAdd, handleClickDelete, handleClickEdit])
+  }
 
   return (
-    <Group w='100%' gap='sm' wrap='nowrap' align='start'>
-      {/* Index */}
-      <Text fw='bold' w='1.2rem'>{rowIndex + 1}.</Text>
-      {/* Item */}
-      <ReadonlyItemComponent item={item} controlSection={controlSection} />
+    <Group gap='sm' wrap='nowrap' align='start' m='md'>
+      {/* Supplier */}
+      <Stack mr='auto' gap='0.25rem' align='start'>
+        <Text>{supplier.name}</Text>
+        <Text>GST: {WsTemplate.gstMethodName(supplier.gstMethod)}</Text>
+      </Stack>
+
+      {/* Control section (action button, drag handle) */}
+      <Group gap='xs' wrap='nowrap'>
+        {/* Action Button */}
+        <Menu offset={6} position='bottom-end'>
+          <Menu.Target>
+            <ActionIcon variant='default' size='md' color='gray'>
+              <IconDots size={16} />
+            </ActionIcon>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Item leftSection={<IconPencil size={16} />} onClick={handleClickEdit}>Edit</Menu.Item>
+            <Menu.Item leftSection={<IconTrash size={16} />} onClick={handleClickDelete}>Delete</Menu.Item>
+            <Menu.Divider />
+            <Menu.Item leftSection={<IconPlus size={16} />} onClick={handleClickAdd}>Add Supplier</Menu.Item>            
+          </Menu.Dropdown>
+        </Menu>
+        {/* Drag Handle */}
+        <Box
+          className='cursor-move'
+          p='0.33rem'
+          pr='0'
+          {...dragHandleProps}
+        >
+          <IconSelector size={16} />
+        </Box>
+      </Group>
 
       {/* Modals */}
-      {editItemModal.element}
+      {editModal.element}
     </Group>
   )
 }
 
-function AddItemMenuSection({ onAddItem }: {
-  onAddItem: (kind: Quiz.ItemKind) => void
-}) {
-  return (
-    <>
-      <Menu.Item leftSection={<IconSquareCheck size={14} />}
-        onClick={() => onAddItem('selectedResponseItem')}
-      >
-        Multiple Choice Item
-      </Menu.Item>
-      <Menu.Item
-        leftSection={<IconSquareLetterT size={14} />}
-        onClick={() => onAddItem('textInputItem')}
-      >
-        Text Item
-      </Menu.Item>
-      <Menu.Item
-        leftSection={<IconListNumbers size={14} />}
-        onClick={() => onAddItem('listItem')}
-      >
-        List Item
-      </Menu.Item>
-    </>
-  )
-}
-
-type AddSectionHandler = (section: Quiz.Section, anchor: Quiz.Section, position: 'before' | 'after') => void
-type EditSectionHandler = (section: Quiz.Section) => void
-type DeleteSectionHandler = (section: Quiz.Section) => void
-type AddItemHandler = (item: Quiz.Item, afterItem: Quiz.Item) => void
-type AddItemToSectionHandler = (item: Quiz.Item, section: Quiz.Section) => void
-type EditItemHandler = (item: Quiz.Item) => void
-type DeleteItemHandler = (item: Quiz.Item) => void
+type AddSectionHandler = (section: WsTemplate.Section, anchor: WsTemplate.Section, position: 'before' | 'after') => void
+type EditSectionHandler = (section: WsTemplate.Section) => void
+type DeleteSectionHandler = (section: WsTemplate.Section) => void
+type AddSupplierHandler = (supplier: WsTemplate.Supplier, afterSupplier: WsTemplate.Supplier) => void
+type AddSupplierToSectionHandler = (supplier: WsTemplate.Supplier, section: WsTemplate.Section) => void
+type EditSupplierHandler = (supplier: WsTemplate.Supplier) => void
+type DeleteSupplierHandler = (supplier: WsTemplate.Supplier) => void

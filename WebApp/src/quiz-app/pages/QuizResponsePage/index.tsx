@@ -1,7 +1,7 @@
 import { useParams } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
-import { ActionIcon, Box, Button, Container, Divider, Group, MantineProvider, Stack, Text, Title, useComputedColorScheme, useMantineColorScheme } from '@mantine/core'
-import { IconBrightnessDown, IconBrightnessDownFilled, IconMoon, IconSun } from '@tabler/icons-react'
+import { ActionIcon, Box, Container, Divider, Group, MantineProvider, Stack, Text, Title, useComputedColorScheme, useMantineColorScheme } from '@mantine/core'
+import { IconMoon, IconSun } from '@tabler/icons-react'
 import { format } from 'date-fns'
 
 import { useApi } from 'src/app/contexts'
