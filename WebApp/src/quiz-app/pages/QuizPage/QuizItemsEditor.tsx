@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { ActionIcon, Box, Button, Divider, Group, Menu, Paper, Stack, Text, Title } from '@mantine/core'
 import { DragDropContext, Draggable, DraggableProvided, DraggableProvidedDragHandleProps, Droppable, DropResult } from '@hello-pangea/dnd'
-import { IconChevronDown, IconChevronRight, IconDots, IconGripVertical, IconListNumbers, IconPencil, IconPlus, IconSquareCheck, IconSquareLetterT, IconTrash } from '@tabler/icons-react'
+import { IconChevronDown, IconChevronRight, IconDots, IconListNumbers, IconPencil, IconPlus, IconSelector, IconSquareCheck, IconSquareLetterT, IconTrash } from '@tabler/icons-react'
 import { produce } from 'immer'
 
 import { Quiz } from 'src/quiz-app/models/Quiz'
@@ -12,6 +12,9 @@ import ReadonlyItemComponent from './ReadonlyItemComponent'
 import { Dispatch, ReduceState } from 'src/utils/types-lib'
 import useModal from 'src/utils/use-modal'
 
+/**
+ * Quiz sections & items editor component.
+ */
 export default function QuizItemsEditor({ items, sections, setData }: {
   items: Quiz.Item[],
   sections: Quiz.Section[],
@@ -19,7 +22,7 @@ export default function QuizItemsEditor({ items, sections, setData }: {
 }) {
   const editSectionModal = useModal(EditSectionModal)
 
-  // Can't hold this inside SectionHeader or Row because they will be deleted
+  // Can't hold this inside SectionHeader or Row, otherwise the modal is gone when the SectionHeader/Row is deleted
   const confirmDeleteModal = useModal(ConfirmModal)
 
   // Can't hold this inside SectionComponent because it gets reset during drag/drop
@@ -119,7 +122,7 @@ export default function QuizItemsEditor({ items, sections, setData }: {
     })
   }
 
-  const handleDeleteItem: EditItemHandler = (item) => {
+  const handleDeleteItem: DeleteItemHandler = (item) => {
     setData(([items, sections]) => {
       const newItems = produce(items, items => {
         const index = items.findIndex(x => x.id == item.id)!
@@ -543,7 +546,8 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
           pr='0'
           {...dragHandleProps}
         >
-          <IconGripVertical size={16} />
+          {/* Old: IconGripVertical */}
+          <IconSelector size={16} />
           {/* <IconMenuOrder />
             <IconArrowsMoveVertical />
             <IconArrowsSort />
@@ -634,7 +638,8 @@ function Row({ item, rowIndex, onAddItem, onEditItem, onDeleteItem, onOpenConfir
         pr='0'
         {...dragHandleProps}
       >
-        <IconGripVertical size={16} />
+        {/* Old icon: IconGripVertical */}
+        <IconSelector size={16} />
       </Box>
       {/* <ActionIcon
         variant='default'
