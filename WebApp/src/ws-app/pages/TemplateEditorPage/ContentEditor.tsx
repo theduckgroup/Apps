@@ -316,12 +316,8 @@ function SectionComponent({
 
   function handleClickAddSupplier() {
     addSupplierModal.open({
-      title: 'Add Item',
-      supplier: {
-        id: new ObjectID().toString(),
-        name: 'Supplier',
-        gstMethod: 'notApplicable'
-      },
+      title: 'Add Suplier',
+      supplier: WsTemplate.createDefaultSupplier(),
       onSave: newSupplier => {
         onAddItemToSection(newSupplier, section)
       }
@@ -376,8 +372,9 @@ function SectionComponent({
               <Stack
                 ref={provided.innerRef}
                 {...provided.droppableProps}
-                gap='1.5rem'
-                m='md'
+                // gap='1.5rem'
+                gap='0px'
+                // m='md'
                 align='start'
                 hidden={!isExpanded}
               >
@@ -390,20 +387,24 @@ function SectionComponent({
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         style={{ ...provided.draggableProps.style }}
+                        // className='border-b border-zinc-600'
                         w='100%' // Important
                       // bg='var(--mantine-color-body)'
                       >
                         {(() => {
                           return (
-                            <Row
-                              supplier={supplierForId(row.supplierId)!}
-                              rowIndex={rowIndex}
-                              onAddSupplier={onAddSupplier}
-                              onEditSupplier={onEditSupplier}
-                              onDeleteSupplier={onDeleteSupplier}
-                              onOpenConfirmDeleteModal={onOpenConfirmDeleteModal}
-                              dragHandleProps={provided.dragHandleProps}
-                            />
+                            <>
+                              <Row
+                                supplier={supplierForId(row.supplierId)!}
+                                rowIndex={rowIndex}
+                                onAddSupplier={onAddSupplier}
+                                onEditSupplier={onEditSupplier}
+                                onDeleteSupplier={onDeleteSupplier}
+                                onOpenConfirmDeleteModal={onOpenConfirmDeleteModal}
+                                dragHandleProps={provided.dragHandleProps}
+                              />
+                              {rowIndex < section.rows.length - 1 && <Divider />}
+                            </>
                           )
                         })()}
                       </Box>
@@ -411,14 +412,18 @@ function SectionComponent({
                   </Draggable>
                 ))}
                 {provided.placeholder}
-                <Button
-                  variant='default' size='sm'
-                  mt={section.rows.length > 0 ? '0.5rem' : 0}
-                  leftSection={<IconPlus size={12} />}
-                  onClick={handleClickAddSupplier}
-                >
-                  Add Supplier
-                </Button>
+                {section.rows.length == 0 &&
+                  <Button
+                    variant='default' size='sm'
+                    // color='dark.1'
+                    // mt={section.rows.length > 0 ? '0.5rem' : 0}
+                    m='md'
+                    leftSection={<IconPlus size={12} />}
+                    onClick={handleClickAddSupplier}
+                  >
+                    Add Supplier
+                  </Button>
+                }
               </Stack>
             )}
           </Droppable>
@@ -576,7 +581,7 @@ function Row({ supplier, rowIndex, onAddSupplier, onEditSupplier, onDeleteSuppli
 
   const handleClickEdit = () => {
     editModal.open({
-      title: 'Edit Item',
+      title: 'Edit Supplier',
       supplier,
       onSave: modifiedSupplier => {
         onEditSupplier(modifiedSupplier)
@@ -586,7 +591,7 @@ function Row({ supplier, rowIndex, onAddSupplier, onEditSupplier, onDeleteSuppli
 
   const handleClickDelete = () => {
     onOpenConfirmDeleteModal({
-      title: 'Delete Supplier',
+      title: '',
       message: (
         <Stack gap='xs'>
           <Text>Delete supplier '{supplier.name}'?</Text>
@@ -603,20 +608,12 @@ function Row({ supplier, rowIndex, onAddSupplier, onEditSupplier, onDeleteSuppli
     })
   }
 
-  const gstMethodName = (() => {
-    switch (supplier.gstMethod) {
-      case 'notApplicable': return 'N/A'
-      case 'input': return 'Manual'
-      case 'tenPercent': return '10%'
-    }
-  })()
-
   return (
-    <Group w='100%' gap='sm' wrap='nowrap' align='start'>
+    <Group gap='sm' wrap='nowrap' align='start' m='md'>
       {/* Supplier */}
-      <Stack>
+      <Stack mr='auto' gap='0.25rem' align='start'>
         <Text>{supplier.name}</Text>
-        <Text>GST: {gstMethodName}</Text>
+        <Text>GST: {WsTemplate.gstMethodName(supplier.gstMethod)}</Text>
       </Stack>
 
       {/* Control section (action button, drag handle) */}
@@ -629,10 +626,10 @@ function Row({ supplier, rowIndex, onAddSupplier, onEditSupplier, onDeleteSuppli
             </ActionIcon>
           </Menu.Target>
           <Menu.Dropdown>
-            <Menu.Item leftSection={<IconPlus size={16} />} onClick={handleClickAdd}>Add Supplier</Menu.Item>
             <Menu.Item leftSection={<IconPencil size={16} />} onClick={handleClickEdit}>Edit</Menu.Item>
             <Menu.Item leftSection={<IconTrash size={16} />} onClick={handleClickDelete}>Delete</Menu.Item>
             <Menu.Divider />
+            <Menu.Item leftSection={<IconPlus size={16} />} onClick={handleClickAdd}>Add Supplier</Menu.Item>            
           </Menu.Dropdown>
         </Menu>
         {/* Drag Handle */}

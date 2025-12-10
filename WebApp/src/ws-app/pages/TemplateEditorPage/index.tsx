@@ -15,7 +15,7 @@ import formatError from 'src/common/format-error'
 import { Dispatch, ReduceState } from 'src/utils/types-lib'
 
 export default function TemplateEditorPage() {
-  const { quizId } = useParams()
+  const { templateId } = useParams()
   const { axios } = useApi()
   const { navigate } = usePath()
   const [template, setTemplate] = useState<WsTemplate | null>(null)
@@ -23,8 +23,8 @@ export default function TemplateEditorPage() {
 
   const { mutate: loadTemplate, error: loadError, isPending: isLoading } = useMutation({
     mutationFn: async () => {
-      if (quizId) {
-        return (await axios.get(`/ws-app/${quizId}`)).data as WsTemplate
+      if (templateId) {
+        return (await axios.get(`/template/${templateId}`)).data as WsTemplate
 
       } else {
         const template: WsTemplate = {
@@ -76,7 +76,7 @@ export default function TemplateEditorPage() {
   return (
     <Stack>
       {/* <title>{quiz ? quiz.name : 'FOH Test'} | The Duck Group</title> */}
-      <title>'WS Template | The Duck Group</title>
+      <title>Weekly Spending | The Duck Group</title>
 
       {/* Save error */}
       {
@@ -94,7 +94,7 @@ export default function TemplateEditorPage() {
       <Anchor size='sm' href='#' onClick={() => navigate(`/list`)}>
         <Group gap='0.2rem'>
           <IconChevronLeft size={18} />
-          Back to Tests
+          Back to Templates
         </Group>
       </Anchor>
 
@@ -159,11 +159,11 @@ function Content({ template, setTemplate, isSaving }: {
 
   return (
     <Stack gap='lg'>
-      {/* Quiz metadata + Save loader */}
+      {/* Metadata + Save loader */}
       <Group align='flex-start'>
-        {/* Quiz metadata + Edit button */}
+        {/* Metadata + Edit button */}
         <Stack gap='xs' align='flex-start' mr='auto'>
-          {/* Quiz title + Edit button */}
+          {/* Title + Edit button */}
           <Group gap='md' align='baseline'>
             <Title order={3} c='gray.1'>{template!.name}</Title>
             <Button variant='light' size='compact-xs' onClick={handleEdit}>
@@ -187,10 +187,6 @@ function Content({ template, setTemplate, isSaving }: {
       <ContentEditor
         suppliers={template.suppliers}
         sections={template.sections}
-        // onChange={(items, sections) => {
-        //   setQuiz(quiz => ({ ...quiz!, items, sections }))
-        //   saveQuiz()
-        // }}
         setData={setData}
       />
 

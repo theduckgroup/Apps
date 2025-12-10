@@ -155,14 +155,14 @@ function validateTemplate(template: WsTemplateSchemaInferredType) {
   const diff1 = [...rowSupplierIDs].filter(x => !supplierIDs.has(x))
 
   if (diff1.length > 0) {
-    const diffErrors = diff1.map(x => `Row item IDs not found: ${x}`)
+    const diffErrors = diff1.map(x => `Row supplier IDs not found: ${x}`)
     errors.push(...diffErrors)
   }
 
   const diff2 = [...supplierIDs].filter(x => !rowSupplierIDs.has(x))
 
   if (diff2.length > 0) {
-    const diffErrors = diff2.map(x => `Item IDs not used in rows: ${x}`)
+    const diffErrors = diff2.map(x => `Supplier IDs not used in rows: ${x}`)
     errors.push(...diffErrors)
   }
 
@@ -211,7 +211,7 @@ userRouter.post('/submit', async (req, res) => {
 
   const doc: DbWsReport = {
     ...data,
-    submittedDate: new Date(data.submittedDate)
+    date: new Date(data.submittedDate),
   }
 
   const insertResult = await db.collection_wsReports.insertOne(doc)

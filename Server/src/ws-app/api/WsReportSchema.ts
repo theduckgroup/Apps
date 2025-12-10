@@ -1,4 +1,4 @@
-import { z } from "zod"
+import { z } from 'zod'
 
 import { WsTemplateSchema } from './WsTemplateSchema'
 
@@ -12,8 +12,10 @@ const WsReportSchema = z.strictObject({
       reference: z.string()
     })
   ),
-  store: z.strictObject({
-    name: z.string()
+  user: z.strictObject({
+    id: z.string(),
+    name: z.string(),
+    email: z.string()
   }),
 })
 

@@ -1,8 +1,7 @@
-import { produce } from 'immer'
-import { Button, Checkbox, Group, Modal, Stack, Textarea } from '@mantine/core'
+import { Button, Group, Modal, Select, Stack, Text, Textarea } from '@mantine/core'
 
 import { WsTemplate } from 'src/ws-app/models/WsTemplate'
-import { useEffect, useRef, useState } from 'react'
+import { isNotEmpty, useForm } from '@mantine/form'
 
 
 export function EditSupplierModal({ opened, onClose, options }: {
@@ -14,19 +13,35 @@ export function EditSupplierModal({ opened, onClose, options }: {
     onSave: (_: WsTemplate.Supplier) => void
   }
 }) {
-  const { onSave } = options
-  const [supplier, setSupplier] = useState(options.supplier)
-  
-  const nameRef = useRef<HTMLTextAreaElement | null>(null)
+  const { supplier, onSave } = options
 
-  const handleNameChange = (value: string) => {
-    setSupplier(produce(supplier, supplier => {
-      supplier.name = value
-    }))
-  }
+  const form = useForm({
+    mode: 'uncontrolled',
+    initialValues: {
+      name: options.supplier.name,
+      gstMethod: options.supplier.gstMethod
+    },
+    validate: {
+      name: isNotEmpty('Required')
+    },
+    clearInputErrorOnChange: true,
+  });
 
-  const handleSave = () => {
-    onSave(supplier)
+  // const [supplier, setSupplier] = useState(options.supplier)
+
+  // const handleNameChange = (value: string) => {
+  //   setSupplier(produce(supplier, supplier => {
+  //     supplier.name = value
+  //   }))
+  // }
+
+  const handleSave = (values: typeof form.values) => {
+    onClose()
+    onSave({
+      id: supplier.id,
+      name: values.name,
+      gstMethod: values.gstMethod
+    })
   }
 
   // function handleInlineChange(value: boolean) {
@@ -37,13 +52,10 @@ export function EditSupplierModal({ opened, onClose, options }: {
   //   onChange(modifiedItem)
   // }
 
-  useEffect(() => {
-    setTimeout(() => {
-      nameRef.current?.focus()
-    }, 50)
-  }, [nameRef])
+  // const isValid = supplier.name != ''
 
-  const isValid = supplier.name != ''
+  const gstMethods: WsTemplate.GstMethod[] = ['notApplicable', 'tenPercent', 'input']
+  const gstSelectData = gstMethods.map(x => ({ value: x, label: WsTemplate.gstMethodName(x) }))
 
   return (
     <Modal
@@ -54,40 +66,37 @@ export function EditSupplierModal({ opened, onClose, options }: {
       returnFocus={false}
       closeOnClickOutside={false}
     >
-      <Stack>
-        <Textarea
-          label='Supplier Name'
-          data-autofocus={true}
-          autosize
-          required
-          value={supplier.name}
-          onChange={e => handleNameChange(e.currentTarget.value)}
-          ref={nameRef}
-        />
-        {/* <Checkbox
-        label='Inline'
-        checked={item.data.layout == 'inline'}
-        onChange={e => handleInlineChange(e.currentTarget.checked)}
-      /> */}
-      </Stack>
-      <Group>
-        {/* <HoverCard width={250} shadow='md'>
-                  <HoverCard.Target>
-                    <ActionIcon variant='transparent'>
-                      <IconInfoCircle size={20} />
-                    </ActionIcon>
-                  </HoverCard.Target>
-                  <HoverCard.Dropdown>
-                    <Text size='sm'>
-                      Use Ctrl+Enter or ⌘+Enter to save, Esc to cancel
-                    </Text>
-                  </HoverCard.Dropdown>
-                </HoverCard> */}
-        <Group gap='sm' ml='auto'>
-          <Button variant='default' w='6rem' onClick={onClose}>Cancel</Button>
-          <Button type='submit' w='6rem' disabled={!isValid} onClick={handleSave}>Save</Button>
-        </Group>
-      </Group>
+      <form onSubmit={form.onSubmit(handleSave)}>
+        <Stack>
+          <Textarea
+            label='Supplier Name'
+            data-autofocus={true}
+            autosize
+            {...form.getInputProps('name')}
+          // value={supplier.name}
+          // onChange={e => handleNameChange(e.currentTarget.value)}
+          />
+          {/* <Stack align='flex-start' w='100%' gap='0.05rem'> */}
+            {/* <Text fz='sm'>GST</Text>
+          <Group align='center' gap='sm' wrap='nowrap'> */}
+            <Select
+              label='GST'
+              placeholder='Select a role'
+              data={gstSelectData}
+              w='36%' // ??
+              allowDeselect={false}
+              {...form.getInputProps('gstMethod')}
+            />
+            {/* </Group> */}
+          {/* </Stack> */}
+          <Group>
+            <Group gap='sm' ml='auto'>
+              <Button variant='default' w='6rem' onClick={onClose}>Cancel</Button>
+              <Button type='submit' w='6rem'>Save</Button>
+            </Group>
+          </Group>
+        </Stack>
+      </form>
     </Modal>
   )
 }

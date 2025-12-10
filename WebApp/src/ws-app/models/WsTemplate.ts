@@ -13,8 +13,10 @@ export namespace WsTemplate {
   export interface Supplier {
     id: string
     name: string
-    gstMethod: 'input' | 'tenPercent' | 'notApplicable'
+    gstMethod: GstMethod
   }
+
+  export type GstMethod = 'notApplicable' | 'tenPercent' | 'input'
 
   export interface Section {
     id: string
@@ -29,7 +31,7 @@ export namespace WsTemplate {
   export function createDefaultSupplier(): Supplier {
     return {
       id: new ObjectID().toString(),
-      name: 'Supplier',
+      name: '',
       gstMethod: 'notApplicable'
     }
   }
@@ -37,8 +39,16 @@ export namespace WsTemplate {
   export function createDefaultSection(): Section {
     return {
       id: new ObjectID().toString(),
-      name: 'Section',
+      name: '',
       rows: []
+    }
+  }
+
+  export function gstMethodName(value: GstMethod) {
+    switch (value) {
+      case 'notApplicable': return 'N/A'
+      case 'tenPercent': return '10%'
+      case 'input': return 'Manual'
     }
   }
 }
