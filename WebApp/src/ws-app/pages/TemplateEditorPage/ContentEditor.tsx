@@ -257,10 +257,10 @@ export function ContentEditor({ suppliers, sections, setData }: {
                         onAddSection={handleAddSection}
                         onEditSection={handleEditSection}
                         onDeleteSection={handleDeleteSection}
-                        onAddItem={handleAddSupplier}
-                        onAddItemToSection={handleAddSupplierToSection}
-                        onEditItem={handleEditSupplier}
-                        onDeleteItem={handleDeleteSupplier}
+                        onAddSupplier={handleAddSupplier}
+                        onAddSupplierToSection={handleAddSupplierToSection}
+                        onEditSupplier={handleEditSupplier}
+                        onDeleteSupplier={handleDeleteSupplier}
                         onOpenConfirmDeleteModal={confirmDeleteModal.open}
                         provided={provided}
                       />
@@ -297,7 +297,7 @@ function SectionComponent({
   section, sectionIndex, itemForId: supplierForId,
   isExpanded, onExpandedChange,
   onAddSection, onEditSection, onDeleteSection,
-  onAddItem: onAddSupplier, onAddItemToSection, onEditItem: onEditSupplier, onDeleteItem: onDeleteSupplier,
+  onAddSupplier, onAddSupplierToSection, onEditSupplier, onDeleteSupplier,
   onOpenConfirmDeleteModal,
   provided
 }: {
@@ -309,22 +309,21 @@ function SectionComponent({
   onAddSection: AddSectionHandler,
   onEditSection: EditSectionHandler,
   onDeleteSection: DeleteSectionHandler,
-  onAddItem: AddSupplierHandler,
-  onAddItemToSection: AddSupplierToSectionHandler,
-  onEditItem: EditSupplierHandler,
-  onDeleteItem: EditSupplierHandler,
+  onAddSupplier: AddSupplierHandler,
+  onAddSupplierToSection: AddSupplierToSectionHandler,
+  onEditSupplier: EditSupplierHandler,
+  onDeleteSupplier: EditSupplierHandler,
   onOpenConfirmDeleteModal: (options: ConfirmModal.Options) => void,
   provided: DraggableProvided
 }) {
   const addSupplierModal = useModal(EditSupplierModal)
-  // const [editItemModalOptions, setEditItemModalOptions] = useState<EditItemModalOptions | null>(null)
 
-  function handleClickAddSupplier() {
+  const handleClickAddSupplier = () => {
     addSupplierModal.open({
       title: 'Add Suplier',
       supplier: WsTemplate.createDefaultSupplier(),
       onSave: newSupplier => {
-        onAddItemToSection(newSupplier, section)
+        onAddSupplierToSection(newSupplier, section)
       }
     })
   }
@@ -414,7 +413,7 @@ function SectionComponent({
                               onOpenConfirmDeleteModal={onOpenConfirmDeleteModal}
                               dragHandleProps={provided.dragHandleProps}
                             />
-                            {rowIndex < section.rows.length - 1 && <Divider />}
+                            {rowIndex < section.rows.length - 1 && <Divider ml='md' />}
                           </>
                         )
                       })()}
@@ -503,60 +502,63 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
   }
 
   return (
-    <Group bg='dark.6' wrap='nowrap' px='md' py='sm' align='flex-start'>
-      {/* Expand button + name */}
-      <Group gap='0' align='flex-start' wrap='nowrap' mr='auto'>
-        {/* Expand button */}
-        <ActionIcon
-          variant='transparent'
-          size='compact-md'
-          onClick={() => onExpandedChange(!isExpanded)}
-          color='gray'
-          pl='0'
-          pr='0.33rem'
-          className='flex-none'
-        >
-          {isExpanded ?
-            <IconChevronDown size={22} /> :
-            <IconChevronRight size={22} />
-          }
-        </ActionIcon>
-        {/* Name -- for some reason, Tailwind 'leading-' doesn't work here */}
-        <Title order={4} style={{ lineHeight: '1.5rem' }}>
-          {section.name}
-        </Title>
-      </Group>
-      {/* Buttons */}
-      <Group gap='xs' wrap='nowrap'>
-        {/* Add Button */}
-        <Menu offset={6} position='bottom-end' width={180}>
-          <Menu.Target>
-            <ActionIcon variant='subtle' size='md' color='gray'>
-              <IconDots size={16} />
-            </ActionIcon>
-          </Menu.Target>
-          <Menu.Dropdown>
-            <Menu.Item leftSection={<IconPencil size={16} />} onClick={handleClickEdit}>Edit</Menu.Item>
-            <Menu.Item leftSection={<IconTrash size={16} />} onClick={handleDelete}>Delete</Menu.Item>
-            <Menu.Divider />
-            <Menu.Label>Add Section</Menu.Label>
-            <Menu.Item leftSection={<IconPlus size={16} />} onClick={handleClickAddBefore}>Add Above</Menu.Item>
-            <Menu.Item leftSection={<IconPlus size={16} />} onClick={handleClickAddAfter}>Add Below</Menu.Item>
-          </Menu.Dropdown>
-        </Menu>
-        <Box
-          className='cursor-move'
-          p='0.33rem'
-          pr='0'
-          {...dragHandleProps}
-        >
-          <IconSelector size={16} />
-        </Box>
-      </Group>
+    <Stack gap={0}>
+      <Group bg='dark.6' wrap='nowrap' px='md' py='sm' align='flex-start'>
+        {/* Expand button + name */}
+        <Group gap='0' align='flex-start' wrap='nowrap' mr='auto'>
+          {/* Expand button */}
+          <ActionIcon
+            variant='transparent'
+            size='compact-md'
+            onClick={() => onExpandedChange(!isExpanded)}
+            color='gray'
+            pl='0'
+            pr='0.33rem'
+            className='flex-none'
+          >
+            {isExpanded ?
+              <IconChevronDown size={22} /> :
+              <IconChevronRight size={22} />
+            }
+          </ActionIcon>
+          {/* Name -- for some reason, Tailwind 'leading-' doesn't work here */}
+          <Title order={4} style={{ lineHeight: '1.5rem' }}>
+            {section.name}
+          </Title>
+        </Group>
+        {/* Buttons */}
+        <Group gap='xs' wrap='nowrap'>
+          {/* Add Button */}
+          <Menu offset={6} position='bottom-end' width={180}>
+            <Menu.Target>
+              <ActionIcon variant='subtle' size='md' color='gray'>
+                <IconDots size={16} />
+              </ActionIcon>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Item leftSection={<IconPencil size={16} />} onClick={handleClickEdit}>Edit</Menu.Item>
+              <Menu.Item leftSection={<IconTrash size={16} />} onClick={handleDelete}>Delete</Menu.Item>
+              <Menu.Divider />
+              <Menu.Label>Add Section</Menu.Label>
+              <Menu.Item leftSection={<IconPlus size={16} />} onClick={handleClickAddBefore}>Add Above</Menu.Item>
+              <Menu.Item leftSection={<IconPlus size={16} />} onClick={handleClickAddAfter}>Add Below</Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+          <Box
+            className='cursor-move'
+            p='0.33rem'
+            pr='0'
+            {...dragHandleProps}
+          >
+            <IconSelector size={16} />
+          </Box>
+        </Group>
 
+      </Group>
+      {!isExpanded && <Divider />}
       {/* Modals */}
       {editSectionModal.element}
-    </Group>
+    </Stack>
   )
 }
 
