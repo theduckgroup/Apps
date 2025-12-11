@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { ActionIcon, Button, Grid, Group, Menu, Paper, Stack, Text, Title } from '@mantine/core'
-import { IconDots, IconPlus } from '@tabler/icons-react'
+import { IconDots, IconPencil, IconPlus } from '@tabler/icons-react'
 import { useQuery } from '@tanstack/react-query'
 
 import { usePath, useApi } from 'src/app/contexts'
@@ -73,7 +73,7 @@ function Content({ data }: {
       {
         import.meta.env.DEV &&
         <Button
-          variant='filled'
+          variant='default'
           leftSection={<IconPlus size={16} strokeWidth={2} />}
           onClick={() => navigate('/template')}
         >
@@ -93,7 +93,7 @@ function TemplateListItem({ template, openConfirmModal }: {
   const { axios } = useApi()
   const { navigate } = usePath()
 
-  function handleDuplicate() {
+  const handleDuplicate = () => {
     openConfirmModal({
       title: '',
       message: 'Duplicate this template?',
@@ -101,6 +101,25 @@ function TemplateListItem({ template, openConfirmModal }: {
         label: 'Duplicate',
         handler: async () => {
           return await axios.post(`template/${template.id}/duplicate`)
+        }
+      }]
+    })
+  }
+
+  const handleDelete = () => {
+    openConfirmModal({
+      title: '',
+      message: (
+        <Stack>
+          <Text>Delete '{template.name}'?</Text>
+          <Text fw='bold'>This cannot be undone.</Text>
+        </Stack>
+      ),
+      actions: [{
+        label: 'Delete',
+        role: 'destructive',
+        handler: async () => {
+          return await axios.delete(`template/${template.id}`)
         }
       }]
     })
@@ -122,34 +141,30 @@ function TemplateListItem({ template, openConfirmModal }: {
           <Group w='100%'>
             {/* View/Edit button */}
             <Button
-              variant='default'
+              variant='light'
               size='xs'
               // leftSection={<IconPencil size={14}/>}
               // rightSection={<IconArrowNarrowRight size={14}/>}
               onClick={() => navigate(`/template/${template.id}`)}
             >
-              <Group gap='0.25rem' align='center'>
+              {/* <Group gap='0.25rem' align='center'> */}
                 {/* <IconPencil size={14} strokeWidth={1.25} /> */}
                 View/Edit
                 {/* <IconArrowNarrowRight size={14} /> */}
-              </Group>
+              {/* </Group> */}
             </Button>
             {/* Dropdown menu */}
             {
               import.meta.env.DEV &&
               <Menu position='bottom-end' width={150}>
                 <Menu.Target>
-                  <ActionIcon
-                    variant='default'
-                    ml='auto'
-                  >
+                  <ActionIcon variant='default' ml='auto'>
                     <IconDots size={16} />
                   </ActionIcon>
                 </Menu.Target>
                 <Menu.Dropdown>
-                  <Menu.Item onClick={handleDuplicate}>
-                    Duplicate
-                  </Menu.Item>
+                  <Menu.Item onClick={handleDuplicate}>Duplicate</Menu.Item>
+                  <Menu.Item onClick={handleDelete}>Delete</Menu.Item>
                 </Menu.Dropdown>
               </Menu>
             }
