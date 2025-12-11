@@ -271,7 +271,7 @@ publicRouter.get('/mock-template', async (req, res) => {
   const db = await getDb()
 
   const doc = await db.collection_wsTemplates.findOne({
-    code: 'MAIN'
+    code: 'WEEKLY_SPENDING'
   })
 
   if (!doc) {
