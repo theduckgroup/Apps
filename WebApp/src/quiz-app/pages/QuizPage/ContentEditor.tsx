@@ -519,8 +519,8 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
         {/* Add Button */}
         <Menu offset={6} position='bottom-end' width={180}>
           <Menu.Target>
-            <ActionIcon variant='default' size='md' color='gray'>
-              <IconDots size={16} />
+            <ActionIcon variant='subtle' size='md' color='gray'>
+              <IconDots size={16}/>
             </ActionIcon>
           </Menu.Target>
           <Menu.Dropdown>
@@ -604,7 +604,7 @@ function Row({ item, rowIndex, onAddItem, onEditItem, onDeleteItem, onOpenConfir
       {/* Action Button */}
       <Menu offset={6} position='bottom-end'>
         <Menu.Target>
-          <ActionIcon variant='default' size='md' color='gray'>
+          <ActionIcon variant='subtle' size='md' color='gray'>
             <IconDots size={16} />
           </ActionIcon>
         </Menu.Target>
