@@ -147,11 +147,7 @@ function TemplateListItem({ template, openConfirmModal }: {
               // rightSection={<IconArrowNarrowRight size={14}/>}
               onClick={() => navigate(`/template/${template.id}`)}
             >
-              {/* <Group gap='0.25rem' align='center'> */}
-                {/* <IconPencil size={14} strokeWidth={1.25} /> */}
-                View/Edit
-                {/* <IconArrowNarrowRight size={14} /> */}
-              {/* </Group> */}
+              View/Edit
             </Button>
             {/* Dropdown menu */}
             {
