@@ -6,7 +6,7 @@ import Backend
 import AppUI
 
 struct HomeView: View {
-    @AppStorage("App:cachedTemplateName") var cachedTemplateName: String = ""
+    // @AppStorage("App:cachedTemplateName") var cachedTemplateName: String = ""
     @State var templateResult: Result<Template, Error>?
     @State var error: Error?
     @State var isFetching = false
@@ -18,30 +18,55 @@ struct HomeView: View {
     @Environment(AppDefaults.self) private var appDefaults
     
     var body: some View {
-        bodyContent()
-            .presentations(ps)
-            .onAppear {
+        NavigationStack {
+            bodyContent()
+                .navigationTitle("Weekly Spending")
+                .toolbar { toolbarContent() }
+        }
+        .presentations(ps)
+        .onFirstAppear {
+            fetchTemplate()
+        }
+        .onReceive(EventHub.shared.templatesChanged) {
+            fetchTemplate()
+        }
+        .onChange(of: scenePhase) {
+            if scenePhase == .active {
                 fetchTemplate()
             }
-            .onReceive(EventHub.shared.quizzesChanged) {
-                fetchTemplate()
+        }
+    }
+    
+    @ToolbarContentBuilder
+    private func toolbarContent() -> some ToolbarContent {
+        ToolbarItemGroup(placement: .topBarTrailing) {
+            Button {
+                presentingSettings = true
+                
+            } label: {
+                Image(systemName: "person.fill")
             }
-            .onChange(of: scenePhase) {
-                if scenePhase == .active {
-                    fetchTemplate()
-                }
+            .popover(isPresented: $presentingSettings) {
+                @Bindable var appDefaults = appDefaults
+
+                SettingsView(
+                    colorSchemeOverride: $appDefaults.colorSchemeOverride,
+                    accentColor: $appDefaults.accentColor,
+                    containerHorizontalSizeClass: horizontalSizeClass
+                )
             }
+        }
     }
     
     @ViewBuilder
     private func bodyContent() -> some View {
-        ZStack {
+        VStack(alignment: .leading) {
             VStack(spacing: 15) {
-                if !cachedTemplateName.isEmpty {
-                    Text(cachedTemplateName)
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                }
+//                if !cachedTemplateName.isEmpty {
+//                    Text(cachedTemplateName)
+//                        .font(.title2)
+//                        .fontWeight(.semibold)
+//                }
                 
                 let template: Template? =
                     if let templateResult, case .success(let template) = templateResult {
@@ -50,6 +75,19 @@ struct HomeView: View {
                         nil
                     }
                 
+//                Button {
+//                    if let template {
+//                        ps.presentFullScreenCover {
+//                            ReportView(template: template)
+//                        }
+//                    }
+//                } label: {
+//                    Text("Submit")
+//                        .padding(.horizontal, 9)
+//                }
+//                .buttonStyle(.paperProminent)
+//                .disabled(template == nil)
+                
                 Button {
                     if let template {
                         ps.presentFullScreenCover {
@@ -57,32 +95,40 @@ struct HomeView: View {
                         }
                     }
                 } label: {
-                    Text("Submit")
-                        .padding(.horizontal, 9)
+                    Label("New Spending", systemImage: "plus")
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 3)
+                        .fontWeight(.semibold)
                 }
-                .buttonStyle(.paperProminent)
+                .buttonStyle(.borderedProminent)
                 .disabled(template == nil)
             }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .overlay(alignment: .topTrailing) {
-            HStack {
-                Button {
-                    presentingSettings = true
-                    
-                } label: {
-                    Image(systemName: "person.fill")
-                        .imageScale(.large)
-                }
-                .buttonStyle(.paper)
-                .padding(.bottom, 6)
-                .popover(isPresented: $presentingSettings) {
-                    @Bindable var appDefaults = appDefaults
-                    SettingsView(colorSchemeOverride: $appDefaults.colorSchemeOverride)
-                }
-            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .padding()
         }
+//        .overlay(alignment: .topTrailing) {
+//            HStack {
+//                Button {
+//                    presentingSettings = true
+//                    
+//                } label: {
+//                    Image(systemName: "person.fill")
+//                        .imageScale(.large)
+//                }
+//                .buttonStyle(.paper)
+//                .padding(.bottom, 6)
+//                .popover(isPresented: $presentingSettings) {
+//                    @Bindable var appDefaults = appDefaults
+//
+//                    SettingsView(
+//                        colorSchemeOverride: $appDefaults.colorSchemeOverride,
+//                        accentColor: $appDefaults.accentColor,
+//                        containerHorizontalSizeClass: horizontalSizeClass
+//                    )
+//                }
+//            }
+//            .padding()
+//        }
         .overlay(alignment: .bottom) {
             if isFetching {
                 HStack {
@@ -139,11 +185,11 @@ struct HomeView: View {
                         return try await API.shared.mockTemplate()
                     }
                     
-                    return try await API.shared.template(code: "MAIN")
+                    return try await API.shared.template(code: "WEEKLY_SPENDING")
                 }()
 
                 self.templateResult = .success(template)
-                self.cachedTemplateName = template.name
+                // self.cachedTemplateName = template.name
                 
                 isFetching = false
                 
@@ -154,7 +200,7 @@ struct HomeView: View {
                 
                 isFetching = false
                 
-                logger.error("Unable to load quiz: \(error)")
+                logger.error("Unable to load template: \(error)")
                 self.templateResult = .failure(error)
             }
         }

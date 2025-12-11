@@ -11,7 +11,7 @@ struct AppView: View {
     var body: some View {
         bodyContent()
             // .tint(.red)
-            .onAppear {
+            .onFirstAppear {
                 _ = KeyboardDoneButtonManager.shared
                 applyStylingOverride()
             }
