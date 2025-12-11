@@ -61,13 +61,15 @@ function Content({ data }: {
     <Stack align='flex-start' w='100%'>
       <Grid w='100%'>
         {
-          data.map(template => (
-            <TemplateListItem
-              key={template.id}
-              template={template}
-              openConfirmModal={confirmModal.open}
-            />
-          ))
+          data
+            .sort((x, y) => x.name.localeCompare(y.name))
+            .map(template => (
+              <TemplateListItem
+                key={template.id}
+                template={template}
+                openConfirmModal={confirmModal.open}
+              />
+            ))
         }
       </Grid>
       {
