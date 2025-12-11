@@ -235,47 +235,53 @@ export function ContentEditor({ suppliers, sections, setData }: {
         >
           {provided => (
             // Stack of sections
-            <Stack
-              {...provided.droppableProps}
-              ref={provided.innerRef}
-              gap='md'
+            <Paper
+              withBorder
             >
-              {sections.map((section, sectionIndex) => (
-                // One section
-                <Draggable key={section.id} draggableId={section.id} index={sectionIndex}>
-                  {provided => (
-                    <SectionComponent
-                      section={section}
-                      sectionIndex={sectionIndex}
-                      itemForId={id => suppliers.find(x => x.id == id)}
-                      isExpanded={isSectionExpanded(section.id)}
-                      onExpandedChange={value => setSectionExpanded(section.id, value)}
-                      onAddSection={handleAddSection}
-                      onEditSection={handleEditSection}
-                      onDeleteSection={handleDeleteSection}
-                      onAddItem={handleAddSupplier}
-                      onAddItemToSection={handleAddSupplierToSection}
-                      onEditItem={handleEditSupplier}
-                      onDeleteItem={handleDeleteSupplier}
-                      onOpenConfirmDeleteModal={confirmDeleteModal.open}
-                      provided={provided}
-                    />
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
-
-              {/* Add Section button */}
-              <Button
-                variant='default'
-                size='sm'
-                mr='auto'
-                leftSection={<IconPlus size={13} />}
-                onClick={handleClickAddSection}
+              <Stack
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+                // gap='md'
+                gap='0px'
               >
-                Add Section
-              </Button>
-            </Stack>
+                {sections.map((section, sectionIndex) => (
+                  // One section
+                  <Draggable key={section.id} draggableId={section.id} index={sectionIndex}>
+                    {provided => (
+                      <SectionComponent
+                        section={section}
+                        sectionIndex={sectionIndex}
+                        itemForId={id => suppliers.find(x => x.id == id)}
+                        isExpanded={isSectionExpanded(section.id)}
+                        onExpandedChange={value => setSectionExpanded(section.id, value)}
+                        onAddSection={handleAddSection}
+                        onEditSection={handleEditSection}
+                        onDeleteSection={handleDeleteSection}
+                        onAddItem={handleAddSupplier}
+                        onAddItemToSection={handleAddSupplierToSection}
+                        onEditItem={handleEditSupplier}
+                        onDeleteItem={handleDeleteSupplier}
+                        onOpenConfirmDeleteModal={confirmDeleteModal.open}
+                        provided={provided}
+                      />
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+
+                {/* Add Section button */}
+                <Button
+                  variant='default'
+                  size='sm'
+                  mr='auto'
+                  m='md'
+                  leftSection={<IconPlus size={13} />}
+                  onClick={handleClickAddSection}
+                >
+                  Add Section
+                </Button>
+              </Stack>
+            </Paper>
           )}
         </Droppable>
       </DragDropContext>
@@ -325,113 +331,119 @@ function SectionComponent({
 
   return (
     // Stack of section header and items
-    <Paper
-      withBorder
+    // <Paper
+    //   withBorder
+    //   ref={provided.innerRef}
+    //   {...provided.draggableProps}
+    //   style={provided.draggableProps.style}
+    // >
+    <Stack
+      gap={0}
+      bg='dark.8'
       ref={provided.innerRef}
       {...provided.draggableProps}
       style={provided.draggableProps.style}
     >
-      <Stack gap={0} bg='dark.8'>
-        {/* Section header */}
-        <SectionHeader
-          section={section}
-          sectionIndex={sectionIndex}
-          onAddSection={onAddSection}
-          onEditSection={onEditSection}
-          onDeleteSection={onDeleteSection}
-          onOpenConfirmDeleteModal={onOpenConfirmDeleteModal}
-          isExpanded={isExpanded}
-          onExpandedChange={onExpandedChange}
-          dragHandleProps={provided.dragHandleProps}
-        />
-        {/*  */}
-        {isExpanded && <Divider />}
-        {/* Droppable of rows */}
-        {
-          // isExpanded &&
-          <Droppable
-            droppableId={section.id}
-            direction='vertical'
-            type='row'
-            renderClone={(provided, snapshot, rubric) => {
-              return (
-                <Paper
-                  ref={provided.innerRef}
-                  {...provided.draggableProps}
-                  // bg='var(--mantine-color-gray-8)'
-                  bg='dark.5'
-                  h='4rem'
-                  radius='sm'
-                />
-              )
-            }}
-          >
-            {(provided) => (
-              // Stack of rows and Add Supplier button
-              <Stack
+      {/* Section header */}
+      <SectionHeader
+        section={section}
+        sectionIndex={sectionIndex}
+        onAddSection={onAddSection}
+        onEditSection={onEditSection}
+        onDeleteSection={onDeleteSection}
+        onOpenConfirmDeleteModal={onOpenConfirmDeleteModal}
+        isExpanded={isExpanded}
+        onExpandedChange={onExpandedChange}
+        dragHandleProps={provided.dragHandleProps}
+      />
+      {/*  */}
+      {/* {isExpanded && <Divider />} */}
+      {/* Droppable of rows */}
+      {
+        // isExpanded &&
+        <Droppable
+          droppableId={section.id}
+          direction='vertical'
+          type='row'
+          renderClone={(provided, snapshot, rubric) => {
+            return (
+              <Paper
                 ref={provided.innerRef}
-                {...provided.droppableProps}
-                // gap='1.5rem'
-                gap='0px'
-                // m='md'
-                align='start'
-                hidden={!isExpanded}
-              >
-                {section.rows.map((row, rowIndex) => (
-                  // Draggable of row
-                  <Draggable draggableId={row.supplierId} index={rowIndex} key={row.supplierId}>
-                    {(provided) => (
-                      // Row
-                      <Box
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        style={{ ...provided.draggableProps.style }}
-                        // className='border-b border-zinc-600'
-                        w='100%' // Important
-                      // bg='var(--mantine-color-body)'
-                      >
-                        {(() => {
-                          return (
-                            <>
-                              <Row
-                                supplier={supplierForId(row.supplierId)!}
-                                rowIndex={rowIndex}
-                                onAddSupplier={onAddSupplier}
-                                onEditSupplier={onEditSupplier}
-                                onDeleteSupplier={onDeleteSupplier}
-                                onOpenConfirmDeleteModal={onOpenConfirmDeleteModal}
-                                dragHandleProps={provided.dragHandleProps}
-                              />
-                              {rowIndex < section.rows.length - 1 && <Divider />}
-                            </>
-                          )
-                        })()}
-                      </Box>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-                {section.rows.length == 0 &&
-                  <Button
-                    variant='default' size='sm'
-                    // color='dark.1'
-                    // mt={section.rows.length > 0 ? '0.5rem' : 0}
-                    m='md'
-                    leftSection={<IconPlus size={12} />}
-                    onClick={handleClickAddSupplier}
-                  >
-                    Add Supplier
-                  </Button>
-                }
-              </Stack>
-            )}
-          </Droppable>
-        }
-      </Stack>
-
+                {...provided.draggableProps}
+                // bg='var(--mantine-color-gray-8)'
+                bg='dark.5'
+                h='4rem'
+                radius='sm'
+              />
+            )
+          }}
+        >
+          {(provided) => (
+            // Stack of rows and Add Supplier button
+            <Stack
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+              // gap='1.5rem'
+              gap='0px'
+              // m='md'
+              align='start'
+              hidden={!isExpanded}
+            >
+              {section.rows.map((row, rowIndex) => (
+                // Draggable of row
+                <Draggable draggableId={row.supplierId} index={rowIndex} key={row.supplierId}>
+                  {(provided) => (
+                    // Row
+                    <Box
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      style={{ ...provided.draggableProps.style }}
+                      // className='border-b border-zinc-600'
+                      w='100%' // Important
+                    // bg='var(--mantine-color-body)'
+                    >
+                      {(() => {
+                        return (
+                          <>
+                            <Row
+                              supplier={supplierForId(row.supplierId)!}
+                              rowIndex={rowIndex}
+                              onAddSupplier={onAddSupplier}
+                              onEditSupplier={onEditSupplier}
+                              onDeleteSupplier={onDeleteSupplier}
+                              onOpenConfirmDeleteModal={onOpenConfirmDeleteModal}
+                              dragHandleProps={provided.dragHandleProps}
+                            />
+                            {rowIndex < section.rows.length - 1 && <Divider />}
+                          </>
+                        )
+                      })()}
+                    </Box>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+              {section.rows.length == 0 &&
+                <Button
+                  variant='default' size='sm'
+                  // color='dark.1'
+                  // mt={section.rows.length > 0 ? '0.5rem' : 0}
+                  m='md'
+                  leftSection={<IconPlus size={12} />}
+                  onClick={handleClickAddSupplier}
+                >
+                  Add Supplier
+                </Button>
+              }
+            </Stack>
+          )}
+        </Droppable>
+      }
       {/* Modals */}
       {addSupplierModal.element}
-    </Paper>
+    </Stack>
+
+    // </Paper>
   )
 }
 
@@ -473,7 +485,7 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
 
   const handleDelete = () => {
     onOpenConfirmDeleteModal({
-      title: 'Delete',
+      title: '',
       message: (
         <Stack gap='xs'>
           <Text>Delete section '{section.name}'?</Text>
@@ -619,7 +631,7 @@ function Row({ supplier, rowIndex, onAddSupplier, onEditSupplier, onDeleteSuppli
             <Menu.Item leftSection={<IconPencil size={16} />} onClick={handleClickEdit}>Edit</Menu.Item>
             <Menu.Item leftSection={<IconTrash size={16} />} onClick={handleClickDelete}>Delete</Menu.Item>
             <Menu.Divider />
-            <Menu.Item leftSection={<IconPlus size={16} />} onClick={handleClickAdd}>Add Supplier</Menu.Item>            
+            <Menu.Item leftSection={<IconPlus size={16} />} onClick={handleClickAdd}>Add Supplier</Menu.Item>
           </Menu.Dropdown>
         </Menu>
         {/* Drag Handle */}
