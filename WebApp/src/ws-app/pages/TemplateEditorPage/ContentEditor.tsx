@@ -1,9 +1,8 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { ActionIcon, Box, Button, Divider, Group, Menu, Paper, Stack, Text, Title } from '@mantine/core'
 import { DragDropContext, Draggable, DraggableProvided, DraggableProvidedDragHandleProps, Droppable, DropResult } from '@hello-pangea/dnd'
-import { IconChevronDown, IconChevronRight, IconDots, IconGripVertical, IconPencil, IconPlus, IconSelector, IconTrash } from '@tabler/icons-react'
+import { IconChevronDown, IconChevronRight, IconDots, IconPencil, IconPlus, IconSelector, IconTrash } from '@tabler/icons-react'
 import { produce } from 'immer'
-import { ObjectID } from 'bson'
 
 import { WsTemplate } from 'src/ws-app/models/WsTemplate'
 import { EditSupplierModal } from './EditSupplierModal'
@@ -520,7 +519,7 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
         {/* Add Button */}
         <Menu offset={6} position='bottom-end' width={180}>
           <Menu.Target>
-            <ActionIcon variant='default' size='md' color='gray'>
+            <ActionIcon variant='subtle' size='md' color='gray'>
               <IconDots size={16} />
             </ActionIcon>
           </Menu.Target>
@@ -533,13 +532,6 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
             <Menu.Item leftSection={<IconPlus size={16} />} onClick={handleClickAddAfter}>Add Below</Menu.Item>
           </Menu.Dropdown>
         </Menu>
-        {/* Drag Handle */}
-        {/* <ActionIcon
-          variant='default'
-          size='md'
-          color='gray'
-          {...dragHandleProps}
-        > */}
         <Box
           className='cursor-move'
           p='0.33rem'
@@ -548,8 +540,6 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
         >
           <IconSelector size={16} />
         </Box>
-        {/* </ActionIcon> */}
-        {/* </Button.Group> */}
       </Group>
 
       {/* Modals */}
@@ -621,7 +611,7 @@ function Row({ supplier, rowIndex, onAddSupplier, onEditSupplier, onDeleteSuppli
         {/* Action Button */}
         <Menu offset={6} position='bottom-end'>
           <Menu.Target>
-            <ActionIcon variant='default' size='md' color='gray'>
+            <ActionIcon variant='subtle' size='md' color='gray'>
               <IconDots size={16} />
             </ActionIcon>
           </Menu.Target>
