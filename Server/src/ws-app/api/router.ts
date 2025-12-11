@@ -107,6 +107,19 @@ adminRouter.put('/template/:id', async (req, res) => {
   eventHub.emitTemplatesChanged()
 })
 
+adminRouter.delete('/template/:id', async (req, res) => {
+  const id = req.params.id
+  const db = await getDb()
+
+  await db.collection_wsTemplates.deleteOne({
+    _id: new ObjectId(id)
+  })
+
+  res.send()
+
+  eventHub.emitTemplatesChanged()
+})
+
 adminRouter.post('/template/:id/duplicate', async (req, res) => {
   const id = req.params.id
 
@@ -258,7 +271,7 @@ publicRouter.get('/mock-template', async (req, res) => {
   const db = await getDb()
 
   const doc = await db.collection_wsTemplates.findOne({
-    code: 'MAIN'
+    code: 'WEEKLY_SPENDING'
   })
 
   if (!doc) {

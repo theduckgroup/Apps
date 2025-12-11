@@ -133,6 +133,19 @@ adminRouter.put('/quiz/:id', async (req, res) => {
   eventHub.emitQuizzesChanged()
 })
 
+adminRouter.delete('/quiz/:id', async (req, res) => {
+  const id = req.params.id
+  const db = await getDb()
+
+  await db.collection_quizzes.deleteOne({
+    _id: new ObjectId(id)
+  })
+
+  res.send()
+
+  eventHub.emitQuizzesChanged()
+})
+
 adminRouter.post('/quiz/:id/duplicate', async (req, res) => {
   const id = req.params.id
 

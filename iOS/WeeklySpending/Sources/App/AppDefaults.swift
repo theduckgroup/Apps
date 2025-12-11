@@ -42,5 +42,20 @@ class AppDefaults {
 extension AppDefaults {
     struct Data: Codable {
         var colorSchemeOverride: ColorSchemeOverride?
+        var accentColorData: ColorData = ColorData(Color.theme)
+        
+        var accentColor: Color {
+            get {
+                accentColorData.color
+            }
+            set {
+                accentColorData = ColorData(newValue)
+            }
+        }
+                
+        enum CodingKeys: String, CodingKey {
+            case colorSchemeOverride
+            case accentColorData = "accentColor"
+        }
     }
 }

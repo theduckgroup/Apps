@@ -16,7 +16,7 @@ export namespace WsTemplate {
     gstMethod: GstMethod
   }
 
-  export type GstMethod = 'notApplicable' | 'tenPercent' | 'input'
+  export type GstMethod = 'notApplicable' | '10%' | 'input'
 
   export interface Section {
     id: string
@@ -47,7 +47,7 @@ export namespace WsTemplate {
   export function gstMethodName(value: GstMethod) {
     switch (value) {
       case 'notApplicable': return 'N/A'
-      case 'tenPercent': return '10%'
+      case '10%': return '10%'
       case 'input': return 'Manual'
     }
   }

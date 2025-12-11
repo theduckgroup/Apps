@@ -54,7 +54,7 @@ export function EditSupplierModal({ opened, onClose, options }: {
 
   // const isValid = supplier.name != ''
 
-  const gstMethods: WsTemplate.GstMethod[] = ['notApplicable', 'tenPercent', 'input']
+  const gstMethods: WsTemplate.GstMethod[] = ['notApplicable', '10%', 'input']
   const gstSelectData = gstMethods.map(x => ({ value: x, label: WsTemplate.gstMethodName(x) }))
 
   return (
