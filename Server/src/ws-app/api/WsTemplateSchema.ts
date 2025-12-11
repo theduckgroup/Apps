@@ -14,7 +14,7 @@ const MetadataSchema = z.object({
 const SupplierSchema = z.strictObject({
   id: z.string(),
   name: z.string(),
-  gstMethod: z.enum(['notApplicable', 'tenPercent', 'input'])
+  gstMethod: z.enum(['notApplicable', '10%', 'input'])
 })
 
 const SectionSchema = z.strictObject({

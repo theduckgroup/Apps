@@ -11,7 +11,7 @@ export namespace DbWsTemplate {
   export interface Supplier {
     id: string
     name: string
-    gstMethod: 'notApplicable' | 'tenPercent' | 'input'
+    gstMethod: 'notApplicable' | '10%' | 'input'
   }
 
   export interface Section {
