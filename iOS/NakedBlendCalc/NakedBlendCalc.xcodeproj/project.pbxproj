@@ -15,6 +15,8 @@
 		73C52C142D0E482600E341E8 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73C52C132D0E482600E341E8 /* App.swift */; };
 		73C52C162D0E482600E341E8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73C52C152D0E482600E341E8 /* ContentView.swift */; };
 		73C52C182D0E482700E341E8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 73C52C172D0E482700E341E8 /* Assets.xcassets */; };
+		73D290062EEB95E3004CB446 /* Common in Frameworks */ = {isa = PBXBuildFile; productRef = 73D290052EEB95E3004CB446 /* Common */; };
+		73D290082EEB95E3004CB446 /* CommonUI in Frameworks */ = {isa = PBXBuildFile; productRef = 73D290072EEB95E3004CB446 /* CommonUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +34,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				73D290062EEB95E3004CB446 /* Common in Frameworks */,
+				73D290082EEB95E3004CB446 /* CommonUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -49,6 +53,7 @@
 			isa = PBXGroup;
 			children = (
 				73C52C122D0E482600E341E8 /* Sources */,
+				73D290042EEB95E3004CB446 /* Frameworks */,
 				73C52C112D0E482600E341E8 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -72,6 +77,13 @@
 				73C52C172D0E482700E341E8 /* Assets.xcassets */,
 			);
 			path = Sources;
+			sourceTree = "<group>";
+		};
+		73D290042EEB95E3004CB446 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -207,7 +219,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -241,7 +253,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -482,6 +494,17 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		73D290052EEB95E3004CB446 /* Common */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Common;
+		};
+		73D290072EEB95E3004CB446 /* CommonUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CommonUI;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 73C52C082D0E482600E341E8 /* Project object */;
 }
