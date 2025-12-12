@@ -378,8 +378,6 @@ struct SafeAreaInsetsPrefKey: PreferenceKey {
 extension Double {
     var isNonZero: Bool {
         abs(self) > 0.01
-        
-        
     }
 }
 
