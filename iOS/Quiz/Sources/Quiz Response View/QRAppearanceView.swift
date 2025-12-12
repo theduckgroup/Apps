@@ -13,18 +13,19 @@ struct QRAppearanceView: View {
 
         VStack(alignment: .leading, spacing: 18) {
             VStack(alignment: .leading, spacing: 9) {
-                Text("Appearance")
+                Text("Theme")
                 ColorSchemeView(colorSchemeOverride: $appDefaults.colorSchemeOverride)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
             
             Divider()
+            
             textSizeView()
         }
-        .frame(width: 240)
+        .frame(width: 320)
         .padding(.horizontal, 27)
         .padding(.vertical, 24)
         .presentationCompactAdaptation(.popover)
+        .preferredColorScheme(appDefaults.colorSchemeOverride?.colorScheme)
     }
     
     @ViewBuilder
