@@ -89,9 +89,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		736B92B52DE09E2300AAE1B9 /* NakedBlendCalc-TDG */ = {
+		736B92B52DE09E2300AAE1B9 /* NakedBlendCalc */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 736B92BE2DE09E2300AAE1B9 /* Build configuration list for PBXNativeTarget "NakedBlendCalc-TDG" */;
+			buildConfigurationList = 736B92BE2DE09E2300AAE1B9 /* Build configuration list for PBXNativeTarget "NakedBlendCalc" */;
 			buildPhases = (
 				736B92B62DE09E2300AAE1B9 /* Sources */,
 				736B92BA2DE09E2300AAE1B9 /* Frameworks */,
@@ -101,14 +101,14 @@
 			);
 			dependencies = (
 			);
-			name = "NakedBlendCalc-TDG";
+			name = NakedBlendCalc;
 			productName = NakedBlendCalc;
 			productReference = 736B92C12DE09E2300AAE1B9 /* Naked Blend.app */;
 			productType = "com.apple.product-type.application";
 		};
-		73C52C0F2D0E482600E341E8 /* NakedBlendCalc */ = {
+		73C52C0F2D0E482600E341E8 /* NakedBlendCalc-todelete */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 73C52C1E2D0E482700E341E8 /* Build configuration list for PBXNativeTarget "NakedBlendCalc" */;
+			buildConfigurationList = 73C52C1E2D0E482700E341E8 /* Build configuration list for PBXNativeTarget "NakedBlendCalc-todelete" */;
 			buildPhases = (
 				73C52C0C2D0E482600E341E8 /* Sources */,
 				73C52C0D2D0E482600E341E8 /* Frameworks */,
@@ -118,7 +118,7 @@
 			);
 			dependencies = (
 			);
-			name = NakedBlendCalc;
+			name = "NakedBlendCalc-todelete";
 			productName = NakedBlendCalc;
 			productReference = 73C52C102D0E482600E341E8 /* Naked Blend.app */;
 			productType = "com.apple.product-type.application";
@@ -151,8 +151,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				73C52C0F2D0E482600E341E8 /* NakedBlendCalc */,
-				736B92B52DE09E2300AAE1B9 /* NakedBlendCalc-TDG */,
+				73C52C0F2D0E482600E341E8 /* NakedBlendCalc-todelete */,
+				736B92B52DE09E2300AAE1B9 /* NakedBlendCalc */,
 			);
 		};
 /* End PBXProject section */
@@ -468,7 +468,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		736B92BE2DE09E2300AAE1B9 /* Build configuration list for PBXNativeTarget "NakedBlendCalc-TDG" */ = {
+		736B92BE2DE09E2300AAE1B9 /* Build configuration list for PBXNativeTarget "NakedBlendCalc" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				736B92BF2DE09E2300AAE1B9 /* Debug */,
@@ -486,7 +486,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		73C52C1E2D0E482700E341E8 /* Build configuration list for PBXNativeTarget "NakedBlendCalc" */ = {
+		73C52C1E2D0E482700E341E8 /* Build configuration list for PBXNativeTarget "NakedBlendCalc-todelete" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				73C52C1F2D0E482700E341E8 /* Debug */,
