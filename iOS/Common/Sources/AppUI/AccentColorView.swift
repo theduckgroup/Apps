@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 import Flow
 
-struct AccentColorView: View {
+public struct AccentColorView: View {
     @Binding var accentColor: Color
     @State var containerSize: CGSize?
     
@@ -22,7 +22,11 @@ struct AccentColorView: View {
         Color.gray,
     ]
     
-    var body: some View {
+    public init(accentColor: Binding<Color>) {
+        self._accentColor = accentColor
+    }
+    
+    public var body: some View {
         // Equation:
         // swatchSize * countPerRow + minSpacing * (countPerRow - 1) <= width
         // countPerRow <= (width + spacing) / (swatchSize + spacing)
