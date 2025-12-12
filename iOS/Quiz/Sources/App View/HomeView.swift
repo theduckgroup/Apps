@@ -18,21 +18,45 @@ struct HomeView: View {
     @Environment(AppDefaults.self) private var appDefaults
     
     var body: some View {
-        bodyContent()
-            .fullScreenCover(item: $presentedQuiz) { quiz in
-                QuizResponseView(quiz: quiz)
-            }
-            .onAppear {
+        NavigationStack {
+            bodyContent()
+                .toolbar { toolbarContent() }
+        }
+        .fullScreenCover(item: $presentedQuiz) { quiz in
+            QuizResponseView(quiz: quiz)
+        }
+        .onAppear {
+            fetchQuiz()
+        }
+        .onReceive(EventHub.shared.quizzesChanged) {
+            fetchQuiz()
+        }
+        .onChange(of: scenePhase) {
+            if scenePhase == .active {
                 fetchQuiz()
             }
-            .onReceive(EventHub.shared.quizzesChanged) {
-                fetchQuiz()
+        }
+    }
+    
+    @ToolbarContentBuilder
+    private func toolbarContent() -> some ToolbarContent {
+        ToolbarItemGroup(placement: .topBarTrailing) {
+            Button {
+                presentingSettings = true
+                
+            } label: {
+                Image(systemName: "person.fill")
             }
-            .onChange(of: scenePhase) {
-                if scenePhase == .active {
-                    fetchQuiz()
-                }
+            .popover(isPresented: $presentingSettings) {
+                @Bindable var appDefaults = appDefaults
+                
+                SettingsView(
+                    colorSchemeOverride: $appDefaults.colorSchemeOverride,
+                    accentColor: $appDefaults.accentColor,
+                    containerHorizontalSizeClass: horizontalSizeClass
+                )
             }
+        }
     }
     
     @ViewBuilder
@@ -62,30 +86,9 @@ struct HomeView: View {
                 .buttonStyle(.paperProminent)
                 .disabled(quiz == nil)
             }
+            .padding(.bottom, 150) // To center content due to nav bar
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .overlay(alignment: .topTrailing) {
-            HStack {
-                Button {
-                    presentingSettings = true
-                    
-                } label: {
-                    Image(systemName: "person.fill")
-                        .imageScale(.large)
-                }
-                .buttonStyle(.paper)
-                .padding(.bottom, 6)
-                .popover(isPresented: $presentingSettings) {
-                    @Bindable var appDefaults = appDefaults
-                    SettingsView(
-                        colorSchemeOverride: $appDefaults.colorSchemeOverride,
-                        accentColor: $appDefaults.accentColor,
-                        containerHorizontalSizeClass: horizontalSizeClass
-                    )
-                }
-            }
-            .padding()
-        }
         .overlay(alignment: .bottom) {
             if isFetching {
                 HStack {

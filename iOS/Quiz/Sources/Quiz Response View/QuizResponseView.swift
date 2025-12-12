@@ -86,6 +86,8 @@ struct QuizResponseView: View {
             UIApplication.dismissKeyboard()
             
             ps.presentAlert(message: "Quit without submitting test? You will not be able to return to it.") {
+                Button("Stay", role: .cancel) {}
+
                 Button("Quit", role: .destructive) {
                     dismiss()
                 }
@@ -236,18 +238,6 @@ struct QuizResponseView: View {
         }
         
         return nil
-    }
-}
-
-extension View {
-    @ViewBuilder
-    func glassEffectShim() -> some View {
-        if #available(iOS 26, *) {
-            glassEffect()
-        } else {
-            background(.regularMaterial)
-                .clipShape(Capsule())
-        }
     }
 }
 

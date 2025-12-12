@@ -8,6 +8,9 @@
       location = "group:WeeklySpending/WeeklySpending.xcodeproj">
    </FileRef>
    <FileRef
+      location = "group:NakedBlendCalc/NakedBlendCalc.xcodeproj">
+   </FileRef>
+   <FileRef
       location = "container:Common">
    </FileRef>
 </Workspace>

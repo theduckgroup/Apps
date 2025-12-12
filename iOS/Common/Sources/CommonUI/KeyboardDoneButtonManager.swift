@@ -29,22 +29,23 @@ public class KeyboardDoneButtonManager {
             return nil
         }
  
-//        let doneBarItem = UIBarButtonItem(
-//            title: nil,
-//            image: UIImage(systemName: "keyboard.chevron.compact.down"),
-//            target: view,
-//            action: #selector(view.resignFirstResponder)
-//        )
-//        
-//        doneBarItem.tintColor = .secondaryLabel
+        let doneBarItem = UIBarButtonItem(
+            title: nil,
+            // image: UIImage(systemName: "keyboard.chevron.compact.down"),
+            image: UIImage(systemName: "chevron.down"),
+            target: view,
+            action: #selector(view.resignFirstResponder)
+        )
         
-        let doneBarItem = UIBarButtonItem(title: "Done", style: .plain, target: view, action: #selector(view.resignFirstResponder))
-        // doneBarItem.tintColor = UIApplication.shared.anyKeyWindow?.tintColor
-        doneBarItem.tintColor = .tintColor
-        // doneBarItem.tintColor = .secondaryLabel
+        doneBarItem.tintColor = .secondaryLabel
         
+        // Custom button: has a white border around the button!
+        // let doneBarItem = UIBarButtonItem(customView: createDoneButton(for: view))
+
+        // let doneBarItem = UIBarButtonItem(title: "Done", style: .done, target: view, action: #selector(view.resignFirstResponder))
+        // doneBarItem.tintColor = .systemGray
+                
         let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 600, height: 54))
-        // toolbar.barTintColor = .tintColor
         
         toolbar.items = [
             UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
@@ -52,5 +53,23 @@ public class KeyboardDoneButtonManager {
         ]
         
         return toolbar
+    }
+    
+    private func createDoneButton(for view: UIView) -> UIButton {
+        var config = UIButton.Configuration.filled()
+        config.title = "Done"
+        config.baseBackgroundColor = UIApplication.shared.anyKeyWindow?.tintColor
+        config.baseForegroundColor = .white
+        config.cornerStyle = .capsule
+        config.buttonSize = .small
+        // config.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 10, bottom: 5, trailing: 10)
+
+        let button = UIButton(configuration: config, primaryAction: UIAction { _ in
+            view.resignFirstResponder()
+        })
+        
+        button.translatesAutoresizingMaskIntoConstraints = false
+        
+        return button
     }
 }

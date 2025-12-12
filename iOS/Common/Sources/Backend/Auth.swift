@@ -13,7 +13,7 @@ final public class Auth {
     private init() {
         Task {
             for await (event, session) in supabase.auth.authStateChanges {
-                logger.info("Received auth event \(event.rawValue), session = \(session, default: "")")
+                // logger.info("Received auth event \(event.rawValue), session = \(session, default: "")")
                 
                 // Fallback to supabase.auth.currentSession because in case of network issue, Supabase
                 // may fail to obtain access token and we only receive an INITIAL_SESSION event with a nil session

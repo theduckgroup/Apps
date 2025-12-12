@@ -9,7 +9,7 @@ public struct SettingsView: View {
     @Binding var colorSchemeOverride: ColorSchemeOverride?
     @Binding  var accentColor: Color
     let containerHorizontalSizeClass: UserInterfaceSizeClass?
-    @State var ps = PresentationState()
+    @State private var ps = PresentationState()
     @Environment(\.dismiss) private var dismiss
     
     public init(
@@ -42,7 +42,7 @@ public struct SettingsView: View {
             }
         }
         // .presentationCompactAdaptation(.popover)
-        .presentations(ps)
+        .presentations(ps)        
     }
     
     @ViewBuilder
@@ -65,7 +65,7 @@ public struct SettingsView: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Appearance")
+                    Text("Theme")
 
                     ColorSchemeView(colorSchemeOverride: $colorSchemeOverride)
                     

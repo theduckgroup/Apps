@@ -7,38 +7,40 @@ import Backend
 struct AppView: View {
     @State var auth = Auth.shared
     @Environment(AppDefaults.self) var appDefaults
+    @State private var uikitContext = UIKitContext()
     
     var body: some View {
+        // Note:
+        // - Changing preferredColorScheme does not change already presented views
+        // - window.overrideUserInteraceStyle doesn't work perfectly either (e.g. in Home View -> Settings popover on iPad) but better than preferredColorScheme
+        // - Can't mix preferredColorScheme and window.overrideUserInteraceStyle
+        // - `tint` works fine
+
         bodyContent()
-            .onAppear {
+            .tint(appDefaults.accentColor)
+            .onFirstAppear {
                 _ = KeyboardDoneButtonManager.shared
                 applyStylingOverride()
             }
-            .onChange(of: appDefaults.colorSchemeOverride) {
-                applyStylingOverride()
-            }
-            .onChange(of: appDefaults.accentColor) { oldValue, newValue in
-                applyStylingOverride()
-            }
+            .onChange(of: appDefaults.colorSchemeOverride, applyStylingOverride)
+            .attach(uikitContext)
     }
     
     private func applyStylingOverride() {
-        let window = UIApplication.shared.anyKeyWindow
-        
-        guard let window else {
-            assertionFailure()
-            return
+        uikitContext.onAddedToWindow {
+            guard let window = uikitContext.viewController.view.window else {
+                assertionFailure()
+                return
+            }
+            
+            window.overrideUserInterfaceStyle = switch appDefaults.colorSchemeOverride {
+            case .light: .light
+            case .dark: .dark
+            case .none: .unspecified
+            }
         }
-        
-        window.overrideUserInterfaceStyle = switch appDefaults.colorSchemeOverride {
-        case .light: .light
-        case .dark: .dark
-        case .none: .unspecified
-        }
-        
-        window.tintColor = UIColor(appDefaults.accentColor)
     }
-    
+
     @ViewBuilder
     private func bodyContent() -> some View {
         if auth.isLoaded {
