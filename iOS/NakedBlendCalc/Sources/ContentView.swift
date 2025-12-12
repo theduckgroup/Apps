@@ -1,6 +1,5 @@
 import SwiftUI
 import UIKit
-import CommonUI
 
 struct ContentView: View {
     let title = "Naked Blend Calculator"

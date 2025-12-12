@@ -3,39 +3,40 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 70;
 	objects = {
-
-/* Begin PBXBuildFile section */
-		736B92B72DE09E2300AAE1B9 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73C52C152D0E482600E341E8 /* ContentView.swift */; };
-		736B92B82DE09E2300AAE1B9 /* View+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 738C5F242D0E54EE00AFF7A4 /* View+Utils.swift */; };
-		736B92B92DE09E2300AAE1B9 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73C52C132D0E482600E341E8 /* App.swift */; };
-		736B92BD2DE09E2300AAE1B9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 73C52C172D0E482700E341E8 /* Assets.xcassets */; };
-		738C5F252D0E54EE00AFF7A4 /* View+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 738C5F242D0E54EE00AFF7A4 /* View+Utils.swift */; };
-		73C52C142D0E482600E341E8 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73C52C132D0E482600E341E8 /* App.swift */; };
-		73C52C162D0E482600E341E8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73C52C152D0E482600E341E8 /* ContentView.swift */; };
-		73C52C182D0E482700E341E8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 73C52C172D0E482700E341E8 /* Assets.xcassets */; };
-		73D290062EEB95E3004CB446 /* Common in Frameworks */ = {isa = PBXBuildFile; productRef = 73D290052EEB95E3004CB446 /* Common */; };
-		73D290082EEB95E3004CB446 /* CommonUI in Frameworks */ = {isa = PBXBuildFile; productRef = 73D290072EEB95E3004CB446 /* CommonUI */; };
-/* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		736B92C12DE09E2300AAE1B9 /* Naked Blend.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Naked Blend.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		738C5F242D0E54EE00AFF7A4 /* View+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Utils.swift"; sourceTree = "<group>"; };
-		73A936682D39F01B00CA63B8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		73C52C102D0E482600E341E8 /* Naked Blend.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Naked Blend.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		73C52C132D0E482600E341E8 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
-		73C52C152D0E482600E341E8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		73C52C172D0E482700E341E8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		73D2901F2EEB9875004CB446 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 73C52C0F2D0E482600E341E8 /* NakedBlendCalc-todelete */;
+		};
+		73D290202EEB9875004CB446 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 736B92B52DE09E2300AAE1B9 /* NakedBlendCalc */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		73D290122EEB9875004CB446 /* Sources */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (73D2901F2EEB9875004CB446 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, 73D290202EEB9875004CB446 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Sources; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		736B92BA2DE09E2300AAE1B9 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				73D290062EEB95E3004CB446 /* Common in Frameworks */,
-				73D290082EEB95E3004CB446 /* CommonUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -52,7 +53,7 @@
 		73C52C072D0E482600E341E8 = {
 			isa = PBXGroup;
 			children = (
-				73C52C122D0E482600E341E8 /* Sources */,
+				73D290122EEB9875004CB446 /* Sources */,
 				73D290042EEB95E3004CB446 /* Frameworks */,
 				73C52C112D0E482600E341E8 /* Products */,
 			);
@@ -65,18 +66,6 @@
 				736B92C12DE09E2300AAE1B9 /* Naked Blend.app */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		73C52C122D0E482600E341E8 /* Sources */ = {
-			isa = PBXGroup;
-			children = (
-				73A936682D39F01B00CA63B8 /* Info.plist */,
-				73C52C132D0E482600E341E8 /* App.swift */,
-				73C52C152D0E482600E341E8 /* ContentView.swift */,
-				738C5F242D0E54EE00AFF7A4 /* View+Utils.swift */,
-				73C52C172D0E482700E341E8 /* Assets.xcassets */,
-			);
-			path = Sources;
 			sourceTree = "<group>";
 		};
 		73D290042EEB95E3004CB446 /* Frameworks */ = {
@@ -101,6 +90,9 @@
 			);
 			dependencies = (
 			);
+			fileSystemSynchronizedGroups = (
+				73D290122EEB9875004CB446 /* Sources */,
+			);
 			name = NakedBlendCalc;
 			productName = NakedBlendCalc;
 			productReference = 736B92C12DE09E2300AAE1B9 /* Naked Blend.app */;
@@ -117,6 +109,9 @@
 			buildRules = (
 			);
 			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				73D290122EEB9875004CB446 /* Sources */,
 			);
 			name = "NakedBlendCalc-todelete";
 			productName = NakedBlendCalc;
@@ -162,7 +157,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				736B92BD2DE09E2300AAE1B9 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -170,7 +164,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				73C52C182D0E482700E341E8 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -181,9 +174,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				736B92B72DE09E2300AAE1B9 /* ContentView.swift in Sources */,
-				736B92B82DE09E2300AAE1B9 /* View+Utils.swift in Sources */,
-				736B92B92DE09E2300AAE1B9 /* App.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -191,9 +181,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				73C52C162D0E482600E341E8 /* ContentView.swift in Sources */,
-				738C5F252D0E54EE00AFF7A4 /* View+Utils.swift in Sources */,
-				73C52C142D0E482600E341E8 /* App.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -219,7 +206,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -253,7 +240,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -494,17 +481,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		73D290052EEB95E3004CB446 /* Common */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Common;
-		};
-		73D290072EEB95E3004CB446 /* CommonUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = CommonUI;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 73C52C082D0E482600E341E8 /* Project object */;
 }

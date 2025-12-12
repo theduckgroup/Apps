@@ -1,6 +1,10 @@
 import SwiftUI
 
-public struct NumberField: View {
+/// Number field used in NakedBlendCalc.
+///
+/// - Note: This includes the label above the field and is only useful for NakedBlendCalc. If the
+/// number field with unit is needed in the future, refactor it out.
+struct NumberField: View {
     let name: String
     @Binding var value: Double
     var unit: String?
@@ -89,7 +93,7 @@ public struct NumberField: View {
         return result
     }
     
-    /// Formats value (without unit).
+    /// Formats value without unit.
     private static func formatValue(_ value: Double, _ restriction: Restriction) -> String {
         value.formatted(
             .number
@@ -101,7 +105,7 @@ public struct NumberField: View {
     }
 }
 
-public extension NumberField {
+extension NumberField {
     enum Restriction {
         case integer
         case double
