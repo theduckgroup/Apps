@@ -86,6 +86,8 @@ struct QuizResponseView: View {
             UIApplication.dismissKeyboard()
             
             ps.presentAlert(message: "Quit without submitting test? You will not be able to return to it.") {
+                Button("Stay", role: .cancel) {}
+
                 Button("Quit", role: .destructive) {
                     dismiss()
                 }
