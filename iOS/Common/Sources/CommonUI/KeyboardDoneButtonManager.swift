@@ -29,23 +29,23 @@ public class KeyboardDoneButtonManager {
             return nil
         }
  
-//        let doneBarItem = UIBarButtonItem(
-//            title: nil,
-//            image: UIImage(systemName: "keyboard.chevron.compact.down"),
-//            target: view,
-//            action: #selector(view.resignFirstResponder)
-//        )
-//        
-//        doneBarItem.tintColor = .secondaryLabel
+        let doneBarItem = UIBarButtonItem(
+            title: nil,
+            // image: UIImage(systemName: "keyboard.chevron.compact.down"),
+            image: UIImage(systemName: "chevron.down"),
+            target: view,
+            action: #selector(view.resignFirstResponder)
+        )
+        
+        doneBarItem.tintColor = .secondaryLabel
         
         // Custom button: has a white border around the button!
         // let doneBarItem = UIBarButtonItem(customView: createDoneButton(for: view))
 
-        let doneBarItem = UIBarButtonItem(title: "Done", style: .done, target: view, action: #selector(view.resignFirstResponder))
-        doneBarItem.tintColor = UIApplication.shared.anyKeyWindow?.tintColor
+        // let doneBarItem = UIBarButtonItem(title: "Done", style: .done, target: view, action: #selector(view.resignFirstResponder))
+        // doneBarItem.tintColor = .systemGray
                 
         let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 600, height: 54))
-        toolbar.barTintColor = .tintColor
         
         toolbar.items = [
             UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
