@@ -9,12 +9,20 @@ export interface DbWsReport {
     name: string
   },
   date: Date
-  suppliers: DbWsReport.Supplier[]
+  suppliersData: DbWsReport.SupplierData[]
+  customSuppliersData: DbWsReport.CustomSupplierData[]
 }
 
 export namespace DbWsReport {
-  export interface Supplier {
+  export interface SupplierData {
     supplierId: string
     amount: number
+    gst: number
+  }
+
+  export interface CustomSupplierData {
+    name: string
+    amount: number
+    gst: number
   }
 }

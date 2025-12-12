@@ -4,19 +4,26 @@ import { WsTemplateSchema } from './WsTemplateSchema'
 
 const WsReportSchema = z.strictObject({
   template: WsTemplateSchema,
-  submittedDate: z.iso.datetime(),
-  suppliers: z.array(
-    z.strictObject({
-      supplierId: z.string(),
-      amount: z.number(),
-      reference: z.string()
-    })
-  ),
   user: z.strictObject({
     id: z.string(),
     name: z.string(),
     email: z.string()
   }),
+  date: z.iso.datetime(),
+  suppliersData: z.array(
+    z.strictObject({
+      supplierId: z.string(),
+      amount: z.number(),
+      gst: z.number(),
+    })
+  ),
+  customSuppliersData: z.array(
+    z.strictObject({
+      name: z.string(),
+      amount: z.number(),
+      gst: z.number()
+    })
+  )
 })
 
 export { WsReportSchema }

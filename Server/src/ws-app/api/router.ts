@@ -224,7 +224,7 @@ userRouter.post('/submit', async (req, res) => {
 
   const doc: DbWsReport = {
     ...data,
-    date: new Date(data.submittedDate),
+    date: new Date(data.date),
   }
 
   const insertResult = await db.collection_wsReports.insertOne(doc)
