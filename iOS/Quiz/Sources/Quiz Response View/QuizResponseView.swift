@@ -239,18 +239,6 @@ struct QuizResponseView: View {
     }
 }
 
-extension View {
-    @ViewBuilder
-    func glassEffectShim() -> some View {
-        if #available(iOS 26, *) {
-            glassEffect()
-        } else {
-            background(.regularMaterial)
-                .clipShape(Capsule())
-        }
-    }
-}
-
 #Preview {
     @Previewable @State var quiz: Quiz?
     
