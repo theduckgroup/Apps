@@ -10,13 +10,11 @@
 		736B92B72DE09E2300AAE1B9 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73C52C152D0E482600E341E8 /* ContentView.swift */; };
 		736B92B82DE09E2300AAE1B9 /* View+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 738C5F242D0E54EE00AFF7A4 /* View+Utils.swift */; };
 		736B92B92DE09E2300AAE1B9 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73C52C132D0E482600E341E8 /* App.swift */; };
-		736B92BC2DE09E2300AAE1B9 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 73C52C1A2D0E482700E341E8 /* Preview Assets.xcassets */; };
 		736B92BD2DE09E2300AAE1B9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 73C52C172D0E482700E341E8 /* Assets.xcassets */; };
 		738C5F252D0E54EE00AFF7A4 /* View+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 738C5F242D0E54EE00AFF7A4 /* View+Utils.swift */; };
 		73C52C142D0E482600E341E8 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73C52C132D0E482600E341E8 /* App.swift */; };
 		73C52C162D0E482600E341E8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73C52C152D0E482600E341E8 /* ContentView.swift */; };
 		73C52C182D0E482700E341E8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 73C52C172D0E482700E341E8 /* Assets.xcassets */; };
-		73C52C1B2D0E482700E341E8 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 73C52C1A2D0E482700E341E8 /* Preview Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,7 +25,6 @@
 		73C52C132D0E482600E341E8 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		73C52C152D0E482600E341E8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		73C52C172D0E482700E341E8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		73C52C1A2D0E482700E341E8 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,7 +48,7 @@
 		73C52C072D0E482600E341E8 = {
 			isa = PBXGroup;
 			children = (
-				73C52C122D0E482600E341E8 /* NakedBlendCalc */,
+				73C52C122D0E482600E341E8 /* Sources */,
 				73C52C112D0E482600E341E8 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -65,7 +62,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		73C52C122D0E482600E341E8 /* NakedBlendCalc */ = {
+		73C52C122D0E482600E341E8 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
 				73A936682D39F01B00CA63B8 /* Info.plist */,
@@ -73,17 +70,8 @@
 				73C52C152D0E482600E341E8 /* ContentView.swift */,
 				738C5F242D0E54EE00AFF7A4 /* View+Utils.swift */,
 				73C52C172D0E482700E341E8 /* Assets.xcassets */,
-				73C52C192D0E482700E341E8 /* Preview Content */,
 			);
-			path = NakedBlendCalc;
-			sourceTree = "<group>";
-		};
-		73C52C192D0E482700E341E8 /* Preview Content */ = {
-			isa = PBXGroup;
-			children = (
-				73C52C1A2D0E482700E341E8 /* Preview Assets.xcassets */,
-			);
-			path = "Preview Content";
+			path = Sources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -162,7 +150,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				736B92BC2DE09E2300AAE1B9 /* Preview Assets.xcassets in Resources */,
 				736B92BD2DE09E2300AAE1B9 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -171,7 +158,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				73C52C1B2D0E482700E341E8 /* Preview Assets.xcassets in Resources */,
 				73C52C182D0E482700E341E8 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -210,11 +196,11 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"NakedBlendCalc/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 447AVTZYHV;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = NakedBlendCalc/Info.plist;
+				INFOPLIST_FILE = Sources/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Naked Blend";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -244,11 +230,11 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"NakedBlendCalc/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 447AVTZYHV;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = NakedBlendCalc/Info.plist;
+				INFOPLIST_FILE = Sources/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Naked Blend";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

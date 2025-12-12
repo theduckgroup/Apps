@@ -21,7 +21,6 @@ struct ContentView: View {
     @State var windowSafeAreaInsets: EdgeInsets = .init()
     @ScaledMetric var regularBodyTitleHeight: CGFloat = 48
     @ScaledMetric var regularContentWidth: CGFloat = 640
-    @ScaledMetric var scaled12pt: CGFloat = 12
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     var body: some View {
@@ -107,7 +106,7 @@ struct ContentView: View {
         .fixedSize(horizontal: false, vertical: true)
         .frame(width: max(contentWidth, 0)) // Avoid warning wrt initial negative width
         .background(Color(uiColor: .quaternarySystemFill))
-        .clipShape(RoundedRectangle(cornerRadius: 2))
+        .clipShape(RoundedRectangle(cornerRadius: 6))
     }
     
     @ViewBuilder
@@ -121,7 +120,7 @@ struct ContentView: View {
             
             resetButton()
         }
-        .padding(.horizontal, 12)
+        .padding(.horizontal, 15)
         .frame(height: regularBodyTitleHeight)
         .background(Color.themeMain)
         .foregroundStyle(Color.white)
@@ -162,8 +161,7 @@ struct ContentView: View {
             Text("Count and place coffee order on Monday afternoon")
                 .foregroundStyle(Color.secondary)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal)
-                .padding(.vertical, scaled12pt)
+                .padding()
             
             Divider()
             
