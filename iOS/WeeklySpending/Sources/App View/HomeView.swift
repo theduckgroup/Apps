@@ -107,29 +107,6 @@ struct HomeView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .padding()
         }
-//        .overlay(alignment: .topTrailing) {
-//            HStack {
-//                Button {
-//                    presentingSettings = true
-//                    
-//                } label: {
-//                    Image(systemName: "person.fill")
-//                        .imageScale(.large)
-//                }
-//                .buttonStyle(.paper)
-//                .padding(.bottom, 6)
-//                .popover(isPresented: $presentingSettings) {
-//                    @Bindable var appDefaults = appDefaults
-//
-//                    SettingsView(
-//                        colorSchemeOverride: $appDefaults.colorSchemeOverride,
-//                        accentColor: $appDefaults.accentColor,
-//                        containerHorizontalSizeClass: horizontalSizeClass
-//                    )
-//                }
-//            }
-//            .padding()
-//        }
         .overlay(alignment: .bottom) {
             if isFetching {
                 HStack {
