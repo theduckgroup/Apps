@@ -16,19 +16,19 @@ extension API {
 }
 
 extension API {
-    func template(code: String) async throws -> Template {
+    func template(code: String) async throws -> WSTemplate {
         try await get(
             path: "/template",
             queryItems: [.init(name: "code", value: code)],
-            decodeAs: Template.self
+            decodeAs: WSTemplate.self
         )
     }
     
-    func mockTemplate() async throws -> Template {
-        try await get(authenticated: false, path: "/mock-template", decodeAs: Template.self)
+    func mockTemplate() async throws -> WSTemplate {
+        try await get(authenticated: false, path: "/mock-template", decodeAs: WSTemplate.self)
     }
     
-    func submitReport(_ report: Report) async throws {
+    func submitReport(_ report: WSReport) async throws {
         try await post(method: "POST", path: "/report/submit", body: report)
     }
 }

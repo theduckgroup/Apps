@@ -7,7 +7,7 @@ import AppUI
 
 struct HomeView: View {
     // @AppStorage("App:cachedTemplateName") var cachedTemplateName: String = ""
-    @State var templateResult: Result<Template, Error>?
+    @State var templateResult: Result<WSTemplate, Error>?
     @State var error: Error?
     @State var isFetching = false
     @State var fetchTask: Task<Void, Never>?
@@ -68,7 +68,7 @@ struct HomeView: View {
 //                        .fontWeight(.semibold)
 //                }
                 
-                let template: Template? =
+                let template: WSTemplate? =
                     if let templateResult, case .success(let template) = templateResult {
                         template
                     } else {
@@ -91,7 +91,8 @@ struct HomeView: View {
                 Button {
                     if let template {
                         ps.presentFullScreenCover {
-                            ReportView(template: template)
+                            let user = WSReport.User(from: Auth.shared.user!)
+                            ReportView(template: template, user: user)
                         }
                     }
                 } label: {
