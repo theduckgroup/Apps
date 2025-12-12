@@ -5,39 +5,16 @@ import AppUI
 import Backend
 
 struct AppView: View {
-    @State var auth = Auth.shared
+    var auth = Auth.shared
     @Environment(AppDefaults.self) var appDefaults
     
     var body: some View {
         bodyContent()
-            // .tint(.red)
+            .tint(appDefaults.accentColor)
+            .preferredColorScheme(appDefaults.colorSchemeOverride?.colorScheme)
             .onFirstAppear {
                 _ = KeyboardDoneButtonManager.shared
-                applyStylingOverride()
             }
-            .onChange(of: appDefaults.colorSchemeOverride) {
-                applyStylingOverride()
-            }
-            .onChange(of: appDefaults.accentColor) {
-                applyStylingOverride()
-            }
-    }
-    
-    private func applyStylingOverride() {
-        let window = UIApplication.shared.anyKeyWindow
-        
-        guard let window else {
-            assertionFailure()
-            return
-        }
-        
-        window.overrideUserInterfaceStyle = switch appDefaults.colorSchemeOverride {
-        case .light: .light
-        case .dark: .dark
-        case .none: .unspecified
-        }
-        
-        window.tintColor = UIColor(appDefaults.accentColor)
     }
     
     @ViewBuilder
