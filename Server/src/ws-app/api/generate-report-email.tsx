@@ -12,9 +12,11 @@ export const generateReportEmailHtml = (report: DbWsReport): string => {
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        
         <!-- FORCE LIGHT MODE: Supported by Apple Mail & recent Clients -->
         <meta name="color-scheme" content="light">
         <meta name="supported-color-schemes" content="light">
+        
         <title>Store Report</title>
         <style type="text/css">
             body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
