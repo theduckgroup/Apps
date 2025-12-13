@@ -1,7 +1,5 @@
 import express from 'express'
 import { ObjectId } from 'mongodb'
-// import React from 'react'
-// import ReactDOMServer from 'react-dom/server'
 import createHttpError from 'http-errors'
 
 import { getDb } from 'src/db'
@@ -13,9 +11,10 @@ import logger from 'src/logger'
 import z from 'zod'
 import { mailer } from 'src/utils/mailer'
 import env from 'src/env'
-import { DbWsTemplate } from '../db/DbWsTemplate'
 import { DbWsReport } from '../db/DbWsReport'
 import '../db/Db+collections'
+import { generateReportEmailHtml } from './generate-report-email'
+import { formatInTimeZone } from 'date-fns-tz'
 
 // Admin router
 
@@ -237,11 +236,14 @@ userRouter.post('/submit', async (req, res) => {
     email: x
   }))
 
-  mailer.sendMail({
-    recipients: recipients,
-    subject: `${doc.template.name} submitted`,
-    contentHtml: reportNotificationMailHtml(doc.template.name, docId)
+  const formattedDate = formatInTimeZone(new Date(), 'Australia/Sydney', 'MMM d, h:mm a')
+  const subject = `[Weekly Spending] ${data.user.name} | ${formattedDate}`
+  const contentHtml = generateReportEmailHtml(doc)
 
+  mailer.sendMail({
+    recipients,
+    subject,
+    contentHtml
   })
 })
 
@@ -257,7 +259,7 @@ ${templateName} has been submitted.
 <a href='${env.webappUrl}/fohtest/view/${docId.toString()}'>View Test</a>
 </p>
     `
-    
+
   return htmlDoctype + html
 
   // return htmlDoctype + ReactDOMServer.renderToStaticMarkup(React.createElement(OrderEmailHtml, { order: order }, null));
@@ -279,8 +281,26 @@ publicRouter.get('/mock-template', async (req, res) => {
   }
 
   const data = normalizeId(doc)
-  
+
   res.send(data)
+})
+
+publicRouter.get('/mock-email', async (req, res) => {
+  // To test: http://localhost:8021/api/ws-app/mock-email
+
+  const db = await getDb()
+  const data = await db.collection_wsReports.findOne({
+    _id: new ObjectId('693ccfef2ced00e3aefada20')
+  })
+
+  if (!data) {
+    res.status(500)
+    return
+  }
+
+  const emailHtml = generateReportEmailHtml(data)
+
+  res.send(emailHtml)
 })
 
 // publicRouter.get('/quiz-response/:id', async (req, res) => {
@@ -318,7 +338,7 @@ function normalizeId<T extends { _id: ObjectId }>(object: T) {
 
 const router = express.Router()
 
-router.use(publicRouter) 
+router.use(publicRouter)
 router.use(userRouter)
 router.use(adminRouter)
 

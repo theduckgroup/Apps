@@ -6,8 +6,8 @@ const WsReportSchema = z.strictObject({
   template: WsTemplateSchema,
   user: z.strictObject({
     id: z.string(),
+    email: z.string(),
     name: z.string(),
-    email: z.string()
   }),
   date: z.iso.datetime(),
   suppliersData: z.array(

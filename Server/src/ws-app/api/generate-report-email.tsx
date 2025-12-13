@@ -1,0 +1,305 @@
+import React from 'react'
+import ReactDOMServer from 'react-dom/server'
+import { DbWsReport } from '../db/DbWsReport'
+import { formatInTimeZone } from 'date-fns-tz'
+
+export const generateReportEmailHtml = (report: DbWsReport): string => {
+  const componentHtml = ReactDOMServer.renderToStaticMarkup(<EmailTemplate report={report} />)
+
+  return `
+    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+    <html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <!-- FORCE LIGHT MODE: Supported by Apple Mail & recent Clients -->
+        <meta name="color-scheme" content="light">
+        <meta name="supported-color-schemes" content="light">
+        <title>Store Report</title>
+        <style type="text/css">
+            body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+            table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+            img { -ms-interpolation-mode: bicubic; }
+            @media screen and (max-width: 600px) {
+                .container { width: 100% !important; }
+            }
+        </style>
+    </head>
+    <body style="margin: 0; padding: 0; background-color: #ffffff;">
+        ${componentHtml}
+    </body>
+    </html>
+  `
+}
+
+// --- Styles ---
+
+// GMail does not support oklch!
+// const darkBorderColor = 'oklch(90.5% 0.015 286.067)'
+const darkBorderColor = '#dee2e6'
+
+const styles: Record<string, React.CSSProperties> = {
+  body: {
+    backgroundColor: '#ffffff',
+    fontFamily: 'Arial, sans-serif',
+    fontSize: '14px',
+    lineHeight: '1.5',
+    color: '#333333',
+    margin: '15px',
+    padding: 0,
+  },
+  container: {
+    maxWidth: '600px',
+    margin: '0 auto',
+    width: '100%',
+    borderCollapse: 'collapse',
+  },
+  // Weekly Spending title, divider and subtitle
+  mainTitle: {
+    fontSize: '28px',
+    fontWeight: 'bold',
+    color: '#286090', // The specific blue from your screenshot
+    paddingBottom: '10px',
+    textAlign: 'left' as const,
+  },
+  dividerRow: {
+    borderBottom: '1px solid #cccccc', // The horizontal line
+  },
+  subtitle: {
+    fontSize: '16px',
+    color: '#555555',
+    padding: '15px 0 30px 0', // Spacing below the line
+    textAlign: 'left' as const,
+  },
+  // Store + Date header
+  headerRow: {
+    // borderTop: '2px solid oklch(70.5% 0.015 286.067)',
+    borderTop: '1px solid #eeeeee',
+    borderBottom: '1px solid #eeeeee',
+  },
+  headerLabel: {
+    fontWeight: 'bold',
+    color: '#555555',
+    padding: '12px 0',
+  },
+  headerValue: {
+    fontWeight: 'regular',
+    textAlign: 'left' as const,
+    padding: '12px 0',
+  },
+  dateRow: {
+    borderBottom: '1px solid #eeeeee',
+    // borderBottom: '2px solid oklch(70.5% 0.015 286.067)',
+  },
+  // Section header
+  sectionTitle: {
+    fontWeight: 'bold',
+    color: '#333333',
+    padding: '15px 0 8px 0',
+    borderBottom: `2px solid ${darkBorderColor}`,
+  },
+  columnHeader: {
+    fontWeight: 'bold',
+    color: '#555555',
+    textAlign: 'right' as const,
+    padding: '8px 0',
+    borderBottom: `2px solid ${darkBorderColor}`,
+  },
+  // Item
+  itemRow: {
+    borderBottom: '1px solid #eeeeee',
+  },
+  itemCell: {
+    padding: '12px 0',
+    color: '#555555',
+  },
+  itemValue: {
+    padding: '12px 0',
+    textAlign: 'right' as const,
+  },
+  // Bottom footer border
+  footerBorder: {
+    // borderBottom: '1px solid #333333',
+    borderBottom: '1px solid #eeeeee',
+  }
+}
+
+const EmailTemplate: React.FC<{
+  report: DbWsReport
+}> = ({ report }) => {
+  return (
+    <table border={0} cellPadding={0} cellSpacing={0} width="100%" style={styles.body}>
+      <tbody>
+        <tr>
+          <td align="center" style={{ padding: '20px 0' }}>
+
+            {/* Title, divider, subtitle */}
+            <table border={0} cellPadding={0} cellSpacing={0} width="600" style={styles.container}>
+              <tbody>
+                {/* Title */}
+                <tr>
+                  <td style={styles.mainTitle}>
+                    Weekly Spending
+                  </td>
+                </tr>
+                {/* Divider Line */}
+                <tr>
+                  <td style={styles.dividerRow}></td>
+                </tr>
+                {/* Subtitle */}
+                <tr>
+                  <td style={styles.subtitle}>
+                    Weekly spending report has been submitted.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            {/* Header Information */}
+            <table border={0} cellPadding={0} cellSpacing={0} width="600" style={styles.container}>
+              <tbody>
+                <tr>
+                  <td width="50px" style={{ ...styles.headerRow, ...styles.headerLabel }}>
+                    Store
+                  </td>
+                  <td style={{ ...styles.headerRow, ...styles.headerValue }}>
+                    {report.user.name}
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ ...styles.dateRow, ...styles.headerLabel }}>
+                    Date
+                  </td>
+                  <td style={{ ...styles.dateRow, ...styles.headerValue }}>
+                    {formatInTimeZone(report.date, 'Australia/Sydney', 'EEEE, MMM d, yyyy, h:mm a')}
+                  </td>
+                </tr>
+                <tr>
+                  <td colSpan={2} style={{ height: '20px' }}>&nbsp;</td>
+                </tr>
+              </tbody>
+            </table>
+
+            {/* Data Sections */}
+            <table border={0} cellPadding={0} cellSpacing={0} width="600" style={styles.container}>
+              <tbody>
+                {/* Suppliers */}
+                {report.template.sections.map((section, sectionIndex) => {
+                  const items: ItemComponentProps[] = section.rows.map(row => {
+                    const supplier = report.template.suppliers.find(x => x.id == row.supplierId)
+                    const supplierData = report.suppliersData.find(x => x.supplierId == row.supplierId)
+
+                    if (!supplier || !supplierData) {
+                      return { name: 'ERROR', amount: 0, gst: 0 }
+                    }
+
+                    return {
+                      name: supplier.name,
+                      amount: supplierData.amount,
+                      gst: supplierData.gst
+                    }
+                  })
+
+                  return (
+                    <SectionComponent
+                      name={section.name}
+                      key={sectionIndex}
+                      isFirst={sectionIndex == 0}
+                      items={items}
+                    />
+                  )
+                })}
+                {/* Custom suppliers */}
+                {
+                  (() => {
+                    const items: ItemComponentProps[] = report.customSuppliersData.map(supplierData => {
+                      return {
+                        name: supplierData.name,
+                        amount: supplierData.amount,
+                        gst: supplierData.gst
+                      }
+                    })
+
+                    if (items.length == 0) {
+                      return null
+                    }
+
+                    return (
+                      <SectionComponent
+                        name='Other Suppliers'
+                        isFirst={report.template.sections.length == 0}
+                        items={items}
+                      />
+                    )
+                  })()
+                }
+              </tbody>
+            </table>
+
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  )
+}
+
+const SectionComponent: React.FC<SectionComponentProps> = ({ name, isFirst, items }) => {
+  return (
+    <>
+      {/* Section Header */}
+      <tr>
+        <td width="50%" style={styles.sectionTitle}>
+          {name}
+        </td>
+        <td width="25%" style={styles.columnHeader}>
+          {isFirst && 'Amount'}
+        </td>
+        <td width="25%" style={styles.columnHeader}>
+          {isFirst && 'GST'}
+        </td>
+      </tr>
+
+      {/* Section Items */}
+      {items.map((item, itemIndex) => {
+        // const isLastSection = sectionIndex === sections.length - 1
+        // const isLastItem = rowIndex === section.rows.length - 1
+
+        // Apply thick border if it is the very last item of the report
+        // const rowStyle = (isLastSection && isLastItem)
+        //   ? { ...styles.itemRow, ...styles.footerBorder }
+        //   : styles.itemRow
+
+        const rowStyle = styles.itemRow
+
+        return (
+          <tr key={itemIndex}>
+            <td style={{ ...rowStyle, ...styles.itemCell }}>
+              {item.name}
+            </td>
+            <td style={{ ...rowStyle, ...styles.itemValue }}>
+              {currencyFormat.format(item.amount)}
+            </td>
+            <td style={{ ...rowStyle, ...styles.itemValue }}>
+              {currencyFormat.format(item.gst)}
+            </td>
+          </tr>
+        )
+      })}
+    </>
+  )
+}
+
+type SectionComponentProps = {
+  name: string
+  isFirst: boolean
+  items: ItemComponentProps[]
+}
+
+type ItemComponentProps = {
+  name: string
+  amount: number
+  gst: number
+}
+
+const currencyFormat = new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' });
+

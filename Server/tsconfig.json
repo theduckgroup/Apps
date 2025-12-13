@@ -3,6 +3,7 @@
     "incremental": true,
     "target": "es6",
     "module": "commonjs",
+    "jsx": "react-jsx",
     "esModuleInterop": true,
     "sourceMap": true,
     "moduleResolution": "node",
@@ -14,7 +15,8 @@
     "baseUrl": "."
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts", 
+    "src/**/*.tsx",
   ],
   "exclude": [
     "node_modules"
