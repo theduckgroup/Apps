@@ -47,8 +47,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '14px',
     lineHeight: '1.5',
     color: '#333333',
-    margin: '15px',
-    padding: 0,
+    padding: '0 15px',
   },
   container: {
     maxWidth: '600px',
@@ -97,7 +96,7 @@ const styles: Record<string, React.CSSProperties> = {
   sectionTitle: {
     fontWeight: 'bold',
     color: '#333333',
-    padding: '15px 0 8px 0',
+    padding: '8px 0',
     borderBottom: `2px solid ${darkBorderColor}`,
   },
   columnHeader: {
