@@ -11,6 +11,7 @@ struct HomeView: View {
     @State var error: Error?
     @State var isFetching = false
     @State var fetchTask: Task<Void, Never>?
+    @State var lastFetch: Date?
     @State var ps = PresentationState()
     @State var presentingSettings = false
     @Environment(\.scenePhase) private var scenePhase
@@ -60,53 +61,36 @@ struct HomeView: View {
     
     @ViewBuilder
     private func bodyContent() -> some View {
-        VStack(alignment: .leading) {
-            VStack(spacing: 15) {
-//                if !cachedTemplateName.isEmpty {
-//                    Text(cachedTemplateName)
-//                        .font(.title2)
-//                        .fontWeight(.semibold)
-//                }
-                
-                let template: WSTemplate? =
-                    if let templateResult, case .success(let template) = templateResult {
-                        template
-                    } else {
-                        nil
-                    }
-                
-//                Button {
-//                    if let template {
-//                        ps.presentFullScreenCover {
-//                            ReportView(template: template)
-//                        }
-//                    }
-//                } label: {
-//                    Text("Submit")
-//                        .padding(.horizontal, 9)
-//                }
-//                .buttonStyle(.paperProminent)
-//                .disabled(template == nil)
-                
-                Button {
-                    if let template {
-                        ps.presentFullScreenCover {
-                            let user = WSReport.User(from: Auth.shared.user!)
-                            ReportView(template: template, user: user)
-                        }
-                    }
-                } label: {
-                    Label("New Spending", systemImage: "plus")
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 3)
-                        .fontWeight(.semibold)
-                }
-                .buttonStyle(.borderedProminent)
-                .disabled(template == nil)
+        VStack(alignment: .leading, spacing: 15) {
+            let template: WSTemplate? =
+            if let templateResult, case .success(let template) = templateResult {
+                template
+            } else {
+                nil
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .padding()
+            
+            Button {
+                if let template {
+                    ps.presentFullScreenCover {
+                        let user = WSReport.User(from: Auth.shared.user!)
+                        ReportView(template: template, user: user)
+                    }
+                }
+            } label: {
+                Label("New Spending", systemImage: "plus")
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 3)
+                    .fontWeight(.semibold)
+            }
+            .buttonStyle(.borderedProminent)
+            .disabled(template == nil)
+            
+            if debugging {
+                Text("Last Fetch: \(lastFetch?.ISO8601Format(), default: "Never")")
+            }
         }
+        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .overlay(alignment: .bottom) {
             if isFetching {
                 HStack {
@@ -170,6 +154,7 @@ struct HomeView: View {
                 // self.cachedTemplateName = template.name
                 
                 isFetching = false
+                lastFetch = Date()
                 
             } catch {
                 guard !error.isCancellationError else {
