@@ -15,6 +15,8 @@
 		73A5A2B02EC025C700CC4CF0 /* Backend in Frameworks */ = {isa = PBXBuildFile; productRef = 73A5A2AF2EC025C700CC4CF0 /* Backend */; };
 		73A5A2B22EC025CC00CC4CF0 /* AppUI in Frameworks */ = {isa = PBXBuildFile; productRef = 73A5A2B12EC025CC00CC4CF0 /* AppUI */; };
 		73A5A2B42EC025CC00CC4CF0 /* Backend in Frameworks */ = {isa = PBXBuildFile; productRef = 73A5A2B32EC025CC00CC4CF0 /* Backend */; };
+		73D290502EEC4762004CB446 /* SwiftBSON in Frameworks */ = {isa = PBXBuildFile; productRef = 73D2904F2EEC4762004CB446 /* SwiftBSON */; };
+		73D290522EEC4769004CB446 /* SwiftBSON in Frameworks */ = {isa = PBXBuildFile; productRef = 73D290512EEC4769004CB446 /* SwiftBSON */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,6 +51,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				73D290502EEC4762004CB446 /* SwiftBSON in Frameworks */,
 				73A5A2AE2EC025C700CC4CF0 /* AppUI in Frameworks */,
 				73A5A2802EBFFC7F00CC4CF0 /* Common in Frameworks */,
 				73A5A2822EBFFC7F00CC4CF0 /* CommonUI in Frameworks */,
@@ -60,6 +63,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				73D290522EEC4769004CB446 /* SwiftBSON in Frameworks */,
 				73A5A2B22EC025CC00CC4CF0 /* AppUI in Frameworks */,
 				73A5A2A52EC024E700CC4CF0 /* Common in Frameworks */,
 				73A5A2A62EC024E700CC4CF0 /* CommonUI in Frameworks */,
@@ -75,7 +79,6 @@
 			children = (
 				73A5A2652EBFFBB300CC4CF0 /* Sources */,
 				73D2904D2EEBFB85004CB446 /* Info.plist */,
-				73A5A27E2EBFFC7F00CC4CF0 /* Frameworks */,
 				73A5A2642EBFFBB300CC4CF0 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -87,13 +90,6 @@
 				73A5A2AB2EC024E700CC4CF0 /* WeeklySpending-local.app */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		73A5A27E2EBFFC7F00CC4CF0 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -120,6 +116,7 @@
 				73A5A2812EBFFC7F00CC4CF0 /* CommonUI */,
 				73A5A2AD2EC025C700CC4CF0 /* AppUI */,
 				73A5A2AF2EC025C700CC4CF0 /* Backend */,
+				73D2904F2EEC4762004CB446 /* SwiftBSON */,
 			);
 			productName = WeeklySpending;
 			productReference = 73A5A2632EBFFBB300CC4CF0 /* WeeklySpending.app */;
@@ -146,6 +143,7 @@
 				73A5A2A22EC024E700CC4CF0 /* CommonUI */,
 				73A5A2B12EC025CC00CC4CF0 /* AppUI */,
 				73A5A2B32EC025CC00CC4CF0 /* Backend */,
+				73D290512EEC4769004CB446 /* SwiftBSON */,
 			);
 			productName = WeeklySpending;
 			productReference = 73A5A2AB2EC024E700CC4CF0 /* WeeklySpending-local.app */;
@@ -175,6 +173,9 @@
 			);
 			mainGroup = 73A5A25A2EBFFBB300CC4CF0;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				73D2904E2EEC4762004CB446 /* XCRemoteSwiftPackageReference "swift-bson" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 73A5A2642EBFFBB300CC4CF0 /* Products */;
 			projectDirPath = "";
@@ -423,7 +424,7 @@
 				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
@@ -457,7 +458,7 @@
 				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
@@ -510,6 +511,17 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		73D2904E2EEC4762004CB446 /* XCRemoteSwiftPackageReference "swift-bson" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mongodb/swift-bson";
+			requirement = {
+				kind = exactVersion;
+				version = 3.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		73A5A27F2EBFFC7F00CC4CF0 /* Common */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -542,6 +554,16 @@
 		73A5A2B32EC025CC00CC4CF0 /* Backend */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Backend;
+		};
+		73D2904F2EEC4762004CB446 /* SwiftBSON */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73D2904E2EEC4762004CB446 /* XCRemoteSwiftPackageReference "swift-bson" */;
+			productName = SwiftBSON;
+		};
+		73D290512EEC4769004CB446 /* SwiftBSON */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73D2904E2EEC4762004CB446 /* XCRemoteSwiftPackageReference "swift-bson" */;
+			productName = SwiftBSON;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

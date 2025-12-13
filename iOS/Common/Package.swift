@@ -52,7 +52,7 @@ let package = Package(
                 "Common",
                 "CommonUI",
                 .product(name: "SocketIO", package: "socket.io-client-swift"),
-                .product(name: "Supabase", package: "supabase-swift")
+                .product(name: "Supabase", package: "supabase-swift"),
             ],
             swiftSettings: [
                 .defaultIsolation(nil)

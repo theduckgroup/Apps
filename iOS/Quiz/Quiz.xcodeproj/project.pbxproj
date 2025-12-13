@@ -86,7 +86,6 @@
 			children = (
 				73F1FB4B2EA1172B00BC2209 /* Sources */,
 				73D290222EEBF848004CB446 /* Info.plist */,
-				73F1FAFD2EA1164A00BC2209 /* Frameworks */,
 				73F1F9E22EA10C9E00BC2209 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -98,13 +97,6 @@
 				73F1FAFB2EA10E6100BC2209 /* Quiz-local.app */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		73F1FAFD2EA1164A00BC2209 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
