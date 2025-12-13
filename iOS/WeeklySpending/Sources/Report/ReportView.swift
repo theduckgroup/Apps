@@ -91,7 +91,7 @@ struct ReportView: View {
                     }
                 }
             }
-            .glassEffectShim(in: RoundedRectangle(cornerRadius: 12))
+            .sectionBackground()
         }
     }
     
@@ -120,7 +120,7 @@ struct ReportView: View {
                         }
                     }
                 }
-                .glassEffectShim(in: RoundedRectangle(cornerRadius: 12))
+                .sectionBackground()
             }
             
             Button {
@@ -407,6 +407,8 @@ private struct CurrencyField: View {
     }
 }
 
+// Models
+
 @Observable
 private class SupplierData {
     let supplier: WSTemplate.Supplier
@@ -433,6 +435,36 @@ private class CustomSupplierData {
     var amount: Decimal = 0
     var gst: Decimal = 0
 }
+
+// Utils
+
+private extension View {
+    @ViewBuilder
+    func sectionBackground() -> some View {
+        modifier(SectionBackgroundModififer())
+    }
+}
+
+private struct SectionBackgroundModififer: ViewModifier {
+    @Environment(\.colorScheme) private var colorScheme
+    
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        let shape = RoundedRectangle(cornerRadius: 12)
+        
+//        if #available(iOS 26, *) {
+//            content.glassEffect(.regular, in: shape)
+//        } else {
+            if colorScheme == .dark {
+                content.background(.regularMaterial, in: shape)
+            } else {
+                content.background(.white, in: shape)
+            }
+//        }
+    }
+}
+
+// Preview
 
 #Preview {
     @Previewable @State var template: WSTemplate?

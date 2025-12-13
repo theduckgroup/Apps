@@ -86,7 +86,7 @@ struct HomeView: View {
             .disabled(template == nil)
             
             if debugging {
-                Text("Last Fetched: \(lastFetch?.ISO8601Format(), default: "Never")")
+                // Text("Last Fetched: \(lastFetch?.ISO8601Format(), default: "Never")")
             }
         }
         .padding()
