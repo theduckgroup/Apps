@@ -23,7 +23,7 @@ This project hosts multiple apps.
   - Dev server forwards requests starting with `/api` to server
   - For prod, the app is built with output at Server/public folder
 
-Notes:
+# Notes
 - bson npm package is locked to version 4 because bson@5 and @6 rely on top-level await, which is not available
 - `useCallback` is important if you are using functions as dependencies for useEffect; this is because  every time the component changes, a new function is created!
 - Strict Mode causes components to be mounted twice, so requests will be fired twice, and maybe same for web sockets
