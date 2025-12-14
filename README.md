@@ -14,7 +14,7 @@ This project hosts multiple apps.
 
 - Run: `npm run dev -- --host`
 
-  - `--host` makes the app available on local network)
+  - `--host` makes the app available on local network
 
 - Build when changes are detected: `npm run build-watch`
 
