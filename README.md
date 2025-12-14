@@ -8,7 +8,7 @@ This project hosts multiple apps.
 
 # Server
 
-- Run: npm run nodemon
+- Run: `npm run nodemon`
 
 # Web App
 
