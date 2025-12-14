@@ -13,6 +13,7 @@ import SwiftUI
 @Observable
 class QuizResponseViewModel {
     let quiz: Quiz
+    let user: QuizResponse.User
     var respondent: QuizResponse.Respondent
     var createdDate: Date
     var submittedDate: Date?
@@ -21,6 +22,7 @@ class QuizResponseViewModel {
     /// Initializes from a quiz response. The quiz response is broken down into view model properties.
     init(quizResponse: QuizResponse) {
         self.quiz = quizResponse.quiz
+        self.user = quizResponse.user
         self.respondent = quizResponse.respondent
         self.createdDate = quizResponse.createdDate
         self.submittedDate = quizResponse.submittedDate
@@ -61,6 +63,7 @@ class QuizResponseViewModel {
         
         let quizResponse = QuizResponse(
             quiz: quiz,
+            user: user,
             respondent: respondent,
             createdDate: createdDate,
             submittedDate: submittedDate,

@@ -16,7 +16,8 @@ struct QuizResponseView: View {
     
     init(quiz: Quiz) {
         viewModel = {
-            let response = QuizResponse(from: quiz, store: Auth.shared.user!.name)
+            let user = QuizResponse.User(from: Auth.shared.user!)
+            let response = QuizResponse(from: quiz, user: user)
             return QuizResponseViewModel(quizResponse: response)
         }()
     }

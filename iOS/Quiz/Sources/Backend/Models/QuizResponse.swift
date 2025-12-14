@@ -1,11 +1,14 @@
 import Foundation
 import Common
+import Supabase
+import Backend
 
 // TODO
 // private typealias DefaultIsolation = nonisolated
 
 nonisolated struct QuizResponse: Equatable, @unchecked Sendable {
     let quiz: Quiz
+    var user: User
     var respondent: Respondent
     var createdDate: Date
     var submittedDate: Date?
@@ -14,6 +17,7 @@ nonisolated struct QuizResponse: Equatable, @unchecked Sendable {
     static func ==(_ x: Self, _ y: Self) -> Bool {
         x.quiz == y.quiz &&
         x.respondent == y.respondent &&
+        x.user == y.user &&
         x.createdDate == y.createdDate &&
         x.submittedDate == y.submittedDate &&
         x.itemResponses.elementsEqual(y.itemResponses, by: areEqual)
@@ -24,6 +28,7 @@ nonisolated extension QuizResponse: Encodable {
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(quiz, forKey: .quiz)
+        try container.encode(user, forKey: .user)
         try container.encode(respondent, forKey: .respondent)
         try container.encode(createdDate, forKey: .createdDate)
         try container.encodeIfPresent(submittedDate, forKey: .submittedDate)
@@ -32,6 +37,7 @@ nonisolated extension QuizResponse: Encodable {
     
     enum CodingKeys: String, CodingKey {
         case quiz
+        case user
         case respondent
         case createdDate
         case submittedDate
@@ -43,6 +49,12 @@ extension QuizResponse {
     nonisolated struct Respondent: Equatable, Encodable {
         var name: String = ""
         var store: String = ""
+    }
+    
+    nonisolated struct User: Equatable, Encodable {
+        var id: String
+        var email: String
+        var name: String
     }
     
     nonisolated protocol ItemResponse: Encodable {
@@ -113,6 +125,14 @@ extension QuizResponse {
                 case itemResponses
             }
         }
+    }
+}
+
+// Utils
+
+extension QuizResponse.User {
+    init(from user: User) {
+        self.init(id: user.id.uuidString, email: user.email ?? "", name: user.name)
     }
 }
 
