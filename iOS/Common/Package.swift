@@ -30,7 +30,7 @@ let package = Package(
         .package(url: "https://github.com/socketio/socket.io-client-swift", from: "16.1.1"),
         .package(url: "https://github.com/supabase/supabase-swift.git", from: "2.5.1"),
         .package(url: "https://github.com/tevelee/SwiftUI-Flow", from: "3.1.0"),
-        
+        .package(url: "https://github.com/mongodb/swift-bson", exact: "3.1.0"),
     ],
     targets: [
         .target(
@@ -53,6 +53,7 @@ let package = Package(
                 "CommonUI",
                 .product(name: "SocketIO", package: "socket.io-client-swift"),
                 .product(name: "Supabase", package: "supabase-swift"),
+                .product(name: "SwiftBSON", package: "swift-bson"),
             ],
             swiftSettings: [
                 .defaultIsolation(nil)

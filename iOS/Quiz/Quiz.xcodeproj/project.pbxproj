@@ -13,7 +13,6 @@
 		73A5A28A2EC0138600CC4CF0 /* AppUI in Frameworks */ = {isa = PBXBuildFile; productRef = 73A5A2892EC0138600CC4CF0 /* AppUI */; };
 		73F1FA912EA10D4F00BC2209 /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 73F1FA902EA10D4F00BC2209 /* Algorithms */; };
 		73F1FA942EA10D5A00BC2209 /* Equatable in Frameworks */ = {isa = PBXBuildFile; productRef = 73F1FA932EA10D5A00BC2209 /* Equatable */; };
-		73F1FA972EA10D8900BC2209 /* SwiftBSON in Frameworks */ = {isa = PBXBuildFile; productRef = 73F1FA962EA10D8900BC2209 /* SwiftBSON */; };
 		73F1FA9A2EA10DA500BC2209 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = 73F1FA992EA10DA500BC2209 /* Auth */; };
 		73F1FA9C2EA10DA500BC2209 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 73F1FA9B2EA10DA500BC2209 /* Supabase */; };
 		73F1FA9F2EA10DF500BC2209 /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 73F1FA9E2EA10DF500BC2209 /* SocketIO */; };
@@ -55,7 +54,6 @@
 				73F1FA9A2EA10DA500BC2209 /* Auth in Frameworks */,
 				73F1FAFF2EA1164A00BC2209 /* Common in Frameworks */,
 				73A5A28A2EC0138600CC4CF0 /* AppUI in Frameworks */,
-				73F1FA972EA10D8900BC2209 /* SwiftBSON in Frameworks */,
 				73F1FA9F2EA10DF500BC2209 /* SocketIO in Frameworks */,
 				73F1FB012EA1164A00BC2209 /* CommonUI in Frameworks */,
 			);
@@ -121,7 +119,6 @@
 			packageProductDependencies = (
 				73F1FA902EA10D4F00BC2209 /* Algorithms */,
 				73F1FA932EA10D5A00BC2209 /* Equatable */,
-				73F1FA962EA10D8900BC2209 /* SwiftBSON */,
 				73F1FA992EA10DA500BC2209 /* Auth */,
 				73F1FA9B2EA10DA500BC2209 /* Supabase */,
 				73F1FA9E2EA10DF500BC2209 /* SocketIO */,
@@ -193,7 +190,6 @@
 			packageReferences = (
 				73F1FA8F2EA10D4F00BC2209 /* XCRemoteSwiftPackageReference "swift-algorithms" */,
 				73F1FA922EA10D5A00BC2209 /* XCRemoteSwiftPackageReference "equatable" */,
-				73F1FA952EA10D8900BC2209 /* XCRemoteSwiftPackageReference "swift-bson" */,
 				73F1FA982EA10DA500BC2209 /* XCRemoteSwiftPackageReference "supabase-swift" */,
 				73F1FA9D2EA10DF500BC2209 /* XCRemoteSwiftPackageReference "socket" */,
 			);
@@ -549,14 +545,6 @@
 				minimumVersion = 1.2.0;
 			};
 		};
-		73F1FA952EA10D8900BC2209 /* XCRemoteSwiftPackageReference "swift-bson" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/mongodb/swift-bson";
-			requirement = {
-				kind = exactVersion;
-				version = 3.1.0;
-			};
-		};
 		73F1FA982EA10DA500BC2209 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/supabase/supabase-swift.git";
@@ -641,11 +629,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 73F1FA922EA10D5A00BC2209 /* XCRemoteSwiftPackageReference "equatable" */;
 			productName = Equatable;
-		};
-		73F1FA962EA10D8900BC2209 /* SwiftBSON */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 73F1FA952EA10D8900BC2209 /* XCRemoteSwiftPackageReference "swift-bson" */;
-			productName = SwiftBSON;
 		};
 		73F1FA992EA10DA500BC2209 /* Auth */ = {
 			isa = XCSwiftPackageProductDependency;
