@@ -41,6 +41,11 @@ const ListItemResponse = z.strictObject({
 
 export default z.strictObject({
   quiz: QuizSchema,
+  user: z.strictObject({
+    id: z.string(),
+    email: z.string(),
+    name: z.string(),
+  }),
   createdDate: z.iso.datetime(),
   submittedDate: z.iso.datetime(),
   itemResponses: z.array(
