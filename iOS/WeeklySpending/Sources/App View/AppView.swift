@@ -53,7 +53,7 @@ struct AppView: View {
         } else {
             ProgressView()
                 .progressViewStyle(.circular)
-                .scaleEffect(1.5)
+                .controlSize(.large)
                 .tint(.secondary)
         }
     }

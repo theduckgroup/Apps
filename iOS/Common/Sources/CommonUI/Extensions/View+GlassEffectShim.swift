@@ -12,7 +12,8 @@ public extension View {
         if #available(iOS 26, *) {
             glassEffect(.regular, in: shape)
         } else {
-            background(.regularMaterial, in: shape)
+            // background(.ultraThickMaterial, in: shape)
+            background(.white, in: shape)
         }
     }
 }

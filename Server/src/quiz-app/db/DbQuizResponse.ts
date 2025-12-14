@@ -3,13 +3,18 @@ import { DbQuiz } from './DbQuiz'
 export interface DbQuizResponse {
   // _id: ObjectId
   quiz: DbQuiz
-  createdDate: Date
-  submittedDate: Date
-  itemResponses: DbQuizResponse.ItemResponse[]
+  user: {
+    id: string
+    email: string
+    name: string
+  }
   respondent: {
     name: string
     store: string
   }
+  createdDate: Date
+  submittedDate: Date
+  itemResponses: DbQuizResponse.ItemResponse[]
 }
 
 export namespace DbQuizResponse {

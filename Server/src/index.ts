@@ -23,7 +23,7 @@ const server = createServer(app)
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(compression())
-app.use('/', requestLogger({ logger }))
+app.use(requestLogger({ logger }))
 app.use(rateLimiter())
 
 // Event hub

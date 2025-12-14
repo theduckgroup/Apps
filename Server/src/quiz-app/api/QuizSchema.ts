@@ -6,18 +6,18 @@ const MetadataSchema = z.object({
   id: z.string(),
   name: z.string(),
   code: z.string(),
-  emailRecipients: z.array(z.email())
+  emailRecipients: z.array(z.string())
 })
 
 // Body
 
-const SelectedResponseItem = z.strictObject({
+const SelectedResponseItem = z.object({
   kind: z.literal("selectedResponseItem"),
   id: z.string(),
-  data: z.strictObject({
+  data: z.object({
     prompt: z.string(),
     options: z.array(
-      z.strictObject({
+      z.object({
         id: z.string(),
         value: z.string(),
       })
@@ -25,19 +25,19 @@ const SelectedResponseItem = z.strictObject({
   }),
 })
 
-const TextInputItem = z.strictObject({
+const TextInputItem = z.object({
   kind: z.literal("textInputItem"),
   id: z.string(),
-  data: z.strictObject({
+  data: z.object({
     prompt: z.string(),
     layout: z.enum(['inline', 'stack'])
   }),
 })
 
-const ListItem = z.strictObject({
+const ListItem = z.object({
   kind: z.literal("listItem"),
   id: z.string(),
-  data: z.strictObject({
+  data: z.object({
     prompt: z.string(),
     // recursive definition: items contains other Items
     items: z.array(
@@ -49,11 +49,11 @@ const ListItem = z.strictObject({
   }),
 })
 
-const SectionSchema = z.strictObject({
+const SectionSchema = z.object({
   id: z.string(),
   name: z.string(),
   rows: z.array(
-    z.strictObject({
+    z.object({
       itemId: z.string(),
     })
   ),

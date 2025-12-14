@@ -1,12 +1,12 @@
 import Foundation
-import Supabase
-import SwiftBSON
+import Backend
 
 extension QuizResponse {
-    init(from quiz: Quiz, store: String) {
+    init(from quiz: Quiz, user: User) {
         self.init(
             quiz: quiz,
-            respondent: Respondent(store: store),
+            user: user,
+            respondent: Respondent(store: user.name),
             createdDate: Date(),
             submittedDate: nil,
             itemResponses: quiz.items.map(Self.createItemResponseFromItem)
