@@ -2,13 +2,13 @@ import { z } from "zod"
 
 import { QuizSchema } from './QuizSchema'
 
-const SelectedResponseItemResponse = z.strictObject({
+const SelectedResponseItemResponse = z.object({
   itemKind: z.literal("selectedResponseItem"),
   id: z.string(),
   itemId: z.string(),
-  data: z.strictObject({
+  data: z.object({
     selectedOptions: z.array(
-      z.strictObject({
+      z.object({
         id: z.string(),
         value: z.string(),
       })
@@ -16,20 +16,20 @@ const SelectedResponseItemResponse = z.strictObject({
   }),
 })
 
-const TextInputItemResponse = z.strictObject({
+const TextInputItemResponse = z.object({
   itemKind: z.literal("textInputItem"),
   id: z.string(),
   itemId: z.string(),
-  data: z.strictObject({
+  data: z.object({
     value: z.string(),
   }),
 })
 
-const ListItemResponse = z.strictObject({
+const ListItemResponse = z.object({
   itemKind: z.literal("listItem"),
   id: z.string(),
   itemId: z.string(),
-  data: z.strictObject({
+  data: z.object({
     itemResponses: z.array(
       z.discriminatedUnion("itemKind", [
         SelectedResponseItemResponse,
@@ -39,9 +39,9 @@ const ListItemResponse = z.strictObject({
   }),
 })
 
-export default z.strictObject({
+export default z.object({
   quiz: QuizSchema,
-  user: z.strictObject({
+  user: z.object({
     id: z.string(),
     email: z.string(),
     name: z.string(),
@@ -55,7 +55,7 @@ export default z.strictObject({
       ListItemResponse,
     ])
   ),
-  respondent: z.strictObject({
+  respondent: z.object({
     name: z.string(),
     store: z.string(),
   }),

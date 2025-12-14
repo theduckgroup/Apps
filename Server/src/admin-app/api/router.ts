@@ -43,16 +43,16 @@ router.get('/user/:id', async (req, res) => {
 
 // Create user
 
-const UserMetadataSchema = z.strictObject({
+const UserMetadataSchema = z.object({
   first_name: z.string(),
   last_name: z.string()
 })
 
-const AppMetadataSchema = z.strictObject({
+const AppMetadataSchema = z.object({
   roles: z.array(z.enum([Roles.owner, Roles.admin])).max(1)
 })
 
-const CreateUserSchema = z.strictObject({
+const CreateUserSchema = z.object({
   email: z.email(),
   password: z.string(),
   user_metadata: UserMetadataSchema,
@@ -98,7 +98,7 @@ router.post('/user', async (req, res) => {
 
 // Update user
 
-const UpdateUserSchema = z.strictObject({
+const UpdateUserSchema = z.object({
   password: z.string().optional(),
   user_metadata: UserMetadataSchema.optional(),
   app_metadata: AppMetadataSchema.optional()
