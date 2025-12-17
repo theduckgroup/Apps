@@ -31,15 +31,17 @@ public struct HTTPClient: Sendable {
         }
     }
     
-    public func get<T: Decodable>(_ request: URLRequest, decodeAs type: T.Type) async throws -> T {
+    public func get<T: Decodable>(_ request: URLRequest, decodeAs type: T.Type = T.self) async throws -> T {
         let data = try await get(request)
         
         do {
-            let result = try JSONDecoder().decode(T.self, from: data)
-            return result
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            
+            return try decoder.decode(T.self, from: data)
             
         } catch {
-            let message = "\(request.httpMethod!) \(request.url!) ~ Decoding failed: \(formatError(error))"
+            let message = "\(request.httpMethod!) \(request.url!) ~ Decoding Error: \(formatError(error))"
             logger.error(message)
             throw error
         }
@@ -106,7 +108,7 @@ public struct HTTPClient: Sendable {
     }
     
     private func logError(_ request: URLRequest, _ error: Error, _ data: Data? = nil) {
-        var message = "\(request.httpMethod!) \(request.url!) ~ \(error.localizedDescription)"
+        var message = "\(request.httpMethod!) \(request.url!) ~ Error: \(error)"
         
         if let data {
             message += "\n[Data (\(data.count) bytes)]\n\(formatData(data))"
