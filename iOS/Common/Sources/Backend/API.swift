@@ -15,13 +15,15 @@ final public class API: Sendable {
         authenticated: Bool = true,
         path: String,
         queryItems: [URLQueryItem] = [],
-        decodeAs type: T.Type
+        decodeAs type: T.Type = T.self
     ) async throws -> T {
         try await handle401 {
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            
             let request = try await makeRequest(authenticated: authenticated, method: "GET", path: path, queryItems: queryItems)
-            let data = try await HTTPClient().get(request)
-            let decoded = try JSONDecoder().decode(T.self, from: data)
-            return decoded
+            let data = try await HTTPClient().get(request, decodeAs: type)
+            return data
         }
     }
     

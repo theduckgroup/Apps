@@ -43,7 +43,7 @@ function ResetPasswordPage2() {
         password: values.password
       }
 
-      await axios.patch(`/api/admin/user/${user!.id}`, data, {
+      await axios.patch(`/api/admin/users/${user!.id}`, data, {
         headers: {
           'Authorization': `Bearer ${session.access_token}`
         }

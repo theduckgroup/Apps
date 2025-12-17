@@ -17,18 +17,32 @@ extension API {
 
 extension API {
     func template(code: String) async throws -> WSTemplate {
-        try await get(
-            path: "/template",
-            queryItems: [.init(name: "code", value: code)],
-            decodeAs: WSTemplate.self
+        let templates: [WSTemplate] = try await get(
+            path: "/templates",
+            queryItems: [.init(name: "code", value: code)]
         )
+        
+        switch templates.count {
+        case 0:
+            throw GenericError("No template with code WEEKLY_SPENDING found")
+            
+        case 1:
+            return templates[0]
+            
+        default:
+            throw GenericError("More than one template with code WEEKLY_SPENDING found")
+        }
+    }
+    
+    func userReports(userID: String) async throws -> [WSReportMeta] {
+        try await get(path: "/users/\(userID)/reports/meta")
     }
     
     func mockTemplate() async throws -> WSTemplate {
-        try await get(authenticated: false, path: "/mock-template", decodeAs: WSTemplate.self)
+        try await get(authenticated: false, path: "/mock-template")
     }
     
     func submitReport(_ report: WSReport) async throws {
-        try await post(method: "POST", path: "/report/submit", body: report)
+        try await post(method: "POST", path: "/reports/submit", body: report)
     }
 }

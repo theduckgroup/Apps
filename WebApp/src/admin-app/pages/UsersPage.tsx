@@ -73,7 +73,7 @@ function Content({ users }: { users: User[] }) {
         role: 'destructive',
         handler: async () => {
           await sleep(500)
-          await axios.delete(`/user/${user.id}`)
+          await axios.delete(`users/${user.id}`)
         }
       }]
     })

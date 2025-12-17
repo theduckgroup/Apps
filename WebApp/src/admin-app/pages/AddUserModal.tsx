@@ -55,7 +55,7 @@ export function AddUserModal({ opened, onClose }: {
         }
       }
 
-      return (await axios.post('/user', body)).data
+      return (await axios.post('/users', body)).data
     },
     onSuccess: () => {
       form.reset()

@@ -11,4 +11,8 @@ extension EventHub {
         print("Creating templates changed stream")
         return events("ws-app:templates:changed")
     }
+    
+    func userReportsChanged(userID: String) -> AsyncStream<Void> {
+        events("ws-app:user:\(userID):reports:changed")
+    }
 }

@@ -10,7 +10,6 @@ import { WsReportSchema } from './WsReportSchema'
 import logger from 'src/logger'
 import z from 'zod'
 import { mailer } from 'src/utils/mailer'
-import env from 'src/env'
 import { DbWsReport } from '../db/DbWsReport'
 import '../db/Db+collections'
 import { generateReportEmailHtml } from './generate-report-email'
@@ -22,48 +21,7 @@ const adminRouter = express.Router()
 
 adminRouter.use(authorizeAdmin)
 
-adminRouter.get('/templates', async (req, res) => {
-  const db = await getDb()
-
-  const docs = await db.collection_wsTemplates.find({}).toArray()
-
-  interface WsTemplateMetadata {
-    id: string
-    code: string
-    supplierCount: number
-  }
-
-  const data: WsTemplateMetadata[] = docs.map(doc => {
-    return {
-      id: doc._id.toString(),
-      name: doc.name,
-      code: doc.code,
-      supplierCount: doc.sections.map(x => x.rows.length).reduce((x, y) => x + y, 0)
-    }
-  })
-
-  res.send(data)
-})
-
-adminRouter.get('/template/:id', async (req, res) => {
-  const id = req.params.id
-
-  const db = await getDb()
-
-  const dbTemplate = await db.collection_wsTemplates.findOne({
-    _id: new ObjectId(id)
-  })
-
-  if (!dbTemplate) {
-    throw createHttpError(400, 'Document not found')
-  }
-
-  const data = normalizeId(dbTemplate)
-
-  res.send(data)
-})
-
-adminRouter.put('/template/:id', async (req, res) => {
+adminRouter.put('/templates/:id', async (req, res) => {
   const id = req.params.id
 
   // Validate schema
@@ -106,7 +64,7 @@ adminRouter.put('/template/:id', async (req, res) => {
   eventHub.emitTemplatesChanged()
 })
 
-adminRouter.delete('/template/:id', async (req, res) => {
+adminRouter.delete('/templates/:id', async (req, res) => {
   const id = req.params.id
   const db = await getDb()
 
@@ -119,7 +77,7 @@ adminRouter.delete('/template/:id', async (req, res) => {
   eventHub.emitTemplatesChanged()
 })
 
-adminRouter.post('/template/:id/duplicate', async (req, res) => {
+adminRouter.post('/templates/:id/duplicate', async (req, res) => {
   const id = req.params.id
 
   const db = await getDb()
@@ -189,7 +147,48 @@ const userRouter = express.Router()
 
 userRouter.use(authorizeUser)
 
-userRouter.get('/template' /* ?code=XYZ */, async (req, res) => {
+userRouter.get('/templates/meta' /* Optional: ?code=XYZ */, async (req, res) => {
+  const db = await getDb()
+
+  const docs = await db.collection_wsTemplates.find({}).toArray()
+
+  interface WsTemplateMetadata {
+    id: string
+    code: string
+    supplierCount: number
+  }
+
+  const data: WsTemplateMetadata[] = docs.map(doc => {
+    return {
+      id: doc._id.toString(),
+      name: doc.name,
+      code: doc.code,
+      supplierCount: doc.sections.map(x => x.rows.length).reduce((x, y) => x + y, 0)
+    }
+  })
+
+  res.send(data)
+})
+
+userRouter.get('/templates/:id', async (req, res) => {
+  const id = req.params.id
+
+  const db = await getDb()
+
+  const dbTemplate = await db.collection_wsTemplates.findOne({
+    _id: new ObjectId(id)
+  })
+
+  if (!dbTemplate) {
+    throw createHttpError(400, 'Document not found')
+  }
+
+  const data = normalizeId(dbTemplate)
+
+  res.send(data)
+})
+
+userRouter.get('/templates' /* ?code=XYZ */, async (req, res) => {
   const code = req.query.code
 
   if (!code) {
@@ -198,15 +197,13 @@ userRouter.get('/template' /* ?code=XYZ */, async (req, res) => {
 
   const db = await getDb()
 
-  const doc = await db.collection_wsTemplates.findOne({
-    code: code
-  })
+  const docs = await db.collection_wsTemplates
+    .find({
+      code
+    })
+    .toArray()
 
-  if (!doc) {
-    throw createHttpError(400, 'Document not found')
-  }
-
-  const data = normalizeId(doc)
+  const data = docs.map(doc => normalizeId(doc))
 
   res.send(data)
 })
@@ -231,6 +228,8 @@ userRouter.post('/submit', async (req, res) => {
 
   res.send()
 
+  eventHub.emitUserReportsChanged(data.user.id)
+
   const recipients: mailer.Recipient[] = doc.template.emailRecipients.map(x => ({
     name: '',
     email: x
@@ -247,23 +246,32 @@ userRouter.post('/submit', async (req, res) => {
   })
 })
 
-function reportNotificationMailHtml(templateName: string, docId: ObjectId) {
-  const htmlDoctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
+userRouter.get('/users/:userId/reports/meta', async (req, res) => {
+  const userId = req.params.userId
 
-  const html = `
-<p>
-${templateName} has been submitted.
-</p>
+  if (!req.user) {
+    throw createHttpError(401)
+  }
 
-<p>
-<a href='${env.webappUrl}/fohtest/view/${docId.toString()}'>View Test</a>
-</p>
-    `
+  const db = await getDb()
 
-  return htmlDoctype + html
+  let docs = await db.collection_wsReports
+    .find({
+      'user.id': userId
+    })
+    .project({
+      'template.id': 1,
+      'template.name': 1,
+      'template.code': 1,
+      user: 1,
+      date: 1,
+    })
+    .toArray()
 
-  // return htmlDoctype + ReactDOMServer.renderToStaticMarkup(React.createElement(OrderEmailHtml, { order: order }, null));
-}
+  docs = docs.map(doc => ({ id: doc._id, _id: undefined, ...doc }))
+
+  res.send(docs)
+})
 
 // Public router
 

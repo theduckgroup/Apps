@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import Backend
+import Common
 import CommonUI
 import SwiftBSON
 
@@ -154,22 +155,57 @@ struct ReportView: View {
     }
         
     private func handleSubmit() {
-        Task {
-            do {
-                ps.presentProgressHUD(title: "Submitting...")
-                
-                try! await Task.sleep(for: .seconds(0.5))
-                
-                let report = report()
-                try await API.shared.post(method: "POST", path: "/submit", body: report)
-                
-                ps.dismiss()
-                
-            } catch {
-                ps.dismiss()
-                ps.presentAlert(error: error)
+        ps.presentAlert(title: "Submit Report?", message: "") {
+            Button("Submit") {
+                Task {
+                    do {
+                        try validate()
+                        await submit()
+                        dismiss()
+                        
+                    } catch {
+                        ps.presentAlert(error: error)
+                    }
+                }
             }
+            
+            if debugging {
+//                Button("[D] Submit & Stay") {
+//                    Task {
+//                        do {
+//                            try validate()
+//                            await submit()
+//                            
+//                        } catch {
+//                            ps.presentAlert(error: error)
+//                        }
+//                    }
+//                }
+            }
+            
+            Button("Cancel", role: .cancel) {}
         }
+    }
+    
+    private func submit() async {
+        do {
+            ps.presentProgressHUD(title: "Submitting...")
+            
+            try! await Task.sleep(for: .seconds(0.5))
+            
+            let report = report()
+            try await API.shared.post(method: "POST", path: "/submit", body: report)
+            
+            ps.dismiss()
+            
+        } catch {
+            ps.dismiss()
+            ps.presentAlert(error: error)
+        }
+    }
+    
+    private func validate() throws {
+        
     }
     
     /// Creates report from view data.

@@ -11,7 +11,7 @@ struct WSReport: Encodable, Sendable {
 }
 
 extension WSReport {
-    struct User: Encodable, Sendable {
+    struct User: Codable, Sendable {
         var id: String
         var email: String
         var name: String
@@ -35,4 +35,8 @@ extension WSReport.User {
     init(from user: Supabase.User) {
         self.init(id: user.id.uuidString, email: user.email ?? "", name: user.name)
     }
+}
+
+extension WSReport.User {
+    static let mock = Self.init(id: "0", email: "theduckgroupapp@gmail.com", name: "The Duck Group App")
 }

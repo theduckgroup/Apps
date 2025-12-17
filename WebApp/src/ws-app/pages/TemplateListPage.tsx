@@ -15,10 +15,7 @@ const TemplateListPage = () => {
 
   const { data, error, isLoading, refetch } = useQuery({
     queryKey: ['wsTemplates'],
-    queryFn: async () => {
-      const metatemplates = (await axios.get('/templates')).data as WsTemplateMetadata[]
-      return metatemplates
-    }
+    queryFn: async () => ((await axios.get('/templates/meta')).data as WsTemplateMetadata[])
   })
 
   useEffect(() => {
@@ -41,6 +38,7 @@ const TemplateListPage = () => {
         if (error) {
           return <Text c='red'>{formatError(error)}</Text>
         }
+        
         if (!data) {
           return <Text>???</Text>
         }
@@ -102,7 +100,7 @@ function TemplateListItem({ template, openConfirmModal }: {
       actions: [{
         label: 'Duplicate',
         handler: async () => {
-          return await axios.post(`template/${template.id}/duplicate`)
+          return await axios.post(`templates/${template.id}/duplicate`)
         }
       }]
     })
@@ -121,7 +119,7 @@ function TemplateListItem({ template, openConfirmModal }: {
         label: 'Delete',
         role: 'destructive',
         handler: async () => {
-          return await axios.delete(`template/${template.id}`)
+          return await axios.delete(`templates/${template.id}`)
         }
       }]
     })
