@@ -39,7 +39,7 @@ export function EditPasswordModal({ opened, onClose, options: { user } }: {
         password: values.password
       }
 
-      return (await axios.patch(`/user/${user.id}`, data)).data
+      return (await axios.patch(`/users/${user.id}`, data)).data
     },
     onSuccess: () => {
       onClose()

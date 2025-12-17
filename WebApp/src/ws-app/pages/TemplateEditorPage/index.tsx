@@ -24,7 +24,7 @@ export default function TemplateEditorPage() {
   const { mutate: loadTemplate, error: loadError, isPending: isLoading } = useMutation({
     mutationFn: async () => {
       if (templateId) {
-        return (await axios.get(`/template/${templateId}`)).data as WsTemplate
+        return (await axios.get(`/templates/${templateId}`)).data as WsTemplate
 
       } else {
         const template: WsTemplate = {
@@ -56,7 +56,7 @@ export default function TemplateEditorPage() {
 
   const { mutate: saveQuiz, error: saveError, isPending: isSaving } = useMutation({
     mutationFn: async (template: WsTemplate) => {
-      await axios.put(`/template/${template.id}`, template)
+      await axios.put(`/templates/${template.id}`, template)
     }
   })
 

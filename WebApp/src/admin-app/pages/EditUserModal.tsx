@@ -57,7 +57,7 @@ export function EditUserModal({ opened, onClose, options: { title, user } }: {
         }
       }
 
-      return (await axios.patch(`/user/${user.id}`, body)).data
+      return (await axios.patch(`/users/${user.id}`, body)).data
     },
     onSuccess: () => {
       onClose()

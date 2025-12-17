@@ -45,7 +45,7 @@ adminRouter.get('/templates', async (req, res) => {
   res.send(data)
 })
 
-adminRouter.get('/template/:id', async (req, res) => {
+adminRouter.get('/templates/:id', async (req, res) => {
   const id = req.params.id
 
   const db = await getDb()
@@ -63,7 +63,7 @@ adminRouter.get('/template/:id', async (req, res) => {
   res.send(data)
 })
 
-adminRouter.put('/template/:id', async (req, res) => {
+adminRouter.put('/templates/:id', async (req, res) => {
   const id = req.params.id
 
   // Validate schema
@@ -230,6 +230,8 @@ userRouter.post('/submit', async (req, res) => {
   const docId = insertResult.insertedId
 
   res.send()
+
+  eventHub.emitUserReportsChanged(data.user.id)
 
   const recipients: mailer.Recipient[] = doc.template.emailRecipients.map(x => ({
     name: '',

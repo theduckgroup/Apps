@@ -29,7 +29,7 @@ router.get('/users', async (req, res) => {
 
 // Get a user
 
-router.get('/user/:id', async (req, res) => {
+router.get('/users/:id', async (req, res) => {
   const id = req.params.id
   const { data: { user }, error } = await supabase.auth.admin.getUserById(req.params.id)
 
@@ -59,7 +59,7 @@ const CreateUserSchema = z.object({
   app_metadata: AppMetadataSchema
 })
 
-router.post('/user', async (req, res) => {
+router.post('/users', async (req, res) => {
   // Body
 
   const { data, error: schemaError } = CreateUserSchema.safeParse(req.body)
@@ -104,7 +104,7 @@ const UpdateUserSchema = z.object({
   app_metadata: AppMetadataSchema.optional()
 })
 
-router.patch('/user/:id', async (req, res) => {
+router.patch('/users/:id', async (req, res) => {
   const { data, error: schemaError } = UpdateUserSchema.safeParse(req.body)
 
   if (schemaError) {
@@ -142,7 +142,7 @@ router.patch('/user/:id', async (req, res) => {
 
 // Delete a user
 
-router.delete('/user/:id', async (req, res) => {
+router.delete('/users/:id', async (req, res) => {
   // Get user
 
   const uid = req.params.id
