@@ -10,9 +10,9 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
-  "engines" : { 
-    "npm" : ">=11.4.2",
-    "node" : ">=20.17.0"
+  "engines": {
+    "npm": ">=11.6.1",
+    "node": ">=24.10.0"
   },
   "engineStrict": true,
   "dependencies": {
