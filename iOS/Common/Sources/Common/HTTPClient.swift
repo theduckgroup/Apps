@@ -36,12 +36,15 @@ public struct HTTPClient: Sendable {
         
         do {
             let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
+            decoder.dateDecodingStrategy = .iso8601WithFractionalSeconds
+            
+            // This is broken before iOS 26 -- does not accept fractional seconds
+            // decoder.dateDecodingStrategy = .iso8601
             
             return try decoder.decode(T.self, from: data)
             
         } catch {
-            let message = "\(request.httpMethod!) \(request.url!) ~ Decoding Error: \(formatError(error))"
+            let message = "\(request.httpMethod!) \(request.url!) ~ Decoding Error: \(error)"
             logger.error(message)
             throw error
         }
