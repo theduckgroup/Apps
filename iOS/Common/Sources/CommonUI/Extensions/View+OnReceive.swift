@@ -11,7 +11,7 @@ public extension View {
 //    }
     
     @ViewBuilder
-    func onReceive<T>(_ createStream: @escaping () -> AsyncStream<T>, perform: @escaping (T) -> Void) -> some View {
+    func onReceive<T>(_ createStream: @autoclosure @escaping () -> AsyncStream<T>, perform: @escaping (T) -> Void) -> some View {
         task {
             for await value in createStream() {
                 perform(value)

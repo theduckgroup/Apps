@@ -30,7 +30,7 @@ final public class EventHub: Sendable {
     }
     
     public func events(_ eventName: String) -> AsyncStream<Void> {
-        logger.info("Create event stream for \(eventName)")
+        logger.info("Create event stream for '\(eventName)'")
         
         let (stream, cont) = AsyncStream<Void>.makeStream()
         let socket = socketManager.defaultSocket
@@ -45,6 +45,14 @@ final public class EventHub: Sendable {
         }
         
         return stream
+    }
+    
+    public var connectEvents: AsyncStream<Void> {
+        events("connect")
+    }
+    
+    public var disconnectEvents: AsyncStream<Void> {
+        events("disconnect")
     }
     
     // Combine implementation

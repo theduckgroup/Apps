@@ -8,32 +8,29 @@ struct NewReportButton: View {
     @State var templateResult: Result<WSTemplate, Error>?
     @State var isFetchingTemplate = false
     @State var fetchTemplateTask: Task<Void, Never>?
-    @State var lastFetchTemplate: Date?
+    @State var lastFetchedTemplate: Date?
     @State var ps = PresentationState()
-    @Environment(\.scenePhase) private var scenePhase
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
     var body: some View {
         VStack(alignment: .leading) {
             fetchStatusView()
             
-            if let templateResult, templateResult.isFailure {
+            if templateResult?.value == nil && !isFetchingTemplate {
                 // Don't show button
             } else {
                 button()
             }
         }
         .presentations(ps)
-        .onFirstAppear {
+        .onSceneBecomeActive {
             fetchTemplate()
         }
-        .onReceive(EventHub.shared.templatesChanged) {
+        .onReceive(EventHub.shared.connectEvents) {
             fetchTemplate()
         }
-        .onChange(of: scenePhase) {
-            if scenePhase == .active {
-                fetchTemplate()
-            }
+        .onReceive(EventHub.shared.templatesChangeEvents) {
+            fetchTemplate()
         }
     }
     
@@ -62,13 +59,7 @@ struct NewReportButton: View {
     @ViewBuilder
     private func button() -> some View {
         VStack(alignment: .leading, spacing: 15) {
-            let template: WSTemplate? = {
-                if let templateResult, case .success(let template) = templateResult {
-                    template
-                } else {
-                    nil
-                }
-            }()
+            let template = templateResult?.value
             
             Button {
                 if let template {
@@ -80,11 +71,7 @@ struct NewReportButton: View {
                 
             } label: {
                 Group {
-                    if !isFetchingTemplate {
-                        Label("New Spending", systemImage: "plus")
-                            .fontWeight(.semibold)
-                        
-                    } else {
+                    if template == nil && isFetchingTemplate {
                         HStack {
                             ProgressView()
                                 .progressViewStyle(.circular)
@@ -93,16 +80,20 @@ struct NewReportButton: View {
                             Text("Loading...")
                                 .foregroundStyle(.secondary)
                         }
+                    } else {
+                        Label("New Spending", systemImage: "plus")
+                            .fontWeight(.semibold)
                     }
                 }
                 .padding(.horizontal, 6)
                 .padding(.vertical, 3)
             }
             .buttonStyle(.borderedProminent)
-            .disabled(template == nil || isFetchingTemplate)
+            .disabled(template == nil)
             
             if debugging {
-                // Text("Last Fetched: \(lastFetch?.ISO8601Format(), default: "Never")")
+                Text("[D] Last Fetched: \(lastFetchedTemplate?.ISO8601Format(.iso8601(timeZone: .current)), default: "Never")")
+                    .foregroundStyle(.secondary)
             }
         }
     }
@@ -112,6 +103,10 @@ struct NewReportButton: View {
         
         fetchTemplateTask = Task {
             isFetchingTemplate = true
+            
+            defer {
+                isFetchingTemplate = false
+            }
             
             do {
                 if delay {
@@ -133,17 +128,11 @@ struct NewReportButton: View {
                 self.templateResult = .success(template)
                 // self.cachedTemplateName = template.name
                 
-                isFetchingTemplate = false
-                lastFetchTemplate = Date()
+                lastFetchedTemplate = Date()
                 
             } catch {
-                guard !error.isCancellationError else {
-                    return
-                }
                 
-                isFetchingTemplate = false
-                
-                logger.error("Unable to load template: \(error)")
+                logger.error("Unable to fetch template: \(error)")
                 self.templateResult = .failure(error)
             }
         }

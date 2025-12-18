@@ -7,12 +7,11 @@ import Backend
 extension EventHub {
     static let shared = EventHub(baseURL: API.shared.baseURL)
     
-    func templatesChanged() -> AsyncStream<Void> {
-        print("Creating templates changed stream")
-        return events("ws-app:templates:changed")
+    var templatesChangeEvents: AsyncStream<Void> {
+        events("ws-app:templates:changed")
     }
     
-    func userReportsChanged(userID: String) -> AsyncStream<Void> {
+    func userReportsChangeEvents(userID: String) -> AsyncStream<Void> {
         events("ws-app:user:\(userID):reports:changed")
     }
 }
