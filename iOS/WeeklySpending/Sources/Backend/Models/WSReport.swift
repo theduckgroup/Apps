@@ -2,7 +2,7 @@ import Foundation
 import Supabase
 import Backend
 
-struct WSReport: Encodable, Sendable {
+struct WSReport: Codable, Sendable {
     var template: WSTemplate
     var user: User
     var date: Date
@@ -11,29 +11,28 @@ struct WSReport: Encodable, Sendable {
 }
 
 extension WSReport {
-    struct User: Codable, Sendable {
+    struct User: Hashable, Codable, Sendable {
         var id: String
         var email: String
         var name: String
     }
     
-    struct SupplierData: Encodable, Sendable {
+    struct SupplierData: Codable, Sendable {
         var supplierId: String
         var amount: Decimal
         var gst: Decimal
     }
     
-    struct CustomSupplierData: Encodable, Sendable {
+    struct CustomSupplierData: Codable, Sendable {
         var name: String
         var amount: Decimal
         var gst: Decimal
     }
 }
 
-
 extension WSReport.User {
     init(from user: Supabase.User) {
-        self.init(id: user.id.uuidString, email: user.email ?? "", name: user.name)
+        self.init(id: user.idString, email: user.email ?? "", name: user.name)
     }
 }
 

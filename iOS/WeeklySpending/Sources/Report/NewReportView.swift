@@ -155,6 +155,8 @@ struct NewReportView: View {
     }
         
     private func handleSubmit() {
+        UIApplication.shared.resignFirstResponder()
+        
         do {
             try validate()
             

@@ -2,7 +2,7 @@ import Foundation
 import Supabase
 import Backend
 
-struct WSReportMeta: Decodable, Sendable {
+struct WSReportMeta: Hashable, Decodable, Sendable {
     var id: String
     var template: WSTemplateMeta
     var user: WSReport.User
@@ -10,7 +10,7 @@ struct WSReportMeta: Decodable, Sendable {
 }
 
 
-struct WSTemplateMeta: Decodable {
+struct WSTemplateMeta: Hashable, Decodable {
     var id: String
     var name: String
     var code: String

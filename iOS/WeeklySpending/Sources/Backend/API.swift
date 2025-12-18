@@ -34,13 +34,22 @@ extension API {
         }
     }
     
+    func mockTemplate() async throws -> WSTemplate {
+        try await get(authenticated: false, path: "/mock-template")
+    }
+    
+    
+    func report(id: String) async throws -> WSReport {
+        try await get(path: "/reports/\(id)")
+    }
+    
     func userReports(userID: String) async throws -> [WSReportMeta] {
         try await get(path: "/users/\(userID)/reports/meta")
     }
     
-    func mockTemplate() async throws -> WSTemplate {
-        try await get(authenticated: false, path: "/mock-template")
-    }
+    func mockReport() async throws -> WSReport {
+        try await get(authenticated: false, path: "/mock-report")
+    }    
     
     func submitReport(_ report: WSReport) async throws {
         try await post(method: "POST", path: "/reports/submit", body: report)

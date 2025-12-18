@@ -22,6 +22,7 @@ struct HomeView: View {
     @State private var fetchReportsTask: Task<Void, Never>?
     
     @State var presentingSettings = false
+    @State var presentedReportMeta: WSReportMeta?
     @Environment(AppDefaults.self) private var appDefaults
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
@@ -30,6 +31,9 @@ struct HomeView: View {
             bodyContent()
                 .navigationTitle("Weekly Spending")
                 .toolbar { toolbarContent() }
+                .navigationDestination(item: $presentedReportMeta) { reportMeta in
+                    PastReportView(reportMeta: reportMeta)
+                }
         }
         .onFirstAppear {
             fetchTemplate()
@@ -79,7 +83,7 @@ struct HomeView: View {
                 NewReportButton(template: template)
                 
                 UserReportsView(reports: reports) { reportMeta in
-                    print("Tapped \(reportMeta.id)")
+                    self.presentedReportMeta = reportMeta
                 }
             }
             .padding()
@@ -187,10 +191,10 @@ struct HomeView: View {
                 var fetchedReports: [WSReportMeta] = try await {
                     if isRunningForPreviews {
                         return [.mock1, .mock2, .mock3]
-                        throw GenericError("Cupidatat est sit fugiat consectetur tempor fugiat culpa.")
+                        // throw GenericError("Cupidatat est sit fugiat consectetur tempor fugiat culpa.")
                     }
                         
-                    return try await API.shared.userReports(userID: user.id.uuidString)
+                    return try await API.shared.userReports(userID: user.idString)
                 }()
                 
                 fetchedReports.sort(on: \.date, ascending: false)
