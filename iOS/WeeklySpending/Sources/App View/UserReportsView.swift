@@ -8,15 +8,14 @@ import Auth
 struct UserReportsView: View {
     var user: User
     var onView: (WSReportMeta) -> Void
-    @State private var reportsResult: Result<[WSReportMeta], Error>?
+    @State private var reports: [WSReportMeta]?
+    @State private var reportsError: Error?
     @State private var isFetchingReports = false
-    @State private var lastFetchedReports: Date?
+    @State private var lastFetchReportsDate: Date?
+    @State private var fetchTask: Task<Void, Never>?
     
     var body: some View {
         bodyImpl()
-//            .onFirstAppear {
-//                fetchReports()
-//            }
             .onSceneBecomeActive {
                 fetchReports()
             }
@@ -36,7 +35,7 @@ struct UserReportsView: View {
                 Text("Past Spendings")
                     .font(.system(size: 27, weight: .regular))
                 
-                if reportsResult?.value == nil && isFetchingReports {
+                if reports == nil && isFetchingReports {
                     ProgressView()
                         .progressViewStyle(.circular)
                         .tint(.secondary)
@@ -44,8 +43,15 @@ struct UserReportsView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             
-            switch reportsResult {
-            case .success(let reports):
+            if let reportsError, !reportsError.isURLError {
+                // Not shown for URL loading error because it is already shown in "New Spending" section
+                
+                Text(reportsError.localizedDescription)
+                    .foregroundStyle(.red)
+                    .padding(.top, 15)
+            }
+            
+            if let reports {
                 if reports.count > 0 {
                     LazyVStack(alignment: .leading, spacing: 0) {
                         ForEach(reports, id: \.id) { report in
@@ -65,18 +71,10 @@ struct UserReportsView: View {
                         .foregroundStyle(.secondary)
                         .padding(.top, 15)
                 }
-                
-            case .failure(let error):
-                Text(error.localizedDescription)
-                    .foregroundStyle(.red)
-                    .padding(.top, 15)
-                
-            case nil:
-                EmptyView()
             }
             
             if debugging {
-                Text("[D] Last Fetched: \(lastFetchedReports?.ISO8601Format(.iso8601(timeZone: .current)), default: "Never")")
+                Text("[D] Last Fetched: \(lastFetchReportsDate?.ISO8601Format(.iso8601(timeZone: .current)), default: "Never")")
                     .foregroundStyle(.secondary)
                     .padding(.top, 12)
             }
@@ -84,9 +82,12 @@ struct UserReportsView: View {
     }
     
     private func fetchReports() {
-        Task {
+        fetchTask?.cancel()
+        
+        fetchTask = Task {
             do {
                 isFetchingReports = true
+                reportsError = nil
                 
                 defer {
                     isFetchingReports = false
@@ -98,29 +99,30 @@ struct UserReportsView: View {
                 }
                 
                 if isRunningForPreviews {
-                    self.reportsResult = .success([.mock1, .mock2, .mock3])
+                    self.reports = [.mock1, .mock2, .mock3]
+                    self.reportsError = GenericError("Cupidatat est sit fugiat consectetur tempor fugiat culpa.")
                     return
                 }
-
-                if let reportsResult, reportsResult.isFailure {
-                    self.reportsResult = nil // Clear failure
-                }
                 
-                var reports = try await API.shared.userReports(userID: user.id.uuidString)
-                reports.sort(on: \.date, ascending: false)
+                var fetchedReports = try await API.shared.userReports(userID: user.id.uuidString)
+                fetchedReports.sort(on: \.date, ascending: false)
                 
-                if let reportsResult, reportsResult.isSuccess {
+                if let reports, reports.count > 0 {
                     withAnimation {
-                        self.reportsResult = .success(reports)
+                        self.reports = fetchedReports
                     }
                 } else {
-                    self.reportsResult = .success(reports)
+                    self.reports = fetchedReports
                 }
                 
-                lastFetchedReports = Date()
+                lastFetchReportsDate = Date()
                 
             } catch {
-                self.reportsResult = .failure(error)
+                guard !error.isCancellationError else {
+                    return
+                }
+                
+                reportsError = error
             }
         }
     }

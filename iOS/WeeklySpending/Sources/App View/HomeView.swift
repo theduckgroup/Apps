@@ -15,10 +15,7 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             ScrollView(.vertical) {
-                VStack(alignment: .leading, spacing: 36) {
-                    bodyContent()
-                }
-                .padding()
+                bodyContent()
             }
             .navigationTitle("Weekly Spending")
             .toolbar { toolbarContent() }
@@ -48,22 +45,24 @@ struct HomeView: View {
     
     @ViewBuilder
     private func bodyContent() -> some View {
-        let user: User? = {
-            if isRunningForPreviews {
-                .mock
-            } else {
-                auth.user
+        VStack(alignment: .leading, spacing: 36) {
+            NewReportButton()
+            
+            if let user {
+                UserReportsView(user: user) { reportMeta in
+                    print("Tapped \(reportMeta.id)")
+                }
             }
-        }()
-        
-        NewReportButton()
-        
-        if let user {
-            UserReportsView(user: user) { reportMeta in
-                print("Tapped \(reportMeta.id)")
-            }            
         }
-        
+        .padding()
+    }
+    
+    private var user: User? {
+        if isRunningForPreviews {
+            .mock
+        } else {
+            auth.user
+        }
     }
 }
 
