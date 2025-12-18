@@ -14,6 +14,7 @@ import { DbWsReport } from '../db/DbWsReport'
 import '../db/Db+collections'
 import { generateReportEmailHtml } from './generate-report-email'
 import { formatInTimeZone } from 'date-fns-tz'
+import { subHours, subMonths } from 'date-fns'
 
 // Admin router
 
@@ -257,7 +258,11 @@ userRouter.get('/users/:userId/reports/meta', async (req, res) => {
 
   let docs = await db.collection_wsReports
     .find({
-      'user.id': userId
+      'user.id': userId,
+      'date': {
+        $gte: subMonths(new Date(), 6)
+        // $gte: subHours(new Date(), 24)
+      }
     })
     .project({
       'template.id': 1,
