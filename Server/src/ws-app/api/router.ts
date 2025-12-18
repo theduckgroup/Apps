@@ -209,6 +209,27 @@ userRouter.get('/templates' /* ?code=XYZ */, async (req, res) => {
   res.send(data)
 })
 
+userRouter.get('/reports/:id', async (req, res) => {
+  const db = await getDb()
+
+  const doc = await db.collection_wsReports.findOne({
+    _id: new ObjectId(req.params.id)
+  })
+
+  if (!doc) {
+    throw createHttpError(404)
+  }
+
+  if (doc.user.id != req.user!.id) {
+    // A user can only access their own report
+    throw createHttpError(403)
+  }
+
+  res.set('Cache-Control', 'public, max-age=3600')
+
+  res.send(normalizeId(doc))
+})
+
 userRouter.post('/submit', async (req, res) => {
   const { data, error: schemaError } = WsReportSchema.safeParse(req.body)
 
@@ -287,6 +308,22 @@ publicRouter.get('/mock-template', async (req, res) => {
 
   const doc = await db.collection_wsTemplates.findOne({
     code: 'WEEKLY_SPENDING'
+  })
+
+  if (!doc) {
+    throw createHttpError(400, 'Document not found')
+  }
+
+  const data = normalizeId(doc)
+
+  res.send(data)
+})
+
+publicRouter.get('/mock-report', async (req, res) => {
+  const db = await getDb()
+
+  const doc = await db.collection_wsReports.findOne({
+    _id: new ObjectId('693b8fb1941f7b76e094c7bd')
   })
 
   if (!doc) {
