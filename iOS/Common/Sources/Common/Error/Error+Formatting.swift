@@ -18,19 +18,21 @@ private func formatDecodingError(_ error: DecodingError) -> String {
     switch error {
     case .typeMismatch(let expectedType, let context):
         let path = formatCodingPath(from: context.codingPath)
-        return "Type mismatch: expected \(expectedType) at path: \(path)"
+        return "Type mismatch, expecting \(expectedType) at path \(path)"
 
     case .valueNotFound(let expectedType, let context):
         let path = formatCodingPath(from: context.codingPath)
-        return "Value not found: expected value of type \(expectedType) at path: \(path)"
+        return "Value not found, expecting value of type \(expectedType) at path: \(path)"
 
     case .keyNotFound(let missingKey, let context):
         let path = formatCodingPath(from: context.codingPath)
-        return "Key '\(missingKey.stringValue)' not found at path: \(path)"
+        return "Expecting key '\(missingKey.stringValue)' at path \(path)"
         
     case .dataCorrupted(let context):
+        // debugDescription contains more detailed info
+        // However there seems to be not a way to extract it...
         let path = formatCodingPath(from: context.codingPath)
-        return "Data corrupted at path \(path)."
+        return "Data corrupted at path \(path)"
 
     @unknown default:
         return error.localizedDescription
@@ -39,21 +41,15 @@ private func formatDecodingError(_ error: DecodingError) -> String {
 
 /// Example: ["user", "address", 0, "city"] -> "user.address[0].city"
 func formatCodingPath(from codingPath: [CodingKey]) -> String {
-    guard !codingPath.isEmpty else {
-        return "(Root)"
-    }
+    var result = "(Root)"
     
-    var result = ""
-    
-    for (index, codingKey) in codingPath.enumerated() {
+    for codingKey in codingPath {
+        result.append(" → ")
+        
         if let intValue = codingKey.intValue {
-            result.append("[\(intValue)]")
+            result.append("Index \(intValue)")
             
         } else {
-            if index > 0 {
-                result.append(".")
-            }
-            
             result.append(codingKey.stringValue)
         }
     }

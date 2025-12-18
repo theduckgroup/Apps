@@ -5,7 +5,7 @@ import Common
 import CommonUI
 import SwiftBSON
 
-struct ReportView: View {
+struct NewReportView: View {
     var template: WSTemplate
     var user: WSReport.User
     @State private var suppliersDataMap: [String: SupplierData]
@@ -31,7 +31,7 @@ struct ReportView: View {
                 content()
             }
             .scrollPosition(id: $scrollPosition, anchor: .center)
-            .safeAreaPadding(.bottom, 54)
+            .safeAreaPadding(.bottom, 54) // For padding above keyboard
             .background(Color(.secondarySystemBackground))
             .navigationTitle("New Spending")
             .toolbar { toolbarContent() }
@@ -155,12 +155,21 @@ struct ReportView: View {
     }
         
     private func handleSubmit() {
-        ps.presentAlert(title: "Submit Report?", message: "") {
+        UIApplication.dismissKeyboard()
+        
+        do {
+            try validate()
+            
+        } catch {
+            ps.presentAlert(error: error)
+            return
+        }
+        
+        ps.presentAlert(title: "Submit Spending?", message: "") {
             Button("Submit") {
                 Task {
                     do {
-                        try validate()
-                        await submit()
+                        try await submit()
                         dismiss()
                         
                     } catch {
@@ -169,43 +178,31 @@ struct ReportView: View {
                 }
             }
             
-            if debugging {
-//                Button("[D] Submit & Stay") {
-//                    Task {
-//                        do {
-//                            try validate()
-//                            await submit()
-//                            
-//                        } catch {
-//                            ps.presentAlert(error: error)
-//                        }
-//                    }
-//                }
-            }
-            
             Button("Cancel", role: .cancel) {}
         }
     }
     
-    private func submit() async {
-        do {
-            ps.presentProgressHUD(title: "Submitting...")
-            
-            try! await Task.sleep(for: .seconds(0.5))
-            
-            let report = report()
-            try await API.shared.post(method: "POST", path: "/submit", body: report)
-            
+    private func submit() async throws {
+        ps.presentProgressHUD(title: "Submitting...")
+        
+        defer {
             ps.dismiss()
-            
-        } catch {
-            ps.dismiss()
-            ps.presentAlert(error: error)
         }
+        
+        try! await Task.sleep(for: .seconds(0.5))
+        
+        let report = report()
+        try await API.shared.post(method: "POST", path: "/submit", body: report)
     }
     
     private func validate() throws {
+        let amounts = suppliersDataMap.values.map(\.amount) + customSuppliersData.map(\.amount)
         
+        let nonZeroAmount = amounts.contains { $0 > 0 }
+        
+        guard nonZeroAmount else {
+            throw GenericError("Must enter amount for at least one supplier")
+        }
     }
     
     /// Creates report from view data.
@@ -507,7 +504,7 @@ private struct SectionBackgroundModififer: ViewModifier {
         
     Text("Loading...")
         .fullScreenCover(item: $template) { template in
-            ReportView(template: template, user: WSReport.User(id: "", email: "", name: ""))
+            NewReportView(template: template, user: WSReport.User(id: "", email: "", name: ""))
         }
         .task {
             do {

@@ -263,7 +263,7 @@ userRouter.post('/quiz-response/submit', async (req, res) => {
   }))
 
   const formattedDate = formatInTimeZone(new Date(), 'Australia/Sydney', 'MMM d, h:mm a')
-  const subject = `[FOH Test] ${data.respondent.name} - ${data.respondent.store} (${formattedDate})`
+  const subject = `[FOH Test] ${data.respondent.name} - ${data.respondent.store} | ${formattedDate}`
   const contentHtml = await quizResponseNotificationMailHtml(data, docId)
 
   mailer.sendMail({ recipients, subject, contentHtml })

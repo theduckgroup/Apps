@@ -18,9 +18,6 @@ final public class API: Sendable {
         decodeAs type: T.Type = T.self
     ) async throws -> T {
         try await handle401 {
-            let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
-            
             let request = try await makeRequest(authenticated: authenticated, method: "GET", path: path, queryItems: queryItems)
             let data = try await HTTPClient().get(request, decodeAs: type)
             return data
