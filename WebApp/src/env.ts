@@ -1,8 +1,8 @@
-// This both exports the env vars and asserts that they are defined
+// Export env vars and assert that they are defined
 
 export default {
   features: {
-    wsApp: loadOptional('VITE_FEATURES_WS_APP') ? true : false,
+    wsApp: import.meta.env.DEV
   }
 }
 
@@ -17,6 +17,7 @@ export default {
 //   return value
 // }
 
-function loadOptional(name: string): string | undefined {
-  return import.meta.env[name]
-}
+// function loadOptional(name: string): string | undefined {
+//   console.info(`import.meta.env['VITE_FEATURES_WS_APP'] = ${import.meta.env[name]}`)
+//   return import.meta.env[name]
+// }
