@@ -61,10 +61,6 @@ export default function TemplateEditorPage() {
 
   const { mutate: saveTemplate, error: saveError, isPending: isSaving } = useMutation({
     mutationFn: async (template: WsTemplate) => {
-      if (import.meta.env.DEV) {
-        await sleep(1000)
-      }
-
       await axios.put(`/templates/${template.id}`, template)
     }
   })
