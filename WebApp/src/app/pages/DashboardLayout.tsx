@@ -175,7 +175,6 @@ function NavbarContent({ close }: {
         }}
       />
       {
-        env.features.wsApp &&
         <NavLink
           href='#'
           label='Weekly Spending'
