@@ -28,14 +28,13 @@ struct HomeView: View {
         .onAppear {
             fetchQuiz()
         }
+        .onSceneBecomeActive {
+            fetchQuiz()
+        }
         .onReceive(EventHub.shared.quizzesChanged) {
             fetchQuiz()
         }
-        .onChange(of: scenePhase) {
-            if scenePhase == .active {
-                fetchQuiz()
-            }
-        }
+        
     }
     
     @ToolbarContentBuilder
