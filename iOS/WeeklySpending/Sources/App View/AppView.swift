@@ -44,9 +44,8 @@ struct AppView: View {
     @ViewBuilder
     private func bodyContent() -> some View {
         if auth.isLoaded {
-            if auth.user != nil {
-                HomeView()
-                
+            if let user = auth.user {
+                HomeView(user: user)                
             } else {
                 LoginView()
             }
