@@ -5,7 +5,7 @@ import CommonUI
 import Backend
 import Auth
 
-struct UserReportsView: View {
+struct ReportListView: View {
     var reports: [WSReportMeta]?
     var fetchDate: Date?
     var onView: (WSReportMeta) -> Void
@@ -92,12 +92,15 @@ private struct Row: View {
         .padding(.top, isFirst ? 0 : nil)
         .padding(.bottom)
         .overlay(alignment: .bottom) { Divider() }
+        .onTapGesture {
+            onView()
+        }
     }
 }
 
 #Preview {
     ScrollView {
-        UserReportsView(
+        ReportListView(
             reports: [.mock1, .mock2, .mock3],
             onView: { _ in }
         )
