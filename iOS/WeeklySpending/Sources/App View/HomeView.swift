@@ -82,7 +82,7 @@ struct HomeView: View {
             VStack(alignment: .leading, spacing: 36) {
                 NewReportButton(template: template)
                 
-                ReportListView(reports: reports) { reportMeta in
+                PastReportListView(reports: reports) { reportMeta in
                     self.presentedReportMeta = reportMeta
                 }
             }

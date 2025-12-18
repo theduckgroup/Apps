@@ -5,7 +5,7 @@ import CommonUI
 import Backend
 import Auth
 
-struct ReportListView: View {
+struct PastReportListView: View {
     var reports: [WSReportMeta]?
     var fetchDate: Date?
     var onView: (WSReportMeta) -> Void
@@ -38,7 +38,7 @@ struct ReportListView: View {
                             }
                         }
                         
-                        Text("Data limited to the past 6 months.")
+                        Text("Only data for the past 6 months is shown.")
                             .foregroundStyle(.secondary)
                             .padding(.top)
                     }
@@ -100,7 +100,7 @@ private struct Row: View {
 
 #Preview {
     ScrollView {
-        ReportListView(
+        PastReportListView(
             reports: [.mock1, .mock2, .mock3],
             onView: { _ in }
         )
