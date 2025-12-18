@@ -271,8 +271,8 @@ userRouter.post('/submit', async (req, res) => {
 userRouter.get('/users/:userId/reports/meta', async (req, res) => {
   const userId = req.params.userId
 
-  if (!req.user) {
-    throw createHttpError(401)
+  if (userId != req.user!.id) {
+    throw createHttpError(403)
   }
 
   const db = await getDb()
@@ -294,7 +294,8 @@ userRouter.get('/users/:userId/reports/meta', async (req, res) => {
     })
     .toArray()
 
-  docs = docs.map(doc => ({ id: doc._id, _id: undefined, ...doc }))
+  // For some reason, docs is Document[] and cannot be used with `normalizeId`
+  docs = docs.map(doc => ({ id: doc._id, ...doc, _id: undefined }))
 
   res.send(docs)
 })
@@ -323,7 +324,7 @@ publicRouter.get('/mock-report', async (req, res) => {
   const db = await getDb()
 
   const doc = await db.collection_wsReports.findOne({
-    _id: new ObjectId('693b8fb1941f7b76e094c7bd')
+    _id: new ObjectId('69438c3a82e5195bc17583dd')
   })
 
   if (!doc) {
