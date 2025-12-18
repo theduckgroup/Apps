@@ -9,36 +9,56 @@ struct PastReportView: View {
     @State var report: WSReport?
     @State var error: Error?
     @State var isFetching = false
+    @State var containerSize: CGSize?
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Environment(\.verticalSizeClass) var verticalSizeClass
     
     var body: some View {
         ScrollView(.vertical) {
-            VStack(alignment: .leading, spacing: 0) {
-                headerView()
-                    .padding(.bottom, 18)
-                
-                if let report {
-                    tableView(report)
-                    
-                } else if let error {
-                    Text(error.localizedDescription)
-                        .foregroundStyle(.red)
-                    
-                } else if isFetching {
-                    HStack {
-                        ProgressView()
-                            .progressViewStyle(.circular)
-                            .tint(.secondary)
-                        
-                        Text("Loading...")
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
-            .padding()
+            let containerSize = containerSize ?? .zero
+            
+            let needsReadablePadding = (
+                horizontalSizeClass == .regular && verticalSizeClass == .regular &&
+                containerSize.width > containerSize.height * 1.25
+            )
+            
+            contentView()
+                .padding()
+                .frame(maxWidth: needsReadablePadding ? containerSize.width * 0.66 : nil, alignment: .center)
+                // .padding(.horizontal, needsContentGuidePadding ? 120 : 0)
+                .frame(maxWidth: .infinity, alignment: .center) // Scroll indicator messed up without this
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity) // Infinite layout loop without this
+        .readSize(assignTo: $containerSize)
         .navigationTitle("Spending")
         .onFirstAppear {
             fetchReport()
+        }
+    }
+    
+    @ViewBuilder
+    private func contentView() -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            headerView()
+                .padding(.bottom, 18)
+            
+            if let report {
+                tableView(report)
+                
+            } else if let error {
+                Text(error.localizedDescription)
+                    .foregroundStyle(.red)
+                
+            } else if isFetching {
+                HStack {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .tint(.secondary)
+                    
+                    Text("Loading...")
+                        .foregroundStyle(.secondary)
+                }
+            }
         }
     }
     
@@ -104,7 +124,7 @@ struct PastReportView: View {
                         
                         if let supplier, let supplierData {
                             Text(supplier.name)
-                                .foregroundStyle(.secondary)
+                                // .foregroundStyle(.secondary)
                             
                             Text(supplierData.amount, format: .currency(code: "AUD"))
                                 .gridColumnAlignment(.trailing)
@@ -149,6 +169,25 @@ struct PastReportView: View {
                 self.error = error
             }
         }
+    }
+}
+
+struct ReadableContentGuideModifier: ViewModifier {
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Environment(\.verticalSizeClass) var verticalSizeClass
+    
+    func body(content: Content) -> some View {
+        if horizontalSizeClass == .regular && verticalSizeClass == .regular {
+            content
+        } else {
+            content
+        }
+    }
+}
+
+extension View {
+    func readableContentGuide() -> some View {
+        modifier(ReadableContentGuideModifier())
     }
 }
 

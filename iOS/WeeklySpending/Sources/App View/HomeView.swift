@@ -82,7 +82,7 @@ struct HomeView: View {
             VStack(alignment: .leading, spacing: 36) {
                 NewReportButton(template: template)
                 
-                UserReportsView(reports: reports) { reportMeta in
+                ReportListView(reports: reports) { reportMeta in
                     self.presentedReportMeta = reportMeta
                 }
             }
@@ -110,12 +110,12 @@ struct HomeView: View {
                 Capsule()
                     .fill(.regularMaterial)
             }
+            .padding(.bottom, 24)
             
         } else if let error = templateError ?? reportsError {
             VStack(alignment: .leading) {
                 Text(formatError(error))
                     .foregroundStyle(.red)
-                    .multilineTextAlignment(.leading)
                 
                 Button("Retry") {
                     fetchTemplate()
