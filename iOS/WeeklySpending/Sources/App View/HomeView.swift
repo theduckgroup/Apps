@@ -46,7 +46,7 @@ struct HomeView: View {
         .onReceive(EventHub.shared.templatesChangeEvents) {
             fetchTemplate()
         }
-        .onReceive(EventHub.shared.userReportsChangeEvents(userID: user.id.uuidString)) {
+        .onReceive(EventHub.shared.userReportsChangeEvents(userID: user.idString)) {
             fetchReports()
         }
     }

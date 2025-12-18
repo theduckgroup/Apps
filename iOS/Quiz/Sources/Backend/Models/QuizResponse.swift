@@ -132,7 +132,7 @@ extension QuizResponse {
 
 extension QuizResponse.User {
     init(from user: User) {
-        self.init(id: user.id.uuidString, email: user.email ?? "", name: user.name)
+        self.init(id: user.idString, email: user.email ?? "", name: user.name)
     }
 }
 
