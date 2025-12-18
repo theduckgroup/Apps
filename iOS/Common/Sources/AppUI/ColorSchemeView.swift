@@ -13,7 +13,7 @@ public struct ColorSchemeView: View {
         Picker("", selection: $colorSchemeOverride) {
             Text("Light").tag(ColorSchemeOverride.light)
             Text("Dark").tag(ColorSchemeOverride.dark)
-            Text("Default").tag(nil as ColorSchemeOverride?)
+            Text("System").tag(nil as ColorSchemeOverride?)
         }
         .pickerStyle(.segmented)
     }
