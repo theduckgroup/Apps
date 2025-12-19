@@ -322,8 +322,6 @@ if (env.nodeEnv == 'local') {
       throw createHttpError(404)
     }
 
-    const viewUrl = `${env.webappUrl}/fohtest/view/${doc._id.toString()}`
-
     const html = generateQuizResponseEmail(doc)
 
     res.send(html)
