@@ -3,9 +3,7 @@ import ReactDOMServer from 'react-dom/server'
 import { DbWsReport } from '../db/DbWsReport'
 import { formatInTimeZone } from 'date-fns-tz'
 
-import { DuckIcon } from 'src/utils/duck-icon'
-
-export const generateReportEmailHtml = (report: DbWsReport): string => {
+export const generateReportEmail = (report: DbWsReport): string => {
   const componentHtml = ReactDOMServer.renderToStaticMarkup(<EmailTemplate report={report} />)
 
   return `
@@ -61,11 +59,13 @@ const styles: Record<string, React.CSSProperties> = {
   mainTitle: {
     fontSize: '28px',
     fontWeight: 'bold',
-    color: '#286090', // The specific blue from your screenshot
+    color: '#286090',
     paddingBottom: '10px',
-    textAlign: 'left' as const,
-    display: 'flex',
-    alignItems: 'baseline'
+    textAlign: 'left' as const
+  },
+  mainIcon: {
+    paddingBottom: '10px',
+    textAlign: 'right' as const
   },
   dividerRow: {
     borderBottom: '1px solid #cccccc', // The horizontal line
@@ -77,24 +77,17 @@ const styles: Record<string, React.CSSProperties> = {
     textAlign: 'left' as const,
   },
   // Store + Date header
-  headerRow: {
-    // borderTop: '2px solid oklch(70.5% 0.015 286.067)',
-    borderTop: '1px solid #eeeeee',
-    borderBottom: '1px solid #eeeeee',
-  },
   headerLabel: {
     fontWeight: 'bold',
     color: '#555555',
     padding: '12px 0',
+    borderBottom: '1px solid #eeeeee',
   },
   headerValue: {
     fontWeight: 'regular',
     textAlign: 'left' as const,
     padding: '12px 0',
-  },
-  dateRow: {
     borderBottom: '1px solid #eeeeee',
-    // borderBottom: '2px solid oklch(70.5% 0.015 286.067)',
   },
   // Section header
   sectionTitle: {
@@ -143,13 +136,20 @@ const EmailTemplate: React.FC<{
               <tbody>
                 {/* Title */}
                 <tr>
-                  <td style={styles.mainTitle}>
-                    <DuckIcon />
+                  {/* Flex align-items is not supported in many email clients, using valign instead */}
+                  <td style={styles.mainTitle} valign='bottom'>
                     Weekly Spending
+                  </td>
+                  <td style={styles.mainIcon}>
+                    <img
+                      src='https://ahvebevkycanekqtnthy.supabase.co/storage/v1/object/public/assets/DuckIcon-Font28px@3x.png'
+                      height='26px'
+                    />
                   </td>
                 </tr>
                 {/* Divider Line */}
                 <tr>
+                  <td style={styles.dividerRow}></td>
                   <td style={styles.dividerRow}></td>
                 </tr>
                 {/* Subtitle */}
@@ -165,18 +165,18 @@ const EmailTemplate: React.FC<{
             <table border={0} cellPadding={0} cellSpacing={0} width="600" style={styles.container}>
               <tbody>
                 <tr>
-                  <td width="50px" style={{ ...styles.headerRow, ...styles.headerLabel }}>
+                  <td width="50px" style={styles.headerLabel}>
                     Store
                   </td>
-                  <td style={{ ...styles.headerRow, ...styles.headerValue }}>
+                  <td style={styles.headerValue}>
                     {report.user.name}
                   </td>
                 </tr>
                 <tr>
-                  <td style={{ ...styles.dateRow, ...styles.headerLabel }}>
+                  <td style={styles.headerLabel}>
                     Date
                   </td>
-                  <td style={{ ...styles.dateRow, ...styles.headerValue }}>
+                  <td style={styles.headerValue}>
                     {formatInTimeZone(report.date, 'Australia/Sydney', 'EEEE, MMM d, yyyy, h:mm a')}
                   </td>
                 </tr>

@@ -12,9 +12,10 @@ import z from 'zod'
 import { mailer } from 'src/utils/mailer'
 import { DbWsReport } from '../db/DbWsReport'
 import '../db/Db+collections'
-import { generateReportEmailHtml } from './generate-report-email'
+import { generateReportEmail } from './report-email'
 import { formatInTimeZone } from 'date-fns-tz'
 import { subHours, subMonths } from 'date-fns'
+import env from 'src/env'
 
 // Admin router
 
@@ -250,7 +251,11 @@ userRouter.post('/submit', async (req, res) => {
 
   res.send()
 
+  // Event
+
   eventHub.emitUserReportsChanged(data.user.id)
+
+  // Email
 
   const recipients: mailer.Recipient[] = doc.template.emailRecipients.map(x => ({
     name: '',
@@ -259,13 +264,9 @@ userRouter.post('/submit', async (req, res) => {
 
   const formattedDate = formatInTimeZone(new Date(), 'Australia/Sydney', 'MMM d, h:mm a')
   const subject = `[Weekly Spending] ${data.user.name} | ${formattedDate}`
-  const contentHtml = generateReportEmailHtml(doc)
+  const contentHtml = generateReportEmail(doc)
 
-  mailer.sendMail({
-    recipients,
-    subject,
-    contentHtml
-  })
+  mailer.sendMail({ recipients, subject, contentHtml })
 })
 
 userRouter.get('/users/:userId/reports/meta', async (req, res) => {
@@ -320,39 +321,41 @@ publicRouter.get('/mock-template', async (req, res) => {
   res.send(data)
 })
 
-publicRouter.get('/mock-report', async (req, res) => {
-  const db = await getDb()
+if (env.nodeEnv == 'local') {
+  publicRouter.get('/mock-report', async (req, res) => {
+    const db = await getDb()
 
-  const doc = await db.collection_wsReports.findOne({
-    _id: new ObjectId('69438c3a82e5195bc17583dd')
+    const doc = await db.collection_wsReports.findOne({
+      _id: new ObjectId('69438c3a82e5195bc17583dd')
+    })
+
+    if (!doc) {
+      throw createHttpError(400, 'Document not found')
+    }
+
+    const data = normalizeId(doc)
+
+    res.send(data)
   })
 
-  if (!doc) {
-    throw createHttpError(400, 'Document not found')
-  }
+  publicRouter.get('/mock-report-email', async (req, res) => {
+    // To test: http://localhost:8021/api/ws-app/mock-report-email
 
-  const data = normalizeId(doc)
+    const db = await getDb()
+    const doc = await db.collection_wsReports.findOne({
+      _id: new ObjectId('69438c3a82e5195bc17583dd')
+    })
 
-  res.send(data)
-})
+    if (!doc) {
+      res.status(500).send()
+      return
+    }
 
-publicRouter.get('/mock-email', async (req, res) => {
-  // To test: http://localhost:8021/api/ws-app/mock-email
+    const emailHtml = generateReportEmail(doc)
 
-  const db = await getDb()
-  const data = await db.collection_wsReports.findOne({
-    _id: new ObjectId('69438c3a82e5195bc17583dd')
+    res.send(emailHtml)
   })
-
-  if (!data) {
-    res.status(500).send()
-    return
-  }
-
-  const emailHtml = generateReportEmailHtml(data)
-
-  res.send(emailHtml)
-})
+}
 
 // publicRouter.get('/quiz-response/:id', async (req, res) => {
 //   const db = await getDb()
