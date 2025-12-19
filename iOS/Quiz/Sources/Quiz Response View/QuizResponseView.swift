@@ -258,7 +258,7 @@ struct QuizResponseView: View {
         }
         .fullScreenCover(item: $quiz) { quiz in
             QuizResponseView(quiz: quiz)
-                .tint(.blue)
+                .tint(.theme)
         }
         .environment(AppDefaults())
 }

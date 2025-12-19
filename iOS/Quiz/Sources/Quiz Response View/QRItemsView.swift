@@ -130,7 +130,7 @@ private struct SelectedResponseItemResponseView: View {
                             Image(systemName: selected ? "checkmark.square.fill" : "square")
                                 .modified {
                                     if selected {
-                                        $0.foregroundStyle(.blue)
+                                        $0.foregroundStyle(Color.blue)
                                     } else {
                                         $0.foregroundStyle(.secondary)
                                     }
