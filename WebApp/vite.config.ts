@@ -3,6 +3,8 @@ import path from 'node:path'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { visualizer } from 'rollup-plugin-visualizer'
+import svgr from 'vite-plugin-svgr'
+
 
 // @vitejs/plugin-react-swc does not yet support react compiler
 // https://www.reddit.com/r/react/comments/1m4mxgg/react_compiler_swc_vite/
@@ -35,6 +37,7 @@ export default defineConfig(() => {
         },
       }),
       tailwindcss(),
+      svgr(),
       visualizer({
         filename: 'tmp/rollup-visualiser-stats.html'
       }),
