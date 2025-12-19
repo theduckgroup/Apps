@@ -46,6 +46,7 @@ public class KeyboardDoneButtonManager {
         // doneBarItem.tintColor = .systemGray
                 
         let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 600, height: 54))
+        toolbar.backgroundColor = .systemGray6
         
         toolbar.items = [
             UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
@@ -56,6 +57,8 @@ public class KeyboardDoneButtonManager {
     }
     
     private func createDoneButton(for view: UIView) -> UIButton {
+        // Not used
+        
         var config = UIButton.Configuration.filled()
         config.title = "Done"
         config.baseBackgroundColor = UIApplication.shared.anyKeyWindow?.tintColor
