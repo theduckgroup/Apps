@@ -1,7 +1,8 @@
+import { ObjectId } from 'mongodb'
 import { DbQuiz } from './DbQuiz'
 
 export interface DbQuizResponse {
-  // _id: ObjectId
+  _id?: ObjectId
   quiz: DbQuiz
   user: {
     id: string

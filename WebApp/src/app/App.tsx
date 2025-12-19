@@ -88,7 +88,6 @@ const subappRoutes = (
       {quizAppRoutes}
     </Route>
     {
-      env.features.wsApp &&
       <Route path='ws-app' element={
       <SubappLayout path='/ws-app' apiPath='/api/ws-app' />
     }>
