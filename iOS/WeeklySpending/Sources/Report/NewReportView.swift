@@ -291,7 +291,7 @@ private struct CustomSupplierView: View {
                 nameFocused = true
             }
         }
-        .alert("Confirm", isPresented: $presentsDeleteConfirmation) {
+        .alert("", isPresented: $presentsDeleteConfirmation) {
             Button("Delete", role: .destructive) {
                 onDelete()
             }
