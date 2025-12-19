@@ -17,6 +17,7 @@ import logger from 'src/logger'
 import z from 'zod'
 import { mailer } from 'src/utils/mailer'
 import env from 'src/env'
+import { generateQuizResponseEmail } from './quiz-response-email'
 
 type QuizSchemaInferredType = z.infer<typeof QuizSchema>
 type QuizResponseSchemaInferredType = z.infer<typeof QuizResponseSchema>
@@ -256,50 +257,37 @@ userRouter.post('/quiz-response/submit', async (req, res) => {
   const docId = insertResult.insertedId
 
   res.send()
-  
+
+  // Email
+
   const recipients: mailer.Recipient[] = doc.quiz.emailRecipients.map(x => ({
     name: '',
     email: x
   }))
 
-  const formattedDate = formatInTimeZone(new Date(), 'Australia/Sydney', 'MMM d, h:mm a')
+  const formattedDate = formatInTimeZone(data.submittedDate, 'Australia/Sydney', 'MMM d, h:mm a')
   const subject = `[FOH Test] ${data.respondent.name} - ${data.respondent.store} | ${formattedDate}`
-  const contentHtml = await quizResponseNotificationMailHtml(data, docId)
+  const viewUrl = `${env.webappUrl}/fohtest/view/${docId.toString()}`
+  const contentHtml = await generateQuizResponseEmail(doc)
 
   mailer.sendMail({ recipients, subject, contentHtml })
 })
 
-async function quizResponseNotificationMailHtml(quizResponse: QuizResponseSchemaInferredType, docId: ObjectId) {
-  const templatePath = path.join(__dirname, 'email-template.html')
-  let html = await fs.readFile(templatePath, 'utf-8')
-  const formattedDate = formatInTimeZone(new Date(), 'Australia/Sydney', 'EEEE, MMM d, yyyy, h:mm a')
-  const viewUrl = `${env.webappUrl}/fohtest/view/${docId.toString()}`
+// async function quizResponseNotificationMailHtml(quizResponse: QuizResponseSchemaInferredType, docId: ObjectId) {
+//   const templatePath = path.join(__dirname, 'email-template.html')
+//   let html = await fs.readFile(templatePath, 'utf-8')
+//   const formattedDate = formatInTimeZone(new Date(), 'Australia/Sydney', 'EEEE, MMM d, yyyy, h:mm a')
+//   const viewUrl = `${env.webappUrl}/fohtest/view/${docId.toString()}`
 
-  html = html
-    .replace(`{quizName}`, quizResponse.quiz.name)
-    .replace(`{respondentName}`, quizResponse.respondent.name)
-    .replace(`{respondentStore}`, quizResponse.respondent.store)
-    .replace(`{timestamp}`, formattedDate)
-    .replace(`{viewUrl}`, viewUrl)
+//   html = html
+//     .replace(`{quizName}`, quizResponse.quiz.name)
+//     .replace(`{respondentName}`, quizResponse.respondent.name)
+//     .replace(`{respondentStore}`, quizResponse.respondent.store)
+//     .replace(`{timestamp}`, formattedDate)
+//     .replace(`{viewUrl}`, viewUrl)
 
-  return html
-
-//   const htmlDoctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
-
-//   const html = `
-// <p>
-// ${quizResponse.quiz.name} has been submitted by ${quizResponse.respondent.name} (${quizResponse.respondent.store}).
-// </p>
-
-// <p>
-// <a href='${env.webappUrl}/fohtest/view/${docId.toString()}'>View Test</a>
-// </p>
-//     `
-
-//  return htmlDoctype + html
-
-  // return htmlDoctype + ReactDOMServer.renderToStaticMarkup(React.createElement(OrderEmailHtml, { order: order }, null));
-}
+//   return html
+// }
 
 // Public router
 
@@ -307,7 +295,6 @@ const publicRouter = express.Router()
 
 if (env.nodeEnv == 'local') {
   publicRouter.get('/mock-quiz', async (req, res) => {
-    console.info(`In mock-quiz`)
     const db = await getDb()
 
     const dbQuiz = await db.collection_quizzes.findOne({
@@ -322,6 +309,24 @@ if (env.nodeEnv == 'local') {
     console.info(`id = ${resQuiz.id}`)
 
     res.send(resQuiz)
+  })
+
+  publicRouter.get('/mock-quiz-response-email', async (req, res) => {
+    const db = await getDb()
+
+    const doc = await db.collection_quizResponses.findOne({
+      _id: new ObjectId('693500065a7104bdb1874f17')
+    })
+
+    if (!doc) {
+      throw createHttpError(404)
+    }
+
+    const viewUrl = `${env.webappUrl}/fohtest/view/${doc._id.toString()}`
+
+    const html = generateQuizResponseEmail(doc)
+
+    res.send(html)
   })
 }
 
