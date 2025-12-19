@@ -25,8 +25,7 @@ struct PastReportView: View {
             contentView()
                 .padding()
                 .frame(maxWidth: needsReadablePadding ? containerSize.width * 0.66 : nil, alignment: .center)
-                // .padding(.horizontal, needsContentGuidePadding ? 120 : 0)
-                .frame(maxWidth: .infinity, alignment: .center) // Scroll indicator messed up without this
+                .frame(maxWidth: .infinity, alignment: .center) // Scroll indicator is messed up without this
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity) // Infinite layout loop without this
         .readSize(assignTo: $containerSize)
