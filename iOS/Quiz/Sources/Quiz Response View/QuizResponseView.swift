@@ -190,6 +190,10 @@ struct QuizResponseView: View {
     
     private func validateAnswers() -> String? {
         // Rewrite this if multiple sections are needed
+                
+        if debugging {
+            return nil
+        }
         
         let indexes: [Int] = viewModel.sections.flatMap { section in
             section.itemResponses.enumerated().compactMap { index, itemResponse in
@@ -214,9 +218,6 @@ struct QuizResponseView: View {
             }
         }
         
-        if debugging {
-            return nil
-        }
         
         if ranges.count > 0 {
             func format(_ range: ClosedRange<Int>) -> String {
