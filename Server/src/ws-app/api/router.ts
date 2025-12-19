@@ -341,11 +341,11 @@ publicRouter.get('/mock-email', async (req, res) => {
 
   const db = await getDb()
   const data = await db.collection_wsReports.findOne({
-    _id: new ObjectId('693ccfef2ced00e3aefada20')
+    _id: new ObjectId('69438c3a82e5195bc17583dd')
   })
 
   if (!data) {
-    res.status(500)
+    res.status(500).send()
     return
   }
 
