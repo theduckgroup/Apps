@@ -11,7 +11,7 @@ export async function sendReportEmail(report: DbWsReport) {
     email: x
   }))
 
-  recipients = recipients.filter(x => x.email.toLowerCase() == report.user.email.toLowerCase())
+  recipients = recipients.filter(x => x.email.toLowerCase() != report.user.email.toLowerCase())
   
   recipients.push({
     name: report.user.name,

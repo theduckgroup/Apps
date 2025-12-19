@@ -12,7 +12,7 @@ export async function sendQuizResponseEmail(response: DbQuizResponse) {
     email: x
   }))
 
-  recipients = recipients.filter(x => x.email.toLowerCase() == response.user.email.toLowerCase())
+  recipients = recipients.filter(x => x.email.toLowerCase() != response.user.email.toLowerCase())
   
   recipients.push({
     name: response.user.name,
