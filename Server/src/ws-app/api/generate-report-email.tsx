@@ -3,6 +3,8 @@ import ReactDOMServer from 'react-dom/server'
 import { DbWsReport } from '../db/DbWsReport'
 import { formatInTimeZone } from 'date-fns-tz'
 
+import { DuckIcon } from 'src/utils/duck-icon'
+
 export const generateReportEmailHtml = (report: DbWsReport): string => {
   const componentHtml = ReactDOMServer.renderToStaticMarkup(<EmailTemplate report={report} />)
 
@@ -62,6 +64,8 @@ const styles: Record<string, React.CSSProperties> = {
     color: '#286090', // The specific blue from your screenshot
     paddingBottom: '10px',
     textAlign: 'left' as const,
+    display: 'flex',
+    alignItems: 'baseline'
   },
   dividerRow: {
     borderBottom: '1px solid #cccccc', // The horizontal line
@@ -140,6 +144,7 @@ const EmailTemplate: React.FC<{
                 {/* Title */}
                 <tr>
                   <td style={styles.mainTitle}>
+                    <DuckIcon />
                     Weekly Spending
                   </td>
                 </tr>
