@@ -2,6 +2,7 @@ import { ReactNode } from 'react'
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router'
 import { MantineProvider, Loader, Text } from '@mantine/core'
 
+// import env from 'src/env'
 import { AuthProvider, useAuth, PathProvider, ApiProvider } from './contexts'
 import theme from './mantine-theme'
 import LoginPage from 'src/app/pages/LoginPage'
@@ -13,7 +14,7 @@ import adminAppRoutes from 'src/admin-app/routes'
 import quizAppRoutes from 'src/quiz-app/routes'
 import QuizResponsePage from 'src/quiz-app/pages/QuizResponsePage'
 import weeklySpendingApp from 'src/ws-app/routes'
-import env from 'src/env'
+
 
 function App() {
   return (
