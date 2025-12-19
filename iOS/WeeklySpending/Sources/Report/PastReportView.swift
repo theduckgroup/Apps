@@ -48,6 +48,7 @@ struct PastReportView: View {
             } else if let error {
                 Text(error.localizedDescription)
                     .foregroundStyle(.red)
+                    .padding(.top, 18) // Match table view header
                 
             } else if isFetching {
                 HStack {
@@ -58,6 +59,7 @@ struct PastReportView: View {
                     Text("Loading...")
                         .foregroundStyle(.secondary)
                 }
+                .padding(.top, 18) // Match table view header
             }
         }
     }
