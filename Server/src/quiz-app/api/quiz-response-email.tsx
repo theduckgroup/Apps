@@ -116,7 +116,7 @@ const EmailTemplate = ({ response }: {
     }
   }
 
-  const formattedDate = formatInTimeZone(response.submittedDate, 'Australia/Sydney', 'MMM d, h:mm a')
+  const formattedDate = formatInTimeZone(response.submittedDate, 'Australia/Sydney', 'EEEE, MMM d yyyy, h:mm a')
 
   return (
     <table border={0} cellPadding={0} cellSpacing={0} width='100%' style={styles.body}>
@@ -177,7 +177,7 @@ const EmailTemplate = ({ response }: {
                       <tbody>
                         <tr>
                           <td align='left'>
-                            <a href={viewUrl} style={styles.button}>
+                            <a href={viewUrl} target='_blank' style={styles.button}>
                               View Test
                             </a>
                           </td>
