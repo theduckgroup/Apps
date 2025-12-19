@@ -17,7 +17,7 @@ import logger from 'src/logger'
 import z from 'zod'
 import { mailer } from 'src/utils/mailer'
 import env from 'src/env'
-import { generateQuizResponseEmail } from './quiz-response-email'
+import { sendQuizResponseEmail, generateQuizResponseEmail } from './quiz-response-email'
 
 type QuizSchemaInferredType = z.infer<typeof QuizSchema>
 type QuizResponseSchemaInferredType = z.infer<typeof QuizResponseSchema>
@@ -254,23 +254,11 @@ userRouter.post('/quiz-response/submit', async (req, res) => {
   }
 
   const insertResult = await db.collection_quizResponses.insertOne(doc)
-  const docId = insertResult.insertedId
+  const _docId = insertResult.insertedId
 
   res.send()
 
-  // Email
-
-  const recipients: mailer.Recipient[] = doc.quiz.emailRecipients.map(x => ({
-    name: '',
-    email: x
-  }))
-
-  const formattedDate = formatInTimeZone(data.submittedDate, 'Australia/Sydney', 'MMM d, h:mm a')
-  const subject = `[FOH Test] ${data.respondent.name} - ${data.respondent.store} | ${formattedDate}`
-  const viewUrl = `${env.webappUrl}/fohtest/view/${docId.toString()}`
-  const contentHtml = await generateQuizResponseEmail(doc)
-
-  mailer.sendMail({ recipients, subject, contentHtml })
+  const _ = sendQuizResponseEmail(doc)
 })
 
 // async function quizResponseNotificationMailHtml(quizResponse: QuizResponseSchemaInferredType, docId: ObjectId) {

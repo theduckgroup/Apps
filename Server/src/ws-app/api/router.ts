@@ -1,21 +1,20 @@
 import express from 'express'
 import { ObjectId } from 'mongodb'
 import createHttpError from 'http-errors'
+import z from 'zod'
+import { formatInTimeZone } from 'date-fns-tz'
 
+import env from 'src/env'
+import logger from 'src/logger'
+import eventHub from './event-hub'
 import { getDb } from 'src/db'
 import { authorizeUser, authorizeAdmin } from 'src/auth/authorize'
-import eventHub from './event-hub'
 import { WsTemplateSchema } from './WsTemplateSchema'
 import { WsReportSchema } from './WsReportSchema'
-import logger from 'src/logger'
-import z from 'zod'
-import { mailer } from 'src/utils/mailer'
 import { DbWsReport } from '../db/DbWsReport'
 import '../db/Db+collections'
-import { generateReportEmail } from './report-email'
-import { formatInTimeZone } from 'date-fns-tz'
+import { sendReportEmail, generateReportEmail } from './report-email'
 import { subHours, subMonths } from 'date-fns'
-import env from 'src/env'
 
 // Admin router
 
@@ -251,22 +250,9 @@ userRouter.post('/submit', async (req, res) => {
 
   res.send()
 
-  // Event
+  eventHub.emitUserReportsChanged(doc.user.id)
 
-  eventHub.emitUserReportsChanged(data.user.id)
-
-  // Email
-
-  const recipients: mailer.Recipient[] = doc.template.emailRecipients.map(x => ({
-    name: '',
-    email: x
-  }))
-
-  const formattedDate = formatInTimeZone(new Date(), 'Australia/Sydney', 'MMM d, h:mm a')
-  const subject = `[Weekly Spending] ${data.user.name} | ${formattedDate}`
-  const contentHtml = generateReportEmail(doc)
-
-  mailer.sendMail({ recipients, subject, contentHtml })
+  const _ = sendReportEmail(doc)
 })
 
 userRouter.get('/users/:userId/reports/meta', async (req, res) => {

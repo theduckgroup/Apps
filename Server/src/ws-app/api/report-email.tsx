@@ -1,10 +1,32 @@
 import React from 'react'
 import ReactDOMServer from 'react-dom/server'
+
+import { mailer } from 'src/utils/mailer'
 import { DbWsReport } from '../db/DbWsReport'
 import { formatInTimeZone } from 'date-fns-tz'
 
-export const generateReportEmail = (report: DbWsReport): string => {
-  const componentHtml = ReactDOMServer.renderToStaticMarkup(<EmailTemplate report={report} />)
+export async function sendReportEmail(report: DbWsReport) {
+  let recipients: mailer.Recipient[] = report.template.emailRecipients.map(x => ({
+    name: '',
+    email: x
+  }))
+
+  recipients = recipients.filter(x => x.email.toLowerCase() == report.user.email.toLowerCase())
+  
+  recipients.push({
+    name: report.user.name,
+    email: report.user.email
+  })
+
+  const formattedDate = formatInTimeZone(new Date(), 'Australia/Sydney', 'yyyy-MM-dd HH:mm:ss') // Date to avoid email grouping
+  const subject = `[Weekly Spending] ${report.user.name} | ${formattedDate}`
+  const contentHtml = await generateReportEmail(report)
+
+  await mailer.sendMail({ recipients, subject, contentHtml })
+}
+
+export async function generateReportEmail(report: DbWsReport) {
+  const bodyHtml = ReactDOMServer.renderToStaticMarkup(<EmailTemplate report={report} />)
 
   return `
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -28,13 +50,15 @@ export const generateReportEmail = (report: DbWsReport): string => {
         </style>
     </head>
     <body style="margin: 0; padding: 0; background-color: #ffffff;">
-        ${componentHtml}
+        ${bodyHtml}
     </body>
     </html>
   `
 }
 
 // --- Styles ---
+
+const themeColor = '#126b94'
 
 // GMail does not support oklch!
 // const darkBorderColor = 'oklch(90.5% 0.015 286.067)'
@@ -59,7 +83,7 @@ const styles: Record<string, React.CSSProperties> = {
   mainTitle: {
     fontSize: '28px',
     fontWeight: 'bold',
-    color: '#286090',
+    color: themeColor,
     paddingBottom: '10px',
     textAlign: 'left' as const
   },
@@ -177,7 +201,7 @@ const EmailTemplate: React.FC<{
                     Date
                   </td>
                   <td style={styles.headerValue}>
-                    {formatInTimeZone(report.date, 'Australia/Sydney', 'EEEE, MMM d, yyyy, h:mm a')}
+                    {formatInTimeZone(report.date, 'Australia/Sydney', 'EEEE, d MMM yyyy, h:mm a')}
                   </td>
                 </tr>
                 <tr>

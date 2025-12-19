@@ -2,11 +2,32 @@ import React from 'react'
 import ReactDOMServer from 'react-dom/server'
 import { formatInTimeZone } from 'date-fns-tz'
 
-import { DbQuizResponse } from '../db/DbQuizResponse'
 import env from 'src/env'
+import { mailer } from 'src/utils/mailer'
+import { DbQuizResponse } from '../db/DbQuizResponse'
 
-export function generateQuizResponseEmail(response: DbQuizResponse) {
-  const html = ReactDOMServer.renderToStaticMarkup(
+export async function sendQuizResponseEmail(response: DbQuizResponse) {
+  let recipients: mailer.Recipient[] = response.quiz.emailRecipients.map(x => ({
+    name: '',
+    email: x
+  }))
+
+  recipients = recipients.filter(x => x.email.toLowerCase() == response.user.email.toLowerCase())
+  
+  recipients.push({
+    name: response.user.name,
+    email: response.user.email
+  })
+
+  const formattedDate = formatInTimeZone(new Date(), 'Australia/Sydney', 'yyyy-MM-dd HH:mm:ss') // Date to avoid email grouping
+  const subject = `[FOH Test] ${response.respondent.name} - ${response.respondent.store} | ${formattedDate}`
+  const contentHtml = await generateQuizResponseEmail(response)
+
+  await mailer.sendMail({ recipients, subject, contentHtml })
+}
+
+export async function generateQuizResponseEmail(response: DbQuizResponse) {
+  const bodyHtml = ReactDOMServer.renderToStaticMarkup(
     <EmailTemplate response={response} />
   )
 
@@ -32,7 +53,7 @@ export function generateQuizResponseEmail(response: DbQuizResponse) {
         </style>
     </head>
     <body style="margin: 0; padding: 0; background-color: #ffffff;">
-        ${html}
+        ${bodyHtml}
     </body>
     </html>
   `
@@ -43,9 +64,11 @@ export function generateQuizResponseEmail(response: DbQuizResponse) {
 const EmailTemplate = ({ response }: {
   response: DbQuizResponse
 }) => {
+  const themeColor = '#126b94'
+  
   // GMail does not support oklch!
   // const darkBorderColor = 'oklch(90.5% 0.015 286.067)'
-  const darkBorderColor = '#dee2e6'
+  // const darkBorderColor = '#dee2e6'
 
   const viewUrl = `${env.webappUrl}/fohtest/view/${response._id!.toString()}`
 
@@ -63,7 +86,7 @@ const EmailTemplate = ({ response }: {
     },
     // "FOH Test" text + Duck icon
     headerCell: {
-      color: '#286090',
+      color: themeColor,
       fontSize: '28px',
       fontWeight: 'bold',
       paddingBottom: '10px',
@@ -102,8 +125,8 @@ const EmailTemplate = ({ response }: {
       textAlign: 'left'
     },
     button: {
-      backgroundColor: '#286090',
-      border: '1px solid #286090',
+      backgroundColor: themeColor,
+      border: `1px solid ${themeColor}`,
       borderRadius: '4px',
       color: '#ffffff',
       display: 'inline-block',
@@ -116,7 +139,7 @@ const EmailTemplate = ({ response }: {
     }
   }
 
-  const formattedDate = formatInTimeZone(response.submittedDate, 'Australia/Sydney', 'EEEE, MMM d yyyy, h:mm a')
+  const formattedDate = formatInTimeZone(response.submittedDate, 'Australia/Sydney', `EEEE, d MMM yyyy, h:mm a`)
 
   return (
     <table border={0} cellPadding={0} cellSpacing={0} width='100%' style={styles.body}>
