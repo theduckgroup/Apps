@@ -6,7 +6,7 @@ export const DuckIcon = ({ style, ...rest }: React.ComponentProps<'div'>) => {
     container: {
       width: '19px',
       height: '24px',
-      marginRight: '6px'
+      marginRight: '8px'
     }
   }
 
