@@ -35,7 +35,7 @@ struct ContentView: View {
         .keyboardHeight($keyboardHeight)
         .alert("Reset Calculator?", isPresented: $confirmResetAlert, actions: {
             Button("Reset", role: .destructive) {
-                UIApplication.dismissKeyboard()
+                UIApplication.shared.dismissKeyboard()
                 reset()
             }
             
@@ -157,7 +157,7 @@ struct ContentView: View {
         
         Button("Reset") {
             confirmResetAlert = true
-            UIApplication.dismissKeyboard()
+            UIApplication.shared.dismissKeyboard()
         }
     }
     

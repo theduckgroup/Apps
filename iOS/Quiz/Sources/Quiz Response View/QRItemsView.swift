@@ -115,7 +115,7 @@ private struct SelectedResponseItemResponseView: View {
             VStack(alignment: .leading, spacing: optionSpacing) {
                 ForEach(item.data.options) { option in
                     Button {
-                        UIApplication.dismissKeyboard()
+                        UIApplication.shared.dismissKeyboard()
                         
                         if let index = response.data.selectedOptions.map(\.id).firstIndex(of: option.id) {
                             response.data.selectedOptions.remove(at: index)

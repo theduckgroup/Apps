@@ -84,7 +84,7 @@ struct QuizResponseView: View {
     @ViewBuilder
     private func quitButton() -> some View {
         Button {
-            UIApplication.dismissKeyboard()
+            UIApplication.shared.dismissKeyboard()
             
             ps.presentAlert(message: "Quit without submitting test? You will not be able to return to it.") {
                 Button("Stay", role: .cancel) {}
@@ -105,7 +105,7 @@ struct QuizResponseView: View {
     @ViewBuilder
     private func appearanceButton() -> some View {
         Button {
-            UIApplication.dismissKeyboard()
+            UIApplication.shared.dismissKeyboard()
             
             presentingAppearancePopover = true
             
@@ -123,7 +123,7 @@ struct QuizResponseView: View {
     @ViewBuilder
     private func submitButton() -> some View {
         Button {
-            UIApplication.dismissKeyboard()
+            UIApplication.shared.dismissKeyboard()
             
             if let error = validateSubmit() {
                 ps.presentAlert(title: "Error", message: error, actions: {})

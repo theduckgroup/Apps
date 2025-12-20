@@ -156,7 +156,7 @@ struct NewReportView: View {
     }
         
     private func handleSubmit() {
-        UIApplication.dismissKeyboard()
+        UIApplication.shared.dismissKeyboard()
         
         do {
             try validate()

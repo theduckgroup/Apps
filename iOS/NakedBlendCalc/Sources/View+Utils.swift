@@ -11,7 +11,7 @@ extension View {
                 Spacer()
                 
                 Button("Done") {
-                    UIApplication.dismissKeyboard()
+                    UIApplication.shared.dismissKeyboard()
                 }
                 .font(.body.bold())
             }
@@ -20,8 +20,8 @@ extension View {
 }
 
 extension UIApplication {
-    static func dismissKeyboard() {
-        UIApplication.shared.sendAction(#selector(UIApplication.resignFirstResponder), to: nil, from: nil, for: nil)
+    func dismissKeyboard() {
+        sendAction(#selector(UIApplication.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
 
