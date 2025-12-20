@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:SuperDuck/SuperDuck.xcodeproj">
+   </FileRef>
+   <FileRef
       location = "container:Quiz/Quiz.xcodeproj">
    </FileRef>
    <FileRef
