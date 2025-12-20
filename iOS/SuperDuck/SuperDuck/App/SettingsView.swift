@@ -24,53 +24,65 @@ struct SettingsView: View {
     @ViewBuilder
     private func bodyContent() -> some View {
         ScrollView {
-            Group {
-                if horizontalSizeClass != .regular {
-                    HStack(alignment: .top, spacing: 36) {
-                        VStack(alignment: .leading, spacing: 18) {
-                            userView()
-                            
-                            Divider()
-                            
-                            //                VStack(alignment: .leading, spacing: 12) {
-                            //                    Text("Theme")
-                            //
-                            //                    if horizontalSizeClass == .regular {
-                            //                        HStack(alignment: .top, spacing: 24) {
-                            //                            ColorSchemeView(colorSchemeOverride: $appDefaults.colorSchemeOverride)
-                            //                            AccentColorView(accentColor: $appDefaults.accentColor)
-                            //                        }
-                            //
-                            //                    } else {
-                            //                        VStack(alignment: .leading, spacing: 3) {
-                            //                            ColorSchemeView(colorSchemeOverride: $appDefaults.colorSchemeOverride)
-                            //                                .frame(maxWidth: horizontalSizeClass == .regular ? 360 : nil, alignment: .leading)
-                            //
-                            //                            AccentColorView(accentColor: $appDefaults.accentColor)
-                            //                        }
-                            //                    }
-                            //                }
-                            
-                            versionView()
-                        }
-                        
-                        themeView()
-                    }
-                } else {
-                    VStack(alignment: .leading, spacing: 18) {
-                        userView()
-                        
-                        Divider()
-                        
-                        themeView()
-                        
-                        Divider()
-                        
-                        versionView()
-                    }
-                }
+            VStack(alignment: .leading, spacing: 18) {
+                userView()
+                
+                Divider()
+                
+                themeView()
+                
+                Divider()
+                
+                versionView()
             }
             .padding()
+            
+//                if horizontalSizeClass != .regular {
+//                    HStack(alignment: .top, spacing: 36) {
+//                        VStack(alignment: .leading, spacing: 18) {
+//                            userView()
+//                            
+//                            Divider()
+//                            
+//                            //                VStack(alignment: .leading, spacing: 12) {
+//                            //                    Text("Theme")
+//                            //
+//                            //                    if horizontalSizeClass == .regular {
+//                            //                        HStack(alignment: .top, spacing: 24) {
+//                            //                            ColorSchemeView(colorSchemeOverride: $appDefaults.colorSchemeOverride)
+//                            //                            AccentColorView(accentColor: $appDefaults.accentColor)
+//                            //                        }
+//                            //
+//                            //                    } else {
+//                            //                        VStack(alignment: .leading, spacing: 3) {
+//                            //                            ColorSchemeView(colorSchemeOverride: $appDefaults.colorSchemeOverride)
+//                            //                                .frame(maxWidth: horizontalSizeClass == .regular ? 360 : nil, alignment: .leading)
+//                            //
+//                            //                            AccentColorView(accentColor: $appDefaults.accentColor)
+//                            //                        }
+//                            //                    }
+//                            //                }
+//                            
+//                            versionView()
+//                        }
+//                        
+//                        themeView()
+//                    }
+//                } else {
+//                    VStack(alignment: .leading, spacing: 18) {
+//                        userView()
+//                        
+//                        Divider()
+//                        
+//                        themeView()
+//                        
+//                        Divider()
+//                        
+//                        versionView()
+//                    }
+//                }
+//            }
+//            .padding()
 
             Spacer()
         }
@@ -80,10 +92,11 @@ struct SettingsView: View {
     private func userView() -> some View {
         let user = auth.user!
         
-        HStack(alignment: .top, spacing: 18) {
+        HStack(alignment: .top, spacing: 15) {
             Image(systemName: "person.crop.circle.fill")
                 .font(.system(size: 60, weight: .thin))
                 .foregroundStyle(Color(UIColor.systemGray2))
+                .offset(y: -6)
             
             VStack(alignment: .leading, spacing: 3) {
                 Text(user.name)
