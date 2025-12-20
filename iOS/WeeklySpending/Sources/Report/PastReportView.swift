@@ -71,7 +71,6 @@ struct PastReportView: View {
                     .bold()
                 
                 Text(reportMeta.user.name)
-                    .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(.vertical, 12)
@@ -83,7 +82,6 @@ struct PastReportView: View {
                     .bold()
                 
                 Text(reportMeta.date.formatted(.dateTime.weekday(.wide).day().month().year().hour().minute()))
-                    .foregroundStyle(.secondary)
             }
             .padding(.vertical, 12)
             
@@ -127,13 +125,14 @@ struct PastReportView: View {
                         
                         if let supplier, let supplierData {
                             Text(supplier.name)
-                                .foregroundStyle(.secondary)
-                            
+                                
                             Text(supplierData.amount, format: .currency(code: "AUD"))
                                 .gridColumnAlignment(.trailing)
+                                .foregroundStyle(.secondary)
                             
                             Text(supplierData.gst, format: .currency(code: "AUD"))
                                 .gridColumnAlignment(.trailing)
+                                .foregroundStyle(.secondary)
                             
                         } else {
                             Text("Supplier not found")
