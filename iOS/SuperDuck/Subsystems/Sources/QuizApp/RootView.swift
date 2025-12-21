@@ -108,19 +108,24 @@ public struct RootView: View {
         
         fetchTask = Task {
             do {
-                self.isFetching = true
                 self.error = nil
+                self.isFetching = true
                 
-                if debugging {
-                    try await Task.sleep(for: .seconds(2))
+                // Can't set isFetching in defer due to cancellation
+                
+                if delay {
+                    try await Task.sleep(for: .seconds(0.5))
                 }
                 
-                // throw GenericError("Culpa dolore sit pariatur commodo nulla commodo amet ad velit magna commodo fugiat. Laboris reprehenderit do culpa. Enim quis cupidatat ex mollit elit aute proident dolor dolor laboris et ex esse aliqua fugiat. Commodo officia consequat minim elit aliquip qui veniam labore dolore eu culpa aliquip ex.")
-                // throw GenericError("Not connected to internet")
+                if debugging {
+                    // try await Task.sleep(for: .seconds(2))
+                    // throw GenericError("Culpa dolore sit pariatur commodo nulla commodo amet ad velit magna commodo fugiat. Laboris reprehenderit do culpa. Enim quis cupidatat ex mollit elit aute proident dolor dolor laboris et ex esse aliqua fugiat. Commodo officia consequat minim elit aliquip qui veniam labore dolore eu culpa aliquip ex.")
+                    // throw GenericError("Not connected to internet")
+                }
                 
                 let fetchedQuiz = try await {
                     if isRunningForPreviews {
-                        return try await api.mockQuiz()
+                        return try await api.mockQuiz(success: true)
                     }
                     
                     return try await api.quiz(code: "FOH_STAFF_KNOWLEDGE")
