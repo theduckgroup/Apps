@@ -24,9 +24,9 @@
 		7367EF062EF6B99A0054FCA3 /* SuperDuck-Local.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SuperDuck-Local.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7367EFE62EF76F360054FCA3 /* Subsystems */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Subsystems; sourceTree = "<group>"; };
 		7367F1422EF779540054FCA3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		7367F1F72EF7BC3B0054FCA3 /* Prebuild.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = Prebuild.sh; sourceTree = "<group>"; };
 		7367F1F82EF7BD630054FCA3 /* LocalIP */ = {isa = PBXFileReference; lastKnownFileType = text; path = LocalIP; sourceTree = "<group>"; };
 		7367F1FC2EF7C0E10054FCA3 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		7367F2BD2EF7CDDB0054FCA3 /* GetLocalIP.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = GetLocalIP.sh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -70,7 +70,7 @@
 				7367EFE62EF76F360054FCA3 /* Subsystems */,
 				7367F1FC2EF7C0E10054FCA3 /* .gitignore */,
 				7367F1422EF779540054FCA3 /* Info.plist */,
-				7367F1F72EF7BC3B0054FCA3 /* Prebuild.sh */,
+				7367F2BD2EF7CDDB0054FCA3 /* GetLocalIP.sh */,
 				7367F1F82EF7BD630054FCA3 /* LocalIP */,
 				7367EEEE2EF6B98E0054FCA3 /* Frameworks */,
 				7367EED42EF6B81D0054FCA3 /* Products */,
@@ -126,7 +126,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 7367EF032EF6B99A0054FCA3 /* Build configuration list for PBXNativeTarget "SuperDuck-Local" */;
 			buildPhases = (
-				7367F1FB2EF7BD720054FCA3 /* Run Script (Prebuild) */,
 				7367EEFC2EF6B99A0054FCA3 /* Sources */,
 				7367EEFD2EF6B99A0054FCA3 /* Frameworks */,
 				7367EF022EF6B99A0054FCA3 /* Resources */,
@@ -205,30 +204,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		7367F1FB2EF7BD720054FCA3 /* Run Script (Prebuild) */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"$(SRCROOT)/Prebuild.sh",
-			);
-			name = "Run Script (Prebuild)";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(SRCROOT)/LocalIP",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "./Prebuild.sh\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		7367EECF2EF6B81D0054FCA3 /* Sources */ = {
