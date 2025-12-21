@@ -22,33 +22,13 @@
 		7367EED32EF6B81D0054FCA3 /* SuperDuck.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SuperDuck.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7367EF062EF6B99A0054FCA3 /* SuperDuck-Local.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SuperDuck-Local.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7367EFE62EF76F360054FCA3 /* Subsystems */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Subsystems; sourceTree = "<group>"; };
+		7367F1422EF779540054FCA3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		7367EEE22EF6B8330054FCA3 /* Exceptions for "SuperDuck" folder in "SuperDuck" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 7367EED22EF6B81D0054FCA3 /* SuperDuck */;
-		};
-		7367EF072EF6B99A0054FCA3 /* Exceptions for "SuperDuck" folder in "SuperDuck-Local" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 7367EEF72EF6B99A0054FCA3 /* SuperDuck-Local */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		7367EED52EF6B81D0054FCA3 /* SuperDuck */ = {
+		7367F1312EF778960054FCA3 /* App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				7367EEE22EF6B8330054FCA3 /* Exceptions for "SuperDuck" folder in "SuperDuck" target */,
-				7367EF072EF6B99A0054FCA3 /* Exceptions for "SuperDuck" folder in "SuperDuck-Local" target */,
-			);
-			path = SuperDuck;
+			path = App;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -83,8 +63,9 @@
 		7367EECA2EF6B81D0054FCA3 = {
 			isa = PBXGroup;
 			children = (
-				7367EED52EF6B81D0054FCA3 /* SuperDuck */,
+				7367F1312EF778960054FCA3 /* App */,
 				7367EFE62EF76F360054FCA3 /* Subsystems */,
+				7367F1442EF7796D0054FCA3 /* Meta */,
 				7367EEEE2EF6B98E0054FCA3 /* Frameworks */,
 				7367EED42EF6B81D0054FCA3 /* Products */,
 			);
@@ -106,6 +87,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		7367F1442EF7796D0054FCA3 /* Meta */ = {
+			isa = PBXGroup;
+			children = (
+				7367F1422EF779540054FCA3 /* Info.plist */,
+			);
+			path = Meta;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -122,7 +111,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				7367EED52EF6B81D0054FCA3 /* SuperDuck */,
+				7367F1312EF778960054FCA3 /* App */,
 			);
 			name = SuperDuck;
 			packageProductDependencies = (
@@ -148,7 +137,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				7367EED52EF6B81D0054FCA3 /* SuperDuck */,
+				7367F1312EF778960054FCA3 /* App */,
 			);
 			name = "SuperDuck-Local";
 			packageProductDependencies = (
@@ -366,7 +355,7 @@
 				DEVELOPMENT_TEAM = 447AVTZYHV;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = SuperDuck/Info.plist;
+				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Super Duck";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -400,7 +389,7 @@
 				DEVELOPMENT_TEAM = 447AVTZYHV;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = SuperDuck/Info.plist;
+				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Super Duck";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -434,7 +423,7 @@
 				DEVELOPMENT_TEAM = 447AVTZYHV;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = SuperDuck/Info.plist;
+				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Super Duck [local]";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -468,7 +457,7 @@
 				DEVELOPMENT_TEAM = 447AVTZYHV;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = SuperDuck/Info.plist;
+				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Super Duck [local]";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

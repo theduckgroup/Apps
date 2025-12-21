@@ -32,7 +32,7 @@ struct SettingsView: View {
                                 Button("Cancel", role: .cancel) {}
                             }
                         }
-                        .buttonStyle(.bordered)
+                        .buttonStyle(.borderedProminent)
                     }
                 }
         }
@@ -40,50 +40,40 @@ struct SettingsView: View {
     
     @ViewBuilder
     private func bodyContent() -> some View {
-//        ScrollView {
-            Form {
-//                VStack(alignment: .leading, spacing: 18) {
-                Section("Account") {
-                    userView()
-                }
-                
-                //    Divider()
-                  
-                Section("Theme") {
-                    themeView()
-                }
-                    
-//                    Divider()
-                    
-                Section("Version") {
-                    versionView()
-                }
-//                }
-//                .padding()
+        Form {
+            Section("Account") {
+                userView()
             }
-
-            // Spacer()
-//        }
+            
+            Section("Theme") {
+                themeView()
+            }
+            
+            Section("Version") {
+                versionView()
+            }
+        }
     }
     
     @ViewBuilder
     private func userView() -> some View {
-        let user = auth.user!
-        
-        // HStack(alignment: .top, spacing: 15) {
-//            Image(systemName: "person.crop.circle.fill")
-//                .font(.system(size: 56, weight: .thin))
-//                .foregroundStyle(Color(UIColor.systemGray2))
-//                .offset(y: -6)
-//            
-        VStack(alignment: .leading) {
-            Text(user.name)
-                .font(.title3)
-                .bold()
+        if let user = auth.user {
             
-            Text(user.email ?? "")
+            // HStack(alignment: .top, spacing: 15) {
+            //            Image(systemName: "person.crop.circle.fill")
+            //                .font(.system(size: 56, weight: .thin))
+            //                .foregroundStyle(Color(UIColor.systemGray2))
+            //                .offset(y: -6)
+            //
+            VStack(alignment: .leading) {
+                Text(user.name)
+                    .font(.title3)
+                    .bold()
+                
+                Text(user.email ?? "")
+            }
+            // }
         }
-        // }
     }
 
     @ViewBuilder

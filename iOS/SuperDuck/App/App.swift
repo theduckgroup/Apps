@@ -17,7 +17,7 @@ struct App: SwiftUI.App {
 
 private struct AppView: View {
     var auth = Auth.shared
-    @Environment(AppDefaults.self) var appDefaults
+    var appDefaults = AppDefaults.shared
     @State private var uikitContext = UIKitContext()
     
     var body: some View {
