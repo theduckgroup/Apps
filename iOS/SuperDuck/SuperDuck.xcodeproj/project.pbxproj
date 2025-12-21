@@ -222,7 +222,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(SRCROOT)/Tmp/LocalIP",
+				"$(SRCROOT)/LocalIP",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
