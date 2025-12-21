@@ -5,7 +5,7 @@ import CommonUI
 
 struct AppView: View {
     var auth = Auth.shared
-    var appDefaults = AppDefaults(storageKey: "appDefaults:v2")
+    @Environment(AppDefaults.self) var appDefaults
     @State var uikitContext = UIKitContext()
     
     init() {}
@@ -23,7 +23,7 @@ struct AppView: View {
                 _ = KeyboardDoneButtonManager.shared
                 applyStylingOverride()
             }
-             .onChange(of: appDefaults.colorSchemeOverride, applyStylingOverride)
+            .onChange(of: appDefaults.colorSchemeOverride, applyStylingOverride)
             .attach(uikitContext)
             .environment(appDefaults)
     }
@@ -63,5 +63,5 @@ struct AppView: View {
 
 #Preview {
     AppView()
-        .tint(.theme)
+        .prepareForPreview()
 }

@@ -56,3 +56,8 @@ extension TabView {
         case settings
     }
 }
+
+#Preview {
+    TabView()
+        .prepareForPreview()
+}
