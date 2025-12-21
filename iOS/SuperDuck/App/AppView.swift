@@ -63,5 +63,5 @@ struct AppView: View {
 
 #Preview {
     AppView()
-        .prepareForPreview()
+        .withMockEnvironment()
 }

@@ -250,5 +250,5 @@ struct QuizResponseView: View {
             QuizResponseView(quiz: quiz)
                 .tint(.theme)
         }
-        .prepareForPreview()
+        .withMockEnvironment()
 }

@@ -149,5 +149,5 @@ public struct RootView: View {
 
 #Preview {
     RootView()
-        .prepareForPreview()
+        .withMockEnvironment()
 }
