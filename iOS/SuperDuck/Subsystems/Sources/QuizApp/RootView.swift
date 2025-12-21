@@ -12,6 +12,7 @@ public struct RootView: View {
     @State var isFetching = false
     @State var fetchTask: Task<Void, Never>?
     @State var presentedQuiz: Quiz?
+    @Environment(Auth.self) var auth
     @Environment(API.self) var api
     @Environment(AppDefaults.self) var appDefaults
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -29,7 +30,7 @@ public struct RootView: View {
             .navigationTitle("FOH Test")
         }
         .fullScreenCover(item: $presentedQuiz) { quiz in
-            QuizResponseView(quiz: quiz)
+            QuizResponseView(quiz: quiz, user: auth.user!)
         }
         .onAppear {
             fetchQuiz()

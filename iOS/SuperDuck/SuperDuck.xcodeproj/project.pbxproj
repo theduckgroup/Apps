@@ -15,8 +15,6 @@
 		7367F1E12EF787A80054FCA3 /* Flow in Frameworks */ = {isa = PBXBuildFile; productRef = 7367F1E02EF787A80054FCA3 /* Flow */; };
 		7367F1E32EF787B00054FCA3 /* Common in Frameworks */ = {isa = PBXBuildFile; productRef = 7367F1E22EF787B00054FCA3 /* Common */; };
 		7367F1E52EF787B00054FCA3 /* CommonUI in Frameworks */ = {isa = PBXBuildFile; productRef = 7367F1E42EF787B00054FCA3 /* CommonUI */; };
-		7367F1F92EF7BD630054FCA3 /* LocalIP in Resources */ = {isa = PBXBuildFile; fileRef = 7367F1F82EF7BD630054FCA3 /* LocalIP */; };
-		7367F1FA2EF7BD630054FCA3 /* LocalIP in Resources */ = {isa = PBXBuildFile; fileRef = 7367F1F82EF7BD630054FCA3 /* LocalIP */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,7 +22,6 @@
 		7367EF062EF6B99A0054FCA3 /* SuperDuck-Local.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SuperDuck-Local.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7367EFE62EF76F360054FCA3 /* Subsystems */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Subsystems; sourceTree = "<group>"; };
 		7367F1422EF779540054FCA3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		7367F1F82EF7BD630054FCA3 /* LocalIP */ = {isa = PBXFileReference; lastKnownFileType = text; path = LocalIP; sourceTree = "<group>"; };
 		7367F1FC2EF7C0E10054FCA3 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		7367F2BD2EF7CDDB0054FCA3 /* GetLocalIP.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = GetLocalIP.sh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -71,7 +68,6 @@
 				7367F1FC2EF7C0E10054FCA3 /* .gitignore */,
 				7367F1422EF779540054FCA3 /* Info.plist */,
 				7367F2BD2EF7CDDB0054FCA3 /* GetLocalIP.sh */,
-				7367F1F82EF7BD630054FCA3 /* LocalIP */,
 				7367EEEE2EF6B98E0054FCA3 /* Frameworks */,
 				7367EED42EF6B81D0054FCA3 /* Products */,
 			);
@@ -191,7 +187,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7367F1FA2EF7BD630054FCA3 /* LocalIP in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -199,7 +194,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7367F1F92EF7BD630054FCA3 /* LocalIP in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

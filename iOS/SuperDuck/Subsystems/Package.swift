@@ -39,10 +39,12 @@ let package = Package(
             name: "Backend",
             dependencies: [
                 .product(name: "Common", package: "Common"),
-                // .product(name: "CommonUI", package: "Common"),
                 .product(name: "SocketIO", package: "socket.io-client-swift"),
                 .product(name: "Supabase", package: "supabase-swift"),
                 .product(name: "SwiftBSON", package: "swift-bson"),
+            ],
+            resources: [
+                .copy("LocalIP")
             ],
             swiftSettings: [
                 .defaultIsolation(nil),

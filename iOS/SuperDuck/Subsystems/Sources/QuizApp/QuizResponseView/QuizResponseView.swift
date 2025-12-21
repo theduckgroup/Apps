@@ -16,9 +16,9 @@ struct QuizResponseView: View {
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.dismiss) var dismiss
     
-    init(quiz: Quiz) {
+    init(quiz: Quiz, user: User) {
         viewModel = {
-            let user = QuizResponse.User(from: Auth.shared.user!)
+            let user = QuizResponse.User(from: user)
             let response = QuizResponse(from: quiz, user: user)
             return QuizResponseViewModel(quizResponse: response)
         }()
@@ -239,7 +239,7 @@ struct QuizResponseView: View {
         .onAppear {
             Task {
                 do {
-                    quiz = try await API.localhost.mockQuiz()
+                    quiz = try await API.mock.mockQuiz()
                     
                 } catch {
                     logger.error("Unable to get mock quiz: \(error)")
@@ -247,7 +247,7 @@ struct QuizResponseView: View {
             }
         }
         .fullScreenCover(item: $quiz) { quiz in
-            QuizResponseView(quiz: quiz)
+            QuizResponseView(quiz: quiz, user: .mock)
                 .withMockEnvironment()
         }
         

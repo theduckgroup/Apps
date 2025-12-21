@@ -4,17 +4,51 @@ import AppShared
 
 @main
 struct App: SwiftUI.App {
+    let auth: Auth
+    let api: API
     let appDefaults = AppDefaults(storageKey: "appDefaults:v2")
-    let api = API.shared
+    
+    init() {
+        let auth = Auth()
+        
+        self.auth = auth
+        
+        self.api = {
+            switch AppInfo.buildTarget {
+            case .prod: API(env: .prod, auth: auth)
+            case .local: API(env: .local, auth: auth)
+            }
+        }()
+    }
     
     var body: some Scene {
         WindowGroup {
             AppView()
                 .onOpenURL { url in
-                    Auth.shared.handleOAuthURL(url)
+                    auth.handle(url)
                 }
         }
-        .environment(appDefaults)
+        .environment(auth)
         .environment(api)
+        .environment(appDefaults)
     }
 }
+
+//
+
+//private let auth = Auth()
+//
+//extension API {
+//    static let shared: API = {
+//        switch AppInfo.buildTarget {
+//        case .prod: .prod
+//        case .local: .local
+//        }
+//    }()
+//}
+//
+//extension API {
+//    static let prod = API(env: .prod, auth: .shared)
+//    static let local = API(env: .local, auth: .shared)
+//}
+//

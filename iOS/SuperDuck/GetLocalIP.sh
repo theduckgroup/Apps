@@ -5,4 +5,4 @@
 # Have tried echo -n and xargs, did not work
 
 echo "Get local IP and write to LocalIP"
-ipconfig getifaddr en0 | tr -d '\n' > ./LocalIP
+ipconfig getifaddr en0 | tr -d '\n' > ./Subsystems/Backend/LocalIP

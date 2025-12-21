@@ -8,9 +8,9 @@ public final class API: Sendable {
     public let auth: Auth
     public let eventHub: EventHub
     
-    public init(url: URL, auth: Auth) {
+    public init(env: Env, auth: Auth) {
         self.auth = auth
-        self.url = url
+        self.url = env.url
         self.eventHub = .init(url: url)
     }
     
@@ -73,6 +73,16 @@ public final class API: Sendable {
             }
         
             throw error
+        }
+    }
+}
+
+public extension API {
+    struct Env: Sendable {
+        public let url: URL
+        
+        init(url: URL) {
+            self.url = url
         }
     }
 }

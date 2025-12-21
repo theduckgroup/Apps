@@ -9,6 +9,7 @@ public struct LoginView: View {
     @State var password: String = ""
     @FocusState var emailFocused: Bool
     @State var loading = false
+    @Environment(Auth.self) var auth
     @State var ps = PresentationState()
     
     public init() {}
@@ -88,7 +89,7 @@ public struct LoginView: View {
         
         do {
             try await Task.sleep(for: .seconds(0.5))
-            try await Auth.shared.signIn(email: email, password: password)
+            try await auth.signIn(email: email, password: password)
             
         } catch {
             ps.presentAlert(title: "", message: formatError(error)) {
@@ -127,4 +128,5 @@ private struct InputField: View {
 
 #Preview {
     LoginView()
+        .withMockEnvironment()
 }

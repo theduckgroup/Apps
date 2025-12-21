@@ -9,8 +9,8 @@ import CommonUI
 ///
 /// Use `TabView` to preview.
 struct SettingsView: View {
-    private var auth = Auth.shared
     @State private var ps = PresentationState()
+    @Environment(Auth.self) var auth
     @Environment(AppDefaults.self) var appDefaults
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
@@ -19,22 +19,25 @@ struct SettingsView: View {
             bodyContent()
                 .navigationTitle("Settings")
                 .presentations(ps)
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button("Log out") {
-                            ps.presentAlert(title: "Log out?", message: "") {
-                                Button("Log out") {
-                                    Task {
-                                        try await auth.signOut()
-                                    }
-                                }
-                                
-                                Button("Cancel", role: .cancel) {}
-                            }
+                .toolbar { toolbarContent() }
+        }
+    }
+    
+    @ToolbarContentBuilder
+    private func toolbarContent() -> some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Button("Log out") {
+                ps.presentAlert(title: "Log out?", message: "") {
+                    Button("Log out") {
+                        Task {
+                            try await auth.signOut()
                         }
-                        .buttonStyle(.borderedProminent)
                     }
+                    
+                    Button("Cancel", role: .cancel) {}
                 }
+            }
+            .buttonStyle(.borderedProminent)
         }
     }
     

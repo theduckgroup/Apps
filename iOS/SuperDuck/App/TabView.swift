@@ -14,7 +14,7 @@ struct TabView: View {
             Tab("FOH Test", systemImage: "pencil.and.list.clipboard", value: .quiz) {
                 QuizApp.RootView()
             }
-                        
+
             Tab("Weekly Spending", systemImage: "australiandollarsign", value: .weeklySpending) {
                 WeeklySpendingApp.RootView()
             }
@@ -23,7 +23,6 @@ struct TabView: View {
                 SettingsView()
             }
         }
-        .environment(API.shared)
         
 //        TabView(selection: $selectedTab) {
 //            @Bindable var appDefaults = appDefaults

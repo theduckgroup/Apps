@@ -4,7 +4,7 @@ import Backend
 import CommonUI
 
 struct AppView: View {
-    var auth = Auth.shared
+    @Environment(Auth.self) var auth
     @Environment(AppDefaults.self) var appDefaults
     @State var uikitContext = UIKitContext()
     

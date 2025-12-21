@@ -9,13 +9,16 @@ public extension User {
     }
 }
 
-public extension User {
-    static let mock = User(
-       id: UUID(),
-       appMetadata: [:],
-       userMetadata: [:],
-       aud: "",
-       createdAt: Date(),
-       updatedAt: Date()
-   )
+extension User {
+    public var firstName: String {
+        userMetadata["first_name"]?.value as? String ?? ""
+    }
+    
+    public var lastName: String {
+        userMetadata["last_name"]?.value as? String ?? ""
+    }
+    
+    public var name: String {
+        [firstName, lastName].filter { !$0.isEmpty }.joined(separator: " ")
+    }
 }
