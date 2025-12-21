@@ -3,20 +3,6 @@ import AppShared
 import Backend
 import Common
 
-///// Server API.
-//extension API {
-//    static let shared = API(
-//        auth: .shared,
-//        baseURL: {
-//            switch AppInfo.buildTarget {
-//            case .prod: URL(string: "https://apps.theduckgroup.com.au/api/quiz-app")!
-//            // case .local: URL(string: "http://192.168.0.207:8021/api/quiz-app")!
-//            case .local: URL(string: "http://172.20.10.11:8021/api/quiz-app")!
-//            }
-//        }()
-//    )
-//}
-
 extension API {
     func quiz(code: String) async throws -> Quiz {
         try await get(
