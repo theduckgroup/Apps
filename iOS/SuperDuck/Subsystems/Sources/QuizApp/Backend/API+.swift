@@ -1,7 +1,5 @@
 import Foundation
-import AppShared
 import Backend
-import Common
 
 extension API {
     func quiz(code: String) async throws -> Quiz {
@@ -26,13 +24,5 @@ extension API {
             path: "quiz-app/quiz-response/submit",
             body: quizResponse
         )
-    }
-}
-
-extension EventHub {
-    // static let shared = EventHub(baseURL: API.shared.baseURL)
-    
-    var quizzesChanged: AsyncStream<Void> {
-        events("quiz-app:quizzes:changed")
     }
 }
