@@ -5,4 +5,4 @@
 # Have tried echo -n and xargs, did not work
 
 echo "Obtaining local IP address"
-ipconfig getifaddr en0 | tr -d '\n' > ./Tmp/LocalIP
+ipconfig getifaddr en0 | tr -d '\n' > ./LocalIP

@@ -25,7 +25,8 @@
 		7367EFE62EF76F360054FCA3 /* Subsystems */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Subsystems; sourceTree = "<group>"; };
 		7367F1422EF779540054FCA3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7367F1F72EF7BC3B0054FCA3 /* Prebuild.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = Prebuild.sh; sourceTree = "<group>"; };
-		7367F1F82EF7BD630054FCA3 /* LocalIP */ = {isa = PBXFileReference; lastKnownFileType = text; name = LocalIP; path = Tmp/LocalIP; sourceTree = "<group>"; };
+		7367F1F82EF7BD630054FCA3 /* LocalIP */ = {isa = PBXFileReference; lastKnownFileType = text; path = LocalIP; sourceTree = "<group>"; };
+		7367F1FC2EF7C0E10054FCA3 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -67,6 +68,7 @@
 			children = (
 				7367F1312EF778960054FCA3 /* App */,
 				7367EFE62EF76F360054FCA3 /* Subsystems */,
+				7367F1FC2EF7C0E10054FCA3 /* .gitignore */,
 				7367F1422EF779540054FCA3 /* Info.plist */,
 				7367F1F72EF7BC3B0054FCA3 /* Prebuild.sh */,
 				7367F1F82EF7BD630054FCA3 /* LocalIP */,
