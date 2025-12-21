@@ -10,8 +10,8 @@ import CommonUI
 /// Use `TabView` to preview.
 struct SettingsView: View {
     private var auth = Auth.shared
-    @Bindable private var appDefaults = AppDefaults.shared
     @State private var ps = PresentationState()
+    @Environment(AppDefaults.self) var appDefaults
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
     public var body: some View {
@@ -84,6 +84,8 @@ struct SettingsView: View {
     @ViewBuilder
     private func themeView() -> some View {
         VStack(alignment: .leading, spacing: 15) {
+            @Bindable var appDefaults = appDefaults
+            
             ColorSchemeView(colorSchemeOverride: $appDefaults.colorSchemeOverride)
                 .frame(maxWidth: horizontalSizeClass == .regular ? 390 : nil, alignment: .leading)
             

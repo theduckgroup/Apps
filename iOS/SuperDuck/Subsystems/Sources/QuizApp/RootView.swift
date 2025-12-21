@@ -13,8 +13,8 @@ public struct RootView: View {
     @State var fetchTask: Task<Void, Never>?
     @State var presentedQuiz: Quiz?
     @Environment(API.self) var api
+    @Environment(AppDefaults.self) var appDefaults
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    private var appDefaults = AppDefaults.shared
     
     public init() {}
     

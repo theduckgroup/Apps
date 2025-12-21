@@ -8,11 +8,8 @@ import CommonUI
 
 struct TabView: View {
     @AppStorage("tabViewSelection") private var tabViewSelection = TabViewSelection.quiz
-    @Bindable private var appDefaults = AppDefaults.shared
     
     var body: some View {
-        @Bindable var appDefaults = appDefaults
-        
         SwiftUI.TabView(selection: $tabViewSelection) {
             Tab("FOH Test", systemImage: "pencil.and.list.clipboard", value: .quiz) {
                 QuizApp.RootView()
@@ -58,9 +55,4 @@ extension TabView {
         case weeklySpending
         case settings
     }
-}
-
-#Preview {
-    TabView()
-        .tint(Color.theme)
 }

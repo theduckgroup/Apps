@@ -6,6 +6,8 @@ import QuizApp
 
 @main
 struct App: SwiftUI.App {
+    @State var appDefaults = AppDefaults(storageKey: "appDefaultsV2")
+    
     var body: some Scene {
         WindowGroup {
             AppView()
@@ -18,8 +20,10 @@ struct App: SwiftUI.App {
 
 private struct AppView: View {
     var auth = Auth.shared
-    var appDefaults = AppDefaults.shared
-    @State private var uikitContext = UIKitContext()
+    @Environment(AppDefaults.self) var appDefaults
+    @State var uikitContext = UIKitContext()
+    
+    init() {}
     
     var body: some View {
         // Note:
@@ -36,6 +40,7 @@ private struct AppView: View {
             }
              .onChange(of: appDefaults.colorSchemeOverride, applyStylingOverride)
             .attach(uikitContext)
+            .environment(appDefaults)
     }
     
     private func applyStylingOverride() {
@@ -73,4 +78,6 @@ private struct AppView: View {
 
 #Preview {
     AppView()
+        .tint(.theme)
+        .environment(AppDefaults.mock)
 }

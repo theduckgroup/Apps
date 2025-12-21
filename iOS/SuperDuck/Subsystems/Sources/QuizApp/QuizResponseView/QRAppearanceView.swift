@@ -5,8 +5,8 @@ import CommonUI
 
 struct QRAppearanceView: View {
     @Binding var dynamicTypeSizeOverride: DynamicTypeSizeOverride?
+    @Environment(AppDefaults.self) var appDefaults
     @Environment(\.dynamicTypeSize) private var systemDynamicTypeSize
-    private var appDefaults = AppDefaults.shared
     
     init(dynamicTypeSizeOverride: Binding<DynamicTypeSizeOverride?>) {
         _dynamicTypeSizeOverride = dynamicTypeSizeOverride
