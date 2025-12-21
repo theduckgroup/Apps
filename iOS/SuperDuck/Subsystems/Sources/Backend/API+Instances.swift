@@ -8,7 +8,7 @@ public extension API {
         auth: .shared
     )
     
-    static let local = API(
+    static let localhost = API(
         url: URL(string: "http://localhost:8021/api")!,
         auth: .shared
     )

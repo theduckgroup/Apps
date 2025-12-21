@@ -6,7 +6,7 @@ extension View {
     @ViewBuilder
     func withMockEnvironment() -> some View {
         self.tint(.theme)
-            .environment(API.local)
+            .environment(API.localhost)
             .environment(AppDefaults.mock)
     }
 }

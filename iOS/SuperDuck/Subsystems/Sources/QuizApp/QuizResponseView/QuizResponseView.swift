@@ -239,7 +239,7 @@ struct QuizResponseView: View {
         .onAppear {
             Task {
                 do {
-                    quiz = try await API.local.mockQuiz()
+                    quiz = try await API.localhost.mockQuiz()
                     
                 } catch {
                     logger.error("Unable to get mock quiz: \(error)")
@@ -248,7 +248,7 @@ struct QuizResponseView: View {
         }
         .fullScreenCover(item: $quiz) { quiz in
             QuizResponseView(quiz: quiz)
-                .tint(.theme)
+                .withMockEnvironment()
         }
-        .withMockEnvironment()
+        
 }
