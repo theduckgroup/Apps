@@ -78,8 +78,7 @@ struct SettingsView: View {
 
     @ViewBuilder
     private func versionView() -> some View {
-        let marketingVersion = Bundle.main.infoDictionary!["CFBundleShortVersionString"] as! String
-        Text(marketingVersion)
+        Text(AppInfo.marketingVersion)
     }
     
     @ViewBuilder

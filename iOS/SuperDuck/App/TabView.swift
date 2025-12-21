@@ -1,11 +1,10 @@
 import Foundation
 import SwiftUI
 import AppShared
+import Backend
 import QuizApp
 import WeeklySpendingApp
-import Common
 import CommonUI
-import Backend
 
 struct TabView: View {
     @AppStorage("tabViewSelection") private var tabViewSelection = TabViewSelection.quiz
@@ -22,11 +21,12 @@ struct TabView: View {
             Tab("Weekly Spending", systemImage: "australiandollarsign", value: .weeklySpending) {
                 WeeklySpendingApp.RootView()
             }
-                        
+
             Tab("Settings", systemImage: "gearshape", value: .settings) {
                 SettingsView()
             }
         }
+        .environment(API.shared)
         
 //        TabView(selection: $selectedTab) {
 //            @Bindable var appDefaults = appDefaults
@@ -62,4 +62,5 @@ extension TabView {
 
 #Preview {
     TabView()
+        .tint(Color.theme)
 }

@@ -2,6 +2,7 @@ import SwiftUI
 import AppShared
 import Backend
 import CommonUI
+import QuizApp
 
 @main
 struct App: SwiftUI.App {
