@@ -26,10 +26,10 @@ extension API {
         )
     }
     
-    func mockQuiz() async throws -> Quiz {
+    func mockQuiz(success: Bool = true) async throws -> Quiz {
         try await get(
             authenticated: false,
-            path: "quiz-app/mock-quiz",
+            path: success ? "quiz-app/mock-quiz" : "???",
             decodeAs: Quiz.self
         )
     }

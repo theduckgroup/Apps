@@ -144,6 +144,5 @@ public struct RootView: View {
 
 #Preview {
     RootView()
-        .tint(.theme)
-        .environment(API.local)
+        .prepareForPreview()
 }
