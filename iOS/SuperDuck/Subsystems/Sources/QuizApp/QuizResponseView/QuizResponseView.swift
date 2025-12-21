@@ -25,7 +25,7 @@ struct QuizResponseView: View {
     }
     
     var body: some View {
-        VStack {
+        NavigationStack {
             ScrollView(.vertical) {
                 VStack(spacing: 0) {
                     QRRespondentView()
@@ -44,43 +44,26 @@ struct QuizResponseView: View {
             )
             .scrollDismissesKeyboard(.immediately)
             .dynamicTypeSize(dynamicTypeSizeOverride?.dynamicTypeSize ?? systemDynamicTypeSize)
-            .overlay(alignment: .top) {
-                topBar()
-                    .readSize(assignTo: $topBarSize)
-            }
+            .navigationTitle("")
+            .toolbar { toolbarContent() }
         }
         .presentations(ps)
         .environment(viewModel)
     }
     
-    // Top bar
-    
-    @ViewBuilder
-    private func topBar() -> some View {
-        HStack(spacing: 18) {
+    @ToolbarContentBuilder
+    private func toolbarContent() -> some ToolbarContent {
+        ToolbarItemGroup(placement: .topBarLeading) {
             quitButton()
-            
-            //            if horizontalSizeClass == .regular {
-            //                Text(viewModel.quiz.name)
-            //                    .fontWeight(.bold)
-            //                    .frame(minHeight: 44)
-            //                    .padding(.horizontal, 24)
-            //                    .background {
-            //                        Capsule()
-            //                            .fill(.background)
-            //                    }
-            //                    .glassEffectShim()
-            //            }
-            
-            Spacer()
-            
-            HStack(spacing: 15) {
-                appearanceButton()
-                submitButton()
-            }
         }
-        .fixedSize(horizontal: false, vertical: true)
-        .padding()
+        
+        ToolbarItemGroup(placement: .topBarTrailing) {
+            appearanceButton()
+        }
+        
+        ToolbarItemGroup(placement: .topBarTrailing) {
+            submitButton()
+        }
     }
     
     @ViewBuilder
@@ -88,7 +71,7 @@ struct QuizResponseView: View {
         Button {
             UIApplication.shared.dismissKeyboard()
             
-            ps.presentAlert(message: "Quit without submitting test? You will not be able to return to it.") {
+            ps.presentAlert(title: "Quit", message: "Quit without submitting test? You will not be able to return to it.") {
                 Button("Stay", role: .cancel) {}
 
                 Button("Quit", role: .destructive) {
@@ -97,11 +80,11 @@ struct QuizResponseView: View {
             }
             
         } label: {
-            Text("Quit")
-                .padding(.horizontal, 9)
-                .frame(maxHeight: .infinity)
+            Text("Cancel")
+            // Image(systemName: "xmark")
+                .fixedSize(horizontal: true, vertical: false)
         }
-        .buttonStyle(.paper)
+        .buttonStyle(.automatic)
     }
     
     @ViewBuilder
@@ -114,9 +97,7 @@ struct QuizResponseView: View {
         } label: {
             Image(systemName: "textformat.el")
                 .padding(.horizontal, 3)
-                .frame(maxHeight: .infinity)
         }
-        .buttonStyle(.paper)
         .popover(isPresented: $presentingAppearancePopover) {
             QRAppearanceView(dynamicTypeSizeOverride: $dynamicTypeSizeOverride)
         }
@@ -142,10 +123,16 @@ struct QuizResponseView: View {
             
         } label: {
             Text("Submit")
-                .padding(.horizontal, 9)
-                .frame(maxHeight: .infinity)
+                .bold()
         }
-        .buttonStyle(.paperProminent)
+        .modified {
+            if #available(iOS 26, *) {
+                $0.buttonStyle(.glassProminent)
+            } else {
+                $0.buttonStyle(.borderedProminent)
+            }
+        }
+        
     }
     
     private func handleSubmit() {
@@ -263,4 +250,5 @@ struct QuizResponseView: View {
             QuizResponseView(quiz: quiz)
                 .tint(.theme)
         }
+        .prepareForPreview()
 }

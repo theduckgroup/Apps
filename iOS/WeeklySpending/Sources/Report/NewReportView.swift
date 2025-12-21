@@ -31,7 +31,7 @@ struct NewReportView: View {
                 content()
             }
             .scrollPosition(id: $scrollPosition, anchor: .center)
-            .safeAreaPadding(.bottom, 54) // For padding above keyboard
+            .safeAreaPadding(.bottom, 54) // For padding above keyboard -- TODO: use .contentMargins to avoid scrollbar padding
             .background(Color(.secondarySystemBackground))
             .navigationTitle("New Spending")
             .toolbar { toolbarContent() }
