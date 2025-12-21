@@ -15,7 +15,7 @@ extension API {
         case .local:
             return API(
                 // url: URL(string: "http://192.168.0.207:8021/api/quiz-app")!
-                url: URL(string: "http://172.20.10.11:8021/api/quiz-app")!,
+                url: URL(string: "http://172.20.10.11:8021/api")!,
                 auth: .shared
             )
         }
