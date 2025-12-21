@@ -1,14 +1,14 @@
-import SwiftUI
+public import SwiftUI
 import Common
-import CommonUI
+public import CommonUI
 
-extension AppDefaults {
+public extension AppDefaults {
     static let shared = AppDefaults()
 }
 
 @Observable
 @dynamicMemberLookup
-class AppDefaults {
+public class AppDefaults {
     static private let storageKey = "appDefaultsV2"
     
     private init() {
@@ -33,7 +33,7 @@ class AppDefaults {
         }
     }
     
-    subscript<T>(dynamicMember keyPath: WritableKeyPath<Data, T>) -> T {
+    public subscript<T>(dynamicMember keyPath: WritableKeyPath<Data, T>) -> T {
         get {
             data[keyPath: keyPath]
         }
@@ -44,11 +44,11 @@ class AppDefaults {
 }
 
 extension AppDefaults {
-    struct Data: Codable {
-        var colorSchemeOverride: ColorSchemeOverride?
-        var accentColorData: ColorData = ColorData(Color.theme)
+    public struct Data: Codable {
+        public var colorSchemeOverride: ColorSchemeOverride?
+        private var accentColorData: ColorData = ColorData(Color.theme)
         
-        var accentColor: Color {
+        public var accentColor: Color {
             get {
                 accentColorData.color
             }

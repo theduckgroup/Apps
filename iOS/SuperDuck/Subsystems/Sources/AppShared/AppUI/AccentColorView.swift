@@ -1,6 +1,6 @@
 import Foundation
-import SwiftUI
 import Flow
+public import SwiftUI
 import CommonUI
 
 public struct AccentColorView: View {

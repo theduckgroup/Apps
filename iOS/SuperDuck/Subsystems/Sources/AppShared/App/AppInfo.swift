@@ -3,8 +3,8 @@ import Foundation
 struct AppInfo {
     static var buildTarget: BuildTarget {
         switch Bundle.main.bundleIdentifier! {
-        case "au.com.theduckgroup.Quiz": .prod
-        case "au.com.theduckgroup.Quiz-local": .local
+        case "au.com.theduckgroup.SuperDuck": .prod
+        case "au.com.theduckgroup.SuperDuck-local": .local
         default: fatalError("Unknown bundle identifier")
         }
     }

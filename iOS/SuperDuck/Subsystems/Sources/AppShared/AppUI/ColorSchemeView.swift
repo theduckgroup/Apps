@@ -1,6 +1,6 @@
 import Foundation
-import SwiftUI
-import CommonUI
+public import SwiftUI
+public import CommonUI
 
 public struct ColorSchemeView: View {
     @Binding var colorSchemeOverride: ColorSchemeOverride?

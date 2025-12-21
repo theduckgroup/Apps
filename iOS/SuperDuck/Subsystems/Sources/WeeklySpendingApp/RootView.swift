@@ -1,8 +1,10 @@
 import Foundation
-import SwiftUI
+public import SwiftUI
 
-struct WeeklySpendingView: View {
-    var body: some View {
+public struct RootView: View {
+    public init() {}
+    
+    public var body: some View {
         NavigationStack {
             Text("Blahhhh")
                 .navigationTitle("Weekly Spending")

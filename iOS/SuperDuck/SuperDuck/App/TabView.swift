@@ -1,5 +1,8 @@
 import Foundation
 import SwiftUI
+import AppShared
+import QuizApp
+import WeeklySpendingApp
 import Common
 import CommonUI
 import Backend
@@ -13,11 +16,11 @@ struct TabView: View {
         
         SwiftUI.TabView(selection: $tabViewSelection) {
             Tab("FOH Test", systemImage: "pencil.and.list.clipboard", value: .quiz) {
-                QuizView()
+                QuizApp.RootView()
             }
                         
             Tab("Weekly Spending", systemImage: "australiandollarsign", value: .weeklySpending) {
-                WeeklySpendingView()
+                WeeklySpendingApp.RootView()
             }
                         
             Tab("Settings", systemImage: "gearshape", value: .settings) {
