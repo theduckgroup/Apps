@@ -230,7 +230,7 @@ userRouter.get('/reports/:id', async (req, res) => {
   res.send(normalizeId(doc))
 })
 
-userRouter.post('/submit', async (req, res) => {
+userRouter.post('/reports/submit', async (req, res) => {
   const { data, error: schemaError } = WsReportSchema.safeParse(req.body)
 
   if (schemaError) {
