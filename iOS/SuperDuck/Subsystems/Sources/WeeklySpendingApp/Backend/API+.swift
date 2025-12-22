@@ -39,5 +39,5 @@ extension API {
 
     func mockReport() async throws -> WSReport {
         try await get(authenticated: false, path: "ws-app/mock-report")
-    }    
+    }
 }
