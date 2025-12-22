@@ -8,14 +8,14 @@ let package = Package(
         .iOS(.v17),
     ],
     products: [
-//        .library(
-//            name: "AppUI",
-//            targets: ["AppUI"]
-//        ),
-//        .library(
-//            name: "Backend",
-//            targets: ["Backend"]
-//        ),
+        .library(
+            name: "AppUI_deprecated",
+            targets: ["AppUI_deprecated"]
+        ),
+        .library(
+            name: "Backend_deprecated",
+            targets: ["Backend_deprecated"]
+        ),
         .library(
             name: "Common",
             targets: ["Common"],
@@ -33,36 +33,35 @@ let package = Package(
         .package(url: "https://github.com/mongodb/swift-bson", exact: "3.1.0"),
     ],
     targets: [
-//        .target(
-//            name: "AppUI",
-//            dependencies: [
-//                "Common",
-//                "CommonUI",
-//                "Backend",
-//                .product(name: "Supabase", package: "supabase-swift"),
-//                .product(name: "Flow", package: "SwiftUI-Flow"),
-//            ],
-//            swiftSettings: [
-//                .defaultIsolation(MainActor.self)
-//            ]
-//        ),
-//        .target(
-//            name: "Backend",
-//            dependencies: [
-//                "Common",
-//                "CommonUI",
-//                .product(name: "SocketIO", package: "socket.io-client-swift"),
-//                .product(name: "Supabase", package: "supabase-swift"),
-//                .product(name: "SwiftBSON", package: "swift-bson"),
-//            ],
-//            swiftSettings: [
-//                .defaultIsolation(nil)
-//            ]
-//        ),
+        .target(
+            name: "AppUI_deprecated",
+            dependencies: [
+                "Common",
+                "CommonUI",
+                "Backend_deprecated",
+                .product(name: "Supabase", package: "supabase-swift"),
+                .product(name: "Flow", package: "SwiftUI-Flow"),
+            ],
+            swiftSettings: [
+                .defaultIsolation(MainActor.self)
+            ]
+        ),
+        .target(
+            name: "Backend_deprecated",
+            dependencies: [
+                "Common",
+                "CommonUI",
+                .product(name: "SocketIO", package: "socket.io-client-swift"),
+                .product(name: "Supabase", package: "supabase-swift"),
+                .product(name: "SwiftBSON", package: "swift-bson"),
+            ],
+            swiftSettings: [
+                .defaultIsolation(nil)
+            ]
+        ),
         .target(
             name: "Common",
             dependencies: [
-                // "Algorithms"
                 .product(name: "Algorithms", package: "swift-algorithms")
             ],
             swiftSettings: [
