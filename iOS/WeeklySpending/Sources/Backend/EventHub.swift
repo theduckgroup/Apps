@@ -1,7 +1,7 @@
 import Foundation
 import Combine
 import Common
-import Backend
+import Backend_deprecated
 @preconcurrency import SocketIO
 
 extension EventHub {

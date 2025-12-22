@@ -7,14 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		73565A6C2EF8C1EF00AE796E /* AppUI_deprecated in Frameworks */ = {isa = PBXBuildFile; productRef = 73565A6B2EF8C1EF00AE796E /* AppUI_deprecated */; };
+		73565A6E2EF8C1EF00AE796E /* Backend_deprecated in Frameworks */ = {isa = PBXBuildFile; productRef = 73565A6D2EF8C1EF00AE796E /* Backend_deprecated */; };
+		73565A702EF8C1EF00AE796E /* Common in Frameworks */ = {isa = PBXBuildFile; productRef = 73565A6F2EF8C1EF00AE796E /* Common */; };
+		73565A722EF8C1EF00AE796E /* CommonUI in Frameworks */ = {isa = PBXBuildFile; productRef = 73565A712EF8C1EF00AE796E /* CommonUI */; };
 		73A5A2802EBFFC7F00CC4CF0 /* Common in Frameworks */ = {isa = PBXBuildFile; productRef = 73A5A27F2EBFFC7F00CC4CF0 /* Common */; };
 		73A5A2822EBFFC7F00CC4CF0 /* CommonUI in Frameworks */ = {isa = PBXBuildFile; productRef = 73A5A2812EBFFC7F00CC4CF0 /* CommonUI */; };
-		73A5A2A52EC024E700CC4CF0 /* Common in Frameworks */ = {isa = PBXBuildFile; productRef = 73A5A2A12EC024E700CC4CF0 /* Common */; };
-		73A5A2A62EC024E700CC4CF0 /* CommonUI in Frameworks */ = {isa = PBXBuildFile; productRef = 73A5A2A22EC024E700CC4CF0 /* CommonUI */; };
 		73A5A2AE2EC025C700CC4CF0 /* AppUI in Frameworks */ = {isa = PBXBuildFile; productRef = 73A5A2AD2EC025C700CC4CF0 /* AppUI */; };
 		73A5A2B02EC025C700CC4CF0 /* Backend in Frameworks */ = {isa = PBXBuildFile; productRef = 73A5A2AF2EC025C700CC4CF0 /* Backend */; };
-		73A5A2B22EC025CC00CC4CF0 /* AppUI in Frameworks */ = {isa = PBXBuildFile; productRef = 73A5A2B12EC025CC00CC4CF0 /* AppUI */; };
-		73A5A2B42EC025CC00CC4CF0 /* Backend in Frameworks */ = {isa = PBXBuildFile; productRef = 73A5A2B32EC025CC00CC4CF0 /* Backend */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -47,21 +47,29 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				73A5A2B22EC025CC00CC4CF0 /* AppUI in Frameworks */,
-				73A5A2A52EC024E700CC4CF0 /* Common in Frameworks */,
-				73A5A2A62EC024E700CC4CF0 /* CommonUI in Frameworks */,
-				73A5A2B42EC025CC00CC4CF0 /* Backend in Frameworks */,
+				73565A6E2EF8C1EF00AE796E /* Backend_deprecated in Frameworks */,
+				73565A6C2EF8C1EF00AE796E /* AppUI_deprecated in Frameworks */,
+				73565A702EF8C1EF00AE796E /* Common in Frameworks */,
+				73565A722EF8C1EF00AE796E /* CommonUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		73565A6A2EF8C1EF00AE796E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		73A5A25A2EBFFBB300CC4CF0 = {
 			isa = PBXGroup;
 			children = (
 				73A5A2652EBFFBB300CC4CF0 /* Sources */,
 				73D2904D2EEBFB85004CB446 /* Info.plist */,
+				73565A6A2EF8C1EF00AE796E /* Frameworks */,
 				73A5A2642EBFFBB300CC4CF0 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -121,10 +129,10 @@
 			);
 			name = "WeeklySpending-local";
 			packageProductDependencies = (
-				73A5A2A12EC024E700CC4CF0 /* Common */,
-				73A5A2A22EC024E700CC4CF0 /* CommonUI */,
-				73A5A2B12EC025CC00CC4CF0 /* AppUI */,
-				73A5A2B32EC025CC00CC4CF0 /* Backend */,
+				73565A6B2EF8C1EF00AE796E /* AppUI_deprecated */,
+				73565A6D2EF8C1EF00AE796E /* Backend_deprecated */,
+				73565A6F2EF8C1EF00AE796E /* Common */,
+				73565A712EF8C1EF00AE796E /* CommonUI */,
 			);
 			productName = WeeklySpending;
 			productReference = 73A5A2AB2EC024E700CC4CF0 /* WeeklySpending-local.app */;
@@ -500,6 +508,22 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		73565A6B2EF8C1EF00AE796E /* AppUI_deprecated */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AppUI_deprecated;
+		};
+		73565A6D2EF8C1EF00AE796E /* Backend_deprecated */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Backend_deprecated;
+		};
+		73565A6F2EF8C1EF00AE796E /* Common */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Common;
+		};
+		73565A712EF8C1EF00AE796E /* CommonUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CommonUI;
+		};
 		73A5A27F2EBFFC7F00CC4CF0 /* Common */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Common;
@@ -508,27 +532,11 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = CommonUI;
 		};
-		73A5A2A12EC024E700CC4CF0 /* Common */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Common;
-		};
-		73A5A2A22EC024E700CC4CF0 /* CommonUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = CommonUI;
-		};
 		73A5A2AD2EC025C700CC4CF0 /* AppUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = AppUI;
 		};
 		73A5A2AF2EC025C700CC4CF0 /* Backend */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Backend;
-		};
-		73A5A2B12EC025CC00CC4CF0 /* AppUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = AppUI;
-		};
-		73A5A2B32EC025CC00CC4CF0 /* Backend */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Backend;
 		};

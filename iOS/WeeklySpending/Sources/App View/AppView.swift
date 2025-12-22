@@ -1,8 +1,8 @@
 import Foundation
 import SwiftUI
 import CommonUI
-import AppUI
-import Backend
+import AppUI_deprecated
+import Backend_deprecated
 
 struct AppView: View {
     @State var auth = Auth.shared

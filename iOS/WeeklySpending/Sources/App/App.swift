@@ -1,5 +1,5 @@
 import SwiftUI
-import Backend
+import Backend_deprecated
 
 @main
 struct App: SwiftUI.App {

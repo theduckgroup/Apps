@@ -1,6 +1,6 @@
 import Foundation
 import Supabase
-import Backend
+import Backend_deprecated
 
 struct WSReportMeta: Hashable, Decodable, Sendable {
     var id: String

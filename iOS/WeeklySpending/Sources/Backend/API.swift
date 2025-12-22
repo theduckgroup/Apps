@@ -1,6 +1,6 @@
 import Foundation
 import Common
-import Backend
+import Backend_deprecated
 
 /// Server API.
 extension API {
@@ -9,7 +9,7 @@ extension API {
         baseURL: {
             switch AppInfo.buildTarget {
             case .prod: URL(string: "https://apps.theduckgroup.com.au/api/ws-app")!
-            case .local: URL(string: "http://192.168.0.207:8021/api/ws-app")!
+            case .local: URL(string: "http://192.168.1.163:8021/api/ws-app")!
             }
         }()
     )

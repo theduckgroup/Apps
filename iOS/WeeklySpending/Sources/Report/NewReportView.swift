@@ -1,6 +1,6 @@
 import Foundation
 import SwiftUI
-import Backend
+import Backend_deprecated
 import Common
 import CommonUI
 import SwiftBSON
