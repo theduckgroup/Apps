@@ -1,6 +1,6 @@
 import Foundation
 import SwiftUI
-import Backend
+import Backend_deprecated
 import Common
 import CommonUI
 import SwiftBSON
@@ -31,7 +31,7 @@ struct NewReportView: View {
                 content()
             }
             .scrollPosition(id: $scrollPosition, anchor: .center)
-            .safeAreaPadding(.bottom, 54) // For padding above keyboard
+            .safeAreaPadding(.bottom, 54) // For padding above keyboard -- TODO: use .contentMargins to avoid scrollbar padding
             .background(Color(.secondarySystemBackground))
             .navigationTitle("New Spending")
             .toolbar { toolbarContent() }
@@ -52,6 +52,7 @@ struct NewReportView: View {
                 handleSubmit()
             }
             .buttonStyle(.borderedProminent)
+            .disabled(!hasNonZeroAmount())
         }
     }
     
@@ -155,7 +156,7 @@ struct NewReportView: View {
     }
         
     private func handleSubmit() {
-        UIApplication.dismissKeyboard()
+        UIApplication.shared.dismissKeyboard()
         
         do {
             try validate()
@@ -196,13 +197,14 @@ struct NewReportView: View {
     }
     
     private func validate() throws {
-        let amounts = suppliersDataMap.values.map(\.amount) + customSuppliersData.map(\.amount)
-        
-        let nonZeroAmount = amounts.contains { $0 > 0 }
-        
-        guard nonZeroAmount else {
+        guard hasNonZeroAmount() else {
             throw GenericError("Must enter amount for at least one supplier")
         }
+    }
+    
+    private func hasNonZeroAmount() -> Bool {
+        let amounts = suppliersDataMap.values.map(\.amount) + customSuppliersData.map(\.amount)
+        return amounts.contains { $0 > 0 }
     }
     
     /// Creates report from view data.
@@ -225,6 +227,8 @@ struct NewReportView: View {
 private struct SupplierView: View {
     var supplier: WSTemplate.Supplier
     @Bindable var data: SupplierData
+    @FocusState var amountFocused: Bool
+    @FocusState var gstFocused: Bool
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
     var body: some View {
@@ -243,26 +247,8 @@ private struct SupplierView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             
             HStack(alignment: .firstTextBaseline) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("Amount")
-                    CurrencyField(value: $data.amount)
-                }
-                
-                VStack(alignment: .leading, spacing: 3) {
-                    switch supplier.gstMethod {
-                    case .notApplicable:
-                        Text("GST (N/A)")
-                        CurrencyField(value: $data.gst, disabled: true)
-                        
-                    case .tenPercent:
-                        Text("GST (10%)")
-                        CurrencyField(value: $data.gst, disabled: true)
-                            
-                    case .input:
-                        Text("GST")
-                        CurrencyField(value: $data.gst)
-                    }
-                }
+                AmountField(value: $data.amount)
+                GSTField(gstMethod: supplier.gstMethod, value: $data.gst)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -276,26 +262,8 @@ private struct SupplierView: View {
                 .fontWeight(.bold)
             
             HStack(alignment: .firstTextBaseline) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("Amount")
-                    CurrencyField(value: $data.amount)
-                }
-                
-                VStack(alignment: .leading, spacing: 3) {
-                    switch supplier.gstMethod {
-                    case .notApplicable:
-                        Text("GST (N/A)")
-                        CurrencyField(value: $data.gst, disabled: true)
-                        
-                    case .tenPercent:
-                        Text("GST (10%)")
-                        CurrencyField(value: $data.gst, disabled: true)
-                            
-                    case .input:
-                        Text("GST")
-                        CurrencyField(value: $data.gst)
-                    }
-                }
+                AmountField(value: $data.amount)
+                GSTField(gstMethod: supplier.gstMethod, value: $data.gst)
             }
         }
         .padding()
@@ -323,7 +291,7 @@ private struct CustomSupplierView: View {
                 nameFocused = true
             }
         }
-        .alert("Confirm", isPresented: $presentsDeleteConfirmation) {
+        .alert("", isPresented: $presentsDeleteConfirmation) {
             Button("Delete", role: .destructive) {
                 onDelete()
             }
@@ -337,22 +305,11 @@ private struct CustomSupplierView: View {
     @ViewBuilder
     private func regularBody() -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 36) {
-            VStack(alignment: .leading, spacing: 3) {
-                // Text("Name").fontWeight(.bold)
-                nameField()
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            nameField()
             
             HStack(alignment: .firstTextBaseline) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("Amount")
-                    CurrencyField(value: $data.amount)
-                }
-                
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("GST")
-                    CurrencyField(value: $data.gst)
-                }
+                AmountField(value: $data.amount)
+                GSTField(gstMethod: .input, value: $data.gst)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .overlay(alignment: .topTrailing) {
@@ -365,24 +322,11 @@ private struct CustomSupplierView: View {
     @ViewBuilder
     private func compactBody() -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .firstTextBaseline) {
-                VStack(alignment: .leading, spacing: 3) {
-                    // Text("Name").fontWeight(.bold)
-                    nameField()
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
+            nameField()
                 
             HStack(alignment: .firstTextBaseline) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("Amount")
-                    CurrencyField(value: $data.amount)
-                }
-                
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("GST")
-                    CurrencyField(value: $data.gst)
-                }
+                AmountField(value: $data.amount)
+                GSTField(gstMethod: .input, value: $data.gst)
             }
         }
         .overlay(alignment: .topTrailing) {
@@ -396,10 +340,10 @@ private struct CustomSupplierView: View {
         TextField("Supplier Name", text: $data.name)
             .focused($nameFocused)
             .foregroundStyle(.tint)
-            // .font(.system(size: 22))
             .fontWeight(.bold)
             .autocorrectionDisabled()
             .textInputAutocapitalization(.words)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     @ViewBuilder
@@ -420,6 +364,55 @@ private struct CustomSupplierView: View {
     }
 }
 
+// Amount & GST Fields
+
+private struct AmountField: View {
+    @Binding var value: Decimal
+    @FocusState var focused
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text("Amount")
+            CurrencyField(value: $value)
+        }
+        .focused($focused)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            focused = true
+        }
+    }
+}
+
+private struct GSTField: View {
+    var gstMethod: WSTemplate.GSTMethod
+    @Binding var value: Decimal
+    @FocusState var focused
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            switch gstMethod {
+            case .notApplicable:
+                Text("GST (N/A)")
+                CurrencyField(value: $value, disabled: true)
+                
+            case .tenPercent:
+                Text("GST (10%)")
+                CurrencyField(value: $value, disabled: true)
+                    
+            case .input:
+                Text("GST")
+                CurrencyField(value: $value)
+            }
+        }
+        .focused($focused)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            focused = true
+        }
+    }
+}
+
+/// Wrapper of `CommonUI.CurrencyField` with styling and disabled flag.
 private struct CurrencyField: View {
     @Binding var value: Decimal
     var disabled: Bool = false

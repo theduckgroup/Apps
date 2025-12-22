@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 import Auth
 import CommonUI
-import Backend
+import Backend_deprecated
 
 public struct SettingsView: View {
     @State var auth = Auth.shared

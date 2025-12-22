@@ -5,7 +5,7 @@ import CommonUI
 @Observable
 @dynamicMemberLookup
 class AppDefaults {
-    static let storageKey = "appDefaults"
+    static private let storageKey = "appDefaultsV2"
     
     init() {
         if let rawData = UserDefaults.standard.data(forKey: Self.storageKey) {
@@ -25,7 +25,7 @@ class AppDefaults {
     private var data: Data {
         didSet {
             let rawData = try! JSONEncoder().encode(data)
-            UserDefaults.standard.set(rawData, forKey: "appDefaults")
+            UserDefaults.standard.set(rawData, forKey: Self.storageKey)
         }
     }
     

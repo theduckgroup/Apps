@@ -1,6 +1,6 @@
 import { Divider, Group, Stack, Text, useMantineColorScheme } from '@mantine/core'
 import { useViewportSize } from '@mantine/hooks'
-import { IconCheckbox, IconSquare, IconSquareCheck, IconSquareCheckFilled, IconSquareFilled, IconSquareRoundedCheckFilled } from '@tabler/icons-react'
+import { IconSquareFilled } from '@tabler/icons-react'
 import { CheckSquareIcon, SquareIcon } from '@phosphor-icons/react'
 import { Quiz } from 'src/quiz-app/models/Quiz'
 import { QuizResponse } from 'src/quiz-app/models/QuizResponse'

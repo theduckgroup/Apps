@@ -84,7 +84,7 @@ struct QuizResponseView: View {
     @ViewBuilder
     private func quitButton() -> some View {
         Button {
-            UIApplication.dismissKeyboard()
+            UIApplication.shared.dismissKeyboard()
             
             ps.presentAlert(message: "Quit without submitting test? You will not be able to return to it.") {
                 Button("Stay", role: .cancel) {}
@@ -105,7 +105,7 @@ struct QuizResponseView: View {
     @ViewBuilder
     private func appearanceButton() -> some View {
         Button {
-            UIApplication.dismissKeyboard()
+            UIApplication.shared.dismissKeyboard()
             
             presentingAppearancePopover = true
             
@@ -123,7 +123,7 @@ struct QuizResponseView: View {
     @ViewBuilder
     private func submitButton() -> some View {
         Button {
-            UIApplication.dismissKeyboard()
+            UIApplication.shared.dismissKeyboard()
             
             if let error = validateSubmit() {
                 ps.presentAlert(title: "Error", message: error, actions: {})
@@ -190,6 +190,10 @@ struct QuizResponseView: View {
     
     private func validateAnswers() -> String? {
         // Rewrite this if multiple sections are needed
+                
+        if debugging {
+            return nil
+        }
         
         let indexes: [Int] = viewModel.sections.flatMap { section in
             section.itemResponses.enumerated().compactMap { index, itemResponse in
@@ -214,9 +218,6 @@ struct QuizResponseView: View {
             }
         }
         
-        if debugging {
-            return nil
-        }
         
         if ranges.count > 0 {
             func format(_ range: ClosedRange<Int>) -> String {
@@ -258,7 +259,7 @@ struct QuizResponseView: View {
         }
         .fullScreenCover(item: $quiz) { quiz in
             QuizResponseView(quiz: quiz)
-                .tint(.blue)
+                .tint(.theme)
         }
         .environment(AppDefaults())
 }

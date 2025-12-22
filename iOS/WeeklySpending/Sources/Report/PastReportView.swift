@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 import Common
 import CommonUI
-import Backend
+import Backend_deprecated
 
 struct PastReportView: View {
     var reportMeta: WSReportMeta
@@ -25,8 +25,7 @@ struct PastReportView: View {
             contentView()
                 .padding()
                 .frame(maxWidth: needsReadablePadding ? containerSize.width * 0.66 : nil, alignment: .center)
-                // .padding(.horizontal, needsContentGuidePadding ? 120 : 0)
-                .frame(maxWidth: .infinity, alignment: .center) // Scroll indicator messed up without this
+                .frame(maxWidth: .infinity, alignment: .center) // Scroll indicator is messed up without this
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity) // Infinite layout loop without this
         .readSize(assignTo: $containerSize)
@@ -48,6 +47,7 @@ struct PastReportView: View {
             } else if let error {
                 Text(error.localizedDescription)
                     .foregroundStyle(.red)
+                    .padding(.top, 18) // Match table view header
                 
             } else if isFetching {
                 HStack {
@@ -58,6 +58,7 @@ struct PastReportView: View {
                     Text("Loading...")
                         .foregroundStyle(.secondary)
                 }
+                .padding(.top, 18) // Match table view header
             }
         }
     }
@@ -124,13 +125,14 @@ struct PastReportView: View {
                         
                         if let supplier, let supplierData {
                             Text(supplier.name)
-                                // .foregroundStyle(.secondary)
-                            
+                                
                             Text(supplierData.amount, format: .currency(code: "AUD"))
                                 .gridColumnAlignment(.trailing)
+                                .foregroundStyle(.secondary)
                             
                             Text(supplierData.gst, format: .currency(code: "AUD"))
                                 .gridColumnAlignment(.trailing)
+                                .foregroundStyle(.secondary)
                             
                         } else {
                             Text("Supplier not found")

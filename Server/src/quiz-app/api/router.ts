@@ -17,7 +17,7 @@ import logger from 'src/logger'
 import z from 'zod'
 import { mailer } from 'src/utils/mailer'
 import env from 'src/env'
-import { generateQuizResponseEmail } from './quiz-response-email'
+import { sendQuizResponseEmail, generateQuizResponseEmail } from './quiz-response-email'
 
 type QuizSchemaInferredType = z.infer<typeof QuizSchema>
 type QuizResponseSchemaInferredType = z.infer<typeof QuizResponseSchema>
@@ -31,7 +31,7 @@ adminRouter.use(authorizeAdmin)
 adminRouter.get('/quizzes', async (req, res) => {
   const db = await getDb()
 
-  const dbQuizzes = await db.collection_quizzes.find({}).toArray()
+  const dbQuizzes = await db.collection_qz_quizzes.find({}).toArray()
 
   interface QuizMetadata {
     id: string
@@ -58,7 +58,7 @@ adminRouter.get('/quiz/:id', async (req, res) => {
 
   const db = await getDb()
 
-  const dbQuiz = await db.collection_quizzes.findOne({
+  const dbQuiz = await db.collection_qz_quizzes.findOne({
     _id: new ObjectId(id)
   })
 
@@ -121,7 +121,7 @@ adminRouter.put('/quiz/:id', async (req, res) => {
     id: undefined
   }
 
-  await db.collection_quizzes.findOneAndUpdate({
+  await db.collection_qz_quizzes.findOneAndUpdate({
     _id: new ObjectId(id)
   }, {
     $set: doc
@@ -138,7 +138,7 @@ adminRouter.delete('/quiz/:id', async (req, res) => {
   const id = req.params.id
   const db = await getDb()
 
-  await db.collection_quizzes.deleteOne({
+  await db.collection_qz_quizzes.deleteOne({
     _id: new ObjectId(id)
   })
 
@@ -152,7 +152,7 @@ adminRouter.post('/quiz/:id/duplicate', async (req, res) => {
 
   const db = await getDb()
 
-  const dbQuiz = await db.collection_quizzes.findOne({
+  const dbQuiz = await db.collection_qz_quizzes.findOne({
     _id: new ObjectId(id)
   })
 
@@ -164,7 +164,7 @@ adminRouter.post('/quiz/:id/duplicate', async (req, res) => {
   dbQuiz.name = `${dbQuiz.name} Copy`
   dbQuiz.code = ''
 
-  await db.collection_quizzes.insertOne(dbQuiz)
+  await db.collection_qz_quizzes.insertOne(dbQuiz)
 
   res.send()
 
@@ -224,7 +224,7 @@ userRouter.get('/quiz' /* ?code=XYZ */, async (req, res) => {
 
   const db = await getDb()
 
-  const dbQuiz = await db.collection_quizzes.findOne({
+  const dbQuiz = await db.collection_qz_quizzes.findOne({
     code: code
   })
 
@@ -253,24 +253,12 @@ userRouter.post('/quiz-response/submit', async (req, res) => {
     submittedDate: new Date(data.submittedDate)
   }
 
-  const insertResult = await db.collection_quizResponses.insertOne(doc)
-  const docId = insertResult.insertedId
+  const insertResult = await db.collection_qz_quizResponses.insertOne(doc)
+  const _docId = insertResult.insertedId
 
   res.send()
 
-  // Email
-
-  const recipients: mailer.Recipient[] = doc.quiz.emailRecipients.map(x => ({
-    name: '',
-    email: x
-  }))
-
-  const formattedDate = formatInTimeZone(data.submittedDate, 'Australia/Sydney', 'MMM d, h:mm a')
-  const subject = `[FOH Test] ${data.respondent.name} - ${data.respondent.store} | ${formattedDate}`
-  const viewUrl = `${env.webappUrl}/fohtest/view/${docId.toString()}`
-  const contentHtml = await generateQuizResponseEmail(doc)
-
-  mailer.sendMail({ recipients, subject, contentHtml })
+  const _ = sendQuizResponseEmail(doc)
 })
 
 // async function quizResponseNotificationMailHtml(quizResponse: QuizResponseSchemaInferredType, docId: ObjectId) {
@@ -297,7 +285,7 @@ if (env.nodeEnv == 'local') {
   publicRouter.get('/mock-quiz', async (req, res) => {
     const db = await getDb()
 
-    const dbQuiz = await db.collection_quizzes.findOne({
+    const dbQuiz = await db.collection_qz_quizzes.findOne({
       code: 'FOH_STAFF_KNOWLEDGE'
     })
 
@@ -314,17 +302,19 @@ if (env.nodeEnv == 'local') {
   publicRouter.get('/mock-quiz-response-email', async (req, res) => {
     const db = await getDb()
 
-    const doc = await db.collection_quizResponses.findOne({
+    const doc = await db.collection_qz_quizResponses.findOne({
       _id: new ObjectId('693500065a7104bdb1874f17')
     })
+
+    console.info(`doc = ${doc}`)
 
     if (!doc) {
       throw createHttpError(404)
     }
 
-    const viewUrl = `${env.webappUrl}/fohtest/view/${doc._id.toString()}`
+    const html = await generateQuizResponseEmail(doc)
 
-    const html = generateQuizResponseEmail(doc)
+    console.info(html)
 
     res.send(html)
   })
@@ -333,7 +323,7 @@ if (env.nodeEnv == 'local') {
 publicRouter.get('/quiz-response/:id', async (req, res) => {
   const db = await getDb()
 
-  const doc = await db.collection_quizResponses.findOne({
+  const doc = await db.collection_qz_quizResponses.findOne({
     _id: new ObjectId(req.params.id)
   })
 

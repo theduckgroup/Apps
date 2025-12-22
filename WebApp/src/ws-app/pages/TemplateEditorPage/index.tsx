@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router'
-import { Anchor, Button, Group, Loader, Stack, Text, Title } from '@mantine/core'
+import { Anchor, Button, Group, Stack, Text, Title } from '@mantine/core'
 import { useMutation } from '@tanstack/react-query'
 import { ObjectId } from 'bson'
 import { IconChevronLeft, IconPencil } from '@tabler/icons-react'
@@ -14,7 +14,6 @@ import useModal from 'src/utils/use-modal'
 import formatError from 'src/common/format-error'
 import { Dispatch, ReduceState } from 'src/utils/types-lib'
 import { ConfirmModal } from 'src/utils/ConfirmModal'
-import sleep from 'src/common/sleep'
 
 export default function TemplateEditorPage() {
   const { templateId } = useParams()

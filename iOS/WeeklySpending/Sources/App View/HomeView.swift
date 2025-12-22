@@ -2,8 +2,8 @@ import Foundation
 import SwiftUI
 import Common
 import CommonUI
-import Backend
-import AppUI
+import Backend_deprecated
+import AppUI_deprecated
 import Auth
 
 struct HomeView: View {

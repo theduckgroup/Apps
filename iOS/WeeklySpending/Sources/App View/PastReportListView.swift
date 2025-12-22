@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 import Common
 import CommonUI
-import Backend
+import Backend_deprecated
 import Auth
 
 struct PastReportListView: View {

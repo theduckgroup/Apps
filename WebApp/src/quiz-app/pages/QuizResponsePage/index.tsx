@@ -89,7 +89,7 @@ function Content({ data }: { data: QuizResponse }) {
       <Divider />
 
       {/* Name + Store */}
-      <Stack gap='0.0rem'>
+      <Stack gap='0.5rem'>
         <Group>
           <Text fw='bold'>Name</Text>
           <Text>{data.respondent.name}</Text>
@@ -99,8 +99,8 @@ function Content({ data }: { data: QuizResponse }) {
           <Text>{data.respondent.store}</Text>
         </Group>
         <Group>
-          <Text fw='bold'>Date/Time</Text>
-          <Text>{format(data.submittedDate, "EEEE, d MMM yyyy 'at' h:mm aaa")}</Text>
+          <Text fw='bold'>Date</Text>
+          <Text>{format(data.submittedDate, "EEEE, d MMM yyyy, h:mm aaa")}</Text>
         </Group>
       </Stack>
 

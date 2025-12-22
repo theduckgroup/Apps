@@ -9,12 +9,12 @@ let package = Package(
     ],
     products: [
         .library(
-            name: "AppUI",
-            targets: ["AppUI"]
+            name: "AppUI_deprecated",
+            targets: ["AppUI_deprecated"]
         ),
         .library(
-            name: "Backend",
-            targets: ["Backend"]
+            name: "Backend_deprecated",
+            targets: ["Backend_deprecated"]
         ),
         .library(
             name: "Common",
@@ -34,11 +34,11 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "AppUI",
+            name: "AppUI_deprecated",
             dependencies: [
                 "Common",
                 "CommonUI",
-                "Backend",
+                "Backend_deprecated",
                 .product(name: "Supabase", package: "supabase-swift"),
                 .product(name: "Flow", package: "SwiftUI-Flow"),
             ],
@@ -47,7 +47,7 @@ let package = Package(
             ]
         ),
         .target(
-            name: "Backend",
+            name: "Backend_deprecated",
             dependencies: [
                 "Common",
                 "CommonUI",
@@ -62,7 +62,6 @@ let package = Package(
         .target(
             name: "Common",
             dependencies: [
-                // "Algorithms"
                 .product(name: "Algorithms", package: "swift-algorithms")
             ],
             swiftSettings: [

@@ -1,6 +1,6 @@
 import Foundation
 import Supabase
-import Backend
+import Backend_deprecated
 
 struct WSReport: Codable, Sendable {
     var template: WSTemplate

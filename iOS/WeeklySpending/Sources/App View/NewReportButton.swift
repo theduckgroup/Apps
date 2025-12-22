@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 import Common
 import CommonUI
-import Backend
+import Backend_deprecated
 
 struct NewReportButton: View {
     var template: WSTemplate?
