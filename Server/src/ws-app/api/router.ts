@@ -230,7 +230,15 @@ userRouter.get('/reports/:id', async (req, res) => {
   res.send(normalizeId(doc))
 })
 
+userRouter.post('/submit', async (req, res) => {
+  await submitImpl(req, res)
+})
+
 userRouter.post('/reports/submit', async (req, res) => {
+  await submitImpl(req, res)
+})
+
+async function submitImpl(req: express.Request, res: express.Response) {
   const { data, error: schemaError } = WsReportSchema.safeParse(req.body)
 
   if (schemaError) {
@@ -253,7 +261,7 @@ userRouter.post('/reports/submit', async (req, res) => {
   eventHub.emitUserReportsChanged(doc.user.id)
 
   const _ = sendReportEmail(doc)
-})
+}
 
 userRouter.get('/users/:userId/reports/meta', async (req, res) => {
   const userId = req.params.userId
