@@ -299,23 +299,23 @@ userRouter.get('/users/:userId/reports/meta', async (req, res) => {
 
 const publicRouter = express.Router()
 
-publicRouter.get('/mock-template', async (req, res) => {
-  const db = await getDb()
+if (env.nodeEnv == 'local') {
+  publicRouter.get('/mock-template', async (req, res) => {
+    const db = await getDb()
 
-  const doc = await db.collection_wsTemplates.findOne({
-    code: 'WEEKLY_SPENDING'
+    const doc = await db.collection_wsTemplates.findOne({
+      code: 'WEEKLY_SPENDING'
+    })
+
+    if (!doc) {
+      throw createHttpError(400, 'Document not found')
+    }
+
+    const data = normalizeId(doc)
+
+    res.send(data)
   })
 
-  if (!doc) {
-    throw createHttpError(400, 'Document not found')
-  }
-
-  const data = normalizeId(doc)
-
-  res.send(data)
-})
-
-if (env.nodeEnv == 'local') {
   publicRouter.get('/mock-report', async (req, res) => {
     const db = await getDb()
 
@@ -345,7 +345,7 @@ if (env.nodeEnv == 'local') {
       return
     }
 
-    const emailHtml = generateReportEmail(doc)
+    const emailHtml = await generateReportEmail(doc)
 
     res.send(emailHtml)
   })
