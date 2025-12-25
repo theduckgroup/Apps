@@ -14,7 +14,7 @@ import useModal from 'src/utils/use-modal'
 import formatError from 'src/common/format-error'
 import { Dispatch, ReduceState } from 'src/utils/types-lib'
 
-export default function QuizPage() {
+export default function QuizEditorPage() {
   const { quizId } = useParams()
   const { axios } = useApi()
   const { navigate } = usePath()
