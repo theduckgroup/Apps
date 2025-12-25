@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router'
-import { Anchor, Button, Group, Stack, Text, Title } from '@mantine/core'
+import { Anchor, Button, Group, Loader, Stack, Text, Title } from '@mantine/core'
 import { useMutation } from '@tanstack/react-query'
 import { ObjectId } from 'bson'
-import { IconChevronLeft, IconPencil } from '@tabler/icons-react'
+import { IconArrowBackUp, IconChevronLeft, IconPencil } from '@tabler/icons-react'
 import { produce } from 'immer'
 
 import { usePath, useApi } from 'src/app/contexts'
@@ -77,7 +77,7 @@ export default function TemplateEditorPage() {
     setDirty(true)
   }, [setTemplate, setNeedsSave])
 
-  const resetTemplateAndSave = useCallback(() => {
+  const revertTemplateAndSave = useCallback(() => {
     setTemplate(initialTemplate)
     setNeedsSave(true)
     setDirty(false)
@@ -104,7 +104,7 @@ export default function TemplateEditorPage() {
       <Anchor size='sm' href='#' onClick={() => navigate(`/list`)}>
         <Group gap='0.2rem'>
           <IconChevronLeft size={18} />
-          Back to Templates
+          Back
         </Group>
       </Anchor>
 
@@ -128,7 +128,7 @@ export default function TemplateEditorPage() {
             <Content
               template={template}
               setTemplate={setTemplateAndSave}
-              resetTemplate={resetTemplateAndSave}
+              revertTemplate={revertTemplateAndSave}
               saving={isSaving}
               dirty={dirty}
             />
@@ -139,10 +139,10 @@ export default function TemplateEditorPage() {
   )
 }
 
-function Content({ template, setTemplate, resetTemplate, saving, dirty }: {
+function Content({ template, setTemplate, revertTemplate, saving, dirty }: {
   template: WsTemplate
   setTemplate: React.Dispatch<React.SetStateAction<WsTemplate | null>>
-  resetTemplate: () => void
+  revertTemplate: () => void
   saving: boolean
   dirty: boolean
 }) {
@@ -168,14 +168,15 @@ function Content({ template, setTemplate, resetTemplate, saving, dirty }: {
     })
   }
 
-  function handleReset() {
+  function handleRevert() {
     confirmModal.open({
-      message: 'Discard changes made to the template?',
+      title: 'Revert Changes?',
+      message: 'The template will be reverted back to the state when you visited this page (before any changes were made).',
       actions: [
         {
-          label: 'Discard Changes',
+          label: 'Revert',
           role: 'destructive',
-          handler: resetTemplate
+          handler: revertTemplate
         }
       ]
     })
@@ -197,34 +198,26 @@ function Content({ template, setTemplate, resetTemplate, saving, dirty }: {
         <Stack w='100%' gap='xs' align='flex-start' mr='auto'>
           {/* Title + Edit button + Saving loader + Reset button */}
           <Group w='100%' gap='md' align='baseline' bg='dark.9'>
+            {/* Name */}
             <Title order={3} c='gray.1'>{template!.name}</Title>
-            <Button variant='light' size='compact-xs' onClick={handleEdit}>
+            {/* Edit button */}
+            <Button variant='light' size='compact-xs' fw='normal' onClick={handleEdit}>
               <Group gap='0.25rem'>
-                <IconPencil size={14} />
+                <IconPencil size={13} />
                 Edit
               </Group>
             </Button>
-
-            <Group ml='auto' align='baseline'>
-              {/* Save loader -- probably not necessary */}
-              {/* {<Loader size='xs' />} */}
-              {/* <Text size='sm' c='dark.3'>Saving...</Text> */}
-              
-              {/* Reset button */}
-              {
-                dirty && 
-                <Anchor size='sm' href='#' onClick={handleReset}>Discard Changes</Anchor>
-                // <Button
-                //   variant='subtle'
-                //   size='compact-sm'
-                //   disabled={!dirty}
-                //   // leftSection={<IconX size={16} />}
-                //   onClick={handleReset}
-                // >
-                //   Discard Changes
-                // </Button>
-              }
-            </Group>
+            {/* Save loader */}
+            {saving && <Loader ml='auto' size='sm' />}
+            {/* Revert button */}
+            {(dirty && !saving) &&
+              <Button ml='auto' variant='light' size='compact-sm' fw='normal' onClick={handleRevert}>
+                <Group gap='0.35rem'>
+                  <IconArrowBackUp size={15} />
+                  Revert
+                </Group>
+              </Button>
+            }
           </Group>
           {/* Code, items per page */}
           <Stack gap='0'>

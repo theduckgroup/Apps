@@ -71,14 +71,14 @@ function Content({ data }: {
         }
       </Grid>
       {
-        import.meta.env.DEV &&
-        <Button
-          variant='default'
-          leftSection={<IconPlus size={16} strokeWidth={2} />}
-          onClick={() => navigate('/template')}
-        >
-          [dev] Add Template
-        </Button>
+        // import.meta.env.DEV &&
+        // <Button
+        //   variant='default'
+        //   leftSection={<IconPlus size={16} strokeWidth={2} />}
+        //   onClick={() => navigate('/template')}
+        // >
+        //   [dev] Add Template
+        // </Button>
       }
       {/* Modals */}
       {confirmModal.element}
@@ -150,7 +150,7 @@ function TemplateListItem({ template, openConfirmModal }: {
               View/Edit
             </Button>
             {/* Dropdown menu */}
-            {
+            {/* {
               import.meta.env.DEV &&
               <Menu position='bottom-end' width={150}>
                 <Menu.Target>
@@ -163,7 +163,7 @@ function TemplateListItem({ template, openConfirmModal }: {
                   <Menu.Item onClick={handleDelete}>Delete</Menu.Item>
                 </Menu.Dropdown>
               </Menu>
-            }
+            } */}
           </Group>
         </Stack>
       </Paper>

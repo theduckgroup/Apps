@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb'
 
 export interface DbQuiz {
-  // _id: ObjectId
+  _id?: ObjectId
   name: string
   code: string
   emailRecipients: string[]

@@ -63,6 +63,7 @@ export function EditMetadataModal({ opened, onClose, options }: EditMetadataModa
           <TextInput
             label='Code'
             key={form.key('code')}
+            disabled
             {...form.getInputProps('code')}
           />
           {/* <NumberInput

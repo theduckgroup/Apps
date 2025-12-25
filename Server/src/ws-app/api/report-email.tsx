@@ -39,7 +39,7 @@ export async function generateReportEmail(report: DbWsReport) {
         <meta name="color-scheme" content="light">
         <meta name="supported-color-schemes" content="light">
         
-        <title>Store Report</title>
+        <title>${report.user.name} | Weekly Spending</title>
         <style type="text/css">
             body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
             table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
