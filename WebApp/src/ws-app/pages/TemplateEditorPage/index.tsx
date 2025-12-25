@@ -104,7 +104,7 @@ export default function TemplateEditorPage() {
       <Anchor size='sm' href='#' onClick={() => navigate(`/list`)}>
         <Group gap='0.2rem'>
           <IconChevronLeft size={18} />
-          Back to Templates
+          Back
         </Group>
       </Anchor>
 

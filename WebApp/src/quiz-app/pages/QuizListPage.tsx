@@ -72,7 +72,7 @@ function Content({ data }: {
             ))
         }
       </Grid>
-      {
+      {/* {
         import.meta.env.DEV &&
         <Button
           variant='default'
@@ -81,7 +81,7 @@ function Content({ data }: {
         >
           [dev] Add Test
         </Button>
-      }
+      } */}
       {/* Modals */}
       {confirmModal.element}
     </Stack>
@@ -92,9 +92,10 @@ function QuizComponent({ metaquiz, openConfirmModal }: {
   metaquiz: QuizMetadata,
   openConfirmModal: (_: ConfirmModal.Options) => void
 }) {
-  const { axios } = useApi()
+  // const { axios } = useApi()
   const { navigate } = usePath()
 
+  /*
   const handleDuplicate = () => {
     openConfirmModal({
       title: '',
@@ -126,6 +127,7 @@ function QuizComponent({ metaquiz, openConfirmModal }: {
       }]
     })
   }
+  */
 
   return (
     <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
@@ -136,7 +138,7 @@ function QuizComponent({ metaquiz, openConfirmModal }: {
             <Title order={5}>{metaquiz.name}</Title>
             <Stack gap='0'>
               {<Text fz='sm' fw={500} opacity={0.5}> {metaquiz.code.length > 0 ? metaquiz.code : '[No Code]'}</Text>}
-              <Text fz='sm'>{metaquiz.itemCount} items</Text>
+              <Text fz='sm'>{metaquiz.itemCount} questions</Text>
             </Stack>
           </Stack>
 
@@ -152,7 +154,7 @@ function QuizComponent({ metaquiz, openConfirmModal }: {
               View/Edit
             </Button>
             {/* Dropdown menu */}
-            {
+            {/* {
               import.meta.env.DEV &&
               <Menu position='bottom-end' width={150}>
                 <Menu.Target>
@@ -165,7 +167,7 @@ function QuizComponent({ metaquiz, openConfirmModal }: {
                   <Menu.Item onClick={handleDelete}>Delete</Menu.Item>
                 </Menu.Dropdown>
               </Menu>
-            }
+            } */}
           </Group>
         </Stack>
       </Paper>
