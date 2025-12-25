@@ -3,7 +3,7 @@ import { useParams } from 'react-router'
 import { Anchor, Button, Group, Loader, Stack, Text, Title } from '@mantine/core'
 import { useMutation } from '@tanstack/react-query'
 import { ObjectId } from 'bson'
-import { IconChevronLeft, IconPencil } from '@tabler/icons-react'
+import { IconArrowBackUp, IconChevronLeft, IconPencil, IconX } from '@tabler/icons-react'
 import { produce } from 'immer'
 
 import { usePath, useApi } from 'src/app/contexts'
@@ -13,12 +13,15 @@ import ContentEditor from './ContentEditor'
 import useModal from 'src/utils/use-modal'
 import formatError from 'src/common/format-error'
 import { Dispatch, ReduceState } from 'src/utils/types-lib'
+import { ConfirmModal } from 'src/utils/ConfirmModal'
 
 export default function QuizEditorPage() {
   const { quizId } = useParams()
   const { axios } = useApi()
   const { navigate } = usePath()
+  const [initialQuiz, setInitialQuiz] = useState<Quiz | null>(null)
   const [quiz, setQuiz] = useState<Quiz | null>(null)
+  const [needsSave, setNeedsSave] = useState(false)
   const [dirty, setDirty] = useState(false)
 
   const { mutate: loadQuiz, error: loadError, isPending: isLoading } = useMutation({
@@ -46,6 +49,7 @@ export default function QuizEditorPage() {
       }
     },
     onSuccess: (data) => {
+      setInitialQuiz(data)
       setQuiz(data)
     }
   })
@@ -61,17 +65,24 @@ export default function QuizEditorPage() {
   })
 
   useEffect(() => {
-    if (dirty) {
+    if (needsSave) {
       saveQuiz(quiz!)
-      setDirty(false)
+      setNeedsSave(false)
     }
 
-  }, [dirty, setDirty, quiz, saveQuiz])
+  }, [needsSave, setNeedsSave, quiz, saveQuiz])
 
   const setQuizAndSave: React.Dispatch<React.SetStateAction<Quiz | null>> = useCallback((reduceQuiz) => {
     setQuiz(reduceQuiz)
+    setNeedsSave(true)
     setDirty(true)
-  }, [setQuiz, setDirty])
+  }, [setQuiz, setNeedsSave])
+
+  const revertQuizAndSave = useCallback(() => {
+    setQuiz(initialQuiz)
+    setNeedsSave(true)
+    setDirty(false)
+  }, [initialQuiz, setQuiz])
 
   return (
     <Stack>
@@ -114,8 +125,14 @@ export default function QuizEditorPage() {
 
         return (
           <>
-            <title>{quiz!.name + ' | The Duck Group'}</title>
-            <Content quiz={quiz} setQuiz={setQuizAndSave} isSaving={isSaving} />
+            <title>{quiz.name + ' | The Duck Group'}</title>
+            <Content
+              quiz={quiz}
+              setQuiz={setQuizAndSave}
+              revertQuiz={revertQuizAndSave}
+              saving={isSaving}
+              dirty={dirty}
+            />
           </>
         )
       })()}
@@ -123,13 +140,16 @@ export default function QuizEditorPage() {
   )
 }
 
-function Content({ quiz, setQuiz, isSaving }: {
+function Content({ quiz, setQuiz, revertQuiz, saving, dirty }: {
   quiz: Quiz,
   setQuiz: React.Dispatch<React.SetStateAction<Quiz | null>>,
-  isSaving: boolean
+  revertQuiz: () => void,
+  saving: boolean
+  dirty: boolean
 }) {
   const editModal = useModal(EditMetadataModal)
-  
+  const confirmModal = useModal(ConfirmModal)
+
   function handleEdit() {
     editModal.open({
       data: {
@@ -149,6 +169,19 @@ function Content({ quiz, setQuiz, isSaving }: {
     })
   }
 
+  function handleRevert() {
+    confirmModal.open({
+      title: 'Revert Changes?',
+      message: 'The test will be reverted back to the state when you visited this page (before any changes were made).',
+      actions: [
+        {
+          label: 'Revert',
+          role: 'destructive',
+          handler: revertQuiz
+        }
+      ]
+    })
+  }
   const setData: Dispatch<ReduceState<[Quiz.Item[], Quiz.Section[]]>> = (fn) => {
     setQuiz(quiz => {
       const [items, sections] = fn([quiz!.items, quiz!.sections])
@@ -166,16 +199,29 @@ function Content({ quiz, setQuiz, isSaving }: {
       {/* Quiz metadata + Save loader */}
       <Group align='flex-start'>
         {/* Quiz metadata + Edit button */}
-        <Stack gap='xs' align='flex-start' mr='auto'>
-          {/* Quiz title + Edit button */}
-          <Group gap='md' align='baseline'>
+        <Stack w='100%' gap='xs' align='flex-start' mr='auto'>
+          {/* Quiz title + Edit button + Save loader + Revert button */}
+          <Group w='100%' gap='md' align='baseline'>
+            {/* Name */}
             <Title order={3} c='gray.1'>{quiz!.name}</Title>
-            <Button variant='light' size='compact-xs' onClick={handleEdit}>
-              <Group gap='0.25rem'>
-                <IconPencil size={14} />
+            {/* Edit */}
+            <Button variant='light' size='compact-sm' fw='normal' onClick={handleEdit}>
+              <Group gap='0.35rem'>
+                <IconPencil size={13} />
                 Edit
               </Group>
             </Button>
+            {/* Save loader */}
+            {saving && <Loader ml='auto' size='sm' />}
+            {/* Revert button */}
+            {(dirty && !saving) &&
+              <Button ml='auto' variant='light' size='compact-sm' fw='normal' onClick={handleRevert}>
+                <Group gap='0.35rem'>
+                  <IconArrowBackUp size={15} />
+                  Revert
+                </Group>
+              </Button>
+            }
           </Group>
           {/* Code, items per page */}
           <Stack gap='0'>
@@ -183,8 +229,6 @@ function Content({ quiz, setQuiz, isSaving }: {
             <Text>Email Recipients: {quiz.emailRecipients.join(', ')}</Text>
           </Stack>
         </Stack>
-        {/* Save loader */}
-        {isSaving && <Loader size='sm' />}
       </Group>
 
       {/* Items editor */}
@@ -200,6 +244,7 @@ function Content({ quiz, setQuiz, isSaving }: {
 
       {/* Modals */}
       {editModal.element}
+      {confirmModal.element}
 
     </Stack>
   )
