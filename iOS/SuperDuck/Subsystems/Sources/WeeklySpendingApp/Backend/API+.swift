@@ -22,7 +22,7 @@ extension API {
     }
     
     func mockTemplate() async throws -> WSTemplate {
-        try await get(authenticated: false, path: "/mock-template")
+        try await get(authenticated: false, path: "ws-app/mock-template")
     }
         
     func report(id: String) async throws -> WSReport {
