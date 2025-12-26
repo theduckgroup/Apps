@@ -1,5 +1,4 @@
 // See Auth's tasks.json for more info
-
 {
 	"version": "2.0.0",
 	"tasks": [
@@ -48,7 +47,7 @@
 				"echo": false
 			}
 		},
-		{			
+		{
 			"label": "WebApp [Watch]",
 			"type": "shell",
 			"command": "/bin/zsh -c \"printf 'Run: npm run watch'\" && /bin/zsh",
@@ -62,7 +61,7 @@
 			"presentation": {
 				"echo": false
 			}
-		},		
+		},
 		{
 			"label": "WebApp",
 			"type": "shell",
