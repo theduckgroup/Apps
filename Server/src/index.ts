@@ -3,6 +3,7 @@ import { createServer } from 'http'
 import compression from 'compression'
 import createHttpError from 'http-errors'
 import path from 'path'
+import fs from 'fs/promises'
 
 import rateLimiter from 'src/common/rate-limiter'
 import requestLogger from 'src/common/express-request-logger'
@@ -65,9 +66,13 @@ app.use('/api/quiz-app', quizAppRouter)
 import wsAppRouter from './ws-app/api/router'
 app.use('/api/ws-app', wsAppRouter)
 
-app.get('/api/info', (req, res) => {
+app.get('/api/info', async (req, res) => {
+  const indexHtmlPath = path.join(publicDir, 'index.html')
+  const stats = await fs.stat(indexHtmlPath)
+
   res.send({
-    env: env.nodeEnv
+    env: env.nodeEnv,
+    lastUpdated: stats.mtime.toISOString()
   })
 })
 

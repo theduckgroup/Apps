@@ -2,6 +2,7 @@ import { Anchor, AppShell, Avatar, Box, Burger, Button, Container, Group, Menu, 
 import { useDisclosure } from '@mantine/hooks'
 import { Outlet, useLocation, useNavigate } from 'react-router'
 import { IconChevronRight, IconLogout2, IconUserCircle } from '@tabler/icons-react'
+import { format } from 'date-fns'
 
 // import env from 'src/env'
 import { useAuth } from 'src/app/contexts'
@@ -13,14 +14,13 @@ function DashboardLayout() {
 
   interface Info {
     env: string | 'production'
+    lastUpdated: string
   }
 
   const { data: info } = useQuery<Info, AxiosError>({
     queryKey: ['info'],
     queryFn: async () => (await axios.get<Info>('/api/info')).data
   })
-
-  const isProdEnv = (info && info.env == 'production') ?? true
 
   /*
   const { setColorScheme } = useMantineColorScheme()
@@ -45,7 +45,7 @@ function DashboardLayout() {
       padding={{ base: '0', sm: 'md' }}
     >
       <AppShell.Header withBorder={false}>
-        <HeaderContent isProdEnv={isProdEnv} navbarOpened={navbarOpened} toggleNavbar={toggleNavbar} closeNavbar={closeNavbar} />
+        <HeaderContent navbarOpened={navbarOpened} toggleNavbar={toggleNavbar} closeNavbar={closeNavbar} />
       </AppShell.Header>
 
       <AppShell.Navbar bg='dark.8' withBorder={false}>
@@ -60,22 +60,26 @@ function DashboardLayout() {
         </Container>
       </AppShell.Main>
 
-      {/* Bottom bar */}
-      {/* Spacers (<Box />es) have same bg color as AppShell.Main */}
-      <div className='sticky pl-2 bottom-2 pb-safe z-1000 w-fit'>
-        <Box bg='yellow.3' c='dark.8' px='xs' bdrs={3}>
-          {/* className='[font-variant:small-caps]' */}
-          <Text lineClamp={1} fz='sm' fw={500}>Test Environment</Text>
-        </Box>
-      </div>
+      {/* Test env badge */}
+      { info && info.env != 'production' && 
+        // mt-4: extra space when scrolled to bottom
+        // miw is slightly greater than navbar width (250), defined above
+        <div className='sticky pl-2 bottom-2 pb-safe z-1000 w-fit mt-4'>
+          <Box bg='yellow.4' c='black' px='0.925rem' py='0.25rem' bdrs={3} miw={254}>
+            {/* className='[font-variant:small-caps]' */}
+            <Text lineClamp={1} fz='sm' fw={500}>
+              Test Build {format(info.lastUpdated, 'yyyy-MM-dd HH:mm:ss')}
+            </Text>
+          </Box>
+        </div>
+      }
     </AppShell>
   )
 }
 
 // Header
 
-function HeaderContent({ isProdEnv, navbarOpened, toggleNavbar, closeNavbar }: {
-  isProdEnv: boolean,
+function HeaderContent({ navbarOpened, toggleNavbar, closeNavbar }: {
   navbarOpened: boolean,
   toggleNavbar: () => void,
   closeNavbar: () => void
