@@ -16,17 +16,7 @@ import weeklySpendingApp from 'src/ws-app/routes'
 
 
 function App() {
-  // DOES NOT WORK
-  // useEffect(() => {
-  //   // On deployment, hosting service replaces the static files while the client app still points to the old files
-  //   // Force a reload, albeit with a delay just in case it runs into a loop or sth
-  //   window.addEventListener('vite:preloadError', (event) => {
-  //     setTimeout(() => {
-  //       window.location.reload()
-  //     }, 3000)
-  //   })
-  // }, [])
-
+  console.info('abc')
   return (
     <MantineProvider defaultColorScheme='dark' theme={theme}>
       <AuthProvider>
