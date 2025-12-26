@@ -34,7 +34,8 @@ function DashboardLayout() {
   return (
     <AppShell
       header={{
-        height: isProdEnv ? 60 : 90
+        // height: isProdEnv ? 60 : 90
+        height: 60
       }}
       navbar={{
         width: 250,
@@ -58,6 +59,15 @@ function DashboardLayout() {
           <Outlet />
         </Container>
       </AppShell.Main>
+
+      {/* Bottom bar */}
+      {/* Spacers (<Box />es) have same bg color as AppShell.Main */}
+      <div className='sticky pl-2 bottom-2 pb-safe z-1000 w-fit'>
+        <Box bg='yellow.3' c='dark.8' px='xs' bdrs={3}>
+          {/* className='[font-variant:small-caps]' */}
+          <Text lineClamp={1} fz='sm' fw={500}>Test Environment</Text>
+        </Box>
+      </div>
     </AppShell>
   )
 }
@@ -89,15 +99,21 @@ function HeaderContent({ isProdEnv, navbarOpened, toggleNavbar, closeNavbar }: {
             <Anchor href='#' underline='never' onClick={() => navigate('/')}>
               <Text fw='bold' fz={20} c='gray.0'>The Duck Group</Text>
             </Anchor>
+            {/* {
+              !isProdEnv &&
+              <Box bg='yellow.3' c='dark.8' px='xs' bdrs={3}>
+                <Text lineClamp={1} fw={600} className='[font-variant:small-caps]'>test environment</Text>
+              </Box>
+            } */}
           </Group>
           {/* Env badge */}
-          {
+          {/* {
             !isProdEnv &&
             <Group c='yellow' gap='0.25rem' wrap='nowrap'>
               <IconChevronRight size={17} strokeWidth={2.5} className='flex-none' />
               <Text lineClamp={1}>You are in test environment. Changes will not affect production.</Text>
             </Group>
-          }
+          } */}
         </Stack>
         {/* </Center> */}
 
@@ -180,7 +196,7 @@ function NavbarContent({ close }: {
 }) {
   const location = useLocation()
   const navigate = useNavigate()
-  
+
   return (
     <>
       <NavLink
