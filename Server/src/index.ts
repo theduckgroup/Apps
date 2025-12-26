@@ -65,14 +65,14 @@ app.use('/api/quiz-app', quizAppRouter)
 import wsAppRouter from './ws-app/api/router'
 app.use('/api/ws-app', wsAppRouter)
 
-app.use('/api/*splat', (req, res) => {
-  throw createHttpError(404, `Invalid Route`)
-})
-
 app.get('/api/info', (req, res) => {
   res.send({
     env: env.nodeEnv
   })
+})
+
+app.use('/api/*splat', (req, res) => {
+  throw createHttpError(404, `Invalid Route`)
 })
 
 // Index
