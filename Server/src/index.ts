@@ -76,6 +76,7 @@ app.use('/api/*splat', (req, res) => {
 app.use('/', express.static(publicDir))
 
 app.get('/*splat', (req, res) => {
+  res.header('Cache-Control', 'no-store')
   res.sendFile(publicDir + '/index.html')
 })
 
