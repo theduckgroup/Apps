@@ -71,6 +71,12 @@ app.use('/api/*splat', (req, res) => {
   throw createHttpError(404, `Invalid Route`)
 })
 
+app.get('/api/info', (req, res) => {
+  res.send({
+    env: env.nodeEnv
+  })
+})
+
 // Index
 
 app.use('/', express.static(publicDir))
