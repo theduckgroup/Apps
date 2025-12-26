@@ -59,7 +59,7 @@ private extension View {
         overlay(alignment: .bottomLeading) {
             if AppInfo.buildTarget != .prod {
                 Text("Test Build v\(AppInfo.marketingVersion)")
-                    .font(.system(size: 12, weight: .regular))
+                    .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(.black)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
