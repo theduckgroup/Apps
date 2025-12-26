@@ -1,8 +1,7 @@
-import { ReactNode, useEffect } from 'react'
+import { ReactNode } from 'react'
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router'
 import { MantineProvider, Loader, Text } from '@mantine/core'
 
-// import env from 'src/env'
 import { AuthProvider, useAuth, PathProvider, ApiProvider } from './contexts'
 import theme from './mantine-theme'
 import LoginPage from 'src/app/pages/LoginPage'
@@ -17,15 +16,16 @@ import weeklySpendingApp from 'src/ws-app/routes'
 
 
 function App() {
-  useEffect(() => {
-    // On deployment, hosting service replaces the static files while the client app still points to the old files
-    // Force a reload, albeit with a delay just in case it runs into a loop or sth
-    window.addEventListener('vite:preloadError', (event) => {
-      setTimeout(() => {
-        window.location.reload()
-      }, 3000)
-    })
-  }, [])
+  // DOES NOT WORK
+  // useEffect(() => {
+  //   // On deployment, hosting service replaces the static files while the client app still points to the old files
+  //   // Force a reload, albeit with a delay just in case it runs into a loop or sth
+  //   window.addEventListener('vite:preloadError', (event) => {
+  //     setTimeout(() => {
+  //       window.location.reload()
+  //     }, 3000)
+  //   })
+  // }, [])
 
   return (
     <MantineProvider defaultColorScheme='dark' theme={theme}>
