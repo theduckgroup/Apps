@@ -6,9 +6,9 @@
     "start": "tsx src/index.ts",
     "dev-local": "tsx watch --env-file=.env.dev-local --include .env.dev-local src/index.ts",
     "prod-local": "tsx watch --env-file=.env.prod-local --include .env.prod-local src/index.ts",
-    "start-tobdeleted": "ts-node --transpileOnly src/index.ts",
-    "start-explicit-args-tobdeleted": "ts-node --transpileOnly -r tsconfig-paths/register src/index.ts",
-    "nodemon-tobdeleted": "nodemon --exec npm start"
+    "start-deprecated": "ts-node --transpileOnly src/index.ts",
+    "start-explicit-args-deprecated": "ts-node --transpileOnly -r tsconfig-paths/register src/index.ts",
+    "nodemon-deprecated": "nodemon --exec npm start"
   },
   "author": "",
   "license": "ISC",
