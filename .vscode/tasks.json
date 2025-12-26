@@ -76,6 +76,21 @@
 			"presentation": {
 				"echo": false
 			}
+		},
+		{
+			"label": "Apps",
+			"type": "shell",
+			"command": "/bin/zsh",
+			"runOptions": {
+				"runOn": "folderOpen"
+			},
+			"options": {
+				"cwd": "."
+			},
+			"isBackground": true,
+			"presentation": {
+				"echo": false
+			}
 		}
 	]
 }
