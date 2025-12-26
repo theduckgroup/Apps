@@ -279,7 +279,7 @@ userRouter.post('/quiz-response/submit', async (req, res) => {
 
 const publicRouter = express.Router()
 
-if (env.nodeEnv == 'local') {
+if (env.nodeEnv == 'development') {
   publicRouter.get('/mock-quiz', async (req, res) => {
     const db = await getDb()
 
