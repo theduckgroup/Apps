@@ -58,7 +58,7 @@ private extension View {
     func testWarningOverlay() -> some View {
         overlay(alignment: .bottomLeading) {
             if AppInfo.buildTarget != .prod {
-                Text("Test Build v\(AppInfo.marketingVersion)")
+                Text("Test Build \(AppInfo.marketingVersion)")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(.black)
                     .padding(.horizontal, 12)
