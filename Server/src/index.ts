@@ -76,7 +76,10 @@ app.use('/api/*splat', (req, res) => {
 app.use('/', express.static(publicDir))
 
 app.get('/*splat', (req, res) => {
+// Disable cache control to avoid page error after deployment
+  // See: https://vite.dev/guide/build#load-error-handling
   res.header('Cache-Control', 'no-store')
+
   res.sendFile(publicDir + '/index.html')
 })
 
