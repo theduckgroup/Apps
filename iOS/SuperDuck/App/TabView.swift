@@ -81,5 +81,5 @@ extension TabView {
 
 #Preview {
     TabView()
-        .withMockEnvironment()
+        .previewEnvironment()
 }
