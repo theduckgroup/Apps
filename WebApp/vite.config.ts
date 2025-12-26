@@ -11,6 +11,7 @@ import svgr from 'vite-plugin-svgr'
 
 export default defineConfig(() => {
   return {
+    // base: './', // If project lives in a subdirectory
     build: {
       outDir: '../Server/public',
       emptyOutDir: true,
