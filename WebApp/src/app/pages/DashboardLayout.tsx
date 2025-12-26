@@ -1,13 +1,26 @@
-import { Anchor, AppShell, Avatar, Box, Burger, Button, Center, Container, Group, Menu, Modal, NavLink, Space, Stack, Text } from '@mantine/core'
+import { Anchor, AppShell, Avatar, Box, Burger, Button, Container, Group, Menu, Modal, NavLink, Space, Stack, Text } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { Outlet, useLocation, useNavigate } from 'react-router'
 import { IconChevronRight, IconLogout2, IconUserCircle } from '@tabler/icons-react'
 
 // import env from 'src/env'
 import { useAuth } from 'src/app/contexts'
+import axios, { AxiosError } from 'axios'
+import { useQuery } from '@tanstack/react-query'
 
 function DashboardLayout() {
   const [navbarOpened, { toggle: toggleNavbar, close: closeNavbar }] = useDisclosure() // Mobile only
+
+  interface Info {
+    env: string | 'production'
+  }
+
+  const { data: info } = useQuery<Info, AxiosError>({
+    queryKey: ['info'],
+    queryFn: async () => (await axios.get<Info>('/api/info')).data
+  })
+
+  const isProdEnv = (info && info.env == 'production') ?? true
 
   /*
   const { setColorScheme } = useMantineColorScheme()
@@ -21,7 +34,7 @@ function DashboardLayout() {
   return (
     <AppShell
       header={{
-        height: 60
+        height: isProdEnv ? 60 : 90
       }}
       navbar={{
         width: 250,
@@ -31,7 +44,7 @@ function DashboardLayout() {
       padding={{ base: '0', sm: 'md' }}
     >
       <AppShell.Header withBorder={false}>
-        <HeaderContent navbarOpened={navbarOpened} toggleNavbar={toggleNavbar} closeNavbar={closeNavbar} />
+        <HeaderContent isProdEnv={isProdEnv} navbarOpened={navbarOpened} toggleNavbar={toggleNavbar} closeNavbar={closeNavbar} />
       </AppShell.Header>
 
       <AppShell.Navbar bg='dark.8' withBorder={false}>
@@ -51,7 +64,8 @@ function DashboardLayout() {
 
 // Header
 
-function HeaderContent({ navbarOpened, toggleNavbar, closeNavbar }: {
+function HeaderContent({ isProdEnv, navbarOpened, toggleNavbar, closeNavbar }: {
+  isProdEnv: boolean,
   navbarOpened: boolean,
   toggleNavbar: () => void,
   closeNavbar: () => void
@@ -59,12 +73,11 @@ function HeaderContent({ navbarOpened, toggleNavbar, closeNavbar }: {
   const navigate = useNavigate()
 
   return (
-    <Box bg='dark.7' h='100%'
-      className='border-b border-b-neutral-700'>
-      <Group h='100%' px='md'
-      >
-        <Center>
-          <Group>
+    <Box bg='dark.7' h='100%' className='border-b border-b-neutral-700'>
+      <Group h='100%' px='md' align='center' wrap='nowrap'>
+        {/* <Center> */}
+        <Stack gap='0.375rem'>
+          <Group align='center'>
             {/* Burger menu */}
             <Burger
               opened={navbarOpened}
@@ -77,7 +90,16 @@ function HeaderContent({ navbarOpened, toggleNavbar, closeNavbar }: {
               <Text fw='bold' fz={20} c='gray.0'>The Duck Group</Text>
             </Anchor>
           </Group>
-        </Center>
+          {/* Env badge */}
+          {
+            !isProdEnv &&
+            <Group c='yellow' gap='0.25rem' wrap='nowrap'>
+              <IconChevronRight size={17} strokeWidth={2.5} className='flex-none' />
+              <Text lineClamp={1}>You are in test environment. Changes will not affect production.</Text>
+            </Group>
+          }
+        </Stack>
+        {/* </Center> */}
 
         <Space flex={1} />
 
