@@ -10,6 +10,10 @@
     "start-explicit-args-deprecated": "ts-node --transpileOnly -r tsconfig-paths/register src/index.ts",
     "nodemon-deprecated": "nodemon --exec npm start"
   },
+  "engines": {
+    "npm": ">=11.6.1",
+    "node": ">=24.10.0"
+  },
   "author": "",
   "license": "ISC",
   "description": "",

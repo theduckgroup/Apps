@@ -4,9 +4,9 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "Server [Nodemon]",
+			"label": "Server [Run]",
 			"type": "shell",
-			"command": "/bin/zsh -c \"printf 'Run: npm run nodemon'\" && /bin/zsh",
+			"command": "/bin/zsh -c \"printf 'Run: npm run dev-local OR npm run prod-local'\" && /bin/zsh",
 			"runOptions": {
 				"runOn": "folderOpen"
 			},
@@ -34,9 +34,9 @@
 			}
 		},
 		{
-			"label": "WebApp [Dev]",
+			"label": "WebApp [Run]",
 			"type": "shell",
-			"command": "/bin/zsh -c \"printf 'Run: npm run dev -- --host'\" && /bin/zsh",
+			"command": "/bin/zsh -c \"printf 'Run: npm run dev'\" && /bin/zsh",
 			"runOptions": {
 				"runOn": "folderOpen"
 			},
@@ -49,9 +49,9 @@
 			}
 		},
 		{			
-			"label": "WebApp [BuildWatch]",
+			"label": "WebApp [Watch]",
 			"type": "shell",
-			"command": "/bin/zsh -c \"printf 'Run: npm run build-watch'\" && /bin/zsh",
+			"command": "/bin/zsh -c \"printf 'Run: npm run watch'\" && /bin/zsh",
 			"runOptions": {
 				"runOn": "folderOpen"
 			},
