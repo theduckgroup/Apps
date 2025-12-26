@@ -1,9 +1,9 @@
 import Foundation
 
 public extension API.Env {
-    static let prod = API.Env(
-        url: URL(string: "https://apps.theduckgroup.com.au/api")!
-    )
+    static let prod = API.Env(url: URL(string: "https://apps.theduckgroup.com.au/api")!)
+    
+    static let dev = API.Env(url: URL(string: "https://apps-dev.theduckgroup.com.au/api")!)
     
     static let local = API.Env(
         url: {
