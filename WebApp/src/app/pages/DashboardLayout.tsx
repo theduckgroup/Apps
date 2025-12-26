@@ -65,9 +65,9 @@ function DashboardLayout() {
         // mt-4: extra space when scrolled to bottom
         // miw is slightly greater than navbar width (250), defined above
         <div className='sticky pl-2 bottom-2 pb-safe z-1000 w-fit mt-4'>
-          <Box bg='yellow.4' c='black' px='0.925rem' py='0.25rem' bdrs={3} miw={254}>
+          <Box bg='yellow.4' c='black' px='0.6rem' py='0.15rem' bdrs={2}>
             {/* className='[font-variant:small-caps]' */}
-            <Text lineClamp={1} fz='sm' fw={500}>
+            <Text lineClamp={1} fz='xs' fw='bold'>
               Test Build {format(info.lastUpdated, 'yyyy-MM-dd HH:mm:ss')}
             </Text>
           </Box>
