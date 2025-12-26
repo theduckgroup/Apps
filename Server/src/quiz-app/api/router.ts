@@ -224,9 +224,7 @@ userRouter.get('/quiz' /* ?code=XYZ */, async (req, res) => {
 
   const db = await getDb()
 
-  const dbQuiz = await db.collection_qz_quizzes.findOne({
-    code: code
-  })
+  const dbQuiz = await db.collection_qz_quizzes.findOne({ code })
 
   if (!dbQuiz) {
     throw createHttpError(400, 'Document not found')
@@ -285,12 +283,10 @@ if (env.nodeEnv == 'local') {
   publicRouter.get('/mock-quiz', async (req, res) => {
     const db = await getDb()
 
-    const dbQuiz = await db.collection_qz_quizzes.findOne({
-      code: 'FOH_STAFF_KNOWLEDGE'
-    })
+    const dbQuiz = await db.collection_qz_quizzes.findOne({ code: 'FOH_STAFF_KNOWLEDGE' })
 
     if (!dbQuiz) {
-      throw createHttpError(400, 'Document not found')
+      throw createHttpError(404)
     }
 
     const resQuiz = normalizeId(dbQuiz)
@@ -302,19 +298,13 @@ if (env.nodeEnv == 'local') {
   publicRouter.get('/mock-quiz-response-email', async (req, res) => {
     const db = await getDb()
 
-    const doc = await db.collection_qz_quizResponses.findOne({
-      _id: new ObjectId('693500065a7104bdb1874f17')
-    })
-
-    console.info(`doc = ${doc}`)
+    const doc = await db.collection_qz_quizResponses.findOne({}, { sort: { 'submittedDate': -1 } })
 
     if (!doc) {
       throw createHttpError(404)
     }
 
     const html = await generateQuizResponseEmail(doc)
-
-    console.info(html)
 
     res.send(html)
   })
