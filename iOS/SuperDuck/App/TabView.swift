@@ -11,18 +11,23 @@ struct TabView: View {
     
     var body: some View {
         SwiftUI.TabView(selection: $tabViewSelection) {
-            Tab("FOH Test", systemImage: "pencil.and.list.clipboard", value: .quiz) {
+            // pencil.and.list.clipboard
+            Tab("FOH Test", systemImage: "list.clipboard.fill", value: .quiz) {
                 QuizApp.RootView()
+                    .testWarningOverlay()
             }
 
-            Tab("Weekly Spending", systemImage: "australiandollarsign", value: .weeklySpending) {
+            Tab("Weekly Spending", systemImage: "wallet.bifold", value: .weeklySpending) {
                 WeeklySpendingApp.RootView()
+                    .testWarningOverlay()
             }
 
             Tab("Settings", systemImage: "gearshape", value: .settings) {
                 SettingsView()
+                    .testWarningOverlay()
             }
         }
+        
         
 //        TabView(selection: $selectedTab) {
 //            @Bindable var appDefaults = appDefaults
@@ -45,6 +50,24 @@ struct TabView: View {
 //                }
 //                .tag(2)
 //        }
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func testWarningOverlay() -> some View {
+        overlay(alignment: .bottomLeading) {
+            if AppInfo.buildTarget != .prod {
+                Text("Test Build v\(AppInfo.marketingVersion)")
+                    .font(.system(size: 12, weight: .regular))
+                    .foregroundStyle(.black)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.yellow, in: RoundedRectangle(cornerRadius: 6))
+                    .padding(.vertical, 9)
+                    .padding(.leading)
+            }
+        }
     }
 }
 
