@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node --transpileOnly src/index.ts",
-    "start-explicit-args": "ts-node --transpileOnly -r tsconfig-paths/register src/index.ts",
-    "nodemon": "nodemon --exec npm start"
+    "start": "tsx src/index.ts",
+    "dev-local": "tsx watch --env-file=.env.dev-local --include .env.dev-local src/index.ts",
+    "prod-local": "tsx watch --env-file=.env.prod-local --include .env.prod-local src/index.ts",
+    "start-deprecated": "ts-node --transpileOnly src/index.ts",
+    "start-explicit-args-deprecated": "ts-node --transpileOnly -r tsconfig-paths/register src/index.ts",
+    "nodemon-deprecated": "nodemon --exec npm start"
   },
   "author": "",
   "license": "ISC",
@@ -58,6 +61,7 @@
     "eslint": "9.21.0",
     "globals": "16.0.0",
     "pino-pretty": "13.0.0",
+    "tsx": "4.21.0",
     "typescript": "5.7.3",
     "typescript-eslint": "8.25.0"
   }

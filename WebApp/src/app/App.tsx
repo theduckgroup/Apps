@@ -16,7 +16,6 @@ import weeklySpendingApp from 'src/ws-app/routes'
 
 
 function App() {
-  console.info('abc')
   return (
     <MantineProvider defaultColorScheme='dark' theme={theme}>
       <AuthProvider>

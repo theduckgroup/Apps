@@ -303,12 +303,10 @@ if (env.nodeEnv == 'local') {
   publicRouter.get('/mock-template', async (req, res) => {
     const db = await getDb()
 
-    const doc = await db.collection_wsTemplates.findOne({
-      code: 'WEEKLY_SPENDING'
-    })
+    const doc = await db.collection_wsTemplates.findOne({ code: 'WEEKLY_SPENDING' })
 
     if (!doc) {
-      throw createHttpError(400, 'Document not found')
+      throw createHttpError(404, 'Template not found')
     }
 
     const data = normalizeId(doc)
@@ -319,12 +317,10 @@ if (env.nodeEnv == 'local') {
   publicRouter.get('/mock-report', async (req, res) => {
     const db = await getDb()
 
-    const doc = await db.collection_wsReports.findOne({
-      _id: new ObjectId('69438c3a82e5195bc17583dd')
-    })
+    const doc = await db.collection_wsReports.findOne({}, { sort: { 'date': -1 } })
 
     if (!doc) {
-      throw createHttpError(400, 'Document not found')
+      throw createHttpError(404)
     }
 
     const data = normalizeId(doc)
@@ -336,13 +332,10 @@ if (env.nodeEnv == 'local') {
     // To test: http://localhost:8021/api/ws-app/mock-report-email
 
     const db = await getDb()
-    const doc = await db.collection_wsReports.findOne({
-      _id: new ObjectId('69438c3a82e5195bc17583dd')
-    })
+    const doc = await db.collection_wsReports.findOne({}, { sort: { 'date': -1 } })
 
     if (!doc) {
-      res.status(500).send()
-      return
+      throw createHttpError(404)
     }
 
     const emailHtml = await generateReportEmail(doc)

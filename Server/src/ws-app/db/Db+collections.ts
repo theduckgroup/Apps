@@ -19,7 +19,7 @@ Object.defineProperty(Db.prototype, 'collection_wsTemplates', {
 
 Object.defineProperty(Db.prototype, 'collection_wsReports', {
   get(this: Db) {
-    return this.collection<DbWsTemplate>('ws_reports')
+    return this.collection<DbWsReport>('ws_reports')
   },
   enumerable: true,
   configurable: true,
