@@ -9,7 +9,7 @@ import { useQuery } from '@tanstack/react-query'
 import useModal from 'src/utils/use-modal'
 import { ConfirmModal } from 'src/utils/ConfirmModal'
 
-function AppLayout() {
+function DashboardPage() {
   const [navbarOpened, { toggle: toggleNavbar, close: closeNavbar }] = useDisclosure() // Mobile only
 
   interface Info {
@@ -231,4 +231,4 @@ function NavbarLink({ label, path, onClose }: {
   )
 }
 
-export default AppLayout
+export default DashboardPage
