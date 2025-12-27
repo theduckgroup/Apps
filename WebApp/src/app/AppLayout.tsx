@@ -2,9 +2,7 @@ import { Anchor, AppShell, Avatar, Box, Burger, Container, Group, Menu, NavLink,
 import { useDisclosure } from '@mantine/hooks'
 import { Outlet, useLocation, useNavigate } from 'react-router'
 import { IconChevronRight, IconLogout2, IconUserCircle } from '@tabler/icons-react'
-import { format } from 'date-fns'
 
-// import env from 'src/env'
 import { useAuth } from 'src/app/contexts'
 import axios, { AxiosError } from 'axios'
 import { useQuery } from '@tanstack/react-query'
