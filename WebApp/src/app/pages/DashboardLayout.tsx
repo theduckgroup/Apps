@@ -8,6 +8,8 @@ import { format } from 'date-fns'
 import { useAuth } from 'src/app/contexts'
 import axios, { AxiosError } from 'axios'
 import { useQuery } from '@tanstack/react-query'
+import useModal from 'src/utils/use-modal'
+import { ConfirmModal } from 'src/utils/ConfirmModal'
 
 function DashboardLayout() {
   const [navbarOpened, { toggle: toggleNavbar, close: closeNavbar }] = useDisclosure() // Mobile only
@@ -49,7 +51,7 @@ function DashboardLayout() {
       </AppShell.Header>
 
       <AppShell.Navbar bg='dark.8' withBorder={false}>
-        <NavbarContent close={closeNavbar} />
+        <NavbarContent onClose={closeNavbar} />
       </AppShell.Navbar>
 
       <AppShell.Main bg='dark.9'>
@@ -68,7 +70,7 @@ function DashboardLayout() {
           <Box bg='yellow.4' c='black' px='0.6rem' py='0.15rem' bdrs={2}>
             {/* className='[font-variant:small-caps]' */}
             <Text lineClamp={1} fz='xs' fw='bold'>
-              Test Build {info.lastUpdated ? format(info.lastUpdated, 'yyyy-MM-dd HH:mm:ss') : '[unknown timestamp]'}
+              Test Build / {info.lastUpdated ? format(info.lastUpdated, 'yyyy-MM-dd HH:mm:ss') : '(No timestamp)'}
             </Text>
           </Box>
         </div>
@@ -136,9 +138,19 @@ const ProfileButton = ({ closeNavbar }: {
 }) => {
   const navigate = useNavigate()
   const { user, logout } = useAuth()
+  const confirmModal = useModal(ConfirmModal)
 
-  const [logoutModalOpened, { open: openLogoutModal, close: closeLogoutModal }] = useDisclosure(false)
   const [menuOpened, { open: openMenu, close: closeMenu }] = useDisclosure(false)
+
+  function handleLogout() {
+    confirmModal.open({
+      message: 'Log out?',
+      actions: [{
+        label: 'Log out',
+        handler: logout
+      }]
+    })
+  }
 
   return (
     <Menu
@@ -169,48 +181,37 @@ const ProfileButton = ({ closeNavbar }: {
         </Menu.Item>
         <Menu.Item
           leftSection={<IconLogout2 size={16} />}
-          onClick={openLogoutModal}
+          onClick={handleLogout}
         >
           Log out
         </Menu.Item>
       </Menu.Dropdown>
 
-      {/* Logout modal */}
-      <Modal
-        withCloseButton={false}
-        opened={logoutModalOpened}
-        onClose={close}
-      >
-        <Stack>
-          <Text>Log out?</Text>
-          <Group ml='auto'>
-            <Button variant='default' onClick={closeLogoutModal}>Cancel</Button>
-            <Button onClick={logout}>Logout</Button>
-          </Group>
-        </Stack>
-      </Modal>
+      {/* Modals */}
+      {confirmModal.element}
     </Menu>
   )
 }
 
 // Navbar
 
-function NavbarContent({ close }: {
-  close: () => void
+function NavbarContent({ onClose }: {
+  onClose: () => void
 }) {
   return (
     <>
-      <NavbarLink label='FOH Test' path='/quiz-app' />
-      <NavbarLink label='Weekly Spending' path='/ws-app' />
-      <NavbarLink label='Inventory' path='/inventory-app' />
-      <NavbarLink label='Admin' path='/admin' />
+      <NavbarLink label='FOH Test' path='/quiz-app' onClose={onClose} />
+      <NavbarLink label='Weekly Spending' path='/ws-app' onClose={onClose} />
+      <NavbarLink label='Inventory' path='/inventory-app' onClose={onClose} />
+      <NavbarLink label='Admin' path='/admin' onClose={onClose} />
     </>
   )
 }
 
-function NavbarLink({ label, path }: {
+function NavbarLink({ label, path, onClose }: {
   label: string
   path: string
+  onClose: () => void
 }) {
   const location = useLocation()
   const navigate = useNavigate()
@@ -226,7 +227,7 @@ function NavbarLink({ label, path }: {
       active={location.pathname.startsWith(path)}
       onClick={() => {
         navigate(path)
-        close()
+        onClose()
       }}
     />
   )
