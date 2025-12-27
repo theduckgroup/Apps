@@ -4,7 +4,6 @@ import compression from 'compression'
 import nocache from 'nocache'
 import createHttpError from 'http-errors'
 import path from 'path'
-import fs from 'fs/promises'
 
 import rateLimiter from 'src/common/rate-limiter'
 import requestLogger from 'src/common/express-request-logger'
@@ -65,26 +64,11 @@ import quizAppRouter from './quiz-app/api/router'
 app.use('/api/quiz-app', quizAppRouter)
 
 import wsAppRouter from './ws-app/api/router'
-import sleep from './utils/sleep'
 app.use('/api/ws-app', wsAppRouter)
 
 app.get('/api/info', async (req, res) => {
-  // Last modified timestampt is not available immediately after webapp changes
-  // This is because Vite reloads webapp (which calls /api/info) much quicker than building public/index.html
-
-  const lastModifiedTimestamp = await (async () => {
-    try {
-      const indexHtmlPath = path.join(publicDir, 'index.html')
-      const indexHtmlStats = await fs.stat(indexHtmlPath)
-      return indexHtmlStats.mtime
-    } catch {
-      return null
-    }
-  })()
-
   res.send({
-    env: env.nodeEnv,
-    lastUpdated: lastModifiedTimestamp?.toISOString()
+    env: env.nodeEnv
   })
 })
 
