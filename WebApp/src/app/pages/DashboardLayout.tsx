@@ -198,53 +198,37 @@ const ProfileButton = ({ closeNavbar }: {
 function NavbarContent({ close }: {
   close: () => void
 }) {
+  return (
+    <>
+      <NavbarLink label='FOH Test' path='/quiz-app' />
+      <NavbarLink label='Weekly Spending' path='/ws-app' />
+      <NavbarLink label='Inventory' path='/inventory-app' />
+      <NavbarLink label='Admin' path='/admin' />
+    </>
+  )
+}
+
+function NavbarLink({ label, path }: {
+  label: string
+  path: string
+}) {
   const location = useLocation()
   const navigate = useNavigate()
 
   return (
-    <>
-      <NavLink
-        href='#'
-        label='FOH Test'
-        variant='filled'
-        rightSection={
-          <IconChevronRight size={14} stroke={2} className='mantine-rotate-rtl' />
-        }
-        active={location.pathname.startsWith('/quiz-app')}
-        onClick={() => {
-          navigate('/quiz-app')
-          close()
-        }}
-      />
-      {
-        <NavLink
-          href='#'
-          label='Weekly Spending'
-          rightSection={
-            < IconChevronRight size={12} stroke={1.5} className='mantine-rotate-rtl' />
-          }
-          variant='filled'
-          active={location.pathname.startsWith('/ws-app')}
-          onClick={() => {
-            navigate('/ws-app')
-            close()
-          }}
-        />
+    <NavLink
+      href='#'
+      label={label}
+      rightSection={
+        < IconChevronRight size={12} stroke={1.5} className='mantine-rotate-rtl' />
       }
-      <NavLink
-        href='#'
-        label='Admin'
-        rightSection={
-          < IconChevronRight size={12} stroke={1.5} className='mantine-rotate-rtl' />
-        }
-        variant='filled'
-        active={location.pathname.startsWith('/admin')}
-        onClick={() => {
-          navigate('/admin')
-          close()
-        }}
-      />
-    </>
+      variant='filled'
+      active={location.pathname.startsWith(path)}
+      onClick={() => {
+        navigate(path)
+        close()
+      }}
+    />
   )
 }
 
