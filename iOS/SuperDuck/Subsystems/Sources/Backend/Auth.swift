@@ -2,6 +2,14 @@ public import Foundation
 public import Supabase
 import Common
 
+/*
+ Test cases:
+ - Signing in/out
+ - Signing out from other device should kick user out
+ - Should not kick user out when unable to refresh tokens due to network errors
+ - Same as above, but after launching the app
+ */
+
 @Observable
 public final class Auth: @unchecked Sendable {
     private let impl: AuthImplProtocol
@@ -64,17 +72,26 @@ private final class AuthImpl: AuthImplProtocol, @unchecked Sendable {
     
     init() {
         Task {
-            for await (_, session) in supabase.auth.authStateChanges {
-                // logger.info("Received auth event \(event.rawValue), session = \(session, default: "")")
-                
-                // Fallback to supabase.auth.currentSession because in case of network issue, Supabase
-                // may fail to obtain access token and we only receive an INITIAL_SESSION event with a nil session
-                // However supabase.auth.currentSession still holds a session (albeit with invalid JWT)
-                // (Setting session to nil will cause UI to display Login screen)
-                // Must assign session to a property for observable to work
-                self.session = session ?? supabase.auth.currentSession
+            for await (event, session) in supabase.auth.authStateChanges {
+                logger.info("Received auth event \(event.rawValue), session = \(session != nil ? "not nil" : "nil")")
+                // logger.info("Received auth event \(event.rawValue), session = \(session, default: "nil")")
                 
                 self.isLoaded = true
+
+                switch event {
+                case .initialSession:
+                    // In this case (app launch), if the tokens have expired, Supabase will try to
+                    // refresh the tokens. If the attempt fails due to network error, `session` will
+                    // be nil.
+                    // `supabase.auth.currentSession` still holds a session (albeit with invalid JWT)
+                    // We fallback to `supabase.auth.currentSession` because we don't want to keep
+                    // user signed in until network comes back.
+                    // Must re-assign the session for Observable to work
+                    self.session = session ?? supabase.auth.currentSession
+                    
+                default:
+                    self.session = session
+                }
             }
         }
     }
