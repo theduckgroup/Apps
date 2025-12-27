@@ -39,30 +39,13 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route path='login' element={
-        <RedirectToRootIfAuthorized>
-          <LoginPage />
-        </RedirectToRootIfAuthorized>
-      } />
+      {/* Login & reset password */}
+      {loginRoutes}
 
-      <Route path='reset-password' element={
-        <RedirectToRootIfAuthorized>
-          <ResetPasswordPage />
-        </RedirectToRootIfAuthorized>
-      } />
+      {/* Public routes */}
+      {publicRoutes}
 
-      <Route path='reset-password-2' element={
-        <RedirectToLoginIfUnauthorized>
-          <ResetPassword2Page />
-        </RedirectToLoginIfUnauthorized>
-      } />
-
-      <Route path='/fohtest/view/:id' element={
-        <ApiProvider baseUrl='/api/quiz-app'>
-          <QuizResponsePage />
-        </ApiProvider>
-      } />
-
+      {/* Authenticated routes */}
       <Route path='/' element={
         <RedirectToLoginIfUnauthorized>
           <DashboardLayout />
@@ -76,6 +59,42 @@ function AppRoutes() {
     </Routes>
   )
 }
+
+// Login routes
+
+const loginRoutes = (
+  <>
+    <Route path='/login' element={
+      <RedirectToRootIfAuthorized>
+        <LoginPage />
+      </RedirectToRootIfAuthorized>
+    } />
+
+    <Route path='/reset-password' element={
+      <RedirectToRootIfAuthorized>
+        <ResetPasswordPage />
+      </RedirectToRootIfAuthorized>
+    } />
+
+    <Route path='/reset-password-2' element={
+      <RedirectToLoginIfUnauthorized>
+        <ResetPassword2Page />
+      </RedirectToLoginIfUnauthorized>
+    } />
+  </>
+)
+
+// Public routes
+
+const publicRoutes = (
+  <>
+    <Route path='/fohtest/view/:id' element={
+      <ApiProvider baseUrl='/api/quiz-app'>
+        <QuizResponsePage />
+      </ApiProvider>
+    } />
+  </>
+)
 
 // (Sub)App routes
 
@@ -107,14 +126,6 @@ const subappRoutes = (
     </Route>
   </>
 )
-
-// const fohTestViewQuizResponseRoute = (
-//   <Route path='/fohtest/view/:id' element={
-//     <ApiProvider baseUrl='/api/quiz-app'>
-//       <QuizResponsePage />
-//     </ApiProvider>
-//   } />
-// )
 
 function SubappLayout({ path, apiPath }: {
   path: string,
