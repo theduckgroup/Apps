@@ -14,7 +14,7 @@ function DashboardLayout() {
 
   interface Info {
     env: string | 'production'
-    lastUpdated: string
+    lastUpdated?: string
   }
 
   const { data: info } = useQuery<Info, AxiosError>({
@@ -61,14 +61,14 @@ function DashboardLayout() {
       </AppShell.Main>
 
       {/* Test env badge */}
-      { info && info.env != 'production' && 
+      {info && info.env != 'production' &&
         // mt-4: extra space when scrolled to bottom
         // miw is slightly greater than navbar width (250), defined above
         <div className='sticky pl-2 bottom-2 pb-safe z-1000 w-fit mt-4'>
           <Box bg='yellow.4' c='black' px='0.6rem' py='0.15rem' bdrs={2}>
             {/* className='[font-variant:small-caps]' */}
             <Text lineClamp={1} fz='xs' fw='bold'>
-              Test Build {format(info.lastUpdated, 'yyyy-MM-dd HH:mm:ss')}
+              Test Build {info.lastUpdated ? format(info.lastUpdated, 'yyyy-MM-dd HH:mm:ss') : '[unknown timestamp]'}
             </Text>
           </Box>
         </div>
