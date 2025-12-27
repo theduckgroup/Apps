@@ -1,4 +1,4 @@
-import { Anchor, AppShell, Avatar, Box, Burger, Button, Container, Group, Menu, Modal, NavLink, Space, Stack, Text } from '@mantine/core'
+import { Anchor, AppShell, Avatar, Box, Burger, Container, Group, Menu, NavLink, Space, Stack, Text } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { Outlet, useLocation, useNavigate } from 'react-router'
 import { IconChevronRight, IconLogout2, IconUserCircle } from '@tabler/icons-react'
@@ -11,7 +11,7 @@ import { useQuery } from '@tanstack/react-query'
 import useModal from 'src/utils/use-modal'
 import { ConfirmModal } from 'src/utils/ConfirmModal'
 
-function DashboardLayout() {
+function AppLayout() {
   const [navbarOpened, { toggle: toggleNavbar, close: closeNavbar }] = useDisclosure() // Mobile only
 
   interface Info {
@@ -233,4 +233,4 @@ function NavbarLink({ label, path, onClose }: {
   )
 }
 
-export default DashboardLayout
+export default AppLayout

@@ -5,7 +5,7 @@ import { MantineProvider, Loader, Text } from '@mantine/core'
 import { AuthProvider, useAuth, PathProvider, ApiProvider } from './contexts'
 import theme from './mantine-theme'
 import LoginPage from 'src/app/pages/LoginPage'
-import DashboardLayout from './pages/DashboardLayout'
+import AppLayout from './pages/AppLayout'
 import ProfilePage from './pages/ProfilePage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import ResetPassword2Page from './pages/ResetPassword2Page'
@@ -48,7 +48,7 @@ function AppRoutes() {
       {/* Authenticated routes */}
       <Route path='/' element={
         <RedirectToLoginIfUnauthorized>
-          <DashboardLayout />
+          <AppLayout />
         </RedirectToLoginIfUnauthorized>
       }>
         <Route index element={<Navigate to='quiz-app' />} />
