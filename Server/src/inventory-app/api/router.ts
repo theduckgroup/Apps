@@ -1,0 +1,361 @@
+import express from 'express'
+import { AnyBulkWriteOperation, BulkWriteResult, ObjectId } from 'mongodb'
+import createHttpError from 'http-errors'
+
+import eventHub from './event-hub'
+import { client, getDb } from 'src/db'
+import { DbInvStore } from '../db/DbInvStore'
+import { DbInvStoreStock } from '../db/DbInvStoreStock'
+import { authorizeUser, authorizeAdmin } from 'src/auth/authorize'
+import { objectIdPropertyToString } from 'src/utils/object-id-utils'
+import { UpdateStoreCatalogBodySchema, UpdateStockBodySchema } from './schemas'
+import logger from 'src/logger'
+
+// Admin router
+
+const adminRouter = express.Router()
+adminRouter.use(authorizeAdmin)
+
+// Gets stores meta.
+adminRouter.get('/stores/meta', async (req, res) => {
+  const db = await getDb()
+
+  const dbStores = await db.collection_inv_stores.find({}).toArray()
+
+  const vendors = dbStores.map(x => ({
+    id: x._id.toString(),
+    name: x.name,
+  }))
+
+  res.send(vendors)
+})
+
+// Gets store.
+adminRouter.get('/store/:storeId', async (req, res) => {
+  const storeId = req.params.storeId
+
+  if (!storeId) {
+    throw createHttpError(400, `id is missing`)
+  }
+
+  const db = await getDb()
+
+  const dbStore = await db.collection_inv_stores.findOne({ _id: new ObjectId(storeId) })
+
+  if (!dbStore) {
+    throw createHttpError(404, `Store ${storeId} not found`)
+  }
+
+  // let itemAttrsMap: Map<string, DbInvStoreStock.ItemAttributes> | undefined
+
+  // if (withQuantity) {
+  //   const stock = await db.collection_inv_storeStocks.findOne({ storeId: new ObjectId(storeId) })
+
+  //   if (!stock) {
+  //     throw createHttpError(500, 'Store stock not found')
+  //   }
+
+  //   itemAttrsMap = new Map(stock.itemAttributes.map(x => [x.itemId, x]))
+  // }
+
+  // const response = {
+  //   id: dbStore._id.toString(),
+  //   name: dbStore.name,
+  //   catalog: {
+  //     items: dbStore.catalog.items.map(dbItem => {
+  //       const attrs = itemAttrsMap?.get(dbItem.id)
+
+  //       return {
+  //         id: dbItem.id.toString(),
+  //         name: dbItem.name,
+  //         code: dbItem.code,
+  //         quantity: attrs?.quantity
+  //       }
+  //     }),
+  //     sections: dbStore.catalog.sections
+  //   }
+  // }
+
+  const store = objectIdPropertyToString(dbStore, '_id')
+
+  // console.info(`! response = ${JSON.stringify(responseVendor)}`)
+
+  res.send(store)
+})
+
+// Updates a store's catalog.
+adminRouter.put('/store/:storeId/catalog', authorizeAdmin, async (req, res) => {
+  const storeId = req.params.storeId
+
+  // Body 
+
+  const { data, error: schemaError } = UpdateStoreCatalogBodySchema.safeParse(req.body)
+
+  if (schemaError) {
+    logger.error(schemaError)
+    throw createHttpError(400)
+  }
+
+  const { items, sections } = data
+
+  // Valid items & sections
+
+  const itemIds = new Set(items.map(x => x.id))
+
+  for (const section of sections) {
+    for (const row of section.rows) {
+      if (!itemIds.has(row.itemId)) {
+        throw createHttpError(`Section row's item ID ${row.itemId} does not exist in items`)
+      }
+    }
+  }
+
+  // Update db
+
+  const db = await getDb()
+
+  const result = await db.collection_inv_stores.updateOne(
+    {
+      _id: new ObjectId(storeId)
+    },
+    {
+      $set: {
+        'catalog.items': items,
+        'catalog.sections': sections
+      }
+    }
+  )
+
+  if (result.matchedCount == 0) {
+    throw createHttpError(404, `Store ${storeId} not found`)
+  }
+
+  res.send()
+
+  eventHub.emitStoreChanged(storeId)
+})
+
+// Gets store stock.
+adminRouter.get('/store/:storeId/stock', async (req, res) => {
+  const storeId = req.params.storeId
+
+  if (!storeId) {
+    throw createHttpError(400, `id is missing`)
+  }
+
+  const db = await getDb()
+
+  const dbStock = await db.collection_inv_storeStocks.findOne({ storeId: new ObjectId(storeId) })
+
+  if (!dbStock) {
+    throw createHttpError(500, 'Store stock not found')
+  }
+
+  const stock = objectIdPropertyToString(dbStock, '_id')
+
+  // console.info(`! response = ${JSON.stringify(responseVendor)}`)
+
+  res.send(stock)
+})
+
+// User router
+
+const userRouter = express.Router()
+userRouter.use(authorizeUser)
+
+// Updates store stock.
+userRouter.post('/store/:storeId/stock', async (req, res) => {
+  const storeId = req.params.storeId
+
+  const { data, error: bodyError } = await UpdateStockBodySchema.safeParseAsync(req.body)
+
+  if (bodyError) {
+    logger.error(bodyError)
+    throw createHttpError(400)
+  }
+
+  const { itemQuantityChanges } = data
+
+  const session = client.startSession()
+
+  try {
+    await session.withTransaction(async () => {
+      // Get store and stock
+
+      const db = await getDb()
+
+      const dbStore = await db.collection_inv_stores.findOne({ _id: new ObjectId(storeId) })
+      const dbStock = await db.collection_inv_storeStocks.findOne({ storeId: new ObjectId(storeId) })
+
+      if (!dbStore || !dbStock) {
+        throw createHttpError(404, `Store/stock not found`)
+      }
+
+      // Verify that item IDs are valid
+
+      const itemIDs = new Set(itemQuantityChanges.map(x => x.itemId))
+      const storeItemIDs = new Set(dbStore.catalog.items.map(x => x.id))
+      const invalidItemIDs = itemIDs.difference(storeItemIDs)
+
+      if (invalidItemIDs.size > 0) {
+        throw createHttpError(400, `Invalid item IDs: ${invalidItemIDs.values().toArray().join(', ')}`)
+      }
+
+      // Update
+
+      const itemAttrs = dbStock.itemAttributes
+      const itemAttrsMap = new Map(itemAttrs.map(x => [x.itemId, x]))
+
+      for (const change of itemQuantityChanges) {
+        const itemAttr = itemAttrsMap.get(change.itemId)
+
+        if (itemAttr) {
+          itemAttr.quantity += change.delta
+        } else {
+          itemAttrs.push({ itemId: change.itemId, quantity: change.delta })
+        }
+      }
+
+      db.collection_inv_storeStocks.updateOne(
+        { storeId: new ObjectId(storeId) },
+        {
+          $set: {
+            itemAttributes: itemAttrs
+          }
+        }
+      )
+    })
+
+  } catch (error) {
+    logger.error(error)
+    throw createHttpError(500)
+
+  } finally {
+    await session.endSession()
+  }
+
+  eventHub.emitStoreChanged(storeId)
+
+  res.send()
+
+  // Update quantities
+
+  // const writeOps: AnyBulkWriteOperation<DbItemQuantityRecord>[] = changes.map(change => ({
+  //   updateOne: {
+  //     filter: {
+  //       vendorId: new ObjectId(vendorId),
+  //       itemId: new ObjectId(change.itemId)
+  //     },
+  //     // Using array for `update` makes it an aggregation pipeline
+  //     // with more flexible operators I suppose
+  //     update: [
+  //       {
+  //         $set: {
+  //           quantity: {
+  //             $max: [
+  //               {
+  //                 $add: [
+  //                   { $ifNull: ["$quantity", 0] },
+  //                   change.inc
+  //                 ]
+  //               },
+  //               0
+  //             ]
+  //           }
+  //         }
+  //       }
+  //     ],
+  //     upsert: true
+  //   }
+  // }))
+
+  // try {
+  //   const writeResult = await db.collection_itemQuantityRecords.bulkWrite(writeOps)
+  //   console.info(`Bulk write done | Modified count: ${writeResult.modifiedCount} | Upserted count: ${writeResult.upsertedCount}`)
+
+  // } catch (error) {
+  //   if (error instanceof BulkWriteResult) {
+  //     const writeErrors = error.getWriteErrors()
+
+  //     let lines = [
+  //       `Bulk write failed | Modified count: ${error.modifiedCount} | Upserted count: ${error.upsertedCount}`,
+  //       'Errors:'
+  //     ]
+
+  //     for (const e of writeErrors) {
+  //       lines.push(`- Index ${e.index}: ${e.errmsg}`)
+  //     }
+
+  //     console.error(lines.join('\n'))
+
+  //   } else {
+  //     throw error
+  //   }
+  // }
+
+})
+
+const publicRouter = express.Router()
+
+publicRouter.get('/store/mock', async (req, res) => {
+  res.send()
+})
+
+// Exported router
+// Order is important -- if adminRouter is first, it will attempt to authorize
+
+const router = express.Router()
+
+// router.use(publicRouter)
+router.use(userRouter)
+router.use(adminRouter)
+
+export default router
+
+// // Mock data
+
+// const dbVendors: DbVendor[] = [
+//   {
+//     _id: new ObjectId('67befca13d7c24d268721b5d'),
+//     name: 'ND Central Kitchen',
+//     items: [
+//       {
+//         id: new ObjectId('67bdab6e04dcec6a07f42238'),
+//         name: 'Water',
+//         code: 'WATER_CODE'
+//       },
+//       {
+//         id: new ObjectId('67bdab78c766213546fd64fe'),
+//         name: 'Salt',
+//         code: 'SALT_CODE'
+//       }
+//     ],
+//     sections: [
+//       {
+//         id: new ObjectId(),
+//         name: 'Cooked Products',
+//         rows: [
+//           {
+//             itemId: new ObjectId('67bdab6e04dcec6a07f42238'),
+//           },
+//           {
+//             itemId: new ObjectId('67bdab78c766213546fd64fe')
+//           }
+//         ]
+//       }
+//     ]
+//   }
+// ]
+
+// const dbItemsQuantity: DbItemQuantityRecord[] = [
+//   {
+//     vendorId: new ObjectId('67befca13d7c24d268721b5d'),
+//     itemId: new ObjectId('67bdab6e04dcec6a07f42238'),
+//     quantity: 0,
+//   },
+//   {
+//     vendorId: new ObjectId('67befca13d7c24d268721b5d'),
+//     itemId: new ObjectId('67bdab78c766213546fd64fe'),
+//     quantity: 0,
+//   }
+// ]
