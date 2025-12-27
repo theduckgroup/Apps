@@ -19,10 +19,10 @@ socket.connect()
 
 const eventHub = {
   onEvent: (eventName: string, callback: () => void): () => void => {
-    console.info(`! Listening to ${eventName}`)
+    // console.info(`! Listening to ${eventName}`)
     
     const listener = () => {
-      console.info(`! Received ${eventName}`)
+      // console.info(`! Received ${eventName}`)
       callback()
     }
 
@@ -31,7 +31,7 @@ const eventHub = {
     // Very important to remove listener
 
     return () => {
-      console.info(`! Unregister ${eventName}`)
+      // console.info(`! Unregister ${eventName}`)
       socket.off(eventName, listener)
     }
   }
