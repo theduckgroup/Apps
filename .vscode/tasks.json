@@ -78,7 +78,7 @@
 			}
 		},
 		{
-			"label": "Apps",
+			"label": "Claude",
 			"type": "shell",
 			"command": "/bin/zsh",
 			"runOptions": {
