@@ -70,7 +70,7 @@ function AppLayout() {
           <Box bg='yellow.4' c='black' px='0.6rem' py='0.15rem' bdrs={2}>
             {/* className='[font-variant:small-caps]' */}
             <Text lineClamp={1} fz='xs' fw='bold'>
-              Test Build / {info.lastUpdated ? format(info.lastUpdated, 'yyyy-MM-dd HH:mm:ss') : '(No timestamp)'}
+              Test Environment
             </Text>
           </Box>
         </div>
