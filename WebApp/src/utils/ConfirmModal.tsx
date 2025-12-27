@@ -47,7 +47,7 @@ export function ConfirmModal({ opened, onClose, options: { title, message, actio
         </Stack>
 
         <Group justify='flex-end'>
-          <Button variant='default' onClick={onClose} >
+          <Button variant='default' onClick={onClose}>
             Cancel
           </Button>
           {actions.map(action => {

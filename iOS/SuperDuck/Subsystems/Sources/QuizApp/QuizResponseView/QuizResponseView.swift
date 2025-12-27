@@ -248,7 +248,7 @@ struct QuizResponseView: View {
         }
         .fullScreenCover(item: $quiz) { quiz in
             QuizResponseView(quiz: quiz, user: .mock)
-                .withMockEnvironment()
+                .previewEnvironment()
         }
         
 }

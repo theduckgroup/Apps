@@ -1,22 +1,16 @@
-import path from 'path'
-import fs from 'fs/promises'
 import express from 'express'
 import { ObjectId } from 'mongodb'
-// import React from 'react'
-// import ReactDOMServer from 'react-dom/server'
 import createHttpError from 'http-errors'
-import { formatInTimeZone } from 'date-fns-tz'
+import z from 'zod'
 
+import env from 'src/env'
+import eventHub from './event-hub'
 import { getDb } from 'src/db'
 import { authorizeUser, authorizeAdmin } from 'src/auth/authorize'
 import { DbQuizResponse } from '../db/DbQuizResponse'
-import eventHub from './event-hub'
 import { QuizSchema } from './QuizSchema'
 import QuizResponseSchema from './QuizResponseSchema'
 import logger from 'src/logger'
-import z from 'zod'
-import { mailer } from 'src/utils/mailer'
-import env from 'src/env'
 import { sendQuizResponseEmail, generateQuizResponseEmail } from './quiz-response-email'
 
 type QuizSchemaInferredType = z.infer<typeof QuizSchema>
@@ -279,7 +273,7 @@ userRouter.post('/quiz-response/submit', async (req, res) => {
 
 const publicRouter = express.Router()
 
-if (env.nodeEnv == 'local') {
+if (env.nodeEnv == 'development') {
   publicRouter.get('/mock-quiz', async (req, res) => {
     const db = await getDb()
 

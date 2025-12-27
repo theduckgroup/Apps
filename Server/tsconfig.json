@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "incremental": true,
-    "target": "es6",
+    "target": "ES2022",
+    "lib": ["ESNext"],
     "module": "commonjs",
     "jsx": "react-jsx",
     "esModuleInterop": true,

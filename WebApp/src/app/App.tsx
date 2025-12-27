@@ -13,7 +13,7 @@ import adminAppRoutes from 'src/admin-app/routes'
 import quizAppRoutes from 'src/quiz-app/routes'
 import QuizResponsePage from 'src/quiz-app/pages/QuizResponsePage'
 import weeklySpendingApp from 'src/ws-app/routes'
-
+import inventoryApp from 'src/inventory-app/routes'
 
 function App() {
   return (
@@ -39,26 +39,13 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route path='login' element={
-        <RedirectToRootIfAuthorized>
-          <LoginPage />
-        </RedirectToRootIfAuthorized>
-      } />
+      {/* Login & reset password */}
+      {loginRoutes}
 
-      <Route path='reset-password' element={
-        <RedirectToRootIfAuthorized>
-          <ResetPasswordPage />
-        </RedirectToRootIfAuthorized>
-      } />
+      {/* Public routes */}
+      {publicRoutes}
 
-      <Route path='reset-password-2' element={
-        <RedirectToLoginIfUnauthorized>
-          <ResetPassword2Page />
-        </RedirectToLoginIfUnauthorized>
-      } />
-
-      {fohTestViewQuizResponseRoute}
-
+      {/* Authenticated routes */}
       <Route path='/' element={
         <RedirectToLoginIfUnauthorized>
           <DashboardLayout />
@@ -73,36 +60,71 @@ function AppRoutes() {
   )
 }
 
+// Login routes
+
+const loginRoutes = (
+  <>
+    <Route path='/login' element={
+      <RedirectToRootIfAuthorized>
+        <LoginPage />
+      </RedirectToRootIfAuthorized>
+    } />
+
+    <Route path='/reset-password' element={
+      <RedirectToRootIfAuthorized>
+        <ResetPasswordPage />
+      </RedirectToRootIfAuthorized>
+    } />
+
+    <Route path='/reset-password-2' element={
+      <RedirectToLoginIfUnauthorized>
+        <ResetPassword2Page />
+      </RedirectToLoginIfUnauthorized>
+    } />
+  </>
+)
+
+// Public routes
+
+const publicRoutes = (
+  <>
+    <Route path='/fohtest/view/:id' element={
+      <ApiProvider baseUrl='/api/quiz-app'>
+        <QuizResponsePage />
+      </ApiProvider>
+    } />
+  </>
+)
+
 // (Sub)App routes
 
 const subappRoutes = (
   <>
+    {/* Admin */}
     <Route path='admin' element={
       <SubappLayout path='/admin' apiPath='/api/admin' />
     }>
       {adminAppRoutes}
     </Route>
+    {/* Quiz */}
     <Route path='quiz-app' element={
       <SubappLayout path='/quiz-app' apiPath='/api/quiz-app' />
     }>
       {quizAppRoutes}
     </Route>
-    {
-      <Route path='ws-app' element={
-        <SubappLayout path='/ws-app' apiPath='/api/ws-app' />
-      }>
-        {weeklySpendingApp}
-      </Route>
-    }
+    {/* Weekly Spending */}
+    <Route path='ws-app' element={
+      <SubappLayout path='/ws-app' apiPath='/api/ws-app' />
+    }>
+      {weeklySpendingApp}
+    </Route>
+    {/* Inventory */}
+    <Route path='inventory-app' element={
+      <SubappLayout path='/inventory-app' apiPath='/api/inventory-app' />
+    }>
+      {inventoryApp}
+    </Route>
   </>
-)
-
-const fohTestViewQuizResponseRoute = (
-  <Route path='/fohtest/view/:id' element={
-    <ApiProvider baseUrl='/api/quiz-app'>
-      <QuizResponsePage />
-    </ApiProvider>
-  } />
 )
 
 function SubappLayout({ path, apiPath }: {

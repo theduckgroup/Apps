@@ -1,4 +1,4 @@
-import { ObjectID } from 'bson'
+import { ObjectId } from 'bson'
 
 export interface WsTemplate {
   id: string
@@ -30,7 +30,7 @@ export namespace WsTemplate {
 
   export function createDefaultSupplier(): Supplier {
     return {
-      id: new ObjectID().toString(),
+      id: new ObjectId().toString(),
       name: '',
       gstMethod: 'notApplicable'
     }
@@ -38,7 +38,7 @@ export namespace WsTemplate {
 
   export function createDefaultSection(): Section {
     return {
-      id: new ObjectID().toString(),
+      id: new ObjectId().toString(),
       name: '',
       rows: []
     }

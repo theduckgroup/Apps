@@ -128,5 +128,5 @@ private struct InputField: View {
 
 #Preview {
     LoginView()
-        .withMockEnvironment()
+        .previewEnvironment()
 }

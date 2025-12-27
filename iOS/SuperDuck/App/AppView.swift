@@ -51,6 +51,7 @@ struct AppView: View {
                 
             } else {
                 LoginView()
+                    .nonProdWarningOverlay()
             }
         } else {
             ProgressView()
@@ -63,5 +64,5 @@ struct AppView: View {
 
 #Preview {
     AppView()
-        .withMockEnvironment()
+        .previewEnvironment()
 }

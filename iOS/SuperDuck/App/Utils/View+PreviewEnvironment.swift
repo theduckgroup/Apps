@@ -5,7 +5,7 @@ import CommonUI
 
 extension View {
     @ViewBuilder
-    func withMockEnvironment() -> some View {
+    func previewEnvironment() -> some View {
         self.tint(.theme)
             .environment(Auth.mock)
             .environment(API.mock)

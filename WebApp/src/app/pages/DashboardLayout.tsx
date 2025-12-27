@@ -1,13 +1,28 @@
-import { Anchor, AppShell, Avatar, Box, Burger, Button, Center, Container, Group, Menu, Modal, NavLink, Space, Stack, Text } from '@mantine/core'
+import { Anchor, AppShell, Avatar, Box, Burger, Button, Container, Group, Menu, Modal, NavLink, Space, Stack, Text } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { Outlet, useLocation, useNavigate } from 'react-router'
 import { IconChevronRight, IconLogout2, IconUserCircle } from '@tabler/icons-react'
+import { format } from 'date-fns'
 
 // import env from 'src/env'
 import { useAuth } from 'src/app/contexts'
+import axios, { AxiosError } from 'axios'
+import { useQuery } from '@tanstack/react-query'
+import useModal from 'src/utils/use-modal'
+import { ConfirmModal } from 'src/utils/ConfirmModal'
 
 function DashboardLayout() {
   const [navbarOpened, { toggle: toggleNavbar, close: closeNavbar }] = useDisclosure() // Mobile only
+
+  interface Info {
+    env: string | 'production'
+    lastUpdated?: string
+  }
+
+  const { data: info } = useQuery<Info, AxiosError>({
+    queryKey: ['info'],
+    queryFn: async () => (await axios.get<Info>('/api/info')).data
+  })
 
   /*
   const { setColorScheme } = useMantineColorScheme()
@@ -21,6 +36,7 @@ function DashboardLayout() {
   return (
     <AppShell
       header={{
+        // height: isProdEnv ? 60 : 90
         height: 60
       }}
       navbar={{
@@ -35,7 +51,7 @@ function DashboardLayout() {
       </AppShell.Header>
 
       <AppShell.Navbar bg='dark.8' withBorder={false}>
-        <NavbarContent close={closeNavbar} />
+        <NavbarContent onClose={closeNavbar} />
       </AppShell.Navbar>
 
       <AppShell.Main bg='dark.9'>
@@ -45,6 +61,20 @@ function DashboardLayout() {
           <Outlet />
         </Container>
       </AppShell.Main>
+
+      {/* Test env badge */}
+      {info && info.env != 'production' &&
+        // mt-4: extra space when scrolled to bottom
+        // miw is slightly greater than navbar width (250), defined above
+        <div className='sticky pl-2 bottom-2 pb-safe z-1000 w-fit mt-4'>
+          <Box bg='yellow.4' c='black' px='0.6rem' py='0.15rem' bdrs={2}>
+            {/* className='[font-variant:small-caps]' */}
+            <Text lineClamp={1} fz='xs' fw='bold'>
+              Test Build / {info.lastUpdated ? format(info.lastUpdated, 'yyyy-MM-dd HH:mm:ss') : '(No timestamp)'}
+            </Text>
+          </Box>
+        </div>
+      }
     </AppShell>
   )
 }
@@ -59,12 +89,11 @@ function HeaderContent({ navbarOpened, toggleNavbar, closeNavbar }: {
   const navigate = useNavigate()
 
   return (
-    <Box bg='dark.7' h='100%'
-      className='border-b border-b-neutral-700'>
-      <Group h='100%' px='md'
-      >
-        <Center>
-          <Group>
+    <Box bg='dark.7' h='100%' className='border-b border-b-neutral-700'>
+      <Group h='100%' px='md' align='center' wrap='nowrap'>
+        {/* <Center> */}
+        <Stack gap='0.375rem'>
+          <Group align='center'>
             {/* Burger menu */}
             <Burger
               opened={navbarOpened}
@@ -76,8 +105,23 @@ function HeaderContent({ navbarOpened, toggleNavbar, closeNavbar }: {
             <Anchor href='#' underline='never' onClick={() => navigate('/')}>
               <Text fw='bold' fz={20} c='gray.0'>The Duck Group</Text>
             </Anchor>
+            {/* {
+              !isProdEnv &&
+              <Box bg='yellow.3' c='dark.8' px='xs' bdrs={3}>
+                <Text lineClamp={1} fw={600} className='[font-variant:small-caps]'>test environment</Text>
+              </Box>
+            } */}
           </Group>
-        </Center>
+          {/* Env badge */}
+          {/* {
+            !isProdEnv &&
+            <Group c='yellow' gap='0.25rem' wrap='nowrap'>
+              <IconChevronRight size={17} strokeWidth={2.5} className='flex-none' />
+              <Text lineClamp={1}>You are in test environment. Changes will not affect production.</Text>
+            </Group>
+          } */}
+        </Stack>
+        {/* </Center> */}
 
         <Space flex={1} />
 
@@ -94,9 +138,19 @@ const ProfileButton = ({ closeNavbar }: {
 }) => {
   const navigate = useNavigate()
   const { user, logout } = useAuth()
+  const confirmModal = useModal(ConfirmModal)
 
-  const [logoutModalOpened, { open: openLogoutModal, close: closeLogoutModal }] = useDisclosure(false)
   const [menuOpened, { open: openMenu, close: closeMenu }] = useDisclosure(false)
+
+  function handleLogout() {
+    confirmModal.open({
+      message: 'Log out?',
+      actions: [{
+        label: 'Log out',
+        handler: logout
+      }]
+    })
+  }
 
   return (
     <Menu
@@ -127,82 +181,55 @@ const ProfileButton = ({ closeNavbar }: {
         </Menu.Item>
         <Menu.Item
           leftSection={<IconLogout2 size={16} />}
-          onClick={openLogoutModal}
+          onClick={handleLogout}
         >
           Log out
         </Menu.Item>
       </Menu.Dropdown>
 
-      {/* Logout modal */}
-      <Modal
-        withCloseButton={false}
-        opened={logoutModalOpened}
-        onClose={close}
-      >
-        <Stack>
-          <Text>Log out?</Text>
-          <Group ml='auto'>
-            <Button variant='default' onClick={closeLogoutModal}>Cancel</Button>
-            <Button onClick={logout}>Logout</Button>
-          </Group>
-        </Stack>
-      </Modal>
+      {/* Modals */}
+      {confirmModal.element}
     </Menu>
   )
 }
 
 // Navbar
 
-function NavbarContent({ close }: {
-  close: () => void
+function NavbarContent({ onClose }: {
+  onClose: () => void
+}) {
+  return (
+    <>
+      <NavbarLink label='FOH Test' path='/quiz-app' onClose={onClose} />
+      <NavbarLink label='Weekly Spending' path='/ws-app' onClose={onClose} />
+      <NavbarLink label='Inventory' path='/inventory-app' onClose={onClose} />
+      <NavbarLink label='Admin' path='/admin' onClose={onClose} />
+    </>
+  )
+}
+
+function NavbarLink({ label, path, onClose }: {
+  label: string
+  path: string
+  onClose: () => void
 }) {
   const location = useLocation()
   const navigate = useNavigate()
-  
+
   return (
-    <>
-      <NavLink
-        href='#'
-        label='FOH Test'
-        variant='filled'
-        rightSection={
-          <IconChevronRight size={14} stroke={2} className='mantine-rotate-rtl' />
-        }
-        active={location.pathname.startsWith('/quiz-app')}
-        onClick={() => {
-          navigate('/quiz-app')
-          close()
-        }}
-      />
-      {
-        <NavLink
-          href='#'
-          label='Weekly Spending'
-          rightSection={
-            < IconChevronRight size={12} stroke={1.5} className='mantine-rotate-rtl' />
-          }
-          variant='filled'
-          active={location.pathname.startsWith('/ws-app')}
-          onClick={() => {
-            navigate('/ws-app')
-            close()
-          }}
-        />
+    <NavLink
+      href='#'
+      label={label}
+      rightSection={
+        < IconChevronRight size={12} stroke={1.5} className='mantine-rotate-rtl' />
       }
-      <NavLink
-        href='#'
-        label='Admin'
-        rightSection={
-          < IconChevronRight size={12} stroke={1.5} className='mantine-rotate-rtl' />
-        }
-        variant='filled'
-        active={location.pathname.startsWith('/admin')}
-        onClick={() => {
-          navigate('/admin')
-          close()
-        }}
-      />
-    </>
+      variant='filled'
+      active={location.pathname.startsWith(path)}
+      onClick={() => {
+        navigate(path)
+        onClose()
+      }}
+    />
   )
 }
 

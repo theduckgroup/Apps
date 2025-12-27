@@ -11,19 +11,23 @@ struct TabView: View {
     
     var body: some View {
         SwiftUI.TabView(selection: $tabViewSelection) {
-            Tab("FOH Test", systemImage: "pencil.and.list.clipboard", value: .quiz) {
+            // pencil.and.list.clipboard
+            Tab("FOH Test", systemImage: "list.clipboard.fill", value: .quiz) {
                 QuizApp.RootView()
+                    .nonProdWarningOverlay()
             }
 
-            Tab("Weekly Spending", systemImage: "australiandollarsign", value: .weeklySpending) {
+            Tab("Weekly Spending", systemImage: "wallet.bifold", value: .weeklySpending) {
                 WeeklySpendingApp.RootView()
+                    .nonProdWarningOverlay()
             }
 
             Tab("Settings", systemImage: "gearshape", value: .settings) {
                 SettingsView()
+                    .nonProdWarningOverlay()
             }
         }
-        
+                
 //        TabView(selection: $selectedTab) {
 //            @Bindable var appDefaults = appDefaults
 //            
@@ -58,5 +62,5 @@ extension TabView {
 
 #Preview {
     TabView()
-        .withMockEnvironment()
+        .previewEnvironment()
 }
