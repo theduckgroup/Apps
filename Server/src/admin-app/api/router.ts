@@ -20,7 +20,7 @@ router.get('/users', async (req, res) => {
   const { data: { users }, error } = await supabase.auth.admin.listUsers()
 
   if (error) {
-    logger.error(`Failed to retrieve Supabase users`, error)
+    logger.error(error, `Failed to retrieve Supabase users`)
     throw createHttpError(500)
   }
 
@@ -34,7 +34,7 @@ router.get('/users/:id', async (req, res) => {
   const { data: { user }, error } = await supabase.auth.admin.getUserById(req.params.id)
 
   if (error) {
-    logger.error(`Failed to retrieve user ${id}`, error)
+    logger.error(error, `Failed to retrieve user ${id}`)
     throw createHttpError(500)
   }
 
@@ -129,7 +129,7 @@ router.patch('/users/:id', async (req, res) => {
   })
 
   if (error) {
-    logger.error(`Unable to update user`, error)
+    logger.error(error, `Unable to update user`)
     throw createHttpError(500)
   }
 
@@ -157,7 +157,7 @@ router.delete('/users/:id', async (req, res) => {
   const { error } = await supabase.auth.admin.deleteUser(uid, false)
 
   if (error) {
-    logger.error(`Unable to delete user`, error)
+    logger.error(error, `Unable to delete user`)
     throw createHttpError(500)
   }
 
@@ -206,7 +206,7 @@ async function getUser(uid: string) {
   const { data: { user }, error } = await supabase.auth.admin.getUserById(uid)
 
   if (error) {
-    logger.error(`Unable to get user`, error)
+    logger.error(error, `Unable to get user`)
     throw createHttpError(500)
   }
 
