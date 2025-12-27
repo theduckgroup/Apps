@@ -65,12 +65,11 @@ function AppLayout() {
         // mt-4: extra space when scrolled to bottom
         // miw is slightly greater than navbar width (250), defined above
         <div className='sticky pl-2 bottom-2 pb-safe z-1000 w-fit mt-4'>
-          <Box bg='yellow.4' c='black' px='0.6rem' py='0.15rem' bdrs={2}>
+          <Box bg='dark.7' px='0.6rem' py='0.15rem' className='border border-amber-300 rounded-sm'>
             {/* className='[font-variant:small-caps]' */}
-            <Text lineClamp={1} fz='xs' fw='bold'>
-              {/* Timestamp does not work in prod -- TODO: Remove from backend */}
+            <span className='text-xs text-amber-300 line-clamp-1'>
               Test Environment
-            </Text>
+            </span>
           </Box>
         </div>
       }
