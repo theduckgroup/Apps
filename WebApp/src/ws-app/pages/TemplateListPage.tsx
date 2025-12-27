@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
-import { ActionIcon, Button, Grid, Group, Menu, Paper, Stack, Text, Title } from '@mantine/core'
-import { IconDots, IconPlus } from '@tabler/icons-react'
+import { Button, Grid, Group, Paper, Stack, Text, Title } from '@mantine/core'
 import { useQuery } from '@tanstack/react-query'
 
 import { usePath, useApi } from 'src/app/contexts'
