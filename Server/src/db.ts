@@ -9,6 +9,8 @@ import 'src/quiz-app/db/Db+collections'
 const client = new MongoClient(env.mongodb.uri)
 let db: Db | undefined
 
+export { client }
+
 export async function getDb() {
   return await deduplicate({
     key: 'db',
