@@ -16,7 +16,7 @@
   },
   "engineStrict": true,
   "dependencies": {
-    "@bwip-js/browser": "4.5.1",
+    "@bwip-js/browser": "4.8.0",
     "@hello-pangea/dnd": "18.0.1",
     "@mantine/core": "8.3.3",
     "@mantine/form": "8.3.3",
