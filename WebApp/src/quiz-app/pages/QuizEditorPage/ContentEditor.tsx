@@ -9,7 +9,7 @@ import { EditItemModal } from './EditItemModal'
 import { EditSectionModal } from './EditSectionModal'
 import { ConfirmModal } from 'src/utils/ConfirmModal'
 import ReadonlyItemComponent from './ReadonlyItemComponent'
-import { Dispatch, ReduceState } from 'src/utils/types-lib'
+import { Dispatch, Reducer } from 'src/utils/types-lib'
 import useModal from 'src/utils/use-modal'
 
 /**
@@ -18,7 +18,7 @@ import useModal from 'src/utils/use-modal'
 export default function QuizItemsEditor({ items, sections, setData }: {
   items: Quiz.Item[],
   sections: Quiz.Section[],
-  setData: Dispatch<ReduceState<[Quiz.Item[], Quiz.Section[]]>>
+  setData: Dispatch<Reducer<[Quiz.Item[], Quiz.Section[]]>>
 }) {
   const editSectionModal = useModal(EditSectionModal)
 

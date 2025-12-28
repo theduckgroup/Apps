@@ -8,13 +8,13 @@ import { WsTemplate } from 'src/ws-app/models/WsTemplate'
 import { EditSupplierModal } from './EditSupplierModal'
 import { EditSectionModal } from './EditSectionModal'
 import { ConfirmModal } from 'src/utils/ConfirmModal'
-import { Dispatch, ReduceState } from 'src/utils/types-lib'
+import { Dispatch, Reducer } from 'src/utils/types-lib'
 import useModal from 'src/utils/use-modal'
 
 export function ContentEditor({ suppliers, sections, setData }: {
   suppliers: WsTemplate.Supplier[],
   sections: WsTemplate.Section[],
-  setData: Dispatch<ReduceState<[WsTemplate.Supplier[], WsTemplate.Section[]]>>
+  setData: Dispatch<Reducer<[WsTemplate.Supplier[], WsTemplate.Section[]]>>
 }) {
   const editSectionModal = useModal(EditSectionModal)
 
