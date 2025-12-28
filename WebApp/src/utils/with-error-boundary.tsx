@@ -9,7 +9,7 @@ export function withErrorBoundary(children: React.ReactNode) {
   }) {
     return (
       <Stack role='alert'>
-        <Text c='red.5' fz='md'>Something went wrong...</Text>
+        <Text c='red.5' fz='md'>Ooooops something went wrong...</Text>
         <Code block>{formatError(error)}</Code>
         {/* <button onClick={resetErrorBoundary}>Try again</button> */}
       </Stack>
