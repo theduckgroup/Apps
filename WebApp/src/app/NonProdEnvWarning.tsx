@@ -1,7 +1,7 @@
 import { Box, Text } from '@mantine/core'
 import { useEnv } from './contexts'
 
-export function NonProdWarning() {
+export function NonProdEnvWarning() {
   const { info } = useEnv()
 
   if (!info || info.env === 'production') {
