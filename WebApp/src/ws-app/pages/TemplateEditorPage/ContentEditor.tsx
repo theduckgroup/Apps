@@ -202,7 +202,7 @@ export function ContentEditor({ suppliers, sections, setData }: {
   function handleClickAddSection() {
     editSectionModal.open({
       title: 'Add Section',
-      section: WsTemplate.createDefaultSection(),
+      section: WsTemplate.newSection(),
       onSave: newSection => {
         setData(([suppliers, sections]) => {
           const newSections = [...sections, newSection]
@@ -321,7 +321,7 @@ function SectionComponent({
   const handleClickAddSupplier = () => {
     addSupplierModal.open({
       title: 'Add Suplier',
-      supplier: WsTemplate.createDefaultSupplier(),
+      supplier: WsTemplate.newSupplier(),
       onSave: newSupplier => {
         addSupplierToSection(newSupplier, section)
       }
@@ -468,7 +468,7 @@ function SectionHeader({
   const handleClickAdd = useCallback((position: 'before' | 'after') => {
     editSectionModal.open({
       title: 'Add Section',
-      section: WsTemplate.createDefaultSection(),
+      section: WsTemplate.newSection(),
       onSave: newSection => {
         addSection(newSection, section, position)
       }
@@ -582,7 +582,7 @@ function RowComponent({
   const handleClickAdd = () => {
     editModal.open({
       title: 'Add Supplier',
-      supplier: WsTemplate.createDefaultSupplier(),
+      supplier: WsTemplate.newSupplier(),
       onSave: newSupplier => {
         addSupplier(newSupplier, /* after */ supplier)
       }

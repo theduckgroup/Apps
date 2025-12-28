@@ -206,7 +206,7 @@ export default function QuizItemsEditor({ items, sections, setData }: {
   function handleClickAddSection() {
     editSectionModal.open({
       title: 'Add Section',
-      section: Quiz.createDefaultSection(),
+      section: Quiz.newSection(),
       onSave: newSection => {
         setData(([items, sections]) => {
           const newSections = [...sections, newSection]
@@ -319,7 +319,7 @@ function SectionComponent({
   function handleClickAddItem(kind: Quiz.ItemKind) {
     addItemModal.open({
       title: 'Add Item',
-      item: Quiz.createDefaultItem({ kind }),
+      item: Quiz.newItem({ kind }),
       onSave: newItem => {
         addItemToSection(newItem, section)
       }
@@ -456,7 +456,7 @@ function SectionHeader({
   const handleClickAdd = useCallback((position: 'before' | 'after') => {
     editSectionModal.open({
       title: 'Add Section',
-      section: Quiz.createDefaultSection(),
+      section: Quiz.newSection(),
       onSave: newSection => {
         addSection(newSection, section, position)
       }
@@ -572,7 +572,7 @@ function RowComponent({
   const handleClickAdd = useCallback((kind: Quiz.ItemKind) => {
     editItemModal.open({
       title: 'Add Item',
-      item: Quiz.createDefaultItem({ kind }),
+      item: Quiz.newItem({ kind }),
       onSave: newItem => {
         addItem(newItem, item)
       }
