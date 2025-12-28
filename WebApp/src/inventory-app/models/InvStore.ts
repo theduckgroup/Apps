@@ -18,6 +18,10 @@ export namespace InvStore {
   export interface Section {
     id: string
     name: string
-    rows: { itemId: string }[]
+    rows: Row[]
+  }
+
+  export interface Row {
+    itemId: string
   }
 }
