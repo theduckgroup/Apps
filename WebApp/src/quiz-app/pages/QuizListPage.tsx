@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { ActionIcon, Button, Grid, Group, Menu, Paper, Stack, Text, Title } from '@mantine/core'
+import { ActionIcon, Box, Button, Grid, Group, Menu, Paper, Stack, Text, Title } from '@mantine/core'
 import { IconDots, IconPlus } from '@tabler/icons-react'
 import { useQuery } from '@tanstack/react-query'
 
@@ -32,6 +32,9 @@ const QuizListPage = () => {
   return (
     <Stack gap='md' align='flex-start'>
       <title>FOH Tests | The Duck Group</title>
+      <Box className='bg-yellow-300 text-neutral-900 text-center px-2 py-1.5 rounded-sm w-full'>
+        <Text>You are in test environment. Changes will not affect production.</Text>
+      </Box>
       <Title order={2} c='gray.0'>Tests</Title>
       {(() => {
         if (isLoading) {
