@@ -26,9 +26,9 @@ export default function QuizItemsEditor({ items, sections, setData }: {
   const confirmDeleteModal = useModal(ConfirmModal)
 
   // Can't hold this inside SectionComponent because it gets reset during drag/drop
-  const [collapsedSectionIDs, setCollapsedSectionIDs] = useState<Set<string>>(new Set())
+  const [collapsedSectionIDs, setCollapsedSectionIDs] = useState(new Set<string>())
 
-  const handleAddSection: AddSectionHandler = (newSection, anchor, position) => {
+  const addSection: AddSectionFn = (newSection, anchor, position) => {
     setData(([items, sections]) => {
       const newSections = produce(sections, sections => {
         const anchorIndex = sections.findIndex(x => x.id == anchor.id)
@@ -47,7 +47,7 @@ export default function QuizItemsEditor({ items, sections, setData }: {
     })
   }
 
-  const handleEditSection: EditSectionHandler = (section) => {
+  const updateSection: UpdateSectionFn = (section) => {
     setData(([items, sections]) => {
       const newSections = [...sections]
       const sectionIndex = newSections.findIndex(x => x.id == section.id)!
@@ -57,7 +57,7 @@ export default function QuizItemsEditor({ items, sections, setData }: {
     })
   }
 
-  const handleDeleteSection: DeleteSectionHandler = (section) => {
+  const deleteSection: DeleteSectionFn = (section) => {
     setData(([items, sections]) => {
       const newSections = [...sections]
       const sectionIndex = newSections.findIndex(x => x.id == section.id)!
@@ -72,7 +72,7 @@ export default function QuizItemsEditor({ items, sections, setData }: {
 
   }
 
-  const handleAddItem: AddItemHandler = (item, afterItem) => {
+  const addItem: AddItemFn = (item, afterItem) => {
     setData(([items, sections]) => {
       const newItems = [...items, item]
 
@@ -94,7 +94,7 @@ export default function QuizItemsEditor({ items, sections, setData }: {
     })
   }
 
-  const handleAddItemToSection: AddItemToSectionHandler = (item, section) => {
+  const addItemToSection: AddItemToSectionFn = (item, section) => {
     setData(([items, sections]) => {
       const newItems = [...items, item]
 
@@ -111,7 +111,7 @@ export default function QuizItemsEditor({ items, sections, setData }: {
     })
   }
 
-  const handleEditItem: EditItemHandler = (item) => {
+  const updateItem: UpdateItemFn = (item) => {
     setData(([items, sections]) => {
       const newItems = produce(items, items => {
         const index = items.findIndex(x => x.id == item.id)
@@ -122,7 +122,7 @@ export default function QuizItemsEditor({ items, sections, setData }: {
     })
   }
 
-  const handleDeleteItem: DeleteItemHandler = (item) => {
+  const deleteItem: DeleteItemFn = (item) => {
     setData(([items, sections]) => {
       const newItems = produce(items, items => {
         const index = items.findIndex(x => x.id == item.id)!
@@ -253,15 +253,15 @@ export default function QuizItemsEditor({ items, sections, setData }: {
                       sectionIndex={sectionIndex}
                       itemForId={id => items.find(x => x.id == id)}
                       isExpanded={isSectionExpanded(section.id)}
-                      onExpandedChange={value => setSectionExpanded(section.id, value)}
-                      onAddSection={handleAddSection}
-                      onEditSection={handleEditSection}
-                      onDeleteSection={handleDeleteSection}
-                      onAddItem={handleAddItem}
-                      onAddItemToSection={handleAddItemToSection}
-                      onEditItem={handleEditItem}
-                      onDeleteItem={handleDeleteItem}
-                      onOpenConfirmDeleteModal={confirmDeleteModal.open}
+                      setExpanded={value => setSectionExpanded(section.id, value)}
+                      addSection={addSection}
+                      updateSection={updateSection}
+                      deleteSection={deleteSection}
+                      addItem={addItem}
+                      addItemToSection={addItemToSection}
+                      updateItem={updateItem}
+                      deleteItem={deleteItem}
+                      openConfirmDeleteModal={confirmDeleteModal.open}
                       provided={provided}
                     />
                   )}
@@ -293,35 +293,35 @@ export default function QuizItemsEditor({ items, sections, setData }: {
 
 function SectionComponent({
   section, sectionIndex, itemForId,
-  isExpanded, onExpandedChange,
-  onAddSection, onEditSection, onDeleteSection,
-  onAddItem, onAddItemToSection, onEditItem, onDeleteItem,
-  onOpenConfirmDeleteModal,
+  isExpanded, setExpanded,
+  addSection, updateSection, deleteSection,
+  addItem, addItemToSection, updateItem, deleteItem,
+  openConfirmDeleteModal,
   provided
 }: {
   section: Quiz.Section,
   sectionIndex: number,
   itemForId: (id: string) => Quiz.Item | undefined,
   isExpanded: boolean,
-  onExpandedChange: (_: boolean) => void,
-  onAddSection: AddSectionHandler,
-  onEditSection: EditSectionHandler,
-  onDeleteSection: DeleteSectionHandler,
-  onAddItem: AddItemHandler,
-  onAddItemToSection: AddItemToSectionHandler,
-  onEditItem: EditItemHandler,
-  onDeleteItem: EditItemHandler,
-  onOpenConfirmDeleteModal: (options: ConfirmModal.Options) => void,
+  setExpanded: (_: boolean) => void,
+  addSection: AddSectionFn,
+  updateSection: UpdateSectionFn,
+  deleteSection: DeleteSectionFn,
+  addItem: AddItemFn,
+  addItemToSection: AddItemToSectionFn,
+  updateItem: UpdateItemFn,
+  deleteItem: UpdateItemFn,
+  openConfirmDeleteModal: (options: ConfirmModal.Options) => void,
   provided: DraggableProvided
 }) {
   const addItemModal = useModal(EditItemModal)
-  
+
   function handleClickAddItem(kind: Quiz.ItemKind) {
     addItemModal.open({
       title: 'Add Item',
       item: Quiz.createDefaultItem({ kind }),
       onSave: newItem => {
-        onAddItemToSection(newItem, section)
+        addItemToSection(newItem, section)
       }
     })
   }
@@ -339,19 +339,18 @@ function SectionComponent({
         <SectionHeader
           section={section}
           sectionIndex={sectionIndex}
-          onAddSection={onAddSection}
-          onEditSection={onEditSection}
-          onDeleteSection={onDeleteSection}
-          onOpenConfirmDeleteModal={onOpenConfirmDeleteModal}
+          addSection={addSection}
+          updateSection={updateSection}
+          deleteSection={deleteSection}
+          openConfirmDeleteModal={openConfirmDeleteModal}
           isExpanded={isExpanded}
-          onExpandedChange={onExpandedChange}
+          setExpanded={setExpanded}
           dragHandleProps={provided.dragHandleProps} // eslint-disable-line react-hooks/refs
         />
         {/*  */}
         {isExpanded && <Divider />}
         {/* Droppable of items */}
         {
-          // isExpanded &&
           <Droppable
             droppableId={section.id}
             direction='vertical'
@@ -393,13 +392,13 @@ function SectionComponent({
                       >
                         {(() => {
                           return (
-                            <Row
+                            <RowComponent
                               item={itemForId(row.itemId)!}
                               rowIndex={rowIndex}
-                              onAddItem={onAddItem}
-                              onEditItem={onEditItem}
-                              onDeleteItem={onDeleteItem}
-                              onOpenConfirmDeleteModal={onOpenConfirmDeleteModal}
+                              addItem={addItem}
+                              updateItem={updateItem}
+                              deleteItem={deleteItem}
+                              openConfirmDeleteModal={openConfirmDeleteModal}
                               dragHandleProps={provided.dragHandleProps}
                             />
                           )
@@ -435,15 +434,21 @@ function SectionComponent({
   )
 }
 
-function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onDeleteSection, onOpenConfirmDeleteModal, isExpanded, onExpandedChange, dragHandleProps }: {
+function SectionHeader({
+  section, sectionIndex,
+  addSection, updateSection, deleteSection,
+  openConfirmDeleteModal,
+  isExpanded, setExpanded,
+  dragHandleProps
+}: {
   section: Quiz.Section
-  sectionIndex: number,
-  onAddSection: AddSectionHandler,
-  onEditSection: EditSectionHandler,
-  onDeleteSection: DeleteSectionHandler,
-  onOpenConfirmDeleteModal: (options: ConfirmModal.Options) => void,
+  sectionIndex: number
+  addSection: AddSectionFn
+  updateSection: UpdateSectionFn
+  deleteSection: DeleteSectionFn
+  openConfirmDeleteModal: (options: ConfirmModal.Options) => void
   isExpanded: boolean
-  onExpandedChange: (_: boolean) => void
+  setExpanded: (_: boolean) => void
   dragHandleProps: DraggableProvidedDragHandleProps | null
 }) {
   const editSectionModal = useModal(EditSectionModal)
@@ -453,10 +458,10 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
       title: 'Add Section',
       section: Quiz.createDefaultSection(),
       onSave: newSection => {
-        onAddSection(newSection, section, position)
+        addSection(newSection, section, position)
       }
     })
-  }, [onAddSection, section, editSectionModal])
+  }, [addSection, section, editSectionModal])
 
   const handleClickAddBefore = () => handleClickAdd('before')
   const handleClickAddAfter = () => handleClickAdd('after')
@@ -466,13 +471,13 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
       title: 'Edit Section',
       section: section,
       onSave: modified => {
-        onEditSection(modified)
+        updateSection(modified)
       }
     })
   }
 
   const handleDelete = () => {
-    onOpenConfirmDeleteModal({
+    openConfirmDeleteModal({
       title: <Text>Delete section <b>{section.name}</b>?</Text>,
       message: (
         <Stack gap='xs'>
@@ -483,7 +488,7 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
         label: 'Delete',
         role: 'destructive',
         handler: () => {
-          onDeleteSection(section)
+          deleteSection(section)
         }
       }]
     })
@@ -497,7 +502,7 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
         <ActionIcon
           variant='transparent'
           size='compact-md'
-          onClick={() => onExpandedChange(!isExpanded)}
+          onClick={() => setExpanded(!isExpanded)}
           color='gray'
           pl='0'
           pr='0.33rem'
@@ -519,7 +524,7 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
         <Menu offset={6} position='bottom-end' width={180}>
           <Menu.Target>
             <ActionIcon variant='subtle' size='md' color='gray'>
-              <IconDots size={16}/>
+              <IconDots size={16} />
             </ActionIcon>
           </Menu.Target>
           <Menu.Dropdown>
@@ -548,13 +553,18 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
   )
 }
 
-function Row({ item, rowIndex, onAddItem, onEditItem, onDeleteItem, onOpenConfirmDeleteModal, dragHandleProps }: {
+function RowComponent({
+  item, rowIndex,
+  addItem, updateItem, deleteItem,
+  openConfirmDeleteModal,
+  dragHandleProps
+}: {
   item: Quiz.Item,
   rowIndex: number,
-  onAddItem: AddItemHandler,
-  onEditItem: EditItemHandler,
-  onDeleteItem: DeleteItemHandler,
-  onOpenConfirmDeleteModal: (options: ConfirmModal.Options) => void,
+  addItem: AddItemFn,
+  updateItem: UpdateItemFn,
+  deleteItem: DeleteItemFn,
+  openConfirmDeleteModal: (_: ConfirmModal.Options) => void,
   dragHandleProps: DraggableProvidedDragHandleProps | null,
 }) {
   const editItemModal = useModal(EditItemModal)
@@ -564,34 +574,34 @@ function Row({ item, rowIndex, onAddItem, onEditItem, onDeleteItem, onOpenConfir
       title: 'Add Item',
       item: Quiz.createDefaultItem({ kind }),
       onSave: newItem => {
-        onAddItem(newItem, item)
+        addItem(newItem, item)
       }
     })
-  }, [item, onAddItem, editItemModal])
+  }, [item, addItem, editItemModal])
 
   const handleClickEdit = useCallback(() => {
     editItemModal.open({
       title: 'Edit Item',
       item,
       onSave: modifiedItem => {
-        onEditItem(modifiedItem)
+        updateItem(modifiedItem)
       }
     })
-  }, [item, onEditItem, editItemModal])
+  }, [item, updateItem, editItemModal])
 
   const handleClickDelete = useCallback(() => {
-    onOpenConfirmDeleteModal({
+    openConfirmDeleteModal({
       title: <Text>Delete item?</Text>,
       message: null,
       actions: [{
         label: 'Delete',
         role: 'destructive',
         handler: () => {
-          onDeleteItem(item)
+          deleteItem(item)
         }
       }]
     })
-  }, [item, onDeleteItem, onOpenConfirmDeleteModal])
+  }, [item, deleteItem, openConfirmDeleteModal])
 
   const controlSection = useMemo(() => (
     <Group gap='xs' wrap='nowrap'>
@@ -662,10 +672,10 @@ function AddItemMenuSection({ onAddItem }: {
   )
 }
 
-type AddSectionHandler = (section: Quiz.Section, anchor: Quiz.Section, position: 'before' | 'after') => void
-type EditSectionHandler = (section: Quiz.Section) => void
-type DeleteSectionHandler = (section: Quiz.Section) => void
-type AddItemHandler = (item: Quiz.Item, afterItem: Quiz.Item) => void
-type AddItemToSectionHandler = (item: Quiz.Item, section: Quiz.Section) => void
-type EditItemHandler = (item: Quiz.Item) => void
-type DeleteItemHandler = (item: Quiz.Item) => void
+type AddSectionFn = (section: Quiz.Section, anchor: Quiz.Section, position: 'before' | 'after') => void
+type UpdateSectionFn = (section: Quiz.Section) => void
+type DeleteSectionFn = (section: Quiz.Section) => void
+type AddItemFn = (item: Quiz.Item, afterItem: Quiz.Item) => void
+type AddItemToSectionFn = (item: Quiz.Item, section: Quiz.Section) => void
+type UpdateItemFn = (item: Quiz.Item) => void
+type DeleteItemFn = (item: Quiz.Item) => void
