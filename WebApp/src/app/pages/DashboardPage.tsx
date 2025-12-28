@@ -56,6 +56,7 @@ function DashboardPage() {
         {/* py here is opposite of AppShell.padding */}
         <Container py={{ base: 'md', sm: '0px' }}>
           {/* Content is decided by the route nested inside dashboard route */}
+          {/* withErrorBoundary cannot be used to wrap Outlet */}
           <Outlet />
         </Container>
       </AppShell.Main>

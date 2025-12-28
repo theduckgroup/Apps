@@ -14,6 +14,7 @@ import quizAppRoutes from 'src/quiz-app/routes'
 import QuizResponsePage from 'src/quiz-app/pages/QuizResponsePage'
 import weeklySpendingApp from 'src/ws-app/routes'
 import inventoryApp from 'src/inventory-app/routes'
+import { withErrorBoundary } from 'src/utils/with-error-boundary'
 
 function App() {
   return (
@@ -53,7 +54,7 @@ function AppRoutes() {
       }>
         <Route index element={<Navigate to='quiz-app' />} />
         {subappRoutes}
-        <Route path='profile' element={<ProfilePage />} />
+        <Route path='profile' element={withErrorBoundary(<ProfilePage />)} />
         <Route path='*' element={<NoMatch />} />
       </Route>
     </Routes>
