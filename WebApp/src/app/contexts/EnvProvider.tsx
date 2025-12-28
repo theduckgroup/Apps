@@ -2,8 +2,6 @@ import axios, { AxiosError } from 'axios'
 import { useQuery } from '@tanstack/react-query'
 import { EnvContext, EnvContextValue, Info } from './EnvContext'
 
-export { EnvContext }
-
 export function EnvProvider({ children }: {
   children: React.ReactNode
 }) {
@@ -17,8 +15,8 @@ export function EnvProvider({ children }: {
   }
 
   return (
-    <EnvContext value={value}>
+    <EnvContext.Provider value={value}>
       {children}
-    </EnvContext>
+    </EnvContext.Provider>
   )
 }
