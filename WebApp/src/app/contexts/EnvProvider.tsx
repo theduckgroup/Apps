@@ -6,7 +6,7 @@ export function EnvProvider({ children }: {
   children: React.ReactNode
 }) {
   const { data: info } = useQuery<Info, AxiosError>({
-    queryKey: ['info'],
+    queryKey: ['/api/info'],
     queryFn: async () => (await axios.get<Info>('/api/info')).data
   })
 
