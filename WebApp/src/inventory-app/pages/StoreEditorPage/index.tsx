@@ -6,11 +6,11 @@ import { IconAlertTriangleFilled, IconArrowBackUp, IconChevronLeft } from '@tabl
 
 import { useApi, usePath } from 'src/app/contexts'
 import { InvStore } from 'src/inventory-app/models/InvStore'
-import { ContentEditor } from './ContentEditor'
+import { CatalogEditor } from './CatalogEditor'
 import formatError from 'src/common/format-error'
 import useModal from 'src/utils/use-modal'
 import { ConfirmModal } from 'src/utils/ConfirmModal'
-import { ValueOrReduce } from 'src/utils/types-lib'
+import { ValueOrReducer } from 'src/utils/types-lib'
 
 export default function StoreEditorPage() {
   const { storeId } = useParams()
@@ -29,8 +29,9 @@ export default function StoreEditorPage() {
     mutationFn: async () => {
       return (await axios.get<InvStore>(`store/${storeId}`)).data
     },
-    onSuccess: data => {
-
+    onSuccess: store => {
+      setInitialStore(store)
+      setStore(store)      
     }
   })
 
@@ -59,7 +60,7 @@ export default function StoreEditorPage() {
 
   // Set
 
-  const setStoreAndSave: Dispatch<sets> = useCallback((valueOrReducer: ValueOrReduce<InvStore | null>) => {
+  const setStoreAndSave: Dispatch<ValueOrReducer<InvStore | null>> = useCallback(valueOrReducer => {
     setStore(valueOrReducer)
     setNeedsSave()
     setDirty(true)
@@ -93,7 +94,7 @@ export default function StoreEditorPage() {
         </Group>
       </Anchor>
 
-      {/* Main content */}
+      {/* Content */}
       {(() => {
         if (isLoading) {
           return <Text>Loading...</Text>
@@ -125,11 +126,11 @@ export default function StoreEditorPage() {
 }
 
 /**
- * Template meta (name, code etc) and content (items and sections).
+ * Store meta (name etc) and content (items and sections).
  */
 function MetaAndContent({ store, setStore, revertStore, saving, dirty }: {
   store: InvStore
-  setStore: (valueOrReducer: ValueOrReducer<InvStore | null>) => InvStore
+  setStore: Dispatch<ValueOrReducer<InvStore | null>>,
   revertStore: () => void
   saving: boolean
   dirty: boolean
@@ -152,11 +153,10 @@ function MetaAndContent({ store, setStore, revertStore, saving, dirty }: {
 
   type Reducer<T> = (prev: T) => T
 
-  const setData = (reducer: Reducer<InvStore['catalog']>) => {
+  const setData: Dispatch<Reducer<[InvStore.Item[], InvStore.Section[]]>> = reducer => {
     setStore(store => {
-      const catalog = reducer(store!.catalog)
-
-      return { ...store!, catalog }
+      const [items, sections] = reducer([store!.catalog.items, store!.catalog.sections])
+      return { ...store!, catalog: { items, sections } }
     })
   }
 
@@ -198,31 +198,15 @@ function MetaAndContent({ store, setStore, revertStore, saving, dirty }: {
       </Group>
 
       {/* Items editor */}
-      <ContentEditor
-        suppliers={store.suppliers}
-        sections={store.sections}
+      <CatalogEditor
+        items={store.catalog.items}
+        sections={store.catalog.sections}
         setData={setData}
       />
 
-      {/* Bottom bar */}
-      {/* Spacers (<Box />es) have same bg color as AppShell.Main */}
-      {/* <div className='sticky bottom-0 w-full pb-safe'>
-        <Stack gap='0'>
-          <Box h='12px' bg='dark.9' />
-          <Paper p='md'>
-            <Group>
-              <Button variant='default' ml='auto'>Discard Changes</Button>
-              <Button variant='filled'>Save Changes</Button>
-            </Group>
-          </Paper>
-          <Box h='12px' bg='dark.9'/>
-        </Stack>
-      </div> */}
-
       {/* Modals */}
-      {editModal.element}
       {confirmModal.element}
 
     </Stack>
   )
-)
+}

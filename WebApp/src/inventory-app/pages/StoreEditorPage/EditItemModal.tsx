@@ -8,7 +8,7 @@ export function EditItemModal({ opened, onClose, options }: {
   options: {
     title: string
     item: InvStore.Item
-    validateCode: (code: string) => string | null
+    validateCode: (code: string, owner: InvStore.Item) => string | null
     onSave: (_: InvStore.Item) => void
   }
 }) {
@@ -24,11 +24,12 @@ export function EditItemModal({ opened, onClose, options }: {
       name: isNotEmpty('Name is required'),
       code: (code1) => {
         const code = code1.trim()
-        return (
-          (!code) ? 'Code is required' :
-            validateCode(code) ??
-            null
-        )
+
+        if (!code) {
+          return 'Code is required'
+        }
+
+        return validateCode(code, item)
       }
     }
   })
