@@ -3,6 +3,7 @@ import { Button, Grid, Group, Paper, Stack, Text, Title } from '@mantine/core'
 import { useQuery } from '@tanstack/react-query'
 
 import { usePath, useApi } from 'src/app/contexts'
+import { NonProdEnvWarning } from 'src/app/NonProdEnvWarning'
 import { WsTemplateMetadata } from 'src/ws-app/models/WsTemplate'
 import eventHub from 'src/ws-app/event-hub'
 import formatError from 'src/common/format-error'
@@ -28,6 +29,7 @@ const TemplateListPage = () => {
   return (
     <Stack gap='md' align='flex-start'>
       <title>Weekly Spending | The Duck Group</title>
+      <NonProdEnvWarning />
       <Title order={2} c='gray.0'>Templates</Title>
       {(() => {
         if (isLoading) {

@@ -13,6 +13,7 @@ import QrModal from './QrModal'
 import eventHub from 'src/inventory-app/event-hub'
 import formatError from 'src/common/format-error'
 import { useApi, usePath } from 'src/app/contexts'
+import { NonProdEnvWarning } from 'src/app/NonProdEnvWarning'
 
 export default function RootPage() {
   // const { user } = useAuth()
@@ -68,7 +69,8 @@ export default function RootPage() {
 
   return (
     <>
-      <Stack pt='sm'>
+      <Stack>
+        <NonProdEnvWarning />
         <Group align='center' pb='lg'>
           {/* data.store.name */}
           <Title order={2} c='gray.0'>Inventory</Title>
