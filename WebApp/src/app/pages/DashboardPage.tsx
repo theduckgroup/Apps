@@ -4,28 +4,16 @@ import { Outlet, useLocation, useNavigate } from 'react-router'
 import { IconChevronRight, IconLogout2, IconUserCircle } from '@tabler/icons-react'
 
 import { useAuth } from 'src/app/contexts'
-import axios, { AxiosError } from 'axios'
-import { useQuery } from '@tanstack/react-query'
 import useModal from 'src/utils/use-modal'
 import { ConfirmModal } from 'src/utils/ConfirmModal'
 
 function DashboardPage() {
   const [navbarOpened, { toggle: toggleNavbar, close: closeNavbar }] = useDisclosure() // Mobile only
 
-  interface Info {
-    env: string | 'production'
-    lastUpdated?: string
-  }
-
-  const { data: info } = useQuery<Info, AxiosError>({
-    queryKey: ['info'],
-    queryFn: async () => (await axios.get<Info>('/api/info')).data
-  })
-
   /*
   const { setColorScheme } = useMantineColorScheme()
   const computedColorScheme = useComputedColorScheme('light')
-  
+
   function toggleColorScheme() {
     setColorScheme(computedColorScheme === 'dark' ? 'light' : 'dark')
   }
@@ -60,20 +48,6 @@ function DashboardPage() {
           <Outlet />
         </Container>
       </AppShell.Main>
-
-      {/* Test env badge */}
-      {info && info.env != 'production' &&
-        // mt-4: extra space when scrolled to bottom
-        // miw is slightly greater than navbar width (250), defined above
-        <div className='sticky pl-2 bottom-2 pb-safe z-1000 w-fit mt-4'>
-          <Box bg='dark.7' px='0.6rem' py='0.15rem' className='border border-amber-300 rounded-sm'>
-            {/* className='[font-variant:small-caps]' */}
-            <span className='text-xs text-amber-300 line-clamp-1'>
-              Test Environment
-            </span>
-          </Box>
-        </div>
-      }
     </AppShell>
   )
 }
