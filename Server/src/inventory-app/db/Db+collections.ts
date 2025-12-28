@@ -19,7 +19,7 @@ Object.defineProperty(Db.prototype, 'collection_inv_stores', {
 
 Object.defineProperty(Db.prototype, 'collection_inv_storeStocks', {
   get(this: Db) {    
-    return this.collection<DbInvStoreStock>('inv_storeStocks')
+    return this.collection<DbInvStoreStock>('inv_store_stocks')
   },
   enumerable: true,
   configurable: true,

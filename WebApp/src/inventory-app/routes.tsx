@@ -6,6 +6,6 @@ import { withErrorBoundary } from 'src/utils/with-error-boundary'
 export default (
   <>
     <Route index element={withErrorBoundary(<RootPage />)} />
-    <Route path='store/editor' element={withErrorBoundary(<StoreEditorPage />)} />
+    <Route path='store/:storeId/editor' element={withErrorBoundary(<StoreEditorPage />)} />
   </>
 )

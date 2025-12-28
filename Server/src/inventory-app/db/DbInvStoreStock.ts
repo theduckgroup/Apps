@@ -1,8 +1,8 @@
 import { ObjectId } from 'mongodb'
 
 export interface DbInvStoreStock {
-  _id: ObjectId
-  storeId: ObjectId
+  _id?: ObjectId
+  storeId: string
   name: string
   itemAttributes: DbInvStoreStock.ItemAttributes[]
 }
