@@ -3,7 +3,7 @@ import { useParams } from 'react-router'
 import { Anchor, Button, Group, Loader, Stack, Text, Title } from '@mantine/core'
 import { useMutation } from '@tanstack/react-query'
 import { ObjectId } from 'bson'
-import { IconArrowBackUp, IconChevronLeft, IconPencil, IconX } from '@tabler/icons-react'
+import { IconArrowBackUp, IconChevronLeft, IconPencil } from '@tabler/icons-react'
 import { produce } from 'immer'
 
 import { usePath, useApi } from 'src/app/contexts'
@@ -21,7 +21,7 @@ export default function QuizEditorPage() {
   const { navigate } = usePath()
   const [initialQuiz, setInitialQuiz] = useState<Quiz | null>(null)
   const [quiz, setQuiz] = useState<Quiz | null>(null)
-  const [needsSave, setNeedsSave] = useState(false)
+  const [saveTrigger, setSaveTrigger] = useState(0)
   const [dirty, setDirty] = useState(false)
 
   const { mutate: loadQuiz, error: loadError, isPending: isLoading } = useMutation({
@@ -64,25 +64,27 @@ export default function QuizEditorPage() {
     }
   })
 
-  useEffect(() => {
-    if (needsSave) {
-      saveQuiz(quiz!)
-      setNeedsSave(false)
-    }
+  const setNeedsSave = useCallback(() => {
+    setSaveTrigger(x => x + 1)
+  }, [setSaveTrigger])
 
-  }, [needsSave, setNeedsSave, quiz, saveQuiz])
+  useEffect(() => {
+    if (saveTrigger > 0) {
+      saveQuiz(quiz!)
+    }
+  }, [quiz, saveQuiz, saveTrigger])
 
   const setQuizAndSave: React.Dispatch<React.SetStateAction<Quiz | null>> = useCallback((reduceQuiz) => {
     setQuiz(reduceQuiz)
-    setNeedsSave(true)
+    setNeedsSave()
     setDirty(true)
   }, [setQuiz, setNeedsSave])
 
   const revertQuizAndSave = useCallback(() => {
     setQuiz(initialQuiz)
-    setNeedsSave(true)
+    setNeedsSave()
     setDirty(false)
-  }, [initialQuiz, setQuiz])
+  }, [initialQuiz, setQuiz, setNeedsSave])
 
   return (
     <Stack>
@@ -231,21 +233,16 @@ function Content({ quiz, setQuiz, revertQuiz, saving, dirty }: {
         </Stack>
       </Group>
 
-      {/* Items editor */}
+      {/* Content editor */}
       <ContentEditor
         items={quiz.items}
         sections={quiz.sections}
-        // onChange={(items, sections) => {
-        //   setQuiz(quiz => ({ ...quiz!, items, sections }))
-        //   saveQuiz()
-        // }}
         setData={setData}
       />
 
       {/* Modals */}
       {editModal.element}
       {confirmModal.element}
-
     </Stack>
   )
 }
