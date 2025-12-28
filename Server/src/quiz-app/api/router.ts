@@ -12,6 +12,7 @@ import { QuizSchema } from './QuizSchema'
 import QuizResponseSchema from './QuizResponseSchema'
 import logger from 'src/logger'
 import { sendQuizResponseEmail, generateQuizResponseEmail } from './quiz-response-email'
+import { jsonifyMongoId } from 'src/utils/mongodb-utils'
 
 type QuizSchemaInferredType = z.infer<typeof QuizSchema>
 type QuizResponseSchemaInferredType = z.infer<typeof QuizResponseSchema>
@@ -60,7 +61,7 @@ adminRouter.get('/quiz/:id', async (req, res) => {
     throw createHttpError(400, 'Document not found')
   }
 
-  const quiz = normalizeId(dbQuiz)
+  const quiz = jsonifyMongoId(dbQuiz)
 
   // Fix data
 
@@ -224,7 +225,7 @@ userRouter.get('/quiz' /* ?code=XYZ */, async (req, res) => {
     throw createHttpError(400, 'Document not found')
   }
 
-  const quiz = normalizeId(dbQuiz)
+  const quiz = jsonifyMongoId(dbQuiz)
 
   res.send(quiz)
 })
@@ -283,7 +284,7 @@ if (env.nodeEnv == 'development') {
       throw createHttpError(404)
     }
 
-    const resQuiz = normalizeId(dbQuiz)
+    const resQuiz = jsonifyMongoId(dbQuiz)
     console.info(`id = ${resQuiz.id}`)
 
     res.send(resQuiz)
@@ -325,14 +326,6 @@ publicRouter.get('/quiz-response/:id', async (req, res) => {
 
   res.send(data)
 })
-
-// Helpers
-
-function normalizeId<T extends { _id: ObjectId }>(object: T) {
-  const { _id, ...rest } = object
-  const obj = { ...rest, id: _id.toString() }
-  return obj
-}
 
 // Exported router
 // Order is important -- if adminRouter is first, it will attempt to authorize
