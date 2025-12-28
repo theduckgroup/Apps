@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Text, Stack, Paper, Group, ActionIcon, Button, Menu, Box } from '@mantine/core'
+import { Text, Stack, Paper, Group, ActionIcon, Button, Menu, Box, Anchor, Space } from '@mantine/core'
 import { DragDropContext, Droppable, Draggable, DropResult, DraggableProvided } from '@hello-pangea/dnd'
 
 import { Quiz } from 'src/quiz-app/models/Quiz'
@@ -24,7 +24,7 @@ export default function ListItemEditor({ item, onChange }: {
     onChange(modifiedItem)
   }
 
-  function handleAddSubitem(kind: Quiz.SelectedResponseItem['kind'] | Quiz.TextInputItem['kind']) {
+  function addSubitem(kind: Quiz.SelectedResponseItem['kind'] | Quiz.TextInputItem['kind']) {
     const newSubitem = Quiz.newItem({ kind, isSubitem: true })
 
     const modifiedItem = produce(item, item => {
@@ -40,7 +40,7 @@ export default function ListItemEditor({ item, onChange }: {
     })
   }
 
-  function handleDeleteSubitem(id: string) {
+  function deleteSubitem(id: string) {
     const modifiedItem = produce(item, item => {
       item.data.items = item.data.items.filter(x => x.id != id)
     })
@@ -48,7 +48,7 @@ export default function ListItemEditor({ item, onChange }: {
     onChange(modifiedItem)
   }
 
-  function handleSubitemChange(subitem: Quiz.Item) {
+  function updateSubitem(subitem: Quiz.Item) {
     const modifiedItem = produce(item, item => {
       const index = item.data.items.findIndex(x => x.id == subitem.id)
       item.data.items[index] = subitem
@@ -71,6 +71,24 @@ export default function ListItemEditor({ item, onChange }: {
     })
 
     setExpandedSubitemIDs(modified)
+  }
+
+  const expandAllSubitems = () => {
+
+  }
+
+  const handleClickExpandAll = () => {
+    if (areAllSubitemsExpanded()) {
+      setExpandedSubitemIDs(new Set())
+    } else {
+      const allSubitemIDs = new Set(item.data.items.map(x => x.id))
+      setExpandedSubitemIDs(allSubitemIDs)
+    }
+  }
+
+  const areAllSubitemsExpanded = () => {
+    const allSubitemIDs = new Set(item.data.items.map(x => x.id))
+    return expandedSubitemIDs.symmetricDifference(allSubitemIDs).size == 0
   }
 
   function onDragEnd(result: DropResult) {
@@ -101,11 +119,13 @@ export default function ListItemEditor({ item, onChange }: {
       <PromptInput value={item.data.prompt} onChange={handlePromptChange} />
 
       {/* Subitems */}
-      <Stack gap='0.25rem'>
+      <Stack gap='0.25rem' w='100%'>
         {/* Label */}
-        <Group gap='md'>
+        <Group gap='xs'>
           <Text fz='sm'>Sub Items</Text>
-          {/* <Anchor onClick={e => { e.preventDefault(); expandCollapseAllSubitems() }}>Expand/Collapse</Anchor> */}
+          <Anchor fz='sm' onClick={e => { e.preventDefault(); handleClickExpandAll() }}>
+            {areAllSubitemsExpanded() ? 'Collapse All' : 'Expand All'}
+          </Anchor>
         </Group>
 
         {/* List */}
@@ -123,8 +143,8 @@ export default function ListItemEditor({ item, onChange }: {
                 <Row
                   item={subitem}
                   index={index}
-                  onChange={e => { }}
-                  onDelete={() => { }}
+                  updateItem={e => { }}
+                  deleteItem={() => { }}
                   expanded={isSubitemExpanded(subitem.id)}
                   setExpanded={() => { }}
                   provided={provided}
@@ -147,8 +167,8 @@ export default function ListItemEditor({ item, onChange }: {
                       <Row
                         item={subitem}
                         index={index}
-                        onChange={handleSubitemChange}
-                        onDelete={() => handleDeleteSubitem(subitem.id)}
+                        updateItem={updateSubitem}
+                        deleteItem={() => deleteSubitem(subitem.id)}
                         expanded={isSubitemExpanded(subitem.id)}
                         setExpanded={value => setSubitemExpanded(subitem.id, value)}
                         provided={provided}
@@ -173,12 +193,12 @@ export default function ListItemEditor({ item, onChange }: {
                   </Menu.Target>
                   <Menu.Dropdown>
                     <Menu.Item
-                      onClick={() => handleAddSubitem('selectedResponseItem')}
+                      onClick={() => addSubitem('selectedResponseItem')}
                     >
                       Multiple Choice
                     </Menu.Item>
                     <Menu.Item
-                      onClick={() => handleAddSubitem('textInputItem')}
+                      onClick={() => addSubitem('textInputItem')}
                     >
                       Text Input
                     </Menu.Item>
@@ -194,16 +214,23 @@ export default function ListItemEditor({ item, onChange }: {
   )
 }
 
-function Row({ item, index, onChange, onDelete, expanded, setExpanded, provided, promptRef, mb }: {
-  item: Quiz.Item,
-  index: number,
-  onChange: (_: Quiz.Item) => void,
-  onDelete: () => void,
-  expanded: boolean,
-  setExpanded: (_: boolean) => void,
-  provided: DraggableProvided,
+function Row({
+  item, index,
+  updateItem, deleteItem,
+  expanded, setExpanded,
+  promptRef,
+  mb,
+  provided,
+}: {
+  item: Quiz.Item
+  index: number
+  updateItem: (_: Quiz.Item) => void
+  deleteItem: () => void
+  expanded: boolean
+  setExpanded: (_: boolean) => void
   promptRef?: (_: HTMLTextAreaElement) => void
   mb: string | number
+  provided: DraggableProvided
 }) {
   const kindLabel = (() => {
     switch (item.kind) {
@@ -215,8 +242,8 @@ function Row({ item, index, onChange, onDelete, expanded, setExpanded, provided,
 
   return (
     <Paper
-      ref={provided.innerRef}
-      {...provided.draggableProps}
+      ref={provided.innerRef} // eslint-disable-line react-hooks/refs
+      {...provided.draggableProps} // eslint-disable-line react-hooks/refs
       withBorder
       p='sm'
       mb={mb}
@@ -254,7 +281,7 @@ function Row({ item, index, onChange, onDelete, expanded, setExpanded, provided,
           <ActionIcon
             variant='default'
             size='md'
-            onClick={onDelete}
+            onClick={deleteItem}
             title='Delete'
             tabIndex={-1}
           >
@@ -262,7 +289,7 @@ function Row({ item, index, onChange, onDelete, expanded, setExpanded, provided,
           </ActionIcon>
           {/* Drag handle */}
           <Box
-            {...provided.dragHandleProps}
+            {...provided.dragHandleProps} // eslint-disable-line react-hooks/refs
             tabIndex={-1}
           >
             <IconGripVertical size={18} />
@@ -276,10 +303,10 @@ function Row({ item, index, onChange, onDelete, expanded, setExpanded, provided,
               {(() => {
                 switch (item.kind) {
                   case 'selectedResponseItem':
-                    return <SelectedResponseItemEditor item={item} onChange={onChange} promptRef={promptRef} />
+                    return <SelectedResponseItemEditor item={item} onChange={updateItem} promptRef={promptRef} />
 
                   case 'textInputItem':
-                    return <TextInputItemEditor item={item} onChange={onChange} promptRef={promptRef} />
+                    return <TextInputItemEditor item={item} onChange={updateItem} promptRef={promptRef} />
 
                   case 'listItem':
                     return <Text c='red'>ERROR: Unexpected item type</Text>
@@ -296,4 +323,8 @@ function Row({ item, index, onChange, onDelete, expanded, setExpanded, provided,
       </Stack>
     </Paper>
   )
+}
+
+function areSetsEqual<T>(x: Set<T>, y: Set<T>) {
+  return x.symmetricDifference(y).size == 0
 }
