@@ -72,7 +72,7 @@ export function ConfirmModal({ opened, onClose, options: { title, message, actio
 export namespace ConfirmModal {
   export type Options = {
     title?: React.ReactNode
-    message: React.ReactNode
+    message?: React.ReactNode
     actions: Action[]
   }
 
