@@ -2,16 +2,14 @@ import { Anchor, AppShell, Avatar, Box, Burger, Container, Group, Menu, NavLink,
 import { useDisclosure } from '@mantine/hooks'
 import { Outlet, useLocation, useNavigate } from 'react-router'
 import { IconChevronRight, IconLogout2, IconUserCircle } from '@tabler/icons-react'
-import { format } from 'date-fns'
 
-// import env from 'src/env'
 import { useAuth } from 'src/app/contexts'
 import axios, { AxiosError } from 'axios'
 import { useQuery } from '@tanstack/react-query'
 import useModal from 'src/utils/use-modal'
 import { ConfirmModal } from 'src/utils/ConfirmModal'
 
-function AppLayout() {
+function DashboardPage() {
   const [navbarOpened, { toggle: toggleNavbar, close: closeNavbar }] = useDisclosure() // Mobile only
 
   interface Info {
@@ -58,6 +56,7 @@ function AppLayout() {
         {/* py here is opposite of AppShell.padding */}
         <Container py={{ base: 'md', sm: '0px' }}>
           {/* Content is decided by the route nested inside dashboard route */}
+          {/* withErrorBoundary cannot be used to wrap Outlet */}
           <Outlet />
         </Container>
       </AppShell.Main>
@@ -67,12 +66,11 @@ function AppLayout() {
         // mt-4: extra space when scrolled to bottom
         // miw is slightly greater than navbar width (250), defined above
         <div className='sticky pl-2 bottom-2 pb-safe z-1000 w-fit mt-4'>
-          <Box bg='yellow.4' c='black' px='0.6rem' py='0.15rem' bdrs={2}>
+          <Box bg='dark.7' px='0.6rem' py='0.15rem' className='border border-amber-300 rounded-sm'>
             {/* className='[font-variant:small-caps]' */}
-            <Text lineClamp={1} fz='xs' fw='bold'>
-              {/* Timestamp does not work in prod -- TODO: Remove from backend */}
+            <span className='text-xs text-amber-300 line-clamp-1'>
               Test Environment
-            </Text>
+            </span>
           </Box>
         </div>
       }
@@ -203,7 +201,10 @@ function NavbarContent({ onClose }: {
     <>
       <NavbarLink label='FOH Test' path='/quiz-app' onClose={onClose} />
       <NavbarLink label='Weekly Spending' path='/ws-app' onClose={onClose} />
-      <NavbarLink label='Inventory' path='/inventory-app' onClose={onClose} />
+      {
+        import.meta.env.DEV && 
+        <NavbarLink label='Inventory' path='/inventory-app' onClose={onClose} />
+      }
       <NavbarLink label='Admin' path='/admin' onClose={onClose} />
     </>
   )
@@ -234,4 +235,4 @@ function NavbarLink({ label, path, onClose }: {
   )
 }
 
-export default AppLayout
+export default DashboardPage

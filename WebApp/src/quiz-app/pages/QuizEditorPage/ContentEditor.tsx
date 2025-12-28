@@ -330,9 +330,9 @@ function SectionComponent({
     // Stack of section header and items
     <Paper
       withBorder
-      ref={provided.innerRef}
-      {...provided.draggableProps}
-      style={provided.draggableProps.style}
+      ref={provided.innerRef} // eslint-disable-line react-hooks/refs
+      {...provided.draggableProps} // eslint-disable-line react-hooks/refs
+      style={provided.draggableProps.style} // eslint-disable-line react-hooks/refs
     >
       <Stack gap={0} bg='dark.8'>
         {/* Section header */}
@@ -345,7 +345,7 @@ function SectionComponent({
           onOpenConfirmDeleteModal={onOpenConfirmDeleteModal}
           isExpanded={isExpanded}
           onExpandedChange={onExpandedChange}
-          dragHandleProps={provided.dragHandleProps}
+          dragHandleProps={provided.dragHandleProps} // eslint-disable-line react-hooks/refs
         />
         {/*  */}
         {isExpanded && <Divider />}
@@ -473,11 +473,10 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
 
   const handleDelete = () => {
     onOpenConfirmDeleteModal({
-      title: 'Delete',
+      title: <Text>Delete section <b>{section.name}</b>?</Text>,
       message: (
         <Stack gap='xs'>
-          <Text>Delete section '{section.name}'?</Text>
-          <Text fw='bold'>This will delete the section and all of its items. This cannot be undone.</Text>
+          <Text>The section and its items will be deleted.</Text>
         </Stack>
       ),
       actions: [{
@@ -582,13 +581,8 @@ function Row({ item, rowIndex, onAddItem, onEditItem, onDeleteItem, onOpenConfir
 
   const handleClickDelete = useCallback(() => {
     onOpenConfirmDeleteModal({
-      title: 'Delete Item',
-      message: (
-        <Stack gap='xs'>
-          <Text>Delete item '{item.data.prompt}'?</Text>
-          <Text fw='bold'>This cannot be undone.</Text>
-        </Stack>
-      ),
+      title: <Text>Delete item?</Text>,
+      message: null,
       actions: [{
         label: 'Delete',
         role: 'destructive',

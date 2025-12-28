@@ -51,7 +51,7 @@ const TemplateListPage = () => {
 function Content({ data }: {
   data: WsTemplateMetadata[]
 }) {
-  const { navigate } = usePath()
+  // const { navigate } = usePath()
   const confirmModal = useModal(ConfirmModal)
 
   return (
@@ -92,37 +92,37 @@ function TemplateListItem({ template, openConfirmModal }: {
   const { axios } = useApi()
   const { navigate } = usePath()
 
-  const handleDuplicate = () => {
-    openConfirmModal({
-      title: '',
-      message: 'Duplicate this template?',
-      actions: [{
-        label: 'Duplicate',
-        handler: async () => {
-          return await axios.post(`templates/${template.id}/duplicate`)
-        }
-      }]
-    })
-  }
+  // const handleDuplicate = () => {
+  //   openConfirmModal({
+  //     title: '',
+  //     message: 'Duplicate this template?',
+  //     actions: [{
+  //       label: 'Duplicate',
+  //       handler: async () => {
+  //         return await axios.post(`templates/${template.id}/duplicate`)
+  //       }
+  //     }]
+  //   })
+  // }
 
-  const handleDelete = () => {
-    openConfirmModal({
-      title: '',
-      message: (
-        <Stack>
-          <Text>Delete '{template.name}'?</Text>
-          <Text fw='bold'>This cannot be undone.</Text>
-        </Stack>
-      ),
-      actions: [{
-        label: 'Delete',
-        role: 'destructive',
-        handler: async () => {
-          return await axios.delete(`templates/${template.id}`)
-        }
-      }]
-    })
-  }
+  // const handleDelete = () => {
+  //   openConfirmModal({
+  //     title: '',
+  //     message: (
+  //       <Stack>
+  //         <Text>Delete '{template.name}'?</Text>
+  //         <Text fw='bold'>This cannot be undone.</Text>
+  //       </Stack>
+  //     ),
+  //     actions: [{
+  //       label: 'Delete',
+  //       role: 'destructive',
+  //       handler: async () => {
+  //         return await axios.delete(`templates/${template.id}`)
+  //       }
+  //     }]
+  //   })
+  // }
 
   return (
     <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>

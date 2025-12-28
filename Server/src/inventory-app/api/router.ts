@@ -10,6 +10,7 @@ import { authorizeUser, authorizeAdmin } from 'src/auth/authorize'
 import { objectIdPropertyToString } from 'src/utils/object-id-utils'
 import { UpdateStoreCatalogBodySchema, UpdateStockBodySchema } from './schemas'
 import logger from 'src/logger'
+import '../db/Db+collections'
 
 // Admin router
 
@@ -145,7 +146,7 @@ adminRouter.get('/store/:storeId/stock', async (req, res) => {
 
   const db = await getDb()
 
-  const dbStock = await db.collection_inv_storeStocks.findOne({ storeId: new ObjectId(storeId) })
+  const dbStock = await db.collection_inv_storeStocks.findOne({ storeId })
 
   if (!dbStock) {
     throw createHttpError(500, 'Store stock not found')
@@ -185,7 +186,7 @@ userRouter.post('/store/:storeId/stock', async (req, res) => {
       const db = await getDb()
 
       const dbStore = await db.collection_inv_stores.findOne({ _id: new ObjectId(storeId) })
-      const dbStock = await db.collection_inv_storeStocks.findOne({ storeId: new ObjectId(storeId) })
+      const dbStock = await db.collection_inv_storeStocks.findOne({ storeId })
 
       if (!dbStore || !dbStock) {
         throw createHttpError(404, `Store/stock not found`)
@@ -217,7 +218,7 @@ userRouter.post('/store/:storeId/stock', async (req, res) => {
       }
 
       db.collection_inv_storeStocks.updateOne(
-        { storeId: new ObjectId(storeId) },
+        { storeId },
         {
           $set: {
             itemAttributes: itemAttrs

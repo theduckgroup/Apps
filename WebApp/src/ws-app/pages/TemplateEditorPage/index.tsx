@@ -21,7 +21,7 @@ export default function TemplateEditorPage() {
   const { navigate } = usePath()
   const [initialTemplate, setInitialTemplate] = useState<WsTemplate | null>(null)
   const [template, setTemplate] = useState<WsTemplate | null>(null)
-  const [needsSave, setNeedsSave] = useState(false)
+  const [saveTrigger, setSaveTrigger] = useState(0)
   const [dirty, setDirty] = useState(false)
 
   const { mutate: loadTemplate, error: loadError, isPending: isLoading } = useMutation({
@@ -65,23 +65,28 @@ export default function TemplateEditorPage() {
   })
 
   useEffect(() => {
-    if (needsSave) {
+    if (saveTrigger > 0) {
       saveTemplate(template!)
-      setNeedsSave(false)
     }
-  }, [needsSave, setNeedsSave, template, saveTemplate])
+  }, [template, saveTemplate, saveTrigger])
 
-  const setTemplateAndSave: React.Dispatch<React.SetStateAction<WsTemplate | null>> = useCallback(reduce => {
-    setTemplate(reduce)
-    setNeedsSave(true)
+  const setNeedsSave = useCallback(() => {
+    setSaveTrigger(x => x + 1)
+  }, [setSaveTrigger])
+
+  type ValueOrReducer<T> = T | ((prev: T) => T)
+
+  const setTemplateAndSave = useCallback((valueOrReducer: ValueOrReducer<WsTemplate | null>) => {
+    setTemplate(valueOrReducer)
+    setNeedsSave()
     setDirty(true)
   }, [setTemplate, setNeedsSave])
 
   const revertTemplateAndSave = useCallback(() => {
     setTemplate(initialTemplate)
-    setNeedsSave(true)
+    setNeedsSave()
     setDirty(false)
-  }, [initialTemplate, setTemplate])
+  }, [initialTemplate, setTemplate, setNeedsSave])
 
   return (
     <Stack>

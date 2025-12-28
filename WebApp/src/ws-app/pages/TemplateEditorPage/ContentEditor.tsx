@@ -339,9 +339,9 @@ function SectionComponent({
     <Stack
       gap={0}
       bg='dark.8'
-      ref={provided.innerRef}
-      {...provided.draggableProps}
-      style={provided.draggableProps.style}
+      ref={provided.innerRef} // eslint-disable-line react-hooks/refs
+      {...provided.draggableProps} // eslint-disable-line react-hooks/refs
+      style={provided.draggableProps.style} // eslint-disable-line react-hooks/refs
     >
       {/* Section header */}
       <SectionHeader
@@ -353,7 +353,7 @@ function SectionComponent({
         onOpenConfirmDeleteModal={onOpenConfirmDeleteModal}
         isExpanded={isExpanded}
         onExpandedChange={onExpandedChange}
-        dragHandleProps={provided.dragHandleProps}
+        dragHandleProps={provided.dragHandleProps} // eslint-disable-line react-hooks/refs
       />
       {/*  */}
       {/* {isExpanded && <Divider />} */}

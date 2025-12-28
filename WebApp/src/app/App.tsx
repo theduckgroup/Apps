@@ -5,7 +5,7 @@ import { MantineProvider, Loader, Text } from '@mantine/core'
 import { AuthProvider, useAuth, PathProvider, ApiProvider } from './contexts'
 import theme from './mantine-theme'
 import LoginPage from 'src/app/pages/LoginPage'
-import AppLayout from './pages/AppLayout'
+import DashboardPage from './pages/DashboardPage'
 import ProfilePage from './pages/ProfilePage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import ResetPassword2Page from './pages/ResetPassword2Page'
@@ -14,6 +14,7 @@ import quizAppRoutes from 'src/quiz-app/routes'
 import QuizResponsePage from 'src/quiz-app/pages/QuizResponsePage'
 import weeklySpendingApp from 'src/ws-app/routes'
 import inventoryApp from 'src/inventory-app/routes'
+import { withErrorBoundary } from 'src/utils/with-error-boundary'
 
 function App() {
   return (
@@ -48,12 +49,12 @@ function AppRoutes() {
       {/* Authenticated routes */}
       <Route path='/' element={
         <RedirectToLoginIfUnauthorized>
-          <AppLayout />
+          <DashboardPage />
         </RedirectToLoginIfUnauthorized>
       }>
         <Route index element={<Navigate to='quiz-app' />} />
         {subappRoutes}
-        <Route path='profile' element={<ProfilePage />} />
+        <Route path='profile' element={withErrorBoundary(<ProfilePage />)} />
         <Route path='*' element={<NoMatch />} />
       </Route>
     </Routes>
