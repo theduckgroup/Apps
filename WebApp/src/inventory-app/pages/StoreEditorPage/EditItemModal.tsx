@@ -1,4 +1,4 @@
-import { Button, Modal, Stack, TextInput } from "@mantine/core"
+import { Button, Group, Modal, Stack, TextInput } from "@mantine/core"
 import { isNotEmpty, useForm } from "@mantine/form"
 import { InvStore } from 'src/inventory-app/models/InvStore'
 
@@ -8,7 +8,7 @@ export function EditItemModal({ opened, onClose, options }: {
   options: {
     title: string
     item: InvStore.Item
-    validateCode: (code: string) => string | null
+    validateCode: (code: string, owner: InvStore.Item) => string | null
     onSave: (_: InvStore.Item) => void
   }
 }) {
@@ -24,18 +24,19 @@ export function EditItemModal({ opened, onClose, options }: {
       name: isNotEmpty('Name is required'),
       code: (code1) => {
         const code = code1.trim()
-        return (
-          (!code) ? 'Code is required' :
-            validateCode(code) ??
-            null
-        )
+
+        if (!code) {
+          return 'Code is required'
+        }
+
+        return validateCode(code, item)
       }
     }
   })
 
   function handleSubmit(values: typeof form.values) {
     onClose()
-    
+
     onSave({
       ...item,
       name: values.name.trim(),
@@ -49,13 +50,14 @@ export function EditItemModal({ opened, onClose, options }: {
       onClose={onClose}
       title={title}
       returnFocus={false}
+      closeOnClickOutside={false}
     >
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack>
           <TextInput
-            data-autofocus
             label='Name'
             key={form.key('name')}
+            data-autofocus
             {...form.getInputProps('name')}
           />
           <TextInput
@@ -63,7 +65,10 @@ export function EditItemModal({ opened, onClose, options }: {
             key={form.key('code')}
             {...form.getInputProps('code')}
           />
-          <Button type='submit' ml='auto'>Save</Button>
+          <Group gap='xs' ml='auto'>
+            <Button variant='default' onClick={onClose} w='6rem'>Cancel</Button>
+            <Button type='submit' w='6rem'>Save</Button>
+          </Group>
         </Stack>
       </form>
     </Modal>

@@ -12,7 +12,7 @@ import { EditMetadataModal } from './EditMetadataModal'
 import ContentEditor from './ContentEditor'
 import useModal from 'src/utils/use-modal'
 import formatError from 'src/common/format-error'
-import { Dispatch, ReduceState } from 'src/utils/types-lib'
+import { Dispatch, Reducer } from 'src/utils/types-lib'
 import { ConfirmModal } from 'src/utils/ConfirmModal'
 
 export default function QuizEditorPage() {
@@ -184,7 +184,7 @@ function Content({ quiz, setQuiz, revertQuiz, saving, dirty }: {
       ]
     })
   }
-  const setData: Dispatch<ReduceState<[Quiz.Item[], Quiz.Section[]]>> = (fn) => {
+  const setData: Dispatch<Reducer<[Quiz.Item[], Quiz.Section[]]>> = (fn) => {
     setQuiz(quiz => {
       const [items, sections] = fn([quiz!.items, quiz!.sections])
 
@@ -205,7 +205,7 @@ function Content({ quiz, setQuiz, revertQuiz, saving, dirty }: {
           {/* Quiz title + Edit button + Save loader + Revert button */}
           <Group w='100%' gap='md' align='baseline'>
             {/* Name */}
-            <Title order={3} c='gray.1'>{quiz!.name}</Title>
+            <Title order={2} c='gray.1'>{quiz!.name}</Title>
             {/* Edit */}
             <Button variant='light' size='compact-sm' fw='normal' onClick={handleEdit}>
               <Group gap='0.35rem'>

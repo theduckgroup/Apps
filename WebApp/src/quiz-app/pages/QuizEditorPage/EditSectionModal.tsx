@@ -1,6 +1,5 @@
 import { Button, Group, Modal, Stack, TextInput } from "@mantine/core"
 import { isNotEmpty, useForm } from "@mantine/form"
-import { useEffect, useRef } from "react"
 import { Quiz } from 'src/quiz-app/models/Quiz'
 
 export function EditSectionModal({ opened, onClose, options }: {
@@ -12,35 +11,22 @@ export function EditSectionModal({ opened, onClose, options }: {
     onSave: (_: Quiz.Section) => void
   }
 }) {
+  const { title, section, onSave } = options
+
   const form = useForm({
     mode: 'controlled',
     initialValues: {
-      name: options.section.name
+      name: section.name
     },
     validate: {
       name: isNotEmpty('Required')
     }
   })
 
-  const nameRef = useRef<HTMLInputElement | null>(null)
-
-  useEffect(() => {
-    nameRef.current?.focus()
-  }, [])
-
-  useEffect(() => {
-    if (opened) {
-      // Need to wait for nameRef to be set
-      setTimeout(() => {
-        nameRef.current?.focus()
-      }, 50)
-    }
-  }, [opened])
-
   function handleSubmit(values: typeof form.values) {
     onClose()
-    options.onSave({
-      ...options.section,
+    onSave({
+      ...section,
       name: values.name
     })
   }
@@ -49,16 +35,16 @@ export function EditSectionModal({ opened, onClose, options }: {
     <Modal
       opened={opened}
       onClose={onClose}
-      title={options?.title}
+      title={title}
       returnFocus={false}
       closeOnClickOutside={false}
     >
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack>
           <TextInput
-            ref={nameRef}
             label='Name'
             key={form.key('name')}
+            data-autofocus
             {...form.getInputProps('name')}
           />
           <Group gap='xs' ml='auto'>

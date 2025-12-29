@@ -12,7 +12,6 @@ import { EditMetadataModal } from './EditMetadataModal'
 import { ContentEditor } from './ContentEditor'
 import useModal from 'src/utils/use-modal'
 import formatError from 'src/common/format-error'
-import { Dispatch, ReduceState } from 'src/utils/types-lib'
 import { ConfirmModal } from 'src/utils/ConfirmModal'
 
 export default function TemplateEditorPage() {
@@ -24,10 +23,12 @@ export default function TemplateEditorPage() {
   const [saveTrigger, setSaveTrigger] = useState(0)
   const [dirty, setDirty] = useState(false)
 
+  // Load
+
   const { mutate: loadTemplate, error: loadError, isPending: isLoading } = useMutation({
     mutationFn: async () => {
       if (templateId) {
-        return (await axios.get(`/templates/${templateId}`)).data as WsTemplate
+        return (await axios.get<WsTemplate>(`/templates/${templateId}`)).data
 
       } else {
         const template: WsTemplate = {
@@ -58,6 +59,8 @@ export default function TemplateEditorPage() {
     loadTemplate()
   }, [loadTemplate])
 
+  // Save
+
   const { mutate: saveTemplate, error: saveError, isPending: isSaving } = useMutation({
     mutationFn: async (template: WsTemplate) => {
       await axios.put(`/templates/${template.id}`, template)
@@ -74,7 +77,7 @@ export default function TemplateEditorPage() {
     setSaveTrigger(x => x + 1)
   }, [setSaveTrigger])
 
-  type ValueOrReducer<T> = T | ((prev: T) => T)
+  // Set
 
   const setTemplateAndSave = useCallback((valueOrReducer: ValueOrReducer<WsTemplate | null>) => {
     setTemplate(valueOrReducer)
@@ -105,7 +108,7 @@ export default function TemplateEditorPage() {
         </Stack>
       }
 
-      {/* Home link */}
+      {/* Back link */}
       <Anchor size='sm' href='#' onClick={() => navigate(`/list`)}>
         <Group gap='0.2rem'>
           <IconChevronLeft size={18} />
@@ -130,7 +133,7 @@ export default function TemplateEditorPage() {
         return (
           <>
             <title>{template!.name + ' | The Duck Group'}</title>
-            <Content
+            <MetaAndContent
               template={template}
               setTemplate={setTemplateAndSave}
               revertTemplate={revertTemplateAndSave}
@@ -144,7 +147,10 @@ export default function TemplateEditorPage() {
   )
 }
 
-function Content({ template, setTemplate, revertTemplate, saving, dirty }: {
+/**
+ * Template meta (name, code etc) and content (items and sections).
+ */
+function MetaAndContent({ template, setTemplate, revertTemplate, saving, dirty }: {
   template: WsTemplate
   setTemplate: React.Dispatch<React.SetStateAction<WsTemplate | null>>
   revertTemplate: () => void
@@ -187,7 +193,9 @@ function Content({ template, setTemplate, revertTemplate, saving, dirty }: {
     })
   }
 
-  const setData: Dispatch<ReduceState<[WsTemplate.Supplier[], WsTemplate.Section[]]>> = (fn) => {
+  type Reducer<T> = (prev: T) => T
+
+  const setData = (fn: Reducer<[WsTemplate.Supplier[], WsTemplate.Section[]]>) => {
     setTemplate(template => {
       const [suppliers, sections] = fn([template!.suppliers, template!.sections])
 
@@ -262,3 +270,5 @@ function Content({ template, setTemplate, revertTemplate, saving, dirty }: {
     </Stack>
   )
 }
+
+type ValueOrReducer<T> = T | ((prev: T) => T)  

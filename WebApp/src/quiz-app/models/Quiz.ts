@@ -55,7 +55,7 @@ export namespace Quiz {
 }
 
 export namespace Quiz {
-  export function createDefaultItem({ kind, isSubitem: isSubitemParam }: {
+  export function newItem({ kind, isSubitem: isSubitemParam }: {
     kind: Quiz.ItemKind,
     isSubitem?: boolean
   }): Quiz.Item {
@@ -104,7 +104,7 @@ export namespace Quiz {
     }
   }
 
-  export function createDefaultSection(): Quiz.Section {
+  export function newSection(): Quiz.Section {
     return {
       id: new ObjectId().toString(),
       name: '',

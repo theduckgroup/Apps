@@ -8,13 +8,13 @@ import { WsTemplate } from 'src/ws-app/models/WsTemplate'
 import { EditSupplierModal } from './EditSupplierModal'
 import { EditSectionModal } from './EditSectionModal'
 import { ConfirmModal } from 'src/utils/ConfirmModal'
-import { Dispatch, ReduceState } from 'src/utils/types-lib'
+import { Dispatch, Reducer } from 'src/utils/types-lib'
 import useModal from 'src/utils/use-modal'
 
 export function ContentEditor({ suppliers, sections, setData }: {
   suppliers: WsTemplate.Supplier[],
   sections: WsTemplate.Section[],
-  setData: Dispatch<ReduceState<[WsTemplate.Supplier[], WsTemplate.Section[]]>>
+  setData: Dispatch<Reducer<[WsTemplate.Supplier[], WsTemplate.Section[]]>>
 }) {
   const editSectionModal = useModal(EditSectionModal)
 
@@ -24,7 +24,7 @@ export function ContentEditor({ suppliers, sections, setData }: {
   // Can't hold this inside SectionComponent because it gets reset during drag/drop
   const [collapsedSectionIDs, setCollapsedSectionIDs] = useState<Set<string>>(new Set())
 
-  const handleAddSection: AddSectionHandler = (newSection, anchor, position) => {
+  const addSection: AddSectionFn = (newSection, anchor, position) => {
     setData(([suppliers, sections]) => {
       const newSections = produce(sections, sections => {
         const anchorIndex = sections.findIndex(x => x.id == anchor.id)
@@ -43,7 +43,7 @@ export function ContentEditor({ suppliers, sections, setData }: {
     })
   }
 
-  const handleEditSection: EditSectionHandler = (section) => {
+  const updateSection: UpdateSectionFn = (section) => {
     setData(([suppliers, sections]) => {
       const newSections = [...sections]
       const sectionIndex = newSections.findIndex(x => x.id == section.id)!
@@ -53,7 +53,7 @@ export function ContentEditor({ suppliers, sections, setData }: {
     })
   }
 
-  const handleDeleteSection: DeleteSectionHandler = (section) => {
+  const deleteSection: DeleteSectionFn = (section) => {
     setData(([suppliers, sections]) => {
       const newSections = [...sections]
       const sectionIndex = newSections.findIndex(x => x.id == section.id)!
@@ -68,7 +68,7 @@ export function ContentEditor({ suppliers, sections, setData }: {
 
   }
 
-  const handleAddSupplier: AddSupplierHandler = (supplier, afterSupplier) => {
+  const addSupplier: AddSupplierFn = (supplier, afterSupplier) => {
     setData(([suppliers, sections]) => {
       const newSuppliers = [...suppliers, supplier]
 
@@ -90,7 +90,7 @@ export function ContentEditor({ suppliers, sections, setData }: {
     })
   }
 
-  const handleAddSupplierToSection: AddSupplierToSectionHandler = (supplier, section) => {
+  const addSupplierToSection: AddSupplierToSectionFn = (supplier, section) => {
     setData(([suppliers, sections]) => {
       const newSuppliers = [...suppliers, supplier]
 
@@ -107,7 +107,7 @@ export function ContentEditor({ suppliers, sections, setData }: {
     })
   }
 
-  const handleEditSupplier: EditSupplierHandler = (supplier) => {
+  const updateSupplier: UpdateSupplierFn = (supplier) => {
     setData(([suppliers, sections]) => {
       const newSuppliers = produce(suppliers, suppliers => {
         const index = suppliers.findIndex(x => x.id == supplier.id)
@@ -118,7 +118,7 @@ export function ContentEditor({ suppliers, sections, setData }: {
     })
   }
 
-  const handleDeleteSupplier: DeleteSupplierHandler = (supplier) => {
+  const deleteSupplier: DeleteSupplierFn = (supplier) => {
     setData(([suppliers, sections]) => {
       const newSuppliers = produce(suppliers, suppliers => {
         const index = suppliers.findIndex(x => x.id == supplier.id)!
@@ -202,7 +202,7 @@ export function ContentEditor({ suppliers, sections, setData }: {
   function handleClickAddSection() {
     editSectionModal.open({
       title: 'Add Section',
-      section: WsTemplate.createDefaultSection(),
+      section: WsTemplate.newSection(),
       onSave: newSection => {
         setData(([suppliers, sections]) => {
           const newSections = [...sections, newSection]
@@ -251,17 +251,17 @@ export function ContentEditor({ suppliers, sections, setData }: {
                       <SectionComponent
                         section={section}
                         sectionIndex={sectionIndex}
-                        itemForId={id => suppliers.find(x => x.id == id)}
+                        supplierForId={id => suppliers.find(x => x.id == id)}
                         isExpanded={isSectionExpanded(section.id)}
-                        onExpandedChange={value => setSectionExpanded(section.id, value)}
-                        onAddSection={handleAddSection}
-                        onEditSection={handleEditSection}
-                        onDeleteSection={handleDeleteSection}
-                        onAddSupplier={handleAddSupplier}
-                        onAddSupplierToSection={handleAddSupplierToSection}
-                        onEditSupplier={handleEditSupplier}
-                        onDeleteSupplier={handleDeleteSupplier}
-                        onOpenConfirmDeleteModal={confirmDeleteModal.open}
+                        setExpanded={value => setSectionExpanded(section.id, value)}
+                        addSection={addSection}
+                        updateSection={updateSection}
+                        deleteSection={deleteSection}
+                        addSupplier={addSupplier}
+                        addSupplierToSection={addSupplierToSection}
+                        updateSupplier={updateSupplier}
+                        deleteSupplier={deleteSupplier}
+                        openConfirmDeleteModal={confirmDeleteModal.open}
                         provided={provided}
                       />
                     )}
@@ -294,26 +294,26 @@ export function ContentEditor({ suppliers, sections, setData }: {
 }
 
 function SectionComponent({
-  section, sectionIndex, itemForId: supplierForId,
-  isExpanded, onExpandedChange,
-  onAddSection, onEditSection, onDeleteSection,
-  onAddSupplier, onAddSupplierToSection, onEditSupplier, onDeleteSupplier,
-  onOpenConfirmDeleteModal,
+  section, sectionIndex, supplierForId,
+  isExpanded, setExpanded,
+  addSection, updateSection, deleteSection,
+  addSupplier, addSupplierToSection, updateSupplier, deleteSupplier,
+  openConfirmDeleteModal,
   provided
 }: {
   section: WsTemplate.Section,
   sectionIndex: number,
-  itemForId: (id: string) => WsTemplate.Supplier | undefined,
+  supplierForId: (id: string) => WsTemplate.Supplier | undefined,
   isExpanded: boolean,
-  onExpandedChange: (_: boolean) => void,
-  onAddSection: AddSectionHandler,
-  onEditSection: EditSectionHandler,
-  onDeleteSection: DeleteSectionHandler,
-  onAddSupplier: AddSupplierHandler,
-  onAddSupplierToSection: AddSupplierToSectionHandler,
-  onEditSupplier: EditSupplierHandler,
-  onDeleteSupplier: EditSupplierHandler,
-  onOpenConfirmDeleteModal: (options: ConfirmModal.Options) => void,
+  setExpanded: (_: boolean) => void,
+  addSection: AddSectionFn,
+  updateSection: UpdateSectionFn,
+  deleteSection: DeleteSectionFn,
+  addSupplier: AddSupplierFn,
+  addSupplierToSection: AddSupplierToSectionFn,
+  updateSupplier: UpdateSupplierFn,
+  deleteSupplier: UpdateSupplierFn,
+  openConfirmDeleteModal: (_: ConfirmModal.Options) => void,
   provided: DraggableProvided
 }) {
   const addSupplierModal = useModal(EditSupplierModal)
@@ -321,9 +321,9 @@ function SectionComponent({
   const handleClickAddSupplier = () => {
     addSupplierModal.open({
       title: 'Add Suplier',
-      supplier: WsTemplate.createDefaultSupplier(),
+      supplier: WsTemplate.newSupplier(),
       onSave: newSupplier => {
-        onAddSupplierToSection(newSupplier, section)
+        addSupplierToSection(newSupplier, section)
       }
     })
   }
@@ -347,12 +347,12 @@ function SectionComponent({
       <SectionHeader
         section={section}
         sectionIndex={sectionIndex}
-        onAddSection={onAddSection}
-        onEditSection={onEditSection}
-        onDeleteSection={onDeleteSection}
-        onOpenConfirmDeleteModal={onOpenConfirmDeleteModal}
+        addSection={addSection}
+        updateSection={updateSection}
+        deleteSection={deleteSection}
+        openConfirmDeleteModal={openConfirmDeleteModal}
         isExpanded={isExpanded}
-        onExpandedChange={onExpandedChange}
+        setExpanded={setExpanded}
         dragHandleProps={provided.dragHandleProps} // eslint-disable-line react-hooks/refs
       />
       {/*  */}
@@ -404,13 +404,13 @@ function SectionComponent({
                       {(() => {
                         return (
                           <>
-                            <Row
+                            <RowComponent
                               supplier={supplierForId(row.supplierId)!}
                               rowIndex={rowIndex}
-                              onAddSupplier={onAddSupplier}
-                              onEditSupplier={onEditSupplier}
-                              onDeleteSupplier={onDeleteSupplier}
-                              onOpenConfirmDeleteModal={onOpenConfirmDeleteModal}
+                              addSupplier={addSupplier}
+                              updateSupplier={updateSupplier}
+                              deleteSupplier={deleteSupplier}
+                              openConfirmDeleteModal={openConfirmDeleteModal}
                               dragHandleProps={provided.dragHandleProps}
                             />
                             {rowIndex < section.rows.length - 1 && <Divider ml='md' />}
@@ -446,15 +446,21 @@ function SectionComponent({
   )
 }
 
-function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onDeleteSection, onOpenConfirmDeleteModal, isExpanded, onExpandedChange, dragHandleProps }: {
+function SectionHeader({
+  section, sectionIndex,
+  addSection, updateSection, deleteSection,
+  openConfirmDeleteModal,
+  isExpanded, setExpanded,
+  dragHandleProps
+}: {
   section: WsTemplate.Section
   sectionIndex: number,
-  onAddSection: AddSectionHandler,
-  onEditSection: EditSectionHandler,
-  onDeleteSection: DeleteSectionHandler,
-  onOpenConfirmDeleteModal: (options: ConfirmModal.Options) => void,
+  addSection: AddSectionFn,
+  updateSection: UpdateSectionFn,
+  deleteSection: DeleteSectionFn,
+  openConfirmDeleteModal: (options: ConfirmModal.Options) => void,
   isExpanded: boolean
-  onExpandedChange: (_: boolean) => void
+  setExpanded: (_: boolean) => void
   dragHandleProps: DraggableProvidedDragHandleProps | null
 }) {
   const editSectionModal = useModal(EditSectionModal)
@@ -462,12 +468,12 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
   const handleClickAdd = useCallback((position: 'before' | 'after') => {
     editSectionModal.open({
       title: 'Add Section',
-      section: WsTemplate.createDefaultSection(),
+      section: WsTemplate.newSection(),
       onSave: newSection => {
-        onAddSection(newSection, section, position)
+        addSection(newSection, section, position)
       }
     })
-  }, [onAddSection, section, editSectionModal])
+  }, [addSection, section, editSectionModal])
 
   const handleClickAddBefore = () => handleClickAdd('before')
   const handleClickAddAfter = () => handleClickAdd('after')
@@ -477,25 +483,20 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
       title: 'Edit Section',
       section: section,
       onSave: modified => {
-        onEditSection(modified)
+        updateSection(modified)
       }
     })
   }
 
   const handleDelete = () => {
-    onOpenConfirmDeleteModal({
-      title: '',
-      message: (
-        <Stack gap='xs'>
-          <Text>Delete section '{section.name}'?</Text>
-          <Text fw='bold'>This will delete the section and its suppliers. This cannot be undone.</Text>
-        </Stack>
-      ),
+    openConfirmDeleteModal({
+      title: 'Delete section?',
+      message: <Text>The section and its suppliers will be deleted.</Text>,
       actions: [{
         label: 'Delete',
         role: 'destructive',
         handler: () => {
-          onDeleteSection(section)
+          deleteSection(section)
         }
       }]
     })
@@ -510,7 +511,7 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
           <ActionIcon
             variant='transparent'
             size='compact-md'
-            onClick={() => onExpandedChange(!isExpanded)}
+            onClick={() => setExpanded(!isExpanded)}
             color='gray'
             pl='0'
             pr='0.33rem'
@@ -529,19 +530,19 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
         {/* Buttons */}
         <Group gap='xs' wrap='nowrap'>
           {/* Add Button */}
-          <Menu offset={6} position='bottom-end' width={180}>
+          <Menu offset={6} position='bottom-end' width={210}>
             <Menu.Target>
               <ActionIcon variant='subtle' size='md' color='gray'>
                 <IconDots size={16} />
               </ActionIcon>
             </Menu.Target>
             <Menu.Dropdown>
-              <Menu.Item leftSection={<IconPencil size={16} />} onClick={handleClickEdit}>Edit</Menu.Item>
-              <Menu.Item leftSection={<IconTrash size={16} />} onClick={handleDelete}>Delete</Menu.Item>
+              <Menu.Item leftSection={<IconPencil size={16} />} onClick={handleClickEdit}>Edit Section</Menu.Item>
+              <Menu.Item leftSection={<IconTrash size={16} />} onClick={handleDelete}>Delete Section</Menu.Item>
               <Menu.Divider />
-              <Menu.Label>Add Section</Menu.Label>
-              <Menu.Item leftSection={<IconPlus size={16} />} onClick={handleClickAddBefore}>Add Above</Menu.Item>
-              <Menu.Item leftSection={<IconPlus size={16} />} onClick={handleClickAddAfter}>Add Below</Menu.Item>
+              {/* <Menu.Label>Add Section</Menu.Label> */}
+              <Menu.Item leftSection={<IconPlus size={16} />} onClick={handleClickAddBefore}>Add Section Above</Menu.Item>
+              <Menu.Item leftSection={<IconPlus size={16} />} onClick={handleClickAddAfter}>Add Section Below</Menu.Item>
             </Menu.Dropdown>
           </Menu>
           <Box
@@ -562,23 +563,28 @@ function SectionHeader({ section, sectionIndex, onAddSection, onEditSection, onD
   )
 }
 
-function Row({ supplier, rowIndex, onAddSupplier, onEditSupplier, onDeleteSupplier, onOpenConfirmDeleteModal, dragHandleProps }: {
-  supplier: WsTemplate.Supplier,
-  rowIndex: number,
-  onAddSupplier: AddSupplierHandler,
-  onEditSupplier: EditSupplierHandler,
-  onDeleteSupplier: DeleteSupplierHandler,
-  onOpenConfirmDeleteModal: (options: ConfirmModal.Options) => void,
-  dragHandleProps: DraggableProvidedDragHandleProps | null,
+function RowComponent({
+  supplier, rowIndex,
+  addSupplier, updateSupplier, deleteSupplier,
+  openConfirmDeleteModal,
+  dragHandleProps
+}: {
+  supplier: WsTemplate.Supplier
+  rowIndex: number
+  addSupplier: AddSupplierFn
+  updateSupplier: UpdateSupplierFn
+  deleteSupplier: DeleteSupplierFn
+  openConfirmDeleteModal: (_: ConfirmModal.Options) => void
+  dragHandleProps: DraggableProvidedDragHandleProps | null
 }) {
   const editModal = useModal(EditSupplierModal)
 
   const handleClickAdd = () => {
     editModal.open({
       title: 'Add Supplier',
-      supplier: WsTemplate.createDefaultSupplier(),
+      supplier: WsTemplate.newSupplier(),
       onSave: newSupplier => {
-        onAddSupplier(newSupplier, /* after */ supplier)
+        addSupplier(newSupplier, /* after */ supplier)
       }
     })
   }
@@ -588,25 +594,19 @@ function Row({ supplier, rowIndex, onAddSupplier, onEditSupplier, onDeleteSuppli
       title: 'Edit Supplier',
       supplier,
       onSave: modifiedSupplier => {
-        onEditSupplier(modifiedSupplier)
+        updateSupplier(modifiedSupplier)
       }
     })
   }
 
   const handleClickDelete = () => {
-    onOpenConfirmDeleteModal({
-      title: '',
-      message: (
-        <Stack gap='xs'>
-          <Text>Delete supplier '{supplier.name}'?</Text>
-          <Text fw='bold'>This cannot be undone.</Text>
-        </Stack>
-      ),
+    openConfirmDeleteModal({
+      title: 'Delete supplier?',
       actions: [{
         label: 'Delete',
         role: 'destructive',
         handler: () => {
-          onDeleteSupplier(supplier)
+          deleteSupplier(supplier)
         }
       }]
     })
@@ -630,8 +630,8 @@ function Row({ supplier, rowIndex, onAddSupplier, onEditSupplier, onDeleteSuppli
             </ActionIcon>
           </Menu.Target>
           <Menu.Dropdown>
-            <Menu.Item leftSection={<IconPencil size={16} />} onClick={handleClickEdit}>Edit</Menu.Item>
-            <Menu.Item leftSection={<IconTrash size={16} />} onClick={handleClickDelete}>Delete</Menu.Item>
+            <Menu.Item leftSection={<IconPencil size={16} />} onClick={handleClickEdit}>Edit Supplier</Menu.Item>
+            <Menu.Item leftSection={<IconTrash size={16} />} onClick={handleClickDelete}>Delete Supplier</Menu.Item>
             <Menu.Divider />
             <Menu.Item leftSection={<IconPlus size={16} />} onClick={handleClickAdd}>Add Supplier</Menu.Item>
           </Menu.Dropdown>
@@ -653,10 +653,10 @@ function Row({ supplier, rowIndex, onAddSupplier, onEditSupplier, onDeleteSuppli
   )
 }
 
-type AddSectionHandler = (section: WsTemplate.Section, anchor: WsTemplate.Section, position: 'before' | 'after') => void
-type EditSectionHandler = (section: WsTemplate.Section) => void
-type DeleteSectionHandler = (section: WsTemplate.Section) => void
-type AddSupplierHandler = (supplier: WsTemplate.Supplier, afterSupplier: WsTemplate.Supplier) => void
-type AddSupplierToSectionHandler = (supplier: WsTemplate.Supplier, section: WsTemplate.Section) => void
-type EditSupplierHandler = (supplier: WsTemplate.Supplier) => void
-type DeleteSupplierHandler = (supplier: WsTemplate.Supplier) => void
+type AddSectionFn = (section: WsTemplate.Section, anchor: WsTemplate.Section, position: 'before' | 'after') => void
+type UpdateSectionFn = (section: WsTemplate.Section) => void
+type DeleteSectionFn = (section: WsTemplate.Section) => void
+type AddSupplierFn = (supplier: WsTemplate.Supplier, afterSupplier: WsTemplate.Supplier) => void
+type AddSupplierToSectionFn = (supplier: WsTemplate.Supplier, section: WsTemplate.Section) => void
+type UpdateSupplierFn = (supplier: WsTemplate.Supplier) => void
+type DeleteSupplierFn = (supplier: WsTemplate.Supplier) => void

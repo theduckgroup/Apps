@@ -1,3 +1,4 @@
+import { ObjectId } from 'bson'
 
 export interface InvStore {
   id: string
@@ -18,6 +19,28 @@ export namespace InvStore {
   export interface Section {
     id: string
     name: string
-    rows: { itemId: string }[]
+    rows: Row[]
+  }
+
+  export interface Row {
+    itemId: string
+  }
+}
+
+export namespace InvStore {
+  export function newItem(): InvStore.Item {
+    return {
+      id: new ObjectId().toString(),
+      code: '',
+      name: ''
+    }
+  }
+
+  export function newSection(): InvStore.Section {
+    return {
+      id: new ObjectId().toString(),
+      name: '',
+      rows: []
+    }
   }
 }

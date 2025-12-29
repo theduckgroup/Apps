@@ -2,7 +2,7 @@ import { ReactNode } from 'react'
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router'
 import { MantineProvider, Loader, Text } from '@mantine/core'
 
-import { AuthProvider, useAuth, PathProvider, ApiProvider } from './contexts'
+import { AuthProvider, useAuth, PathProvider, ApiProvider, EnvProvider } from './contexts'
 import theme from './mantine-theme'
 import LoginPage from 'src/app/pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
@@ -20,9 +20,11 @@ function App() {
   return (
     <MantineProvider defaultColorScheme='dark' theme={theme}>
       <AuthProvider>
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
+        <EnvProvider>
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </EnvProvider>
       </AuthProvider>
     </MantineProvider>
   )

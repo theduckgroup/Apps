@@ -28,7 +28,7 @@ export namespace WsTemplate {
     supplierId: string
   }
 
-  export function createDefaultSupplier(): Supplier {
+  export function newSupplier(): Supplier {
     return {
       id: new ObjectId().toString(),
       name: '',
@@ -36,7 +36,7 @@ export namespace WsTemplate {
     }
   }
 
-  export function createDefaultSection(): Section {
+  export function newSection(): Section {
     return {
       id: new ObjectId().toString(),
       name: '',

@@ -4,6 +4,7 @@ import { IconDots, IconPlus } from '@tabler/icons-react'
 import { useQuery } from '@tanstack/react-query'
 
 import { usePath, useApi } from 'src/app/contexts'
+import { NonProdEnvWarning } from 'src/app/NonProdEnvWarning'
 import { QuizMetadata } from 'src/quiz-app/models/Quiz'
 import quizEventHub from 'src/quiz-app/event-hub'
 import formatError from 'src/common/format-error'
@@ -32,7 +33,8 @@ const QuizListPage = () => {
   return (
     <Stack gap='md' align='flex-start'>
       <title>FOH Tests | The Duck Group</title>
-      <Title order={2} c='gray.0'>Tests</Title>
+      <NonProdEnvWarning />
+      <Title order={1} c='gray.0' pt='sm'>Tests</Title>
       {(() => {
         if (isLoading) {
           return <Text>Loading...</Text>

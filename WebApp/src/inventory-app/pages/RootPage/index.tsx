@@ -13,6 +13,7 @@ import QrModal from './QrModal'
 import eventHub from 'src/inventory-app/event-hub'
 import formatError from 'src/common/format-error'
 import { useApi, usePath } from 'src/app/contexts'
+import { NonProdEnvWarning } from 'src/app/NonProdEnvWarning'
 
 export default function RootPage() {
   // const { user } = useAuth()
@@ -68,14 +69,15 @@ export default function RootPage() {
 
   return (
     <>
-      <Stack pt='sm'>
-        <Group align='center' pb='lg'>
+      <Stack>
+        <NonProdEnvWarning />
+        <Group align='center' pb='lg' pt='md'>
           {/* data.store.name */}
-          <Title order={2} c='gray.0'>Inventory</Title>
+          <Title order={1} c='gray.0'>Inventory</Title>
           <Space flex={1} />
           <Button
-            variant='default'
-            size='xs'
+            variant='filled'
+            size='sm'
             leftSection={<IconEdit size={15} />}
             onClick={() => handleEditItems()}
           >
@@ -107,8 +109,8 @@ function ItemList({ store, stock, onViewCode }: {
     <Stack gap='xl'>
       {store.catalog.sections.map(section => (
         <Stack key={section.id} gap={0}>
-          <Title order={4} c='gray.0' pb='xs'>{section.name}</Title>
-          <Table tabularNums verticalSpacing='xs'>
+          <Title order={3} c='gray.3' pb='xs'>{section.name}</Title>
+          <Table fz='md' tabularNums verticalSpacing='sm'>
             <Table.Thead>
               <Table.Tr>
                 <Table.Th styles={{
