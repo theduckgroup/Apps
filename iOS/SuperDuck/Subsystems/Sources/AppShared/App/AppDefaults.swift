@@ -7,8 +7,8 @@ public import CommonUI
 public class AppDefaults {
     public let storageKey: String
     
-    public init(storageKey: String) {
-        self.storageKey = storageKey
+    public init() {
+        self.storageKey = "App:defaults"
         
         if let rawData = UserDefaults.standard.data(forKey: storageKey) {
             do {
@@ -60,8 +60,4 @@ public extension AppDefaults {
             case accentColorData = "accentColor"
         }
     }
-}
-
-public extension AppDefaults {
-    static let mock = AppDefaults(storageKey: "AppDefaults:mock")
 }

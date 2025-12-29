@@ -4,7 +4,7 @@ import Common
 import CommonUI
 
 public extension View {
-    /// Applies styling from `AppDefaults`. Requires `AppDefaults` environment object to be set.
+    /// Applies styling from `AppDefaults` environment object (which must be set).
     @ViewBuilder
     func applyAppDefaultsStyling() -> some View {
         modifier(Impl())
