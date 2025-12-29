@@ -2,11 +2,9 @@ import Foundation
 import Backend
 
 extension API {
-    func quiz(code: String) async throws -> Quiz {
+    func quiz() async throws -> Quiz {
         try await get(
-            path: "quiz-app/quiz",
-            queryItems: [.init(name: "code", value: code)],
-            decodeAs: Quiz.self
+            path: "quiz-app/quiz/68e5052313908f614bbab024"
         )
     }
     

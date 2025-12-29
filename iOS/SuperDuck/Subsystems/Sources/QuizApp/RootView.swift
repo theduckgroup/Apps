@@ -134,7 +134,7 @@ public struct RootView: View {
                         return try await api.mockQuiz(success: true)
                     }
                     
-                    return try await api.quiz(code: "FOH_STAFF_KNOWLEDGE")
+                    return try await api.quiz()
                 }()
 
                 self.quiz = fetchedQuiz
