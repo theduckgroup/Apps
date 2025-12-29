@@ -59,8 +59,9 @@ public struct FetchView: View {
 public extension View {
     @ViewBuilder
     func fetchOverlay(isFetching: Bool, fetchError: Error?, retry: @escaping () -> Void) -> some View {
-        self.safeAreaInset(edge: .bottom) {
+        safeAreaInset(edge: .bottom) {
             FetchView(isFetching: isFetching, fetchError: fetchError, retry: retry)
+                .padding()
         }
     }
 }
