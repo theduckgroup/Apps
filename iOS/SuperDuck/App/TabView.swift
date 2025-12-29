@@ -9,6 +9,7 @@ import CommonUI
 
 struct TabView: View {
     @AppStorage("tabViewSelection") private var tabViewSelection = TabViewSelection.quiz
+    @State var inventoryAppDefaults = InventoryApp.Defaults()
     
     var body: some View {
         SwiftUI.TabView(selection: $tabViewSelection) {
@@ -25,12 +26,14 @@ struct TabView: View {
             // list.triangle
             Tab("Inventory", systemImage: "list.bullet.clipboard.fill", value: .inventory) {
                 InventoryApp.RootView()
+                    .environment(inventoryAppDefaults)
             }
 
             Tab("Settings", systemImage: "gearshape", value: .settings) {
                 SettingsView()
+                    .environment(inventoryAppDefaults)
             }
-        }
+        }        
                 
 //        TabView(selection: $selectedTab) {
 //            @Bindable var appDefaults = appDefaults
