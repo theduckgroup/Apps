@@ -205,7 +205,7 @@ function Content({ quiz, setQuiz, revertQuiz, saving, dirty }: {
           {/* Quiz title + Edit button + Save loader + Revert button */}
           <Group w='100%' gap='md' align='baseline'>
             {/* Name */}
-            <Title order={3} c='gray.1'>{quiz!.name}</Title>
+            <Title order={2} c='gray.1'>{quiz!.name}</Title>
             {/* Edit */}
             <Button variant='light' size='compact-sm' fw='normal' onClick={handleEdit}>
               <Group gap='0.35rem'>

@@ -161,16 +161,16 @@ function MetaAndContent({ store, setStore, revertStore, saving, dirty }: {
   }
 
   return (
-    <Stack className='w-full gap-2'>
+    <Stack className='w-full' gap='xl'>
       {/* Metadata + Save loader */}
       <Group className='w-full items-start'>
         {/* Metadata + Edit button */}
         {/* <Stack w='100%' gap='xs' align='flex-start' mr='auto'> */}
         <Stack className='w-full gap-2 items-start mr-auto'>
           {/* Title + Edit button + Saving loader + Reset button */}
-          <Group bg='dark.9' className='gap-2 items-baseline'>
+          <Group bg='dark.9' pt='sm' className='gap-2 items-baseline'>
             {/* Name */}
-            <Title order={3} c='gray.1'>Edit Items</Title>
+            <Title order={1} c='gray.1'>Edit Items</Title>
             {/* Edit button */}
             {/* <Button variant='light' size='compact-xs' fw='normal' onClick={handleEdit}>
               <Group gap='0.25rem'>

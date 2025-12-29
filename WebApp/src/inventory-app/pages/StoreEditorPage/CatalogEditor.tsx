@@ -491,13 +491,14 @@ function SectionHeader({ section, sectionIndex, addSection, editSection, deleteS
 
   return (
     <Group
-      bg='dark.9'
-      className='w-full items-start flex-nowrap pr-2 py-2 border-b-1 border-b-neutral-500'
+      bg='dark.7'
+      // neutral
+      className='w-full text-neutral-300 items-start flex-nowrap pl-4 pr-4 py-2 rounded-md'
     >
       {/* borderBottom: '1px solid var(--mantine-color-dark-4)' */}
       {/* <Group bg='dark.6' wrap='nowrap' px='md' py='sm' align='flex-start'> */}
       {/* Expand button + name */}
-      <Group gap='0' align='flex-start' wrap='nowrap' mr='auto'>
+      <Group gap='0' align='center' wrap='nowrap' mr='auto'>
         {/* Expand button */}
         <ActionIcon
           variant='transparent'
@@ -514,9 +515,9 @@ function SectionHeader({ section, sectionIndex, addSection, editSection, deleteS
           }
         </ActionIcon>
         {/* Name -- for some reason, Tailwind 'leading-' doesn't work here */}
-        <Title order={3} style={{ lineHeight: '1.5rem' }}>
+        <div className='text-xl/relaxed font-bold'>
           {section.name}
-        </Title>
+        </div>
       </Group>
       {/* Buttons */}
       <Group gap='xs' wrap='nowrap'>
@@ -601,7 +602,7 @@ function RowComponent({ item, rowIndex, addItem, editItem, deleteItem, validateI
 
   return (
     <Group
-      className='w-full flex-nowrap items-start pl-4 pr-2 py-4 border-b-1 border-b-neutral-700'
+      className='w-full flex-nowrap items-start pl-4 pr-4 py-4 border-b-1 border-b-neutral-700'
       gap='md'
     >
       {/* Item name + code */}

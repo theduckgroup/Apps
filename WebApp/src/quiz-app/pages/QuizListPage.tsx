@@ -34,7 +34,7 @@ const QuizListPage = () => {
     <Stack gap='md' align='flex-start'>
       <title>FOH Tests | The Duck Group</title>
       <NonProdEnvWarning />
-      <Title order={2} c='gray.0'>Tests</Title>
+      <Title order={1} c='gray.0' pt='sm'>Tests</Title>
       {(() => {
         if (isLoading) {
           return <Text>Loading...</Text>

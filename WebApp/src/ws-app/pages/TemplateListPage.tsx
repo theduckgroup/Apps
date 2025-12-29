@@ -30,7 +30,7 @@ const TemplateListPage = () => {
     <Stack gap='md' align='flex-start'>
       <title>Weekly Spending | The Duck Group</title>
       <NonProdEnvWarning />
-      <Title order={2} c='gray.0'>Templates</Title>
+      <Title order={1} c='gray.0' pt='sm'>Templates</Title>
       {(() => {
         if (isLoading) {
           return <Text>Loading...</Text>

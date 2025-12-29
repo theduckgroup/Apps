@@ -37,7 +37,7 @@ export default function UsersPage() {
   return (
     <Stack align='flex-start'>
       <title>Admin | The Duck Group</title>
-      <Title order={2} c='gray.0' pb='xs'>Users</Title>
+      <Title order={1} c='gray.0' pb='xs' pt='sm'>Users</Title>
 
       {(() => {
         if (isLoading) {
@@ -82,7 +82,7 @@ function Content({ users }: { users: User[] }) {
   return (
     <>
       <Stack align='flex-start' w='100%'>
-        <Table verticalSpacing='xs'>
+        <Table fz='md' verticalSpacing='sm'>
           <Table.Thead>
             <Table.Tr>
               <Table.Th styles={{ th: { width: '30%' } }}>
