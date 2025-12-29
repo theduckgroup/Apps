@@ -293,11 +293,8 @@ userRouter.get('/users/:userId/reports/meta', async (req, res) => {
     })
     .toArray()
 
-  // For some reason, docs is Document[] and cannot be used with `normalizeId`
-
   const response = docs.map(doc => jsonifyMongoId(doc))
   // docs = docs.map(doc => ({ id: doc._id, ...doc, _id: undefined }))
-
 
   res.send(response)
 })
