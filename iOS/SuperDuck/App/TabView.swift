@@ -13,7 +13,8 @@ struct TabView: View {
     var body: some View {
         SwiftUI.TabView(selection: $tabViewSelection) {
             // pencil.and.list.clipboard
-            Tab("FOH Test", systemImage: "list.clipboard.fill", value: .quiz) {
+            // list.clipboard.fill
+            Tab("FOH Test", systemImage: "append.page.fill", value: .quiz) {
                 QuizApp.RootView()
             }
 
@@ -21,7 +22,8 @@ struct TabView: View {
                 WeeklySpendingApp.RootView()
             }
             
-            Tab("Inventory", systemImage: "list.triangle", value: .weeklySpending) {
+            // list.triangle
+            Tab("Inventory", systemImage: "list.bullet.clipboard.fill", value: .inventory) {
                 InventoryApp.RootView()
             }
 
@@ -58,11 +60,13 @@ extension TabView {
     enum TabViewSelection: String, Hashable {
         case quiz
         case weeklySpending
+        case inventory
         case settings
     }
 }
 
 #Preview {
     TabView()
+        .applyAppDefaultsStyling()
         .previewEnvironment()
 }
