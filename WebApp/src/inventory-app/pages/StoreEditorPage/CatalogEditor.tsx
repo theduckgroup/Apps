@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 import { produce } from 'immer'
-import { ActionIcon, Box, Button, Divider, Group, Menu, Paper, Stack, Text, Title } from '@mantine/core'
+import { ActionIcon, Box, Button, Group, Menu, Paper, Stack, Text } from '@mantine/core'
 import { DragDropContext, Draggable, DraggableProvided, DraggableProvidedDragHandleProps, Droppable, DropResult } from '@hello-pangea/dnd'
 
 import { InvStore } from 'src/inventory-app/models/InvStore'

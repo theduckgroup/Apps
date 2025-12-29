@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Button, Group, Space, Stack, Table, Title } from '@mantine/core'
-import { useNavigate } from 'react-router'
-import axios from 'axios'
 import { useQuery } from '@tanstack/react-query'
 import { Text } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'

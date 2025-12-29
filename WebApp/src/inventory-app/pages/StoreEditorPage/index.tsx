@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState, Dispatch, SetStateAction } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { Anchor, Button, Group, HoverCard, Loader, Stack, Text, Title } from '@mantine/core'
-import { IconAlertTriangleFilled, IconArrowBackUp, IconChevronLeft } from '@tabler/icons-react'
+import { useMutation } from '@tanstack/react-query'
+import { Anchor, Button, Group, Loader, Stack, Text, Title } from '@mantine/core'
+import { IconArrowBackUp, IconChevronLeft } from '@tabler/icons-react'
 
 import { useApi, usePath } from 'src/app/contexts'
 import { InvStore } from 'src/inventory-app/models/InvStore'
@@ -10,7 +10,7 @@ import { CatalogEditor } from './CatalogEditor'
 import formatError from 'src/common/format-error'
 import useModal from 'src/utils/use-modal'
 import { ConfirmModal } from 'src/utils/ConfirmModal'
-import { ValueOrReducer } from 'src/utils/types-lib'
+import { Dispatch, ValueOrReducer } from 'src/utils/types-lib'
 
 export default function StoreEditorPage() {
   const { storeId } = useParams()
