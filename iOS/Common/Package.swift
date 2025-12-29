@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "Common",
     platforms: [
-        .iOS(.v17),
+        .iOS(.v17), .macOS(.v15)
     ],
     products: [
         .library(
@@ -16,10 +16,7 @@ let package = Package(
             name: "Backend_deprecated",
             targets: ["Backend_deprecated"]
         ),
-        .library(
-            name: "Common",
-            targets: ["Common"],
-        ),
+        .library(name: "Common", targets: ["Common"]),
         .library(
             name: "CommonUI",
             targets: ["CommonUI"],
@@ -31,6 +28,7 @@ let package = Package(
         .package(url: "https://github.com/supabase/supabase-swift.git", from: "2.5.1"),
         .package(url: "https://github.com/tevelee/SwiftUI-Flow", from: "3.1.0"),
         .package(url: "https://github.com/mongodb/swift-bson", exact: "3.1.0"),
+        .package(url: "https://github.com/swiftlang/swift-syntax.git", from: "602.0.0"),
     ],
     targets: [
         .target(
@@ -62,7 +60,27 @@ let package = Package(
         .target(
             name: "Common",
             dependencies: [
+                "CommonMacros",
                 .product(name: "Algorithms", package: "swift-algorithms")
+            ],
+            swiftSettings: [
+                .defaultIsolation(nil)
+            ]
+        ),
+        .testTarget(
+            name: "CommonTests",
+            dependencies: [
+                "Common",
+                .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
+            ],
+            
+        ),
+        .target(
+            name: "CommonMacros",
+            dependencies: [
+                // .product(name: "SwiftSyntax", package: "swift-syntax"),
+                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
+                .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
             ],
             swiftSettings: [
                 .defaultIsolation(nil)
