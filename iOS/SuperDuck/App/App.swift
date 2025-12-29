@@ -1,25 +1,11 @@
 import SwiftUI
 import Backend
 import AppShared
+import InventoryApp
 
 @main
 struct App: SwiftUI.App {
-    let auth: Auth
-    let api: API
-    let appDefaults = AppDefaults(storageKey: "appDefaults:v2")
-    
-    init() {
-        let auth = Auth()
-        
-        self.auth = auth
-        
-        self.api = {
-            switch AppInfo.buildTarget {
-            case .prod: API(env: .prod, auth: auth)
-            case .local: API(env: .local, auth: auth)
-            }
-        }()
-    }
+    init() {}
     
     var body: some Scene {
         WindowGroup {
@@ -33,3 +19,18 @@ struct App: SwiftUI.App {
         .environment(appDefaults)
     }
 }
+
+// Singletons
+
+let auth = Auth()
+
+let api = {
+    switch AppInfo.buildTarget {
+    case .prod: API(env: .prod, auth: auth)
+    case .local: API(env: .local, auth: auth)
+    }
+}()
+
+let appDefaults = AppDefaults()
+
+let inventoryAppDefaults = InventoryApp.Defaults()
