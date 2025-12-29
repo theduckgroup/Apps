@@ -33,69 +33,6 @@ public class KeyboardDoneButtonManager {
     }
 }
 
-private class KeyboardToolbar: UIVisualEffectView {
-    convenience init(for inputView: UIView) {
-        let effect: UIVisualEffect = {
-            if #available(iOS 26, *) {
-                UIGlassEffect(style: .regular)
-            } else {
-                UIBlurEffect(style: .regular)
-            }
-        }()
-        
-        self.init(effect: effect)
-        
-        frame = .init(x: 0, y: 0, width: 600, height: 48)
-        
-        configureDoneButton(inputView)
-    }
-    
-    private func configureDoneButton(_ inputView: UIView) {
-        var config: UIButton.Configuration = {
-            if #available(iOS 26, *) {
-                .bordered()
-            } else {
-                .bordered()
-            }
-        }()
-        
-        config.image = UIImage(
-            systemName: "chevron.down",
-//            systemName: "keyboard.chevron.compact.down",
-            withConfiguration:
-                UIImage.SymbolConfiguration(hierarchicalColor: .label)
-//                .applying(UIImage.SymbolConfiguration(font: .systemFont(ofSize: 18, weight: .regular), scale: .medium))
-        )
-        config.buttonSize = .medium
-        // config.baseForegroundColor = UIApplication.shared.anyKeyWindow?.tintColor ?? .secondaryLabel
-        // config.baseBackgroundColor = UIApplication.shared.anyKeyWindow?.tintColor
-        // config.baseForegroundColor = inputView.window?.tintColor // UIApplication.shared.anyKeyWindow?.tintColor
-        // config.cornerStyle = .capsule
-//        config.attributedTitle = AttributedString("Done", attributes: AttributeContainer([
-//            .font: UIFont.systemFont(ofSize: 17, weight: .medium),
-//            .foregroundColor: inputView.tintColor
-//        ]))
-        config.contentInsets = NSDirectionalEdgeInsets(top: 7, leading: 14, bottom: 7, trailing: 14)
-
-        let button = UIButton(configuration: config, primaryAction: UIAction { _ in
-            inputView.resignFirstResponder()
-        })
-        
-        button.translatesAutoresizingMaskIntoConstraints = false
-        
-        contentView.addSubview(button)
-
-        NSLayoutConstraint.activate([
-            button.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            button.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
-        ])
-    }
-}
-
-
-// Implementation with passthrough hit-test and clear background
-// Can't make the background completely clear though (even pre-iOS 26); which makes it look not great
-/*
 private class KeyboardToolbar: UIView {
     convenience init(for inputView: UIView) {
         self.init(frame: .init(x: 0, y: 0, width: 600, height: 54))
@@ -152,6 +89,69 @@ private class KeyboardToolbar: UIView {
         // Allow subview touches
 
         return hitView
+    }
+}
+
+
+/*
+// Implementation with glass background toolbar
+// Looks bad in dark mode
+private class KeyboardToolbar: UIVisualEffectView {
+    convenience init(for inputView: UIView) {
+        let effect: UIVisualEffect = {
+            if #available(iOS 26, *) {
+                UIGlassEffect(style: .regular)
+            } else {
+                UIBlurEffect(style: .regular)
+            }
+        }()
+        
+        self.init(effect: effect)
+        
+        frame = .init(x: 0, y: 0, width: 600, height: 48)
+        
+        configureDoneButton(inputView)
+    }
+    
+    private func configureDoneButton(_ inputView: UIView) {
+        var config: UIButton.Configuration = {
+            if #available(iOS 26, *) {
+                .bordered()
+            } else {
+                .bordered()
+            }
+        }()
+        
+        config.image = UIImage(
+            systemName: "chevron.down",
+//            systemName: "keyboard.chevron.compact.down",
+            withConfiguration:
+                UIImage.SymbolConfiguration(hierarchicalColor: .label)
+//                .applying(UIImage.SymbolConfiguration(font: .systemFont(ofSize: 18, weight: .regular), scale: .medium))
+        )
+        config.buttonSize = .medium
+        // config.baseForegroundColor = UIApplication.shared.anyKeyWindow?.tintColor ?? .secondaryLabel
+        // config.baseBackgroundColor = UIApplication.shared.anyKeyWindow?.tintColor
+        // config.baseForegroundColor = inputView.window?.tintColor // UIApplication.shared.anyKeyWindow?.tintColor
+        // config.cornerStyle = .capsule
+//        config.attributedTitle = AttributedString("Done", attributes: AttributeContainer([
+//            .font: UIFont.systemFont(ofSize: 17, weight: .medium),
+//            .foregroundColor: inputView.tintColor
+//        ]))
+        config.contentInsets = NSDirectionalEdgeInsets(top: 7, leading: 14, bottom: 7, trailing: 14)
+
+        let button = UIButton(configuration: config, primaryAction: UIAction { _ in
+            inputView.resignFirstResponder()
+        })
+        
+        button.translatesAutoresizingMaskIntoConstraints = false
+        
+        contentView.addSubview(button)
+
+        NSLayoutConstraint.activate([
+            button.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            button.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
+        ])
     }
 }
 */
