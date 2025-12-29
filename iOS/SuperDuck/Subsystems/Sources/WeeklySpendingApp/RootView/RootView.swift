@@ -67,54 +67,59 @@ public struct RootView: View {
             }
             .padding()
         }
-        .safeAreaInset(edge: .bottom) {
-            loadingView()
-        }
+        .fetchOverlay(
+            isFetching: isFetchingTemplate || isFetchingReports,
+            fetchError: templateError ?? reportsError,
+            retry: {
+                fetchTemplate()
+                fetchReports()
+            }
+        )
         .nonProdEnvWarningOverlay()
     }
     
-    @ViewBuilder
-    private func loadingView() -> some View {
-        if isFetchingTemplate || isFetchingReports {
-            HStack {
-                ProgressView()
-                    .progressViewStyle(.circular)
-                    .tint(.secondary)
-                
-                Text("Loading...")
-                    .foregroundStyle(.secondary)
-            }
-            .padding(.horizontal, 21)
-            .padding(.vertical, 12)
-            .background {
-                Capsule()
-                    .fill(.regularMaterial)
-            }
-            .padding(.bottom, 24)
-            
-        } else if let error = templateError ?? reportsError {
-            VStack(alignment: .leading) {
-                Text(formatError(error))
-                    .foregroundStyle(.red)
-                
-                Button("Retry") {
-                    fetchTemplate()
-                    fetchReports()
-                }
-                .buttonStyle(.bordered)
-                .frame(maxWidth: .infinity, alignment: .trailing)
-            }
-            .fixedSize(horizontal: false, vertical: false)
-            .padding()
-            .frame(width: horizontalSizeClass == .regular ? 570 : nil)
-            .frame(maxWidth: horizontalSizeClass == .compact ? .infinity : nil)
-            .background {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(.regularMaterial)
-            }
-            .padding()
-        }
-    }
+//    @ViewBuilder
+//    private func loadingView() -> some View {
+//        if isFetchingTemplate || isFetchingReports {
+//            HStack {
+//                ProgressView()
+//                    .progressViewStyle(.circular)
+//                    .tint(.secondary)
+//                
+//                Text("Loading...")
+//                    .foregroundStyle(.secondary)
+//            }
+//            .padding(.horizontal, 21)
+//            .padding(.vertical, 12)
+//            .background {
+//                Capsule()
+//                    .fill(.regularMaterial)
+//            }
+//            .padding(.bottom, 24)
+//            
+//        } else if let error = templateError ?? reportsError {
+//            VStack(alignment: .leading) {
+//                Text(formatError(error))
+//                    .foregroundStyle(.red)
+//                
+//                Button("Retry") {
+//                    fetchTemplate()
+//                    fetchReports()
+//                }
+//                .buttonStyle(.bordered)
+//                .frame(maxWidth: .infinity, alignment: .trailing)
+//            }
+//            .fixedSize(horizontal: false, vertical: false)
+//            .padding()
+//            .frame(width: horizontalSizeClass == .regular ? 570 : nil)
+//            .frame(maxWidth: horizontalSizeClass == .compact ? .infinity : nil)
+//            .background {
+//                RoundedRectangle(cornerRadius: 12)
+//                    .fill(.regularMaterial)
+//            }
+//            .padding()
+//        }
+//    }
     
     private func fetchTemplate() {
         fetchTemplateTask?.cancel()

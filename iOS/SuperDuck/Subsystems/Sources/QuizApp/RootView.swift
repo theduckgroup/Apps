@@ -21,18 +21,8 @@ public struct RootView: View {
     
     public var body: some View {
         NavigationStack {
-            ScrollView {
-                bodyContent()
-            }
-            .safeAreaInset(edge: .bottom) {
-                VStack {
-                    loadingView()
-                    
-                }
-                .padding()
-            }
-            .nonProdEnvWarningOverlay()
-            .navigationTitle("FOH Test")
+            bodyContent()
+                .navigationTitle("FOH Test")
         }
         .fullScreenCover(item: $presentedQuiz) { quiz in
             QuizResponseView(quiz: quiz, user: auth.user!)
@@ -50,63 +40,32 @@ public struct RootView: View {
     
     @ViewBuilder
     private func bodyContent() -> some View {
-        VStack(alignment: .leading, spacing: 15) {
-            Button {
-                if let quiz {
-                    self.presentedQuiz = quiz
+        ScrollView(.vertical) {
+            VStack(alignment: .leading, spacing: 15) {
+                Button {
+                    if let quiz {
+                        self.presentedQuiz = quiz
+                    }
+                } label: {
+                    Text("Start \(persistedQuizName.ifEmpty("Test"))")
+                        .bold()
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
                 }
-            } label: {
-                Text("Start \(persistedQuizName.ifEmpty("Test"))")
-                    .bold()
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
+                .buttonStyle(.borderedProminent)
+                .disabled(quiz == nil)
             }
-            .buttonStyle(.borderedProminent)
-            .disabled(quiz == nil)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
-    }
-    
-    @ViewBuilder
-    private func loadingView() -> some View {
-        if isFetching {
-            HStack {
-                ProgressView()
-                    .progressViewStyle(.circular)
-                    .tint(.secondary)
-                
-                Text("Loading...")
-                    .foregroundStyle(.secondary)
-            }
-            .padding(.horizontal, 21)
-            .padding(.vertical, 12)
-            .background {
-                Capsule()
-                    .fill(.regularMaterial)
-            }
-            
-        } else if let error {
-            VStack(alignment: .leading) {
-                Text(formatError(error))
-                    .foregroundStyle(.red)
-                    .multilineTextAlignment(.leading)
-                
-                Button("Retry") {
-                    fetchQuiz(delay: true)
-                }
-                .buttonStyle(.bordered)
-                .frame(maxWidth: .infinity, alignment: .trailing)
-            }
-            .fixedSize(horizontal: false, vertical: false)
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
-            .frame(width: horizontalSizeClass == .regular ? 570 : nil)
-            .frame(maxWidth: horizontalSizeClass == .compact ? .infinity : nil)
-            .background {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color(UIColor.tertiarySystemFill))
-            }
         }
+        .fetchOverlay(
+            isFetching: isFetching,
+            fetchError: error,
+            retry: {
+                fetchQuiz(delay: true)
+            }
+        )
+        .nonProdEnvWarningOverlay()
     }
     
     private func fetchQuiz(delay: Bool = false) {
