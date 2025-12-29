@@ -98,3 +98,9 @@ struct SettingsView: View {
         }
     }
 }
+
+#Preview {
+    SettingsView()
+        .applyAppDefaultsStyling()
+        .previewEnvironment()        
+}
