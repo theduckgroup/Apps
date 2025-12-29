@@ -73,7 +73,7 @@ export default function StoreEditorPage() {
   }, [initialStore, setStore, setNeedsSave])
 
   return (
-    <Stack align='flex-start'>
+    <Stack align='flex-start' gap='lg'>
       {/* Save error */}
       {
         saveError &&

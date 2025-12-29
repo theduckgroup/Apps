@@ -176,7 +176,7 @@ function NavbarContent({ onClose }: {
       <NavbarLink label='FOH Test' path='/quiz-app' onClose={onClose} />
       <NavbarLink label='Weekly Spending' path='/ws-app' onClose={onClose} />
       {
-        import.meta.env.DEV && 
+        import.meta.env.DEV &&
         <NavbarLink label='Inventory' path='/inventory-app' onClose={onClose} />
       }
       <NavbarLink label='Admin' path='/admin' onClose={onClose} />
@@ -197,9 +197,10 @@ function NavbarLink({ label, path, onClose }: {
       href='#'
       label={label}
       rightSection={
-        < IconChevronRight size={12} stroke={1.5} className='mantine-rotate-rtl' />
+        <IconChevronRight size={15} stroke={1.5} className='mantine-rotate-rtl' />
       }
       variant='filled'
+      py='xs'
       active={location.pathname.startsWith(path)}
       onClick={() => {
         navigate(path)
