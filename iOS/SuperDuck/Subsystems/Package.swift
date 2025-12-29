@@ -8,7 +8,7 @@ let package = Package(
     platforms: [.iOS(.v18)],
     products: [
         .library(name: "Subsystems", targets: [
-            "AppShared",
+            "AppModule",
             "Backend",
             "InventoryApp",
             "QuizApp",
@@ -25,7 +25,7 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "AppShared",
+            name: "AppModule",
             dependencies: [
                 .product(name: "Common", package: "Common"),
                 .product(name: "CommonUI", package: "Common"),
@@ -55,7 +55,7 @@ let package = Package(
         .target(
             name: "InventoryApp",
             dependencies: [
-                "AppShared",
+                "AppModule",
                 "Backend",
                 .product(name: "Common", package: "Common"),
                 .product(name: "CommonUI", package: "Common"),
@@ -68,7 +68,7 @@ let package = Package(
         .target(
             name: "QuizApp",
             dependencies: [
-                "AppShared",
+                "AppModule",
                 "Backend",
                 .product(name: "Common", package: "Common"),
                 .product(name: "CommonUI", package: "Common"),
@@ -82,7 +82,7 @@ let package = Package(
         .target(
             name: "WeeklySpendingApp",
             dependencies: [
-                "AppShared",
+                "AppModule",
                 "Backend",
                 .product(name: "Common", package: "Common"),
                 .product(name: "CommonUI", package: "Common"),

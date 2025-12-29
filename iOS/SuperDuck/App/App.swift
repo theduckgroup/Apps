@@ -1,6 +1,6 @@
 import SwiftUI
 import Backend
-import AppShared
+import AppModule
 import InventoryApp
 
 @main

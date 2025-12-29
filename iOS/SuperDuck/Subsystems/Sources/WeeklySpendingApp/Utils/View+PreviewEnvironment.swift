@@ -1,5 +1,5 @@
 import SwiftUI
-import AppShared
+import AppModule
 import Backend
 
 extension View {

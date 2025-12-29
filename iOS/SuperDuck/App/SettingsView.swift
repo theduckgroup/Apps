@@ -1,6 +1,6 @@
 import Foundation
 import SwiftUI
-import AppShared
+import AppModule
 import Auth
 import Backend
 import CommonUI

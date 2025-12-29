@@ -1,6 +1,6 @@
 import Foundation
 import SwiftUI
-import AppShared
+import AppModule
 import Backend
 import InventoryApp
 import QuizApp
@@ -33,7 +33,7 @@ struct TabView: View {
                 SettingsView()
                     .environment(inventoryAppDefaults)
             }
-        }        
+        }
                 
 //        TabView(selection: $selectedTab) {
 //            @Bindable var appDefaults = appDefaults
