@@ -42,7 +42,7 @@ struct QuizResponseView: View {
                 ),
                 for: .scrollContent
             )
-            .scrollDismissesKeyboard(.immediately)
+            // .scrollDismissesKeyboard(.immediately)
             .dynamicTypeSize(dynamicTypeSizeOverride?.dynamicTypeSize ?? systemDynamicTypeSize)
             .navigationTitle("")
             .toolbar { toolbarContent() }

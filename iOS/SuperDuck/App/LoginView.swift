@@ -1,8 +1,9 @@
 import Foundation
 import SwiftUI
+import AppShared
+import Backend
 import Common
 import CommonUI
-import Backend
 
 public struct LoginView: View {
     @State var email: String = ""
@@ -18,6 +19,7 @@ public struct LoginView: View {
         VStack {
             loginView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .nonProdEnvWarningOverlay()
         }
         .padding()
         .onAppear {
@@ -61,14 +63,16 @@ public struct LoginView: View {
                         ProgressView()
                             .progressViewStyle(.circular)
                             .tint(.primary)
-                        
                     } else {
                         Text("Log in")
+                            .bold()
                     }
                 }
+                .padding(.vertical, 6)
                 .frame(maxWidth: .infinity)
             }
-            .buttonStyle(.paperProminent)
+            .buttonStyle(.borderedProminent)
+            // .buttonStyle(.paperProminent)
             .disabled(email.isEmpty || password.isEmpty)
         }
         .disabled(loading)

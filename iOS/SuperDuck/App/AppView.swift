@@ -51,7 +51,7 @@ struct AppView: View {
                 
             } else {
                 LoginView()
-                    .nonProdWarningOverlay()
+                    // .nonProdWarningOverlay()
             }
         } else {
             ProgressView()

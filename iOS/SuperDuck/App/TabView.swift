@@ -14,17 +14,14 @@ struct TabView: View {
             // pencil.and.list.clipboard
             Tab("FOH Test", systemImage: "list.clipboard.fill", value: .quiz) {
                 QuizApp.RootView()
-                    .nonProdWarningOverlay()
             }
 
             Tab("Weekly Spending", systemImage: "wallet.bifold", value: .weeklySpending) {
                 WeeklySpendingApp.RootView()
-                    .nonProdWarningOverlay()
             }
 
             Tab("Settings", systemImage: "gearshape", value: .settings) {
                 SettingsView()
-                    .nonProdWarningOverlay()
             }
         }
                 

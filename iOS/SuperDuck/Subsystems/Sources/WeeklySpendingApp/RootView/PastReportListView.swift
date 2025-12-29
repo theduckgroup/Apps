@@ -39,7 +39,7 @@ struct PastReportListView: View {
                             }
                         }
                         
-                        Text("Only data for the past 6 months is shown.")
+                        Text("Data for the past 6 months is shown.")
                             .foregroundStyle(.secondary)
                             .padding(.top)
                     }

@@ -25,8 +25,13 @@ public struct RootView: View {
                 bodyContent()
             }
             .safeAreaInset(edge: .bottom) {
-                loadingView()
+                VStack {
+                    loadingView()
+                    
+                }
+                .padding()
             }
+            .nonProdEnvWarningOverlay()
             .navigationTitle("FOH Test")
         }
         .fullScreenCover(item: $presentedQuiz) { quiz in
@@ -52,9 +57,11 @@ public struct RootView: View {
                 }
             } label: {
                 Text("Start \(persistedQuizName.ifEmpty("Test"))")
-                    .padding(.horizontal, 9)
+                    .bold()
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
             }
-            .buttonStyle(.paperProminent)
+            .buttonStyle(.borderedProminent)
             .disabled(quiz == nil)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -78,7 +85,6 @@ public struct RootView: View {
                 Capsule()
                     .fill(.regularMaterial)
             }
-            .padding(.bottom, 24)
             
         } else if let error {
             VStack(alignment: .leading) {
@@ -100,7 +106,6 @@ public struct RootView: View {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color(UIColor.tertiarySystemFill))
             }
-            .padding()
         }
     }
     

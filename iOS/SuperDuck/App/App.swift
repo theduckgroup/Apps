@@ -33,22 +33,3 @@ struct App: SwiftUI.App {
         .environment(appDefaults)
     }
 }
-
-//
-
-//private let auth = Auth()
-//
-//extension API {
-//    static let shared: API = {
-//        switch AppInfo.buildTarget {
-//        case .prod: .prod
-//        case .local: .local
-//        }
-//    }()
-//}
-//
-//extension API {
-//    static let prod = API(env: .prod, auth: .shared)
-//    static let local = API(env: .local, auth: .shared)
-//}
-//

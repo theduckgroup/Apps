@@ -143,7 +143,14 @@ struct QuizResponseView: View {
                 .padding(.horizontal, 9)
                 .frame(maxHeight: .infinity)
         }
-        .buttonStyle(.paperProminent)
+        .modified {
+            if #available(iOS 26, *) {
+                $0.buttonStyle(.glassProminent)
+            } else {
+                $0.buttonStyle(.borderedProminent)
+            }
+        }
+        // .buttonStyle(.paperProminent)
     }
     
     private func handleSubmit() {

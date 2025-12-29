@@ -70,6 +70,7 @@ public struct RootView: View {
         .safeAreaInset(edge: .bottom) {
             loadingView()
         }
+        .nonProdEnvWarningOverlay()
     }
     
     @ViewBuilder
