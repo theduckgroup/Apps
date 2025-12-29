@@ -38,6 +38,7 @@ export default function QrModal({ opened, onClose, item }: {
       returnFocus={false}
       opened={opened}
       onClose={onClose}
+      closeOnClickOutside={false}
     >
       <Stack justify='center' py='lg'>
         <Group justify='center'>
