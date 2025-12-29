@@ -1,9 +1,8 @@
-import Foundation
+public import Foundation
 import Common
 
 @Observable
 public class Fetcher<Value> {
-    // public let fetchOperation: () async throws -> Value
     private(set) public var value: Value?
     private(set) public var error: Error?
     private(set) public var isFetching = false
@@ -25,6 +24,8 @@ public class Fetcher<Value> {
                     try await Task.sleep(for: .seconds(0.5))
                 }
                 
+                try Task.checkCancellation()
+                
                 if debugging {
                     // try await Task.sleep(for: .seconds(2))
                     // throw GenericError("Culpa dolore sit pariatur commodo nulla commodo amet ad velit magna commodo fugiat. Laboris reprehenderit do culpa. Enim quis cupidatat ex mollit elit aute proident dolor dolor laboris et ex esse aliqua fugiat. Commodo officia consequat minim elit aliquip qui veniam labore dolore eu culpa aliquip ex.")
@@ -32,6 +33,8 @@ public class Fetcher<Value> {
                 }
                 
                 let fetchedValue = try await operation()
+                
+                try Task.checkCancellation()
                 
                 self.value = fetchedValue
                 self.isFetching = false

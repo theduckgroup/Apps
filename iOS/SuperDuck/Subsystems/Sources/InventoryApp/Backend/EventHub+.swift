@@ -1,7 +1,7 @@
 import Backend
 
 extension EventHub {
-    var templatesChangeEvents: AsyncStream<Void> {
+    var storeChangeEvents: AsyncStream<Void> {
         events("inventory-app:store:\(Vendor.defaultStoreID):changed")
     }
     

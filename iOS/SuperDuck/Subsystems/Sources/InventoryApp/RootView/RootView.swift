@@ -4,9 +4,10 @@ import AppModule
 import Backend
 import Common
 import CommonUI
+import AsyncAlgorithms
 
 public struct RootView: View {
-    let storeFetcher = Fetcher<Vendor>()
+    @State var storeFetcher = Fetcher<Vendor>()
     @Environment(Auth.self) var auth
     @Environment(API.self) var api
     @Environment(AppDefaults.self) var appDefaults
@@ -28,12 +29,9 @@ public struct RootView: View {
         .onReceive(api.eventHub.connectEvents) {
             fetchStore()
         }
-//        .onReceive(api.eventHub.templatesChangeEvents) {
-//            fetchTemplate()
-//        }
-//        .onReceive(api.eventHub.userReportsChangeEvents(userID: auth.user!.idString)) {
-//            fetchReports()
-//        }
+        .onReceive(api.eventHub.storeChangeEvents) {
+            fetchStore()
+        }
     }
     
     @ViewBuilder

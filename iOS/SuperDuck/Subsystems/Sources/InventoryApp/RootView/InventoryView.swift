@@ -5,16 +5,13 @@ import Backend
 import Common
 
 struct InventoryView: View {
-    @State var store: Vendor?
-    @State var isFetching = false
-    @State var fetchError: Error?
+    @State var dataFetcher = Fetcher<(Vendor, StoreStock)>()
     @State private var showsFilter = false
     @State private var filterText = ""
     @FocusState private var filterFocused: Bool
     
     @Environment(Auth.self) var auth
     @Environment(API.self) var api
-    // @Environment(AppDefaults.self) var appDefaults
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     var body: some View {
@@ -47,8 +44,8 @@ struct InventoryView: View {
             contentView()
         }
         .fetchOverlay(
-            isFetching: isFetching,
-            fetchError: fetchError,
+            isFetching: dataFetcher.isFetching,
+            fetchError: dataFetcher.error,
             retry: {
                 fetch()
             }
@@ -86,18 +83,18 @@ struct InventoryView: View {
     @ViewBuilder
     private func contentView() -> some View {
         ScrollView {
-            if let store {
+            if let (store, stock) = dataFetcher.value {
                 LazyVStack(alignment: .leading, spacing: 0, pinnedViews: .sectionHeaders) {
-                    listView(store)
+                    listView(store, stock)
                 }
             }
         }
     }
     
     @ViewBuilder
-    private func listView(_ vendor: Vendor) -> some View {
+    private func listView(_ vendor: Vendor, _ stock: StoreStock) -> some View {
         let listData = listData(
-            vendor: vendor, filterEnabled: showsFilter, filterText: filterText
+            vendor: vendor, stock: stock, filterEnabled: showsFilter, filterText: filterText
         )
         
         ForEach(listData.sections) { section in
@@ -148,44 +145,31 @@ struct InventoryView: View {
     }
     
     private func fetch() {
-        Task {
-            do {
-                isFetching = true
-                fetchError = nil
-
-                let fetchedStore = try await api.store()
-                
-                store = fetchedStore
-                isFetching = false
-                
-            } catch {
-                guard !error.isCancellationError else {
-                    return
-                }
-
-                // Keep existing store
-                isFetching = false
-                fetchError = error
-            }
+        dataFetcher.fetch {
+            async let store = api.store()
+            async let stock = api.storeStock()
+            return try await (store, stock)
         }
     }
     
-    private func listData(vendor: Vendor, filterEnabled: Bool, filterText: String) -> ListData {
+    private func listData(vendor: Vendor, stock: StoreStock, filterEnabled: Bool, filterText: String) -> ListData {
         let filterText = filterText.trimmingCharacters(in: .whitespaces)
         
         if !filterEnabled {
             return ListData(
-                sections: vendor.sections.map { vendorSection in
+                sections: vendor.catalog.sections.map { vendorSection in
                     ListData.Section(
                         vendorSection: vendorSection,
                         name: AttributedString(vendorSection.name),
-                        items: vendor.itemsForSection(vendorSection).map { vendorItem in
-                            ListData.Item(
+                        items: vendor.catalog.itemsForSection(vendorSection).map { vendorItem in
+                            let quantity = stock.itemAttributes.first { $0.itemId == vendorItem.id }?.quantity ?? 0
+                            
+                            return ListData.Item(
                                 vendorItem: vendorItem,
                                 name: AttributedString(vendorItem.name),
                                 // name: highlight(vendorItem.name, "Yoghurt"),
                                 code: AttributedString(vendorItem.code),
-                                quantity: vendorItem.quantity
+                                quantity: quantity
                             )
                         }
                     )
@@ -193,9 +177,9 @@ struct InventoryView: View {
             )
             
         } else {
-            let sections: [ListData.Section] = vendor.sections
+            let sections: [ListData.Section] = vendor.catalog.sections
                 .compactMap { vendorSection in
-                    let vendorItems = vendor.itemsForSection(vendorSection)
+                    let vendorItems = vendor.catalog.itemsForSection(vendorSection)
                     
                     let listItems: [ListData.Item] = vendorItems.compactMap { vendorItem in
                         guard filterText == "" ||
@@ -203,11 +187,13 @@ struct InventoryView: View {
                             return nil
                         }
                         
+                        let quantity = stock.itemAttributes.first { $0.itemId == vendorItem.id }?.quantity ?? 0
+                        
                         return ListData.Item(
                             vendorItem: vendorItem,
                             name: highlight(vendorItem.name, filterText),
                             code: highlight(vendorItem.code, filterText),
-                            quantity: vendorItem.quantity
+                            quantity: quantity
                         )
                     }
                     

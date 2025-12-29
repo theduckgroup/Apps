@@ -111,7 +111,7 @@ struct ScanView: View {
                 
             case 1:
                 let barcode = detectedBarcodes[0]
-                let item = vendor.items.first { $0.code == barcode }
+                let item = vendor.catalog.items.first { $0.code == barcode }
                 
                 if let item {
                     VStack {
@@ -189,7 +189,7 @@ struct ScanView: View {
     }
     
     private func handleBarcode(_ barcode: String) {
-        let item = vendor.items.first { $0.code == barcode }
+        let item = vendor.catalog.items.first { $0.code == barcode }
         
         guard let item else {
             return
@@ -309,21 +309,21 @@ private struct ReviewView: View {
         vendor: .init(
             id: "0",
             name: "ND Central Kitchen",
-            items: [
-                .init(
-                    id: "water-bottle",
-                    name: "Water Bottle",
-                    code: "WTBTL",
-                    quantity: 5
-                ),
-                .init(
-                    id: "rock-salt",
-                    name: "Rock Salt",
-                    code: "RKST",
-                    quantity: 2
-                )
-            ],
-            sections: []
+            catalog: .init(
+                items: [
+                    .init(
+                        id: "water-bottle",
+                        name: "Water Bottle",
+                        code: "WTBTL"
+                    ),
+                    .init(
+                        id: "rock-salt",
+                        name: "Rock Salt",
+                        code: "RKST"
+                    )
+                ],
+                sections: []
+            )
         ),
         scanMode: .add
     )

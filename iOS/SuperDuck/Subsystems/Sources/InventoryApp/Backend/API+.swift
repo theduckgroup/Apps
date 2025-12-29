@@ -12,6 +12,10 @@ extension API {
 //        vendorsMap[vendor.id] = vendor
     }
     
+    func storeStock() async throws -> StoreStock {
+        try await get(path: "inventory-app/store/\(Vendor.defaultStoreID)/stock")
+    }
+    
     func submit(_ vendor: Vendor, _ scannedItems: [ScannedItem]) async throws {
         // try await Task.sleep(for: .seconds(1))
         
