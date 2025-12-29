@@ -7,10 +7,10 @@ import { client, getDb } from 'src/db'
 import { DbInvStore } from '../db/DbInvStore'
 import { DbInvStoreStock } from '../db/DbInvStoreStock'
 import { authorizeUser, authorizeAdmin } from 'src/auth/authorize'
-import { objectIdPropertyToString } from 'src/utils/object-id-utils'
 import { UpdateStoreCatalogBodySchema, UpdateStockBodySchema } from './schemas'
 import logger from 'src/logger'
 import '../db/Db+collections'
+import { jsonifyMongoId } from 'src/utils/mongodb-utils'
 
 // Admin router
 
@@ -77,7 +77,7 @@ adminRouter.get('/store/:storeId', async (req, res) => {
   //   }
   // }
 
-  const store = objectIdPropertyToString(dbStore, '_id')
+  const store = jsonifyMongoId(dbStore)
 
   // console.info(`! response = ${JSON.stringify(responseVendor)}`)
 
@@ -152,7 +152,7 @@ adminRouter.get('/store/:storeId/stock', async (req, res) => {
     throw createHttpError(500, 'Store stock not found')
   }
 
-  const stock = objectIdPropertyToString(dbStock, '_id')
+  const stock = jsonifyMongoId(dbStock)
 
   // console.info(`! response = ${JSON.stringify(responseVendor)}`)
 
