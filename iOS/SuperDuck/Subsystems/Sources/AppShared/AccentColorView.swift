@@ -19,6 +19,7 @@ public struct AccentColorView: View {
         Color.teal,
         Color.mint,
         Color.green,
+        Color.mantineTeal,
         Color.brown,
         Color.gray,
     ]
