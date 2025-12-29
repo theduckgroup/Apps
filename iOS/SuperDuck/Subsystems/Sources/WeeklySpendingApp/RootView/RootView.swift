@@ -133,7 +133,7 @@ public struct RootView: View {
                         return try await api.mockTemplate()
                     }
                     
-                    return try await api.template(code: "WEEKLY_SPENDING")
+                    return try await api.template()
                 }()
                 
                 // throw GenericError("Culpa dolore sit pariatur commodo nulla commodo amet ad velit magna commodo fugiat. Laboris reprehenderit do culpa. Enim quis cupidatat ex mollit elit aute proident dolor dolor laboris et ex esse aliqua fugiat. Commodo officia consequat minim elit aliquip qui veniam labore dolore eu culpa aliquip ex.")

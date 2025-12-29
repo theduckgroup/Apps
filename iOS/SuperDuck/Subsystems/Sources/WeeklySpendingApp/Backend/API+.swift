@@ -3,22 +3,8 @@ import Common
 import Backend
 
 extension API {
-    func template(code: String) async throws -> WSTemplate {
-        let templates: [WSTemplate] = try await get(
-            path: "ws-app/templates",
-            queryItems: [.init(name: "code", value: code)]
-        )
-        
-        switch templates.count {
-        case 0:
-            throw GenericError("No template with code WEEKLY_SPENDING found")
-            
-        case 1:
-            return templates[0]
-            
-        default:
-            throw GenericError("More than one template with code WEEKLY_SPENDING found")
-        }
+    func template() async throws -> WSTemplate {
+        try await get(path: "ws-app/templates/6905482c7eb3588dc38a48c8")
     }
     
     func mockTemplate() async throws -> WSTemplate {

@@ -1,7 +1,8 @@
+import { ObjectId } from 'mongodb'
 import { DbWsTemplate } from './DbWsTemplate'
 
 export interface DbWsReport {
-  // _id: ObjectId
+  _id?: ObjectId
   template: DbWsTemplate
   user: {
     id: string

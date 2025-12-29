@@ -15,6 +15,8 @@ import { DbWsReport } from '../db/DbWsReport'
 import '../db/Db+collections'
 import { sendReportEmail, generateReportEmail } from './report-email'
 import { subHours, subMonths } from 'date-fns'
+import { objectIdPropertyToString } from 'src/utils/object-id-utils'
+import { jsonifyMongoId } from 'src/utils/mongodb-utils'
 
 // Admin router
 
@@ -109,7 +111,7 @@ function validateTemplate(template: WsTemplateSchemaInferredType) {
 
   const rowSupplierIDs = new Set<string>()
 
-  let errors: string[] = []
+  const errors: string[] = []
 
   for (const section of template.sections) {
     for (const row of section.rows) {
@@ -189,6 +191,7 @@ userRouter.get('/templates/:id', async (req, res) => {
   res.send(data)
 })
 
+// TODO: Remove
 userRouter.get('/templates' /* ?code=XYZ */, async (req, res) => {
   const code = req.query.code
 
@@ -272,7 +275,7 @@ userRouter.get('/users/:userId/reports/meta', async (req, res) => {
 
   const db = await getDb()
 
-  let docs = await db.collection_wsReports
+  const docs = await db.collection_wsReports
     .find({
       'user.id': userId,
       'date': {
@@ -280,7 +283,8 @@ userRouter.get('/users/:userId/reports/meta', async (req, res) => {
         // $gte: subHours(new Date(), 24)
       }
     })
-    .project({
+    .project<DbWsReport>({
+      _id: 1,
       'template.id': 1,
       'template.name': 1,
       'template.code': 1,
@@ -290,9 +294,12 @@ userRouter.get('/users/:userId/reports/meta', async (req, res) => {
     .toArray()
 
   // For some reason, docs is Document[] and cannot be used with `normalizeId`
-  docs = docs.map(doc => ({ id: doc._id, ...doc, _id: undefined }))
 
-  res.send(docs)
+  const response = docs.map(doc => jsonifyMongoId(doc))
+  // docs = docs.map(doc => ({ id: doc._id, ...doc, _id: undefined }))
+
+
+  res.send(response)
 })
 
 // Public router
@@ -303,7 +310,7 @@ if (env.nodeEnv == 'development') {
   publicRouter.get('/mock-template', async (req, res) => {
     const db = await getDb()
 
-    const doc = await db.collection_wsTemplates.findOne({ code: 'WEEKLY_SPENDING' })
+    const doc = await db.collection_wsTemplates.findOne()
 
     if (!doc) {
       throw createHttpError(404, 'Template not found')
