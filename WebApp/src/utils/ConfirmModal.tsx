@@ -1,7 +1,6 @@
-import { Button, FocusTrap, Group, Modal, Stack, Text } from '@mantine/core'
-
-import formatError from 'src/common/format-error'
 import { useState } from 'react'
+import { Button, FocusTrap, Group, Modal, Stack, Text } from '@mantine/core'
+import formatError from 'src/common/format-error'
 
 export function ConfirmModal({ opened, onClose, options: { title, message, actions } }: {
   opened: boolean
@@ -35,8 +34,8 @@ export function ConfirmModal({ opened, onClose, options: { title, message, actio
     <Modal
       opened={opened}
       onClose={onClose}
-      withCloseButton={false}
       title={title}
+      closeOnClickOutside={false}
     >
       <Stack gap='md'>
         <FocusTrap.InitialFocus />

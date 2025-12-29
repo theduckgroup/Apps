@@ -521,19 +521,19 @@ function SectionHeader({
       {/* Buttons */}
       <Group gap='xs' wrap='nowrap'>
         {/* Add Button */}
-        <Menu offset={6} position='bottom-end' width={180}>
+        <Menu offset={6} position='bottom-end' width={210}>
           <Menu.Target>
             <ActionIcon variant='subtle' size='md' color='gray'>
               <IconDots size={16} />
             </ActionIcon>
           </Menu.Target>
           <Menu.Dropdown>
-            <Menu.Item leftSection={<IconPencil size={16} />} onClick={handleClickEdit}>Edit</Menu.Item>
-            <Menu.Item leftSection={<IconTrash size={16} />} onClick={handleDelete}>Delete</Menu.Item>
+            <Menu.Item leftSection={<IconPencil size={16} />} onClick={handleClickEdit}>Edit Section</Menu.Item>
+            <Menu.Item leftSection={<IconTrash size={16} />} onClick={handleDelete}>Delete Section</Menu.Item>
             <Menu.Divider />
-            <Menu.Label>Add Section</Menu.Label>
-            <Menu.Item leftSection={<IconPlus size={16} />} onClick={handleClickAddBefore}>Add Above</Menu.Item>
-            <Menu.Item leftSection={<IconPlus size={16} />} onClick={handleClickAddAfter}>Add Below</Menu.Item>
+            {/* <Menu.Label>Add Section</Menu.Label> */}
+            <Menu.Item leftSection={<IconPlus size={16} />} onClick={handleClickAddBefore}>Add Section Above</Menu.Item>
+            <Menu.Item leftSection={<IconPlus size={16} />} onClick={handleClickAddAfter}>Add Section Below</Menu.Item>
           </Menu.Dropdown>
         </Menu>
         <Box
@@ -613,8 +613,8 @@ function RowComponent({
           </ActionIcon>
         </Menu.Target>
         <Menu.Dropdown>
-          <Menu.Item leftSection={<IconPencil size={16} />} onClick={handleClickEdit}>Edit</Menu.Item>
-          <Menu.Item leftSection={<IconTrash size={16} />} onClick={handleClickDelete}>Delete</Menu.Item>
+          <Menu.Item leftSection={<IconPencil size={16} />} onClick={handleClickEdit}>Edit Item</Menu.Item>
+          <Menu.Item leftSection={<IconTrash size={16} />} onClick={handleClickDelete}>Delete Item</Menu.Item>
           <Menu.Divider />
           <Menu.Label>Add Item</Menu.Label>
           <AddItemMenuSection onAddItem={handleClickAdd} />
