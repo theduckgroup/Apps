@@ -6,6 +6,7 @@ import Common
 import CommonUI
 
 public struct RootView: View {
+    let storeFetcher = Fetcher<Vendor>()
     @Environment(Auth.self) var auth
     @Environment(API.self) var api
     @Environment(AppDefaults.self) var appDefaults
@@ -19,10 +20,13 @@ public struct RootView: View {
                 .navigationTitle("Inventory")
         }
         .onFirstAppear {
+            fetchStore()
         }
         .onSceneBecomeActive {
+            fetchStore()
         }
         .onReceive(api.eventHub.connectEvents) {
+            fetchStore()
         }
 //        .onReceive(api.eventHub.templatesChangeEvents) {
 //            fetchTemplate()
@@ -36,57 +40,24 @@ public struct RootView: View {
     private func bodyContent() -> some View {
         ScrollView(.vertical) {
             VStack(alignment: .leading, spacing: 36) {
-                
+                Button("Scan") {
+                    
+                }
             }
             .padding()
         }
-        .safeAreaInset(edge: .bottom) {
-            loadingView()
-        }
+        .fetchOverlay(
+            isFetching: storeFetcher.isFetching,
+            fetchError: storeFetcher.error,
+            retry: { fetchStore(delay: true) }
+        )
         .nonProdEnvWarningOverlay()
     }
     
-    @ViewBuilder
-    private func loadingView() -> some View {
-//        if true {
-//            HStack {
-//                ProgressView()
-//                    .progressViewStyle(.circular)
-//                    .tint(.secondary)
-//                
-//                Text("Loading...")
-//                    .foregroundStyle(.secondary)
-//            }
-//            .padding(.horizontal, 21)
-//            .padding(.vertical, 12)
-//            .background {
-//                Capsule()
-//                    .fill(.regularMaterial)
-//            }
-//            .padding(.bottom, 24)
-//            
-//        } else if let error = templateError ?? reportsError {
-//            VStack(alignment: .leading) {
-//                Text(formatError(error))
-//                    .foregroundStyle(.red)
-//                
-//                Button("Retry") {
-//                    fetchTemplate()
-//                    fetchReports()
-//                }
-//                .buttonStyle(.bordered)
-//                .frame(maxWidth: .infinity, alignment: .trailing)
-//            }
-//            .fixedSize(horizontal: false, vertical: false)
-//            .padding()
-//            .frame(width: horizontalSizeClass == .regular ? 570 : nil)
-//            .frame(maxWidth: horizontalSizeClass == .compact ? .infinity : nil)
-//            .background {
-//                RoundedRectangle(cornerRadius: 12)
-//                    .fill(.regularMaterial)
-//            }
-//            .padding()
-//        }
+    private func fetchStore(delay: Bool = false) {
+        storeFetcher.fetch(delay: delay) {
+            try await api.store()
+        }
     }
     
 //    private func fetchTemplate() {

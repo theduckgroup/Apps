@@ -15,7 +15,8 @@ struct TabView: View {
         SwiftUI.TabView(selection: $tabViewSelection) {
             // pencil.and.list.clipboard
             // list.clipboard.fill
-            Tab("FOH Test", systemImage: "append.page.fill", value: .quiz) {
+            // append.page.fill
+            Tab("FOH Test", image: "quiz-app", value: .quiz) {
                 QuizApp.RootView()
             }
 
@@ -24,7 +25,8 @@ struct TabView: View {
             }
             
             // list.triangle
-            Tab("Inventory", systemImage: "list.bullet.clipboard.fill", value: .inventory) {
+            // list.bullet.clipboard.fill
+            Tab("Inventory", image: "inventory-app", value: .inventory) {
                 InventoryApp.RootView()
                     .environment(inventoryAppDefaults)
             }
@@ -34,28 +36,28 @@ struct TabView: View {
                     .environment(inventoryAppDefaults)
             }
         }
-                
-//        TabView(selection: $selectedTab) {
-//            @Bindable var appDefaults = appDefaults
-//            
-//            QuizView()
-//                .tabItem {
-//                    Label("FOH Test", systemImage: "house")
-//                }
-//                .tag(0)
-//            
-//            WeeklySpendingView()
-//                .tabItem {
-//                    Label("Search", systemImage: "magnifyingglass")
-//                }
-//                .tag(1)
-//            
-//            SettingsView(colorSchemeOverride: $appDefaults.colorSchemeOverride, accentColor: $appDefaults.accentColor, containerHorizontalSizeClass: .regular)
-//                .tabItem {
-//                    Label("Settings", systemImage: "gear")
-//                }
-//                .tag(2)
-//        }
+          
+        /*
+        SwiftUI.TabView(selection: $tabViewSelection) {
+            QuizApp.RootView()
+                .tabItem {
+                    Label("FOH Test", image: "quiz-app")
+                }
+                .tag(TabViewSelection.quiz)
+            
+            WeeklySpendingApp.RootView()
+                .tabItem {
+                    Label("Inventory", image: "inventory-app")
+                }
+                .tag(TabViewSelection.inventory)
+            
+            SettingsView()
+                .tabItem {
+                    Label("Settings", systemImage: "gear")
+                }
+                .tag(TabViewSelection.settings)
+        }
+        */
     }
 }
 
