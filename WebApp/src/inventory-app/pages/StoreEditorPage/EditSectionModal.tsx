@@ -1,4 +1,4 @@
-import { Button, Modal, Stack, TextInput } from "@mantine/core"
+import { Button, Group, Modal, Stack, TextInput } from "@mantine/core"
 import { isNotEmpty, useForm } from "@mantine/form"
 import { useEffect, useRef } from "react"
 import { InvStore } from 'src/inventory-app/models/InvStore'
@@ -12,43 +12,23 @@ export function EditSectionModal({ opened, onClose, options }: {
     onSave: (_: InvStore.Section) => void
   }
 }) {
+  const { title, section, onSave } = options
+
   const form = useForm({
     mode: 'controlled',
     initialValues: {
-      name: ''
+      name: section.name
     },
     validate: {
       name: isNotEmpty('Name is required')
     }
   })
 
-  const nameRef = useRef<HTMLInputElement | null>(null)
-
-  useEffect(() => {
-    if (options) {
-      form.setValues({
-        name: options.section.name
-      })
-
-      nameRef.current?.focus()
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [options])
-
-  useEffect(() => {
-    if (opened) {
-      // Need to wait for nameRef to be set
-      setTimeout(() => {
-        nameRef.current?.focus()
-      }, 50)
-    }
-  }, [opened])
-
   function handleSubmit(values: typeof form.values) {
-    close()
-    options.onSave({
-      ...options.section,
+    onClose()
+
+    onSave({
+      ...section,
       name: values.name.trim()
     })
   }
@@ -57,18 +37,22 @@ export function EditSectionModal({ opened, onClose, options }: {
     <Modal
       opened={opened}
       onClose={onClose}
-      title={options?.title}
+      title={title}
       returnFocus={false}
+      closeOnClickOutside={false}
     >
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack>
           <TextInput
-            ref={nameRef}
             label='Name'
             key={form.key('name')}
+            data-autofocus
             {...form.getInputProps('name')}
           />
-          <Button type='submit' ml='auto'>Save</Button>
+          <Group gap='xs' ml='auto'>
+            <Button variant='default' onClick={onClose} w='6rem'>Cancel</Button>
+            <Button type='submit' w='6rem'>Save</Button>
+          </Group>
         </Stack>
       </form>
     </Modal>

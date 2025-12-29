@@ -31,7 +31,7 @@ export default function StoreEditorPage() {
     },
     onSuccess: store => {
       setInitialStore(store)
-      setStore(store)      
+      setStore(store)
     }
   })
 
@@ -87,10 +87,10 @@ export default function StoreEditorPage() {
       }
 
       {/* Back link */}
-      <Anchor size='sm' href='#' onClick={() => navigate(`/list`)}>
+      <Anchor size='sm' href='#' onClick={() => navigate(`/`)}>
         <Group gap='0.2rem'>
           <IconChevronLeft size={18} />
-          Back to Templates
+          Back to Inventory
         </Group>
       </Anchor>
 
@@ -110,7 +110,7 @@ export default function StoreEditorPage() {
 
         return (
           <>
-            <title>{store!.name + ' | The Duck Group'}</title>
+            <title>{store.name + ' | The Duck Group'}</title>
             <MetaAndContent
               store={store}
               setStore={setStoreAndSave}
@@ -161,13 +161,14 @@ function MetaAndContent({ store, setStore, revertStore, saving, dirty }: {
   }
 
   return (
-    <Stack gap='lg'>
+    <Stack className='w-full gap-2'>
       {/* Metadata + Save loader */}
-      <Group align='flex-start'>
+      <Group className='w-full items-start'>
         {/* Metadata + Edit button */}
-        <Stack w='100%' gap='xs' align='flex-start' mr='auto'>
+        {/* <Stack w='100%' gap='xs' align='flex-start' mr='auto'> */}
+        <Stack className='w-full gap-2 items-start mr-auto'>
           {/* Title + Edit button + Saving loader + Reset button */}
-          <Group w='100%' gap='md' align='baseline' bg='dark.9'>
+          <Group bg='dark.9' className='gap-2 items-baseline'>
             {/* Name */}
             <Title order={3} c='gray.1'>Edit Items</Title>
             {/* Edit button */}
@@ -178,7 +179,7 @@ function MetaAndContent({ store, setStore, revertStore, saving, dirty }: {
               </Group>
             </Button> */}
             {/* Save loader */}
-            {saving && <Loader ml='auto' size='sm' />}
+            {saving && <Loader ml='auto' size='xs' />}
             {/* Revert button */}
             {(dirty && !saving) &&
               <Button ml='auto' variant='light' size='compact-sm' fw='normal' onClick={handleRevert}>

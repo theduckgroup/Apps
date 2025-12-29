@@ -241,7 +241,7 @@ export function CatalogEditor({ items, sections, setData }: {
             <Stack
               {...provided.droppableProps}
               ref={provided.innerRef}
-              gap={0}
+              className='gap-2'
             >
               {sections.map((section, sectionIndex) => (
                 // One section
@@ -337,7 +337,8 @@ function SectionComponent({
       {...provided.draggableProps} // eslint-disable-line react-hooks/refs
       style={provided.draggableProps.style} // eslint-disable-line react-hooks/refs
       gap={0}
-      bg='var(--mantine-color-body)'
+      className='w-full'
+    // bg='var(--mantine-color-body)'
     >
       {/* Section header */}
       <SectionHeader
@@ -351,7 +352,7 @@ function SectionComponent({
         setExpanded={setExpanded}
         dragHandleProps={provided.dragHandleProps} // eslint-disable-line react-hooks/refs
       />
-      {isExpanded && <Divider />}
+      {/* <Divider /> */}
       {
         // Droppable of items
         <Droppable
@@ -365,8 +366,7 @@ function SectionComponent({
                 {...provided.draggableProps}
                 // bg='var(--mantine-color-gray-8)'
                 bg='dark.5'
-                h='4rem'
-                radius='sm'
+                className='h-4 rounded-sm'
               />
             )
           }}
@@ -377,59 +377,60 @@ function SectionComponent({
               ref={provided.innerRef}
               {...provided.droppableProps}
               gap={0}
-              pl={15}
               align='start'
               className='w-full'
+              hidden={!isExpanded}
             >
               {section.rows.map((row, rowIndex) => (
                 // Draggable of row
                 <Draggable draggableId={row.itemId} index={rowIndex} key={row.itemId}>
                   {(provided) => (
                     // Row
-                    <Group
+                    <Box
                       ref={provided.innerRef}
                       {...provided.draggableProps}
-                      style={{
-                        ...provided.draggableProps.style,
-                        borderBottom: '1px solid var(--mantine-color-dark-4)'
-                      }}
-                      py='sm'
-                      gap='xs'
-                      bg='var(--mantine-color-body)'
+                      style={{ ...provided.draggableProps.style }}
                       className='w-full'
                     >
-                      {(() => {
-                        return (
-                          <RowComponent
-                            item={itemForId(row.itemId)!}
-                            rowIndex={rowIndex}
-                            addItem={addItem}
-                            editItem={editItem}
-                            deleteItem={deleteItem}
-                            validateItemCode={validateItemCode}
-                            openConfirmDeleteModal={openConfirmDeleteModal}
-                            dragHandleProps={provided.dragHandleProps}
-                          />
-                        )
-                      })()}
-                    </Group>
+                      <RowComponent
+                        item={itemForId(row.itemId)!}
+                        rowIndex={rowIndex}
+                        addItem={addItem}
+                        editItem={editItem}
+                        deleteItem={deleteItem}
+                        validateItemCode={validateItemCode}
+                        openConfirmDeleteModal={openConfirmDeleteModal}
+                        dragHandleProps={provided.dragHandleProps}
+                      />
+                    </Box>
                   )}
                 </Draggable>
               ))}
               {provided.placeholder}
-              {/* <Button
+              {
+                // section.rows.length == 0 &&
+                // Styling is same as RowComponent
+                // border-b-1 border-b-neutral-700
+                <Group className='w-full pl-4 pr-2 py-2 '>
+                  <Button
                     variant='default'
-                    size='xs'
+                    size='sm'
                     leftSection={<IconPlus size={12} />}
                     my='sm'
-                    onClick={() => handleAddItem(section.rows.length, section, sectionIndex)}
+                    ml=''
+                    onClick={() => handleClickAddItem()}
                   >
                     Add Item
-                  </Button> */}
+                  </Button>
+                </Group>
+              }
             </Stack>
           )}
         </Droppable>
       }
+
+      {/* Modals */}
+      {addItemModal.element}
     </Stack>
   )
 }
@@ -472,7 +473,7 @@ function SectionHeader({ section, sectionIndex, addSection, editSection, deleteS
 
   const handleDelete = () => {
     openConfirmDeleteModal({
-      title: <Text>Delete section <b>{section.name}</b>?</Text>,
+      title: <Text>Delete section?</Text>,
       message: (
         <Stack gap='xs'>
           <Text>The section and its items will be deleted.</Text>
@@ -489,7 +490,12 @@ function SectionHeader({ section, sectionIndex, addSection, editSection, deleteS
   }
 
   return (
-    <Group bg='dark.6' wrap='nowrap' px='md' py='sm' align='flex-start'>
+    <Group
+      bg='dark.9'
+      className='w-full items-start flex-nowrap pr-2 py-2 border-b-1 border-b-neutral-500'
+    >
+      {/* borderBottom: '1px solid var(--mantine-color-dark-4)' */}
+      {/* <Group bg='dark.6' wrap='nowrap' px='md' py='sm' align='flex-start'> */}
       {/* Expand button + name */}
       <Group gap='0' align='flex-start' wrap='nowrap' mr='auto'>
         {/* Expand button */}
@@ -497,25 +503,25 @@ function SectionHeader({ section, sectionIndex, addSection, editSection, deleteS
           variant='transparent'
           size='compact-md'
           onClick={() => setExpanded(!isExpanded)}
+          className='flex-none'
           color='gray'
           pl='0'
-          pr='0.33rem'
-          className='flex-none'
+          pr='0.5rem'
         >
           {isExpanded ?
-            <IconChevronDown size={22} /> :
-            <IconChevronRight size={22} />
+            <IconChevronDown size={24} /> :
+            <IconChevronRight size={24} />
           }
         </ActionIcon>
         {/* Name -- for some reason, Tailwind 'leading-' doesn't work here */}
-        <Title order={4} style={{ lineHeight: '1.5rem' }}>
+        <Title order={3} style={{ lineHeight: '1.5rem' }}>
           {section.name}
         </Title>
       </Group>
       {/* Buttons */}
       <Group gap='xs' wrap='nowrap'>
         {/* Add Button */}
-        <Menu offset={6} position='bottom-end' width={180}>
+        <Menu offset={6} position='bottom-end' width={210}>
           <Menu.Target>
             <ActionIcon variant='subtle' size='md' color='gray'>
               <IconDots size={16} />
@@ -525,9 +531,9 @@ function SectionHeader({ section, sectionIndex, addSection, editSection, deleteS
             <Menu.Item leftSection={<IconPencil size={16} />} onClick={handleClickEdit}>Edit</Menu.Item>
             <Menu.Item leftSection={<IconTrash size={16} />} onClick={handleDelete}>Delete</Menu.Item>
             <Menu.Divider />
-            <Menu.Label>Add Section</Menu.Label>
-            <Menu.Item leftSection={<IconPlus size={16} />} onClick={handleClickAddBefore}>Add Above</Menu.Item>
-            <Menu.Item leftSection={<IconPlus size={16} />} onClick={handleClickAddAfter}>Add Below</Menu.Item>
+            {/* <Menu.Label>Add Section</Menu.Label> */}
+            <Menu.Item leftSection={<IconPlus size={16} />} onClick={handleClickAddBefore}>Add Section Above</Menu.Item>
+            <Menu.Item leftSection={<IconPlus size={16} />} onClick={handleClickAddAfter}>Add Section Below</Menu.Item>
           </Menu.Dropdown>
         </Menu>
         <Box
@@ -594,8 +600,11 @@ function RowComponent({ item, rowIndex, addItem, editItem, deleteItem, validateI
   }
 
   return (
-    <Group gap='sm' wrap='nowrap' align='start' m='md'>
-      {/* Item */}
+    <Group
+      className='w-full flex-nowrap items-start pl-4 pr-2 py-4 border-b-1 border-b-neutral-700'
+      gap='md'
+    >
+      {/* Item name + code */}
       <Stack mr='auto' gap='0.25rem' align='start'>
         <Text>{item.name} ({item.code})</Text>
       </Stack>
@@ -603,7 +612,7 @@ function RowComponent({ item, rowIndex, addItem, editItem, deleteItem, validateI
       {/* Control section (action button, drag handle) */}
       <Group gap='xs' wrap='nowrap'>
         {/* Action Button */}
-        <Menu offset={6} position='bottom-end'>
+        <Menu offset={6} position='bottom-end' width={180}>
           <Menu.Target>
             <ActionIcon variant='subtle' size='md' color='gray'>
               <IconDots size={16} />
@@ -613,7 +622,7 @@ function RowComponent({ item, rowIndex, addItem, editItem, deleteItem, validateI
             <Menu.Item leftSection={<IconPencil size={16} />} onClick={handleClickEdit}>Edit</Menu.Item>
             <Menu.Item leftSection={<IconTrash size={16} />} onClick={handleClickDelete}>Delete</Menu.Item>
             <Menu.Divider />
-            <Menu.Item leftSection={<IconPlus size={16} />} onClick={handleClickAdd}>Add Supplier</Menu.Item>
+            <Menu.Item leftSection={<IconPlus size={16} />} onClick={handleClickAdd}>Add Item</Menu.Item>
           </Menu.Dropdown>
         </Menu>
         {/* Drag Handle */}
