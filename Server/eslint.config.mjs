@@ -22,7 +22,7 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": "off",
       "@typescript-eslint/no-misused-promises": "off",
       "@typescript-eslint/no-floating-promises": "error",
-      "@typescript-eslint/require-await": "warning",
+      "@typescript-eslint/require-await": "warn",
       "@typescript-eslint/no-namespace": "off"
     }
   }
