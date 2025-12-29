@@ -10,6 +10,7 @@ let package = Package(
         .library(name: "Subsystems", targets: [
             "AppShared",
             "Backend",
+            "InventoryApp",
             "QuizApp",
             "WeeklySpendingApp"
         ]),
@@ -48,6 +49,19 @@ let package = Package(
             ],
             swiftSettings: [
                 .defaultIsolation(nil),
+                .enableUpcomingFeature("InternalImportsByDefault"),
+            ]
+        ),
+        .target(
+            name: "InventoryApp",
+            dependencies: [
+                "AppShared",
+                "Backend",
+                .product(name: "Common", package: "Common"),
+                .product(name: "CommonUI", package: "Common"),
+            ],
+            swiftSettings: [
+                .defaultIsolation(MainActor.self),
                 .enableUpcomingFeature("InternalImportsByDefault"),
             ]
         ),

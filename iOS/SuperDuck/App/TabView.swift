@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 import AppShared
 import Backend
+import InventoryApp
 import QuizApp
 import WeeklySpendingApp
 import CommonUI
@@ -18,6 +19,10 @@ struct TabView: View {
 
             Tab("Weekly Spending", systemImage: "wallet.bifold", value: .weeklySpending) {
                 WeeklySpendingApp.RootView()
+            }
+            
+            Tab("Inventory", systemImage: "list.triangle", value: .weeklySpending) {
+                InventoryApp.RootView()
             }
 
             Tab("Settings", systemImage: "gearshape", value: .settings) {
