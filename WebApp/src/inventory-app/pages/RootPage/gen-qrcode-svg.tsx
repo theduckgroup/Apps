@@ -4,21 +4,33 @@ import { qrcode, drawingSVG } from '@bwip-js/browser'
 
 const svgns = 'http://www.w3.org/2000/svg'
 
-interface FontProps {
+interface FontOptions {
   fontFamily: string
   fontWeight: string
   fontSize: number
 }
 
-export function genQrcodeSvg(data: string, name: string) {
+export interface QrCodeOptions {
+  qrCodeSize: number // QR code width/height in pixels (nice: 200)
+  textSizeRatio: number // Font size as ratio of QR code width (nice: 0.08)
+  textWidthRatio: number // Text wrap width as ratio of QR code width (nice: 1.0)
+}
+
+export function genQrcodeSvg(
+  data: string,
+  name: string,
+  options: QrCodeOptions
+) {
+  const { qrCodeSize, textSizeRatio, textWidthRatio } = options
+
   // name = 'This is a very long line that will wrap automatically\nBut this starts on a new line because of the explicit newline'
-  
+
   const codeSvg = qrcode({
     bcid: 'code128',       // Barcode type
     text: data,    // Text to encode
     scale: 2,
-    width: 200,
-    height: 200,              // Bar height, in millimeters
+    width: qrCodeSize,
+    height: qrCodeSize,              // Bar height, in millimeters
     barcolor: '000000',
     includetext: true,            // Show human-readable text
     textxalign: 'center',        // Always good to set this
@@ -49,24 +61,24 @@ export function genQrcodeSvg(data: string, name: string) {
 
   const codePathEl = codeSvgEl.querySelector('path')!
   const codeViewBox = codeSvgEl.getAttribute('viewBox')!
-  const [, ,w_tmp, h_tmp] = codeViewBox.split(' ')
+  const [, , w_tmp, h_tmp] = codeViewBox.split(' ')
   const codeSize = { width: parseInt(w_tmp), height: parseInt(h_tmp) }
   const codePath = codePathEl.getAttribute('d')!
   // console.info(codeSize, codePath)
 
   const fontFamily = 'Arial'
   const fontWeight = '500'
-  // const fontSize = Math.round(codeSize.width * 0.12)
-  const fontSize = Math.round(codeSize.width * 0.08)
+  const fontSize = Math.round(codeSize.width * textSizeRatio)
 
   // const dataText_bb = measureText(data, { fontFamily, fontSize })
 
   const yspace = codeSize.height * 0.05
 
-  // Wrap name text to fit within QR code width
+  // Wrap name text to fit within QR code width (using textWidthRatio)
+  const textMaxWidth = codeSize.width * textWidthRatio
   const wrappedLines = wrapTextToWidth(
     name,
-    codeSize.width,
+    textMaxWidth,
     { fontFamily, fontWeight, fontSize }
   )
 
@@ -112,7 +124,7 @@ export function genQrcodeSvg(data: string, name: string) {
 
 function measureText(
   text: string,
-  { fontFamily, fontWeight, fontSize }: FontProps
+  { fontFamily, fontWeight, fontSize }: FontOptions
 ): { width: number, height: number } {
   // From: https://www.reddit.com/r/webdev/comments/1e809pz/getting_the_bounding_box_of_an_svg_text_element/
 
@@ -145,7 +157,7 @@ function measureText(
 function wrapTextToWidth(
   text: string,
   maxWidth: number,
-  fontProps: FontProps
+  fontProps: FontOptions
 ): string[] {
   // First split by explicit newlines to preserve them
   const paragraphs = text.split('\n')

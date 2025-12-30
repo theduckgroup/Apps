@@ -1,4 +1,5 @@
-import { Button, CopyButton, Group, Modal, Paper, Stack, Text } from "@mantine/core"
+import { Button, CopyButton, Flex, Modal, Paper, Slider, Stack, Text } from "@mantine/core"
+import { useState } from "react"
 
 import { InvStore } from "src/inventory-app/models/InvStore"
 import { genQrcodeSvg } from "./gen-qrcode-svg"
@@ -12,7 +13,17 @@ export default function QrModal({ opened, onClose, options }: {
 
 }) {
   const { item } = options
-  const svg = genQrcodeSvg(item.code, item.name)
+
+  // State for customization options (using floating point values)
+  const [qrCodeSize, setQrCodeSize] = useState(200)
+  const [textSizeRatio, setTextSizeRatio] = useState(0.08)
+  const [textWidthRatio, setTextWidthRatio] = useState(1.0)
+
+  const svg = genQrcodeSvg(item.code, item.name, {
+    qrCodeSize,
+    textSizeRatio,
+    textWidthRatio
+  })
 
   return (
     <Modal
@@ -21,15 +32,68 @@ export default function QrModal({ opened, onClose, options }: {
       opened={opened}
       onClose={onClose}
       closeOnClickOutside={false}
+      size="xl"
     >
-      <Stack justify='center' py='lg'>
-        <Group justify='center'>
+      <Flex gap="xl" py="lg" align="flex-start">
+        {/* Left side: Controls */}
+        <Stack gap="md" style={{ flex: '0 0 250px' }}>
+          <div>
+            <Text size="sm" fw={500} mb="xs">QR Code Size</Text>
+            <Slider
+              value={qrCodeSize}
+              onChange={setQrCodeSize}
+              min={100}
+              max={500}
+              step={10}
+              marks={[
+                { value: 100, label: '100' },
+                { value: 200, label: '200' },
+                { value: 300, label: '300' },
+                { value: 400, label: '400' },
+                { value: 500, label: '500' },
+              ]}
+            />
+          </div>
+
+          <div>
+            <Text size="sm" fw={500} mb="xs">Text Size</Text>
+            <Slider
+              value={textSizeRatio}
+              onChange={setTextSizeRatio}
+              min={0.04}
+              max={0.20}
+              step={0.01}
+              marks={[
+                { value: 0.04, label: 'Small' },
+                { value: 0.08, label: 'Medium' },
+                { value: 0.12, label: 'Large' },
+              ]}
+            />
+          </div>
+
+          <div>
+            <Text size="sm" fw={500} mb="xs">Text Width</Text>
+            <Slider
+              value={textWidthRatio}
+              onChange={setTextWidthRatio}
+              min={0.5}
+              max={1.5}
+              step={0.05}
+              marks={[
+                { value: 0.5, label: '50%' },
+                { value: 1.0, label: '100%' },
+                { value: 1.5, label: '150%' },
+              ]}
+            />
+          </div>
+        </Stack>
+
+        {/* Right side: QR Code and Copy Button */}
+        <Stack gap="md" style={{ flex: 1 }} align="center">
           <QrCodeComponent svg={svg} />
-        </Group>
-        <Group justify='center'>
           <CopyButtonComponent svg={svg} />
-        </Group>
-      </Stack>
+        </Stack>
+      </Flex>
     </Modal>
   )
 }
