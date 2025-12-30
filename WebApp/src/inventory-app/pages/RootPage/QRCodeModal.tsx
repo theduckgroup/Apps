@@ -1,8 +1,8 @@
-import { Button, CopyButton, Flex, Modal, Paper, Slider, Stack, Text } from "@mantine/core"
-import { useState } from "react"
+import { Button, CopyButton as MantineCopyButton, Flex, Modal, Paper, Slider, Stack, Text } from '@mantine/core'
+import { useState } from 'react'
 
-import { InvStore } from "src/inventory-app/models/InvStore"
-import { genQrcodeSvg } from "./gen-qrcode-svg"
+import { InvStore } from 'src/inventory-app/models/InvStore'
+import { genQrcodeSvg } from './gen-qrcode-svg'
 
 export default function QrModal({ opened, onClose, options }: {
   opened: boolean
@@ -27,13 +27,13 @@ export default function QrModal({ opened, onClose, options }: {
       opened={opened}
       onClose={onClose}
       closeOnClickOutside={false}
-      size="xl"
+      size='xl'
     >
-      <Flex gap="xl" py="lg" align="flex-start">
+      <Flex gap='xl' py='lg' align='flex-start'>
         {/* Left side: Controls */}
-        <Stack gap="md" style={{ flex: '0 0 250px' }}>
+        <Stack gap='xl' style={{ flex: '0 0 250px' }}>
           <div>
-            <Text size="sm" fw={500} mb="xs">QR Code Size</Text>
+            <Text size='sm' fw={500} mb='xs'>QR Code Size</Text>
             <Slider
               value={qrcodeSize}
               onChange={setQRCodeSize}
@@ -51,7 +51,7 @@ export default function QrModal({ opened, onClose, options }: {
           </div>
 
           <div>
-            <Text size="sm" fw={500} mb="xs">Text Size</Text>
+            <Text size='sm' fw={500} mb='xs'>Text Size</Text>
             <Slider
               value={textSizeRatio}
               onChange={setTextSizeRatio}
@@ -67,7 +67,7 @@ export default function QrModal({ opened, onClose, options }: {
           </div>
 
           <div>
-            <Text size="sm" fw={500} mb="xs">Text Width</Text>
+            <Text size='sm' fw={500} mb='xs'>Text Width</Text>
             <Slider
               value={textWidthRatio}
               onChange={setTextWidthRatio}
@@ -84,35 +84,36 @@ export default function QrModal({ opened, onClose, options }: {
         </Stack>
 
         {/* Right side: QR Code and Copy Button */}
-        <Stack gap="md" style={{ flex: 1 }} align="center">
-          <QrCodeComponent svg={svg} />
-          <CopyButtonComponent svg={svg} />
+        <Stack gap='md' style={{ flex: 1 }} align='center'>
+          <QRCodeImage svg={svg} size={qrcodeSize} />
+          <CopyButton svg={svg} />
         </Stack>
       </Flex>
     </Modal>
   )
 }
 
-function QrCodeComponent({ svg }: {
+function QRCodeImage({ svg, size }: {
   svg: string
+  size: number
 }) {
   return (
-    <Paper w={180} px={16} py={16} bg='white' radius={1.5}>
-      {svg && <img src={`data:image/svg+xml;utf8,${encodeURIComponent(svg)}`} />}
+    <Paper px={16} py={16} bg='white' radius={1.5}>
+      <img src={`data:image/svg+xml;utf8,${encodeURIComponent(svg)}`} width={size} />
     </Paper>
   )
 }
 
-function CopyButtonComponent({ svg }: {
+function CopyButton({ svg }: {
   svg: string
 }) {
   return (
-    <CopyButton value={svg} timeout={1000}>
+    <MantineCopyButton value={svg} timeout={1000}>
       {({ copied, copy }) => (
         <Button color={copied ? 'gray.7' : 'blue'} onClick={copy}>
           {copied ? 'Copied to Clipboard' : 'Copy SVG'}
         </Button>
       )}
-    </CopyButton>
+    </MantineCopyButton>
   )
 }

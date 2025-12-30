@@ -21,20 +21,28 @@ export function genQrcodeSvg(
   name: string,
   options: QrCodeOptions
 ) {
-  const { qrcodeSize: qrcodeSize, textSizeRatio, textWidthRatio } = options
+  const { qrcodeSize, textSizeRatio, textWidthRatio } = options
 
   // name = 'This is a very long line that will wrap automatically\nBut this starts on a new line because of the explicit newline'
 
+  // Calculate scale based on desired size (200 is baseline)
+  // const scale = (qrcodeSize / 200) * 2
+
+  // BWIP width/height are in millimeters
+  // See: https://github.com/metafloor/bwip-js#online-barcode-api
+  const width = qrcodeSize / 2.835 
+  const height = qrcodeSize / 2.835
+
   const codeSvg = qrcode({
     bcid: 'code128',       // Barcode type
-    text: data,    // Text to encode
-    scale: 2,
-    width: qrcodeSize,
-    height: qrcodeSize,              // Bar height, in millimeters
+    text: data,            // Data to encode
+    scale: 1,
+    width,
+    height,
     barcolor: '000000',
-    includetext: true,            // Show human-readable text
-    textxalign: 'center',        // Always good to set this
-    textcolor: 'ff0000',        // Red text
+    // includetext: true,    // Show human-readable text
+    // textxalign: 'center', // Always good to set this
+    // textcolor: 'ff0000',  // Red text
   }, drawingSVG())
 
   // let svgString = code128({
