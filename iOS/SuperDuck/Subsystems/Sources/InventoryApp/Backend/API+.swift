@@ -5,7 +5,7 @@ import Common
 extension API {
     func store() async throws -> Vendor {
         if isRunningForPreviews {
-            return try await get(path: "inventory-app/mock/store")
+            return try await get(authenticated: false, path: "inventory-app/mock/store")
         }
         
         return try await get(path: "inventory-app/store/\(Vendor.defaultStoreID)")
@@ -13,7 +13,7 @@ extension API {
     
     func storeStock() async throws -> StoreStock {
         if isRunningForPreviews {
-            return try await get(path: "inventory-app/mock/store/stock")
+            return try await get(authenticated: false, path: "inventory-app/mock/store/stock")
         }
         
         return try await get(path: "inventory-app/store/\(Vendor.defaultStoreID)/stock")

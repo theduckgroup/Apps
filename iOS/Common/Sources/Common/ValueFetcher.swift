@@ -1,8 +1,7 @@
 public import Foundation
-import Common
 
-@Observable
-public class Fetcher<Value> {
+@MainActor @Observable
+public class ValueFetcher<Value> {
     private(set) public var value: Value?
     private(set) public var error: Error?
     private(set) public var isFetching = false
@@ -10,7 +9,7 @@ public class Fetcher<Value> {
     
     public init() {}
     
-    public func fetch(delay: Bool = false, operation: @escaping () async throws -> Value) {
+    public func fetch(delay: Bool = false, operation: @MainActor @Sendable @escaping () async throws -> Value) {
         task?.cancel()
         
         task = Task {

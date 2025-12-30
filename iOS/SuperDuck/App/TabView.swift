@@ -16,7 +16,8 @@ struct TabView: View {
             // pencil.and.list.clipboard
             // list.clipboard.fill
             // append.page.fill
-            Tab("FOH Test", image: "quiz-app", value: .quiz) {
+            // quiz-app
+            Tab("FOH Test", systemImage: "questionmark.text.page.fill", value: .quiz) {
                 QuizApp.RootView()
             }
 

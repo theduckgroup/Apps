@@ -4,8 +4,8 @@ import AppModule
 import Backend
 import Common
 
-struct InventoryView: View {
-    @State var dataFetcher = Fetcher<(Vendor, StoreStock)>()
+struct StockView: View {
+    @State var dataFetcher = ValueFetcher<(Vendor, StoreStock)>()
     @State private var showsFilter = false
     @State private var filterText = ""
     @FocusState private var filterFocused: Bool
@@ -220,7 +220,7 @@ struct InventoryView: View {
     }
 }
 
-private extension InventoryView {
+private extension StockView {
     struct ListData {
         var sections: [Section]
         
@@ -251,7 +251,7 @@ private extension InventoryView {
     TabView() {
         Tab("Inventory", image: "document.fill") {
             NavigationStack {
-                InventoryView()
+                StockView()
             }
         }
         

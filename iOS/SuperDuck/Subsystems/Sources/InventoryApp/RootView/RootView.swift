@@ -7,8 +7,8 @@ import CommonUI
 import AsyncAlgorithms
 
 public struct RootView: View {
-    @State var storeFetcher = Fetcher<Vendor>()
-    @State var showsStock = false
+    @State var storeFetcher = ValueFetcher<Vendor>()
+    @State var presentingStockView = false
     @Environment(Auth.self) var auth
     @Environment(API.self) var api
     @Environment(AppDefaults.self) var appDefaults
@@ -27,8 +27,8 @@ public struct RootView: View {
                 .nonProdEnvWarningOverlay()
                 .navigationTitle("Inventory")
                 .toolbar { toolbarContent() }
-                .navigationDestination(isPresented: $showsStock) {
-                    InventoryView()
+                .navigationDestination(isPresented: $presentingStockView) {
+                    StockView()
                 }
         }
         .onFirstAppear {
@@ -49,44 +49,8 @@ public struct RootView: View {
     private func toolbarContent() -> some ToolbarContent {
         ToolbarItemGroup(placement: .topBarTrailing) {
             Button("View Stock") {
-                showsStock = true
+                presentingStockView = true
             }
-//            .buttons
-//            .modified {
-//                if #available(iOS 26, *) {
-//                    $0.buttonStyle(.borderless)
-//                } else {
-//                    $0.buttonStyle(.bordered)
-//                }
-//            }
-            
-//            Menu {
-//                Button("Add Items", systemImage: "plus.circle.fill") {
-//                    
-//                }
-//                .buttonStyle(.borderedProminent)
-//                
-//                Button("Remove Items", systemImage: "minus.circle.fill") {
-//                    
-//                }
-//                .buttonStyle(.borderedProminent)
-//                
-//            } label: {
-//                HStack(alignment: .firstTextBaseline, spacing: 6) {
-//                    Image(systemName: "qrcode.viewfinder")
-//                        
-//                    Text("Scan")
-//                }
-//                .padding(.horizontal, 6)
-//                // Label("Scan", systemImage: "qrcode.viewfinder")
-//            }
-//            .modified {
-//                if #available(iOS 26, *) {
-//                    $0.buttonStyle(.glass)
-//                } else {
-//                    $0.buttonStyle(.borderedProminent)
-//                }
-//            }
         }
     }
     
@@ -108,22 +72,6 @@ public struct RootView: View {
                     .disabled(true)
                     .buttonStyle(.primaryAction)
                 }
-                
-//                VStack(alignment: .leading, spacing: 6) {
-//                    Text("Stock")
-//                        .font(.system(size: 27, weight: .regular))
-//                    
-//                    Button {
-//                        
-//                    } label: {
-//                        HStack(alignment: .firstTextBaseline) {
-//                            Text("View Stock")
-//                            Image(systemName: "chevron.right")
-//                        }
-//                        .padding(.horizontal, 6)
-//                    }
-//                    .buttonStyle(.bordered)
-//                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
