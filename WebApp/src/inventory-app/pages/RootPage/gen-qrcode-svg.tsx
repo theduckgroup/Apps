@@ -11,7 +11,7 @@ interface FontOptions {
 }
 
 export interface QrCodeOptions {
-  qrCodeSize: number // QR code width/height in pixels (nice: 200)
+  qrcodeSize: number // QR code width/height in pixels (nice: 200)
   textSizeRatio: number // Font size as ratio of QR code width (nice: 0.08)
   textWidthRatio: number // Text wrap width as ratio of QR code width (nice: 1.0)
 }
@@ -21,7 +21,7 @@ export function genQrcodeSvg(
   name: string,
   options: QrCodeOptions
 ) {
-  const { qrCodeSize, textSizeRatio, textWidthRatio } = options
+  const { qrcodeSize: qrcodeSize, textSizeRatio, textWidthRatio } = options
 
   // name = 'This is a very long line that will wrap automatically\nBut this starts on a new line because of the explicit newline'
 
@@ -29,8 +29,8 @@ export function genQrcodeSvg(
     bcid: 'code128',       // Barcode type
     text: data,    // Text to encode
     scale: 2,
-    width: qrCodeSize,
-    height: qrCodeSize,              // Bar height, in millimeters
+    width: qrcodeSize,
+    height: qrcodeSize,              // Bar height, in millimeters
     barcolor: '000000',
     includetext: true,            // Show human-readable text
     textxalign: 'center',        // Always good to set this

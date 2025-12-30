@@ -14,16 +14,11 @@ export default function QrModal({ opened, onClose, options }: {
 }) {
   const { item } = options
 
-  // State for customization options (using floating point values)
-  const [qrCodeSize, setQrCodeSize] = useState(200)
+  const [qrcodeSize, setQRCodeSize] = useState(200)
   const [textSizeRatio, setTextSizeRatio] = useState(0.08)
   const [textWidthRatio, setTextWidthRatio] = useState(1.0)
 
-  const svg = genQrcodeSvg(item.code, item.name, {
-    qrCodeSize,
-    textSizeRatio,
-    textWidthRatio
-  })
+  const svg = genQrcodeSvg(item.code, item.name, { qrcodeSize, textSizeRatio, textWidthRatio })
 
   return (
     <Modal
@@ -40,8 +35,8 @@ export default function QrModal({ opened, onClose, options }: {
           <div>
             <Text size="sm" fw={500} mb="xs">QR Code Size</Text>
             <Slider
-              value={qrCodeSize}
-              onChange={setQrCodeSize}
+              value={qrcodeSize}
+              onChange={setQRCodeSize}
               min={100}
               max={500}
               step={10}
@@ -103,7 +98,7 @@ function QrCodeComponent({ svg }: {
 }) {
   return (
     <Paper w={180} px={16} py={16} bg='white' radius={1.5}>
-      {svg && <img src={`data:image/svg+xml;utf8,${encodeURIComponent(svg)}`} width='200px' />}
+      {svg && <img src={`data:image/svg+xml;utf8,${encodeURIComponent(svg)}`} />}
     </Paper>
   )
 }

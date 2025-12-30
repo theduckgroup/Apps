@@ -7,7 +7,7 @@ import { IconEdit } from '@tabler/icons-react'
 
 import { InvStore } from 'src/inventory-app/models/InvStore'
 import { InvStoreStock } from 'src/inventory-app/models/InvStoreStock'
-import QrModal from './QrModal'
+import QrModal from './QRCodeModal'
 import eventHub from 'src/inventory-app/event-hub'
 import formatError from 'src/common/format-error'
 import { useApi, usePath } from 'src/app/contexts'
