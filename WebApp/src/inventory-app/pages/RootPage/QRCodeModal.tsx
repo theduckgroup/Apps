@@ -37,57 +37,14 @@ export default function QrModal({ opened, onClose, options }: {
     >
       <Flex gap='xl' py='lg' align='flex-start'>
         {/* Left side: Controls */}
-        <Stack gap='xl' style={{ flex: '0 0 250px' }}>
-          <div>
-            <Text size='sm' fw={500} mb='xs'>QR Code Size</Text>
-            <Slider
-              value={qrcodeSize}
-              onChange={setQRCodeSize}
-              min={100}
-              max={500}
-              step={10}
-              marks={[
-                { value: 100, label: '100' },
-                { value: 200, label: '200' },
-                { value: 300, label: '300' },
-                { value: 400, label: '400' },
-                { value: 500, label: '500' },
-              ]}
-            />
-          </div>
-
-          <div>
-            <Text size='sm' fw={500} mb='xs'>Text Size</Text>
-            <Slider
-              value={textSizeRatio}
-              onChange={setTextSizeRatio}
-              min={0.04}
-              max={0.20}
-              step={0.01}
-              marks={[
-                { value: 0.04, label: 'Small' },
-                { value: 0.08, label: 'Medium' },
-                { value: 0.12, label: 'Large' },
-              ]}
-            />
-          </div>
-
-          <div>
-            <Text size='sm' fw={500} mb='xs'>Text Width</Text>
-            <Slider
-              value={textWidthRatio}
-              onChange={setTextWidthRatio}
-              min={0.5}
-              max={1.5}
-              step={0.05}
-              marks={[
-                { value: 0.5, label: '50%' },
-                { value: 1.0, label: '100%' },
-                { value: 1.5, label: '150%' },
-              ]}
-            />
-          </div>
-        </Stack>
+        <QRCodeControls
+          qrcodeSize={qrcodeSize}
+          setQRCodeSize={setQRCodeSize}
+          textSizeRatio={textSizeRatio}
+          setTextSizeRatio={setTextSizeRatio}
+          textWidthRatio={textWidthRatio}
+          setTextWidthRatio={setTextWidthRatio}
+        />
 
         {/* Right side: QR Code and Copy Button */}
         <Stack gap='md' style={{ flex: 1 }} align='center'>
@@ -96,6 +53,69 @@ export default function QrModal({ opened, onClose, options }: {
         </Stack>
       </Flex>
     </Modal>
+  )
+}
+
+function QRCodeControls({ qrcodeSize, setQRCodeSize, textSizeRatio, setTextSizeRatio, textWidthRatio, setTextWidthRatio }: {
+  qrcodeSize: number
+  setQRCodeSize: (value: number) => void
+  textSizeRatio: number
+  setTextSizeRatio: (value: number) => void
+  textWidthRatio: number
+  setTextWidthRatio: (value: number) => void
+}) {
+  return (
+    <Stack gap='xl' style={{ flex: '0 0 250px' }}>
+      <div>
+        <Text size='sm' fw={500} mb='xs'>QR Code Size</Text>
+        <Slider
+          value={qrcodeSize}
+          onChange={setQRCodeSize}
+          min={100}
+          max={500}
+          step={10}
+          marks={[
+            { value: 100, label: '100' },
+            { value: 200, label: '200' },
+            { value: 300, label: '300' },
+            { value: 400, label: '400' },
+            { value: 500, label: '500' },
+          ]}
+        />
+      </div>
+
+      <div>
+        <Text size='sm' fw={500} mb='xs'>Text Size</Text>
+        <Slider
+          value={textSizeRatio}
+          onChange={setTextSizeRatio}
+          min={0.04}
+          max={0.20}
+          step={0.01}
+          marks={[
+            { value: 0.04, label: 'Small' },
+            { value: 0.08, label: 'Medium' },
+            { value: 0.12, label: 'Large' },
+          ]}
+        />
+      </div>
+
+      <div>
+        <Text size='sm' fw={500} mb='xs'>Text Width</Text>
+        <Slider
+          value={textWidthRatio}
+          onChange={setTextWidthRatio}
+          min={0.5}
+          max={1.5}
+          step={0.05}
+          marks={[
+            { value: 0.5, label: '50%' },
+            { value: 1.0, label: '100%' },
+            { value: 1.5, label: '150%' },
+          ]}
+        />
+      </div>
+    </Stack>
   )
 }
 
