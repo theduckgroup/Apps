@@ -4,8 +4,14 @@ import { qrcode, drawingSVG } from '@bwip-js/browser'
 
 const svgns = 'http://www.w3.org/2000/svg'
 
+interface FontProps {
+  fontFamily: string
+  fontWeight: string
+  fontSize: number
+}
+
 export function genQrcodeSvg(data: string, name: string) {
-  name = 'This is a very long line that will wrap automatically\nBut this starts on a new line because of the explicit newline'
+  // name = 'This is a very long line that will wrap automatically\nBut this starts on a new line because of the explicit newline'
   
   const codeSvg = qrcode({
     bcid: 'code128',       // Barcode type
@@ -106,11 +112,7 @@ export function genQrcodeSvg(data: string, name: string) {
 
 function measureText(
   text: string,
-  { fontFamily, fontWeight, fontSize }: {
-    fontFamily: string,
-    fontWeight: string,
-    fontSize: number,
-  }
+  { fontFamily, fontWeight, fontSize }: FontProps
 ): { width: number, height: number } {
   // From: https://www.reddit.com/r/webdev/comments/1e809pz/getting_the_bounding_box_of_an_svg_text_element/
 
@@ -143,11 +145,7 @@ function measureText(
 function wrapTextToWidth(
   text: string,
   maxWidth: number,
-  fontProps: {
-    fontFamily: string,
-    fontWeight: string,
-    fontSize: number,
-  }
+  fontProps: FontProps
 ): string[] {
   // First split by explicit newlines to preserve them
   const paragraphs = text.split('\n')
