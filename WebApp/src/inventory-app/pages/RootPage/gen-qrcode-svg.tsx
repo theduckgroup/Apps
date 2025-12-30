@@ -5,6 +5,8 @@ import { qrcode, drawingSVG } from '@bwip-js/browser'
 const svgns = 'http://www.w3.org/2000/svg'
 
 export function genQrcodeSvg(data: string, name: string) {
+  name = 'This is a very long line that will wrap automatically\nBut this starts on a new line because of the explicit newline'
+  
   const codeSvg = qrcode({
     bcid: 'code128',       // Barcode type
     text: data,    // Text to encode
@@ -136,6 +138,7 @@ function measureText(
 /**
  * Wraps text to fit within a maximum width by breaking at word boundaries.
  * Uses a greedy algorithm to fit as many words as possible on each line.
+ * Respects explicit line breaks (\n).
  */
 function wrapTextToWidth(
   text: string,
@@ -146,42 +149,55 @@ function wrapTextToWidth(
     fontSize: number,
   }
 ): string[] {
-  const words = text.split(/\s+/)
-  const lines: string[] = []
-  let currentLine = ''
+  // First split by explicit newlines to preserve them
+  const paragraphs = text.split('\n')
+  const allLines: string[] = []
 
-  for (const word of words) {
-    const testLine = currentLine ? `${currentLine} ${word}` : word
-    const testWidth = measureText(testLine, fontProps).width
+  for (const paragraph of paragraphs) {
+    // Wrap each paragraph independently
+    const words = paragraph.split(/\s+/).filter(w => w.length > 0)
 
-    if (testWidth <= maxWidth) {
-      // Word fits on current line
-      currentLine = testLine
-    } else {
-      // Word doesn't fit, start new line
-      if (currentLine) {
-        lines.push(currentLine)
-      }
+    if (words.length === 0) {
+      // Empty paragraph (from consecutive \n or leading/trailing \n)
+      allLines.push('')
+      continue
+    }
 
-      // Check if single word is too long
-      const wordWidth = measureText(word, fontProps).width
-      if (wordWidth > maxWidth) {
-        // Single word is longer than max width, add it anyway
-        lines.push(word)
-        currentLine = ''
+    let currentLine = ''
+
+    for (const word of words) {
+      const testLine = currentLine ? `${currentLine} ${word}` : word
+      const testWidth = measureText(testLine, fontProps).width
+
+      if (testWidth <= maxWidth) {
+        // Word fits on current line
+        currentLine = testLine
       } else {
-        currentLine = word
+        // Word doesn't fit, start new line
+        if (currentLine) {
+          allLines.push(currentLine)
+        }
+
+        // Check if single word is too long
+        const wordWidth = measureText(word, fontProps).width
+        if (wordWidth > maxWidth) {
+          // Single word is longer than max width, add it anyway
+          allLines.push(word)
+          currentLine = ''
+        } else {
+          currentLine = word
+        }
       }
+    }
+
+    // Add remaining text from this paragraph
+    if (currentLine) {
+      allLines.push(currentLine)
     }
   }
 
-  // Add remaining text
-  if (currentLine) {
-    lines.push(currentLine)
-  }
-
   // Handle empty input
-  return lines.length > 0 ? lines : ['']
+  return allLines.length > 0 ? allLines : ['']
 }
 
 // Canvas drawing code
