@@ -9,5 +9,6 @@ extension View {
             .environment(Auth.mock)
             .environment(API.mock)
             .environment(AppDefaults())
+            .environment(InventoryApp.Defaults())
     }
 }

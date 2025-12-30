@@ -63,13 +63,13 @@ public struct RootView: View {
                     HStack(alignment: .firstTextBaseline) {
                         Button("Add Items", systemImage: "plus.circle") {
                             ps.presentFullScreenCover {
-                                ScanView(vendor: storeFetcher.value!, scanMode: .add)
+                                ScanView(vendor: storeFetcher.value!, mode: .add)
                             }
                         }
                         
                         Button("Remove Items", systemImage: "minus.circle") {
                             ps.presentFullScreenCover {
-                                ScanView(vendor: storeFetcher.value!, scanMode: .subtract)
+                                ScanView(vendor: storeFetcher.value!, mode: .subtract)
                             }
                         }
                     }

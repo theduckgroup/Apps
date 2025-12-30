@@ -7,7 +7,7 @@ import CommonUI
 /// View that displays camera, barcode info and Finish button.
 struct ScanView: View {
     var vendor: Vendor
-    var scanMode: ScanMode
+    var mode: Mode
     @State var detectedBarcodes: [String] = []
     @State var scannedItems: [ScannedItem] = []
     @State var presentingFinishedView = false
@@ -16,14 +16,13 @@ struct ScanView: View {
     @State var didSubmitResult = false
     @State var soundPlayer: AVAudioPlayer
     @Environment(\.dismiss) private var dismiss
-    // @Environment(AppDefaults.self) private var appDefaults
+    @Environment(InventoryApp.Defaults.self) private var defaults
     
-    init(vendor: Vendor, scanMode: ScanMode) {
+    init(vendor: Vendor, mode: Mode) {
         self.vendor = vendor
-        self.scanMode = scanMode
+        self.mode = mode
 
         self.soundPlayer = {
-            print("Create player")
             let bundleResourcesURL = Bundle.module.url(forResource: "Resources", withExtension: "bundle")!
             let url = bundleResourcesURL.appending(path: "ScanSound.aiff")
             return try! AVAudioPlayer(contentsOf: url)
@@ -41,7 +40,7 @@ struct ScanView: View {
                 ReviewView(
                     vendor: vendor,
                     scannedItems: scannedItems,
-                    scanMode: scanMode,
+                    scanMode: mode,
                     finished: false
                 )
             }
@@ -49,7 +48,7 @@ struct ScanView: View {
                 ReviewView(
                     vendor: vendor,
                     scannedItems: scannedItems,
-                    scanMode: scanMode,
+                    scanMode: mode,
                     finished: true,
                     onSubmitted: {
                         dismiss()
@@ -63,13 +62,11 @@ struct ScanView: View {
         GeometryReader { geometryProxy in
             ZStack(alignment: .center) {
                 BarcodeScanner(
-                    minPresenceTime: 0.250, // appDefaults.scanner.minPresenceTime,
-                    minAbsenceTime: 0.500, // appDefaults.scanner.minAbsenceTime,
+                    minPresenceTime: defaults.scanner.minPresenceTime,
+                    minAbsenceTime: defaults.scanner.minAbsenceTime,
                     detectionEnabled: !presentingFinishedView && !didSubmitResult,
                     detectedBarcodes: $detectedBarcodes
                 ) { barcode in
-                    print("Persistent barcode: \(barcode)")
-                    
                     handleBarcode(barcode)
                 }
                 
@@ -216,7 +213,7 @@ struct ScanView: View {
 private struct ReviewView: View {
     var vendor: Vendor
     var scannedItems: [ScannedItem]
-    var scanMode: ScanMode
+    var scanMode: ScanView.Mode
     var finished: Bool
     var onSubmitted: () -> Void = {}
     @State var submitting = false
@@ -310,6 +307,13 @@ private struct ReviewView: View {
     }
 }
 
+extension ScanView {
+    enum Mode {
+        case add
+        case subtract
+    }
+}
+
 #Preview {
     ScanView(
         vendor: .init(
@@ -331,7 +335,7 @@ private struct ReviewView: View {
                 sections: []
             )
         ),
-        scanMode: .add
+        mode: .add
     )
-    // .environment(AppDefaults.shared)
+    .previewEnvironment()
 }

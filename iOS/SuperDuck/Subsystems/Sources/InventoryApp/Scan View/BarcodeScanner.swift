@@ -8,8 +8,7 @@ import Combine
 import os
 import Common
 
-/// A full-screen view that displays camera video with a cutout overlay. The detected barcodes are
-/// highlighted in yellow.
+/// A full-screen view that displays camera video with a cutout overlay. The detected barcodes are highlighted in yellow.
 struct BarcodeScanner: View {
     /// Minimum time the barcode needs to be present to be considered.
     var minPresenceTime: TimeInterval
@@ -32,7 +31,7 @@ struct BarcodeScanner: View {
     var persistentBarcodeHandler: (String) -> Void
     
     var body: some View {
-        Representable(
+        BarcodeScannerViewControllerRepresentable(
             minPresenceTime: minPresenceTime,
             minAbsenceTime: minAbsenceTime,
             detectionEnabled: detectionEnabled,
@@ -54,7 +53,7 @@ extension BarcodeScanner {
     static let defaultMinAbsenceTime: TimeInterval = 0.500
 }
 
-private struct Representable: UIViewControllerRepresentable {
+private struct BarcodeScannerViewControllerRepresentable: UIViewControllerRepresentable {
     var minPresenceTime: TimeInterval
     var minAbsenceTime: TimeInterval
     var detectionEnabled: Bool
@@ -92,13 +91,10 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
     private var barcodeBBoxShapes: [CAShapeLayer] = []
     private var barcodeRects: [BarcodeRect] = [] {
         didSet {
-            DispatchQueue.main.async {
-                self.barcodeRectsChanged()
-            }
+            barcodeRectsChanged()
         }
     }
     private var cancellables = Set<AnyCancellable>()
-    private let lock = OSAllocatedUnfairLock()
     
     init() {
         super.init(nibName: nil, bundle: nil)
@@ -162,16 +158,6 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
             }
             .store(in: &cancellables)
         
-        /*
-         Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
-         guard let self else {
-         return
-         }
-         
-         self.previewLayer.connection!.videoRotationAngle = self.rotationCoordinator!.videoRotationAngleForHorizonLevelPreview
-         }
-         */
-        
         // Cutout layer; must be above preview layer
         
         cutoutLayer = CAShapeLayer()
@@ -212,46 +198,48 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
         path.append(UIBezierPath(rect: rectOfInterest()))
         cutoutLayer.path = path.cgPath
     }
-    
-    // Must be nonisolated, otherwise will cause crash. This is because this method will be called
-    // by AV on a background thread. Without nonisolated, main actor assertion will fail.
-    nonisolated func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+   
+    /// Called by AVCaptureSesion.
+    ///
+    /// Must be nonisolated, otherwise will cause crash due to main actor assertion. This is because
+    /// this method will be called by AVCaptureSesion on a background thread.
+    nonisolated
+    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
             return
         }
         
-        nonisolated(unsafe) let pixelBuffer2 = pixelBuffer
-        
         // CVImageBufferGetDisplaySize(pixelBuffer)
         
+        nonisolated(unsafe) let pixelBuffer2 = pixelBuffer
+        
         Task { @MainActor in
-            guard detectionEnabled else {
-                barcodeRects.removeAll()
-                return
-            }
-            
-            guard detectTask == nil else {
-                // print("detectTask already running, skip buffer")
-                return
-            }
-            
-            detectTask = Task { @MainActor in
-                // print("Detecting barcode")
-                await detectBarcodeInPixelBuffer(pixelBuffer2)
-                detectTask = nil
-            }
+            handleCapturedOutput(pixelBuffer2)
         }
     }
     
-    private func processPixelBuffer(_ pixelBuffer: CVPixelBuffer) {
+    private func handleCapturedOutput(_ pixelBuffer: CVPixelBuffer) {
+        guard detectionEnabled else {
+            barcodeRects.removeAll()
+            return
+        }
         
+        guard detectTask == nil else {
+            // print("detectTask already running, skip buffer")
+            return
+        }
+        
+        detectTask = Task { @MainActor in
+            // print("Detecting barcode")
+            let vnObservations = await detectTaskImpl1(pixelBuffer)
+            detectTaskImpl2(vnObservations)
+            
+            detectTask = nil
+        }
     }
     
-    private func detectBarCodes(pixelBuffer: CVPixelBuffer) {
-        
-    }
-    
-    private func detectBarcodeInPixelBuffer(_ pixelBuffer: CVPixelBuffer) async {
+    /// Runs VN recognition.
+    @concurrent private func detectTaskImpl1(_ pixelBuffer: CVPixelBuffer) async -> [VNBarcodeObservation] {
         let vnRequest = VNDetectBarcodesRequest()
         // vnRequest.symbologies = [.qr]
         // request.regionOfInterest = .init(x: 0, y: 0.4, width: 1, height: 0.3)
@@ -261,10 +249,7 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
         let handlerSendable = UnsafeSendable(handler)
         
         do {
-            // let t0 = Date()
-            try await Task { @concurrent in
-                try handlerSendable.value.perform([vnRequestSendable.value])
-            }.value
+            try handlerSendable.value.perform([vnRequestSendable.value])
             
             // try await perform()
             
@@ -273,15 +258,18 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
             }
             
         } catch {
-            print("VNImageRequestHandler failed: \(error)")
-            return
+            logger.error("VNImageRequestHandler failed: \(error)")
+            return []
         }
         
-        let vnResults = vnRequest.results ?? []
-        
+        return vnRequest.results ?? []
+    }
+    
+    /// Processes VN recognition result.
+    @MainActor private func detectTaskImpl2(_ vnObservations: [VNBarcodeObservation]) {
         // print("[\(Date().ISO8601Format())] Detected: \(vnResults.map { $0.payloadStringValue ?? "<unknown>"})")
         
-        struct BarcodeResult {
+        struct BarcodeWithRect {
             let barcode: String
             let topLeft: CGPoint
             let topRight: CGPoint
@@ -290,7 +278,7 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
             let boundingBox: CGRect
         }
         
-        var barcodeResults = vnResults.compactMap { vnResult in
+        var barcodesWithRect = vnObservations.compactMap { vnResult in
             // Transform for flipping y coordinate
             // Don't know why I have to do this; learnt from experiments
             
@@ -310,7 +298,7 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
                 return previewLayer.layerRectConverted(fromMetadataOutputRect: r)
             }
             
-            return BarcodeResult(
+            return BarcodeWithRect(
                 barcode: vnResult.payloadStringValue ?? "???",
                 topLeft: toPreviewLayerPoint(vnResult.topLeft),
                 topRight: toPreviewLayerPoint(vnResult.topRight),
@@ -320,54 +308,24 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
             )
         }
         
-        barcodeResults = barcodeResults.filter {
+        barcodesWithRect = barcodesWithRect.filter {
             let roi = rectOfInterest()
             return [$0.topLeft, $0.topRight, $0.bottomRight, $0.bottomLeft].allSatisfy(roi.contains)
         }
         
-        // Barcode rects
+        let barcodes = barcodesWithRect.map(\.barcode)
         
-        self.barcodeRects = barcodeResults.map {
+        // Update barcode rects
+        
+        self.barcodeRects = barcodesWithRect.map {
             .init(topLeft: $0.topLeft, topRight: $0.topRight, bottomRight: $0.bottomRight, bottomLeft: $0.bottomLeft, boundingBox: $0.boundingBox)
         }
         
-        /*
-         self.barcodeRects = vnResults.map { result in
-         // Transform for flipping y coordinate
-         // Don't know why I have to do this; learnt from experiments
-         
-         let transform = CGAffineTransform.identity
-         .scaledBy(x: 1, y: -1)
-         .translatedBy(x: 0, y: -1)
-         
-         @MainActor
-         func toPreviewLayerPoint(_ captureDevicePoint: CGPoint) -> CGPoint {
-         let p = captureDevicePoint.applying(transform)
-         return previewLayer.layerPointConverted(fromCaptureDevicePoint: p)
-         }
-         
-         @MainActor
-         func toPreviewLayerRect(_ captureDeviceRect: CGRect) -> CGRect {
-         let r = captureDeviceRect.applying(transform)
-         return previewLayer.layerRectConverted(fromMetadataOutputRect: r)
-         }
-         
-         return BarcodeRect(
-         topLeft: toPreviewLayerPoint(result.topLeft),
-         topRight: toPreviewLayerPoint(result.topRight),
-         bottomRight: toPreviewLayerPoint(result.bottomRight),
-         bottomLeft: toPreviewLayerPoint(result.bottomLeft),
-         boundingBox: toPreviewLayerRect(result.boundingBox)
-         )
-         }
-         */
+        // Detection handler
+                
+        detectionHandler(barcodes)
         
         // Detection event
-        
-        // let barcodes = vnResults.compactMap(\.payloadStringValue)
-        let barcodes = barcodeResults.map(\.barcode)
-        
-        detectionHandler(barcodes)
         
         detectionEvents.append(.init(time: Date(), barcodes: Set(barcodes)))
         detectionEventAdded()
@@ -518,8 +476,8 @@ extension BarcodeScannerViewController {
     }
 }
 
-private class UnsafeSendable<Value>: @unchecked Sendable {
-    nonisolated(unsafe) var value: Value
+nonisolated private class UnsafeSendable<Value>: @unchecked Sendable {
+    var value: Value
     
     init(_ value: Value) {
         self.value = value
