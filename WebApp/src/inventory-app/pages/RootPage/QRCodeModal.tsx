@@ -1,4 +1,4 @@
-import { Button, CopyButton as MantineCopyButton, Flex, Modal, Paper, Slider, Stack, Text } from '@mantine/core'
+import { Button, Checkbox, CopyButton as MantineCopyButton, Flex, Modal, Paper, Slider, Stack, Text, Textarea } from '@mantine/core'
 import { useState } from 'react'
 
 import { InvStore } from 'src/inventory-app/models/InvStore'
@@ -17,10 +17,12 @@ export default function QrModal({ opened, onClose, options }: {
   const [qrcodeSize, setQRCodeSize] = useState(200)
   const [textSizeRatio, setTextSizeRatio] = useState(0.08)
   const [textWidthRatio, setTextWidthRatio] = useState(1.0)
+  const [overrideLabel, setOverrideLabel] = useState(false)
+  const [customLabel, setCustomLabel] = useState('')
 
   const { data: svgData, size: svgSize } = genQRCodeSvg({
     data: item.code,
-    label: item.name,
+    label: overrideLabel ? customLabel : item.name,
     qrcodeSize,
     textSizeRatio,
     textWidthRatio
@@ -44,6 +46,10 @@ export default function QrModal({ opened, onClose, options }: {
           setTextSizeRatio={setTextSizeRatio}
           textWidthRatio={textWidthRatio}
           setTextWidthRatio={setTextWidthRatio}
+          overrideLabel={overrideLabel}
+          setOverrideLabel={setOverrideLabel}
+          customLabel={customLabel}
+          setCustomLabel={setCustomLabel}
         />
 
         {/* Right side: QR Code and Copy Button */}
@@ -56,16 +62,20 @@ export default function QrModal({ opened, onClose, options }: {
   )
 }
 
-function QRCodeControls({ qrcodeSize, setQRCodeSize, textSizeRatio, setTextSizeRatio, textWidthRatio, setTextWidthRatio }: {
+function QRCodeControls({ qrcodeSize, setQRCodeSize, textSizeRatio, setTextSizeRatio, textWidthRatio, setTextWidthRatio, overrideLabel, setOverrideLabel, customLabel, setCustomLabel }: {
   qrcodeSize: number
   setQRCodeSize: (value: number) => void
   textSizeRatio: number
   setTextSizeRatio: (value: number) => void
   textWidthRatio: number
   setTextWidthRatio: (value: number) => void
+  overrideLabel: boolean
+  setOverrideLabel: (value: boolean) => void
+  customLabel: string
+  setCustomLabel: (value: string) => void
 }) {
   return (
-    <Stack gap='xl' style={{ flex: '0 0 250px' }}>
+    <Stack gap='2.5rem' style={{ flex: '0 0 250px' }}>
       <Stack gap={0}>
         <Text size='sm' fw={500} mb='xs'>QR Code Size</Text>
         <Slider
@@ -114,6 +124,24 @@ function QRCodeControls({ qrcodeSize, setQRCodeSize, textSizeRatio, setTextSizeR
             { value: 1.5, label: '150%' },
           ]}
         />
+      </Stack>
+
+      <Stack gap='xs'>
+        <Checkbox
+          label='Override Label'
+          checked={overrideLabel}
+          onChange={(e) => setOverrideLabel(e.currentTarget.checked)}
+        />
+        {overrideLabel && (
+          <Textarea
+            placeholder='Enter custom label'
+            value={customLabel}
+            onChange={(e) => setCustomLabel(e.currentTarget.value)}
+            autosize
+            minRows={3}
+            maxRows={6}
+          />
+        )}
       </Stack>
     </Stack>
   )
