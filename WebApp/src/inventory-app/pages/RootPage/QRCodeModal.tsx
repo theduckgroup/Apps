@@ -22,12 +22,13 @@ export default function QrModal({ opened, onClose, options }: {
   const [qrcodeSize, setQRCodeSize] = useLocalStorage({ key: 'QRCodeModal:qrcodeSize', defaultValue: DEFAULT_QRCODE_SIZE })
   const [textSizeRatio, setTextSizeRatio] = useLocalStorage({ key: 'QRCodeModal:textSizeRatio', defaultValue: DEFAULT_TEXT_SIZE_RATIO })
   const [textWidthRatio, setTextWidthRatio] = useLocalStorage({ key: 'QRCodeModal:textWidthRatio', defaultValue: DEFAULT_TEXT_WIDTH_RATIO })
-  const [overrideLabel, setOverrideLabel] = useState(false)
-  const [customLabel, setCustomLabel] = useState('')
+  const [enableOverrideLabel, setEnableOverrideLabel] = useState(false)
+  const [overrideLabel, setOverrideLabel] = useState('')
+  const defaultLabel = `${item.name}\n${item.code}`
 
   const { data: svgData, size: svgSize } = genQRCodeSvg({
     data: item.code,
-    label: overrideLabel ? customLabel : `${item.name}\n${item.code}`,
+    label: enableOverrideLabel ? overrideLabel : defaultLabel,
     qrcodeSize,
     textSizeRatio,
     textWidthRatio
@@ -51,10 +52,11 @@ export default function QrModal({ opened, onClose, options }: {
           setTextSizeRatio={setTextSizeRatio}
           textWidthRatio={textWidthRatio}
           setTextWidthRatio={setTextWidthRatio}
+          enableOverrideLabel={enableOverrideLabel}
+          setEnableOverrideLabel={setEnableOverrideLabel}
           overrideLabel={overrideLabel}
           setOverrideLabel={setOverrideLabel}
-          customLabel={customLabel}
-          setCustomLabel={setCustomLabel}
+          defaultLabel={defaultLabel}
         />
 
         {/* Right side: QR Code and Copy Button */}
@@ -67,25 +69,33 @@ export default function QrModal({ opened, onClose, options }: {
   )
 }
 
-function Controls({ qrcodeSize, setQRCodeSize, textSizeRatio, setTextSizeRatio, textWidthRatio, setTextWidthRatio, overrideLabel, setOverrideLabel, customLabel, setCustomLabel }: {
+function Controls({
+  qrcodeSize, setQRCodeSize,
+  textSizeRatio, setTextSizeRatio,
+  textWidthRatio, setTextWidthRatio,
+  enableOverrideLabel, setEnableOverrideLabel,
+  overrideLabel, setOverrideLabel,
+  defaultLabel
+}: {
   qrcodeSize: number
   setQRCodeSize: (value: number) => void
   textSizeRatio: number
   setTextSizeRatio: (value: number) => void
   textWidthRatio: number
   setTextWidthRatio: (value: number) => void
-  overrideLabel: boolean
-  setOverrideLabel: (value: boolean) => void
-  customLabel: string
-  setCustomLabel: (value: string) => void
+  enableOverrideLabel: boolean
+  setEnableOverrideLabel: (value: boolean) => void
+  overrideLabel: string
+  setOverrideLabel: (value: string) => void
+  defaultLabel: string
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
-    if (overrideLabel && textareaRef.current) {
+    if (enableOverrideLabel && textareaRef.current) {
       textareaRef.current.focus()
     }
-  }, [overrideLabel])
+  }, [enableOverrideLabel])
 
   const formatPercentage = (value: number) => {
     const fmt = new Intl.NumberFormat(undefined, { style: 'percent' })
@@ -148,15 +158,20 @@ function Controls({ qrcodeSize, setQRCodeSize, textSizeRatio, setTextSizeRatio, 
       <Stack gap='xs'>
         <Checkbox
           label='Override Text'
-          checked={overrideLabel}
-          onChange={(e) => setOverrideLabel(e.currentTarget.checked)}
+          checked={enableOverrideLabel}
+          onChange={e => {
+            setEnableOverrideLabel(e.currentTarget.checked)
+            if (e.currentTarget.checked && overrideLabel == '') {
+              setOverrideLabel(defaultLabel)
+            }
+          }}
         />
-        {overrideLabel && (
+        {enableOverrideLabel && (
           <Textarea
             ref={textareaRef}
             placeholder='Enter custom text'
-            value={customLabel}
-            onChange={(e) => setCustomLabel(e.currentTarget.value)}
+            value={overrideLabel}
+            onChange={(e) => setOverrideLabel(e.currentTarget.value)}
             autosize
             minRows={1}
             maxRows={3}
