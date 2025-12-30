@@ -99,7 +99,7 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
     }
     private var cancellables = Set<AnyCancellable>()
     private let lock = OSAllocatedUnfairLock()
-
+    
     init() {
         super.init(nibName: nil, bundle: nil)
     }
@@ -118,23 +118,22 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
             return
         }
         
-        // Capture session & preview layer
+        // Capture session
         
         captureSession.beginConfiguration()
-
-        // This property is true only for iPads that support Stage Manager
+        
         if captureSession.isMultitaskingCameraAccessSupported {
+            // In here if device is an iPad that supports Stage Manager
             // Enable camera in iPad split view
             captureSession.isMultitaskingCameraAccessEnabled = true
         }
-
+        
         captureSession.commitConfiguration()
         
         guard let captureDevice = AVCaptureDevice.default(for: .video),
               let input = try? AVCaptureDeviceInput(device: captureDevice),
               captureSession.canAddInput(input) else {
             assertionFailure()
-            
             return
         }
         
@@ -146,6 +145,8 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
             output.setSampleBufferDelegate(self, queue: DispatchQueue(label: "videoQueue"))
             captureSession.addOutput(output)
         }
+        
+        // Preview layer
         
         previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
         previewLayer.videoGravity = .resizeAspectFill
@@ -161,22 +162,23 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
             }
             .store(in: &cancellables)
         
-//        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
-//            guard let self else {
-//                return
-//            }
-//            
-//            self.previewLayer.connection!.videoRotationAngle = self.rotationCoordinator!.videoRotationAngleForHorizonLevelPreview
-//        }
+        /*
+         Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+         guard let self else {
+         return
+         }
+         
+         self.previewLayer.connection!.videoRotationAngle = self.rotationCoordinator!.videoRotationAngleForHorizonLevelPreview
+         }
+         */
         
-        // Cutout layer
-        // Must be above preview layer
+        // Cutout layer; must be above preview layer
         
         cutoutLayer = CAShapeLayer()
         view.layer.addSublayer(cutoutLayer)
         
         // Start
-                
+        
         DispatchQueue.global().async {
             self.captureSession.startRunning()
         }
@@ -205,18 +207,15 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
     private func invalidateCutoutLayer() {
         cutoutLayer.fillRule = .evenOdd
         cutoutLayer.fillColor = UIColor.black.withAlphaComponent(0.3).cgColor
-       
+        
         let path = UIBezierPath(rect: cutoutLayer.bounds)
         path.append(UIBezierPath(rect: rectOfInterest()))
         cutoutLayer.path = path.cgPath
     }
     
-    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        guard detectionEnabled else {
-            barcodeRects.removeAll()
-            return
-        }
-
+    // Must be nonisolated, otherwise will cause crash. This is because this method will be called
+    // by AV on a background thread. Without nonisolated, main actor assertion will fail.
+    nonisolated func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
             return
         }
@@ -226,32 +225,33 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
         // CVImageBufferGetDisplaySize(pixelBuffer)
         
         Task { @MainActor in
-            if detectTask != nil {
+            guard detectionEnabled else {
+                barcodeRects.removeAll()
+                return
+            }
+            
+            guard detectTask == nil else {
                 // print("detectTask already running, skip buffer")
                 return
             }
             
-            let task = Task { @MainActor in
+            detectTask = Task { @MainActor in
                 // print("Detecting barcode")
-                
-                do {
-                    try await detectBarcode(in: pixelBuffer2)
-
-                } catch {
-                    print("Barcode detection failed: \(error)")
-                    
-                }
-                
+                await detectBarcodeInPixelBuffer(pixelBuffer2)
                 detectTask = nil
             }
-            
-            detectTask = task
         }
     }
     
-    private func detectBarcode(in pixelBuffer: CVPixelBuffer) async throws {
-        // Perform detection
+    private func processPixelBuffer(_ pixelBuffer: CVPixelBuffer) {
         
+    }
+    
+    private func detectBarCodes(pixelBuffer: CVPixelBuffer) {
+        
+    }
+    
+    private func detectBarcodeInPixelBuffer(_ pixelBuffer: CVPixelBuffer) async {
         let vnRequest = VNDetectBarcodesRequest()
         // vnRequest.symbologies = [.qr]
         // request.regionOfInterest = .init(x: 0, y: 0.4, width: 1, height: 0.3)
@@ -259,10 +259,6 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
         
         let vnRequestSendable = UnsafeSendable(vnRequest)
         let handlerSendable = UnsafeSendable(handler)
-        
-//        func perform() async throws {
-//            try handler.perform([vnRequest])
-//        }
         
         do {
             // let t0 = Date()
@@ -284,7 +280,7 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
         let vnResults = vnRequest.results ?? []
         
         // print("[\(Date().ISO8601Format())] Detected: \(vnResults.map { $0.payloadStringValue ?? "<unknown>"})")
-    
+        
         struct BarcodeResult {
             let barcode: String
             let topLeft: CGPoint
@@ -301,7 +297,7 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
             let transform = CGAffineTransform.identity
                 .scaledBy(x: 1, y: -1)
                 .translatedBy(x: 0, y: -1)
-
+            
             @MainActor
             func toPreviewLayerPoint(_ captureDevicePoint: CGPoint) -> CGPoint {
                 let p = captureDevicePoint.applying(transform)
@@ -328,7 +324,7 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
             let roi = rectOfInterest()
             return [$0.topLeft, $0.topRight, $0.bottomRight, $0.bottomLeft].allSatisfy(roi.contains)
         }
-                
+        
         // Barcode rects
         
         self.barcodeRects = barcodeResults.map {
@@ -336,35 +332,35 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
         }
         
         /*
-        self.barcodeRects = vnResults.map { result in
-            // Transform for flipping y coordinate
-            // Don't know why I have to do this; learnt from experiments
-            
-            let transform = CGAffineTransform.identity
-                .scaledBy(x: 1, y: -1)
-                .translatedBy(x: 0, y: -1)
-
-            @MainActor
-            func toPreviewLayerPoint(_ captureDevicePoint: CGPoint) -> CGPoint {
-                let p = captureDevicePoint.applying(transform)
-                return previewLayer.layerPointConverted(fromCaptureDevicePoint: p)
-            }
-            
-            @MainActor
-            func toPreviewLayerRect(_ captureDeviceRect: CGRect) -> CGRect {
-                let r = captureDeviceRect.applying(transform)
-                return previewLayer.layerRectConverted(fromMetadataOutputRect: r)
-            }
-            
-            return BarcodeRect(
-                topLeft: toPreviewLayerPoint(result.topLeft),
-                topRight: toPreviewLayerPoint(result.topRight),
-                bottomRight: toPreviewLayerPoint(result.bottomRight),
-                bottomLeft: toPreviewLayerPoint(result.bottomLeft),
-                boundingBox: toPreviewLayerRect(result.boundingBox)
-            )
-        }
-        */
+         self.barcodeRects = vnResults.map { result in
+         // Transform for flipping y coordinate
+         // Don't know why I have to do this; learnt from experiments
+         
+         let transform = CGAffineTransform.identity
+         .scaledBy(x: 1, y: -1)
+         .translatedBy(x: 0, y: -1)
+         
+         @MainActor
+         func toPreviewLayerPoint(_ captureDevicePoint: CGPoint) -> CGPoint {
+         let p = captureDevicePoint.applying(transform)
+         return previewLayer.layerPointConverted(fromCaptureDevicePoint: p)
+         }
+         
+         @MainActor
+         func toPreviewLayerRect(_ captureDeviceRect: CGRect) -> CGRect {
+         let r = captureDeviceRect.applying(transform)
+         return previewLayer.layerRectConverted(fromMetadataOutputRect: r)
+         }
+         
+         return BarcodeRect(
+         topLeft: toPreviewLayerPoint(result.topLeft),
+         topRight: toPreviewLayerPoint(result.topRight),
+         bottomRight: toPreviewLayerPoint(result.bottomRight),
+         bottomLeft: toPreviewLayerPoint(result.bottomLeft),
+         boundingBox: toPreviewLayerRect(result.boundingBox)
+         )
+         }
+         */
         
         // Detection event
         
@@ -441,23 +437,23 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
             anim.timingFunction = CAMediaTimingFunction(name: .linear)
             anim.toValue = path.cgPath
             layer.add(anim, forKey: "path")
-                            
+            
             layer.path = path.cgPath
         }
         
         /*
-        barcodeBBoxShapes.forEach {
-            $0.removeFromSuperlayer()
-        }
-        
-        for rect in barcodeRects {
-            let layer = CAShapeLayer()
-            layer.path = UIBezierPath(rect: rect.boundingBox).cgPath
-            layer.fillColor = UIColor.blue.withAlphaComponent(0.5).cgColor
-            view.layer.addSublayer(layer)
-            barcodeBBoxShapes.append(layer)
-        }
-        */
+         barcodeBBoxShapes.forEach {
+         $0.removeFromSuperlayer()
+         }
+         
+         for rect in barcodeRects {
+         let layer = CAShapeLayer()
+         layer.path = UIBezierPath(rect: rect.boundingBox).cgPath
+         layer.fillColor = UIColor.blue.withAlphaComponent(0.5).cgColor
+         view.layer.addSublayer(layer)
+         barcodeBBoxShapes.append(layer)
+         }
+         */
     }
     
     private func detectionEventAdded() {
@@ -473,15 +469,15 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
             event.time < Date().addingTimeInterval(-minTime)
         }
         
-//        let df = DateFormatter()
-//        df.dateFormat = "HH:mm:ss.SSS"
-//        
-//        print("""
-//        
-//        Detection events: 
-//        \(detectionEvents.map { "\(df.string(from: $0.time)) -> \($0.barcodes.count)" }.joined(separator: "\n"))
-//        
-//        """)
+        //        let df = DateFormatter()
+        //        df.dateFormat = "HH:mm:ss.SSS"
+        //
+        //        print("""
+        //
+        //        Detection events:
+        //        \(detectionEvents.map { "\(df.string(from: $0.time)) -> \($0.barcodes.count)" }.joined(separator: "\n"))
+        //
+        //        """)
         
         if detectionEvents.allSatisfy({ $0.barcodes == barcodes }) {
             let event = PersistenceEvent(time: Date(), barcodes: barcodes)
@@ -498,14 +494,16 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
             }
         }
     }
-    
+}
+
+extension BarcodeScannerViewController {
     /// Event added when barcodes (including no barcode) have been detected.
     private struct DetectionEvent {
         let time: Date
         let barcodes: Set<String>
     }
     
-    /// Event added when the same barcodes (including no barcode) have been stayed stable for some time.
+    /// Event added when the same barcodes (including no barcode) have been stable for some time.
     private struct PersistenceEvent {
         let time: Date
         let barcodes: Set<String>
