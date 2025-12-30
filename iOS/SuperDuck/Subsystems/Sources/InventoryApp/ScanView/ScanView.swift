@@ -204,7 +204,7 @@ struct ScanView: View {
         soundPlayer.prepareToPlay()
         soundPlayer.play()
         
-        ps.presentAlertCover(title: "\(item.name)\n\(item.code)" , actions: []) {
+        ps.presentCustomAlert(title: "\(item.name)\n\(item.code)" , actions: []) {
             QuantityInputAlert(
                 onCancel: {
                     ps.dismiss()

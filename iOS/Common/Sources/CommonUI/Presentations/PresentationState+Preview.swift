@@ -168,7 +168,7 @@ public struct PresentationStatePreviewView: View {
             case alert
             case sheet
             case fullScreenCover
-            case alertCover
+            case customAlert
             case progressHUD
             case messageHUD
         }
@@ -184,7 +184,7 @@ public struct PresentationStatePreviewView: View {
             case .alert: state.presentAlert(title: "Alert", actions: {})
             case .sheet: state.presentSheet { Text("Sheet") }
             case .fullScreenCover: state.presentFullScreenCover { Text("Full-screen Cover") }
-            case .alertCover: state.presentAlertCover(title: "Alert Cover", actions: []) { Text("Content") }
+            case .customAlert: state.presentCustomAlert(title: "Custom Alert", actions: []) { Text("Content") }
             case .progressHUD: state.presentProgressHUD(title: "Progress", message: "")
             case .messageHUD: state.presentMessageHUD("Done")
             }

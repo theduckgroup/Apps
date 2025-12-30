@@ -15,27 +15,27 @@ public extension View {
     ///   - actions: The alert actions. Default is a "OK" action.
     ///   - content: The alert content.
     @ViewBuilder
-    func alertCover<Content: View>(
+    func customAlert<Content: View>(
         _ title: String = "",
         isPresented: Binding<Bool>,
-        actions: [AlertCoverAction] = [.ok],
+        actions: [CustomAlertAction] = [.ok],
         @ViewBuilder content: @escaping () -> Content
     ) -> some View {
-        modifier(AlertCoverModifier(title: title, isPresented: isPresented, actions: actions, content: content))
+        modifier(CustomAlertModifier(title: title, isPresented: isPresented, actions: actions, content: content))
     }
 }
 
 public extension PresentationState {
     /// Presents an alert with custom content.
-    func presentAlertCover<C: View>(title: String, actions: [AlertCoverAction], @ViewBuilder content: @escaping () -> C) {
+    func presentCustomAlert<C: View>(title: String, actions: [CustomAlertAction], @ViewBuilder content: @escaping () -> C) {
         present { hostView, $isPresented in
-            hostView.alertCover(title, isPresented: $isPresented, actions: actions, content: content)
+            hostView.customAlert(title, isPresented: $isPresented, actions: actions, content: content)
         }
     }
 }
 
-/// An action for `alertCover`.
-public struct AlertCoverAction {
+/// An action for `customAlert`.
+public struct CustomAlertAction {
     public var title: String
     public var handler: @MainActor () -> Void
     
@@ -44,13 +44,13 @@ public struct AlertCoverAction {
         self.handler = handler
     }
     
-    public static let ok = AlertCoverAction(title: "OK", handler: {})
+    public static let ok = CustomAlertAction(title: "OK", handler: {})
 }
 
-private struct AlertCoverModifier<C: View>: ViewModifier {
+private struct CustomAlertModifier<C: View>: ViewModifier {
     let title: String
     @Binding var isPresented: Bool
-    let actions: [AlertCoverAction]
+    let actions: [CustomAlertAction]
     let content: () -> C
     @State private var uikitContext = UIKitContext()
     
@@ -117,7 +117,7 @@ private struct AlertCoverModifier<C: View>: ViewModifier {
     Button("Present") {
         presentingAlert = true
     }
-    .alertCover(
+    .customAlert(
         "Et tempor",
         isPresented: $presentingAlert,
         actions: [
