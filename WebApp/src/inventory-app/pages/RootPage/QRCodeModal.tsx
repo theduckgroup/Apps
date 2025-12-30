@@ -18,7 +18,13 @@ export default function QrModal({ opened, onClose, options }: {
   const [textSizeRatio, setTextSizeRatio] = useState(0.08)
   const [textWidthRatio, setTextWidthRatio] = useState(1.0)
 
-  const svg = genQrcodeSvg(item.code, item.name, { qrcodeSize, textSizeRatio, textWidthRatio })
+  const svg = genQrcodeSvg({
+    data: item.code, 
+    label: item.name, 
+    qrcodeSize, 
+    textSizeRatio, 
+    textWidthRatio 
+  })
 
   return (
     <Modal

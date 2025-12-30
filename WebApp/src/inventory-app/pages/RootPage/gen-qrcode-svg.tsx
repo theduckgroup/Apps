@@ -11,17 +11,15 @@ interface FontOptions {
 }
 
 export interface QrCodeOptions {
+  data: string
+  label: string
   qrcodeSize: number // QR code width/height in pixels (nice: 200)
   textSizeRatio: number // Font size as ratio of QR code width (nice: 0.08)
   textWidthRatio: number // Text wrap width as ratio of QR code width (nice: 1.0)
 }
 
-export function genQrcodeSvg(
-  data: string,
-  name: string,
-  options: QrCodeOptions
-) {
-  const { qrcodeSize, textSizeRatio, textWidthRatio } = options
+export function genQrcodeSvg(options: QrCodeOptions) {
+  const { data, label, qrcodeSize, textSizeRatio, textWidthRatio } = options
 
   // name = 'This is a very long line that will wrap automatically\nBut this starts on a new line because of the explicit newline'
 
@@ -29,6 +27,7 @@ export function genQrcodeSvg(
   // const scale = (qrcodeSize / 200) * 2
 
   // BWIP width/height are in millimeters
+  // Need to convert pixels to millimeters
   // See: https://github.com/metafloor/bwip-js#online-barcode-api
   const width = qrcodeSize / 2.835 
   const height = qrcodeSize / 2.835
@@ -85,7 +84,7 @@ export function genQrcodeSvg(
   // Wrap name text to fit within QR code width (using textWidthRatio)
   const textMaxWidth = codeSize.width * textWidthRatio
   const wrappedLines = wrapTextToWidth(
-    name,
+    label,
     textMaxWidth,
     { fontFamily, fontWeight, fontSize }
   )
@@ -100,7 +99,7 @@ export function genQrcodeSvg(
   const totalTextHeight = wrappedLines.length * lineSpacing - (lineSpacing - singleLineHeight)
   const viewBoxHeight = codeSize.height + yspace + totalTextHeight + bottomPadding
 
-  const reactEl = (
+  const reactElement = (
     <svg
       xmlns={svgns}
       viewBox={`0 0 ${codeSize.width} ${viewBoxHeight}`}
@@ -124,7 +123,7 @@ export function genQrcodeSvg(
     </svg>
   )
 
-  const x = renderToString(reactEl)
+  const x = renderToString(reactElement)
   // console.info(x)
 
   return x
