@@ -1,5 +1,5 @@
 import { Button, Checkbox, CopyButton as MantineCopyButton, Flex, Modal, Paper, Slider, Stack, Text, Textarea } from '@mantine/core'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { InvStore } from 'src/inventory-app/models/InvStore'
 import { genQRCodeSvg } from './gen-qrcode-svg'
@@ -39,7 +39,7 @@ export default function QrModal({ opened, onClose, options }: {
     >
       <Flex gap='xl' py='lg' align='flex-start'>
         {/* Left side: Controls */}
-        <QRCodeControls
+        <Controls
           qrcodeSize={qrcodeSize}
           setQRCodeSize={setQRCodeSize}
           textSizeRatio={textSizeRatio}
@@ -62,7 +62,7 @@ export default function QrModal({ opened, onClose, options }: {
   )
 }
 
-function QRCodeControls({ qrcodeSize, setQRCodeSize, textSizeRatio, setTextSizeRatio, textWidthRatio, setTextWidthRatio, overrideLabel, setOverrideLabel, customLabel, setCustomLabel }: {
+function Controls({ qrcodeSize, setQRCodeSize, textSizeRatio, setTextSizeRatio, textWidthRatio, setTextWidthRatio, overrideLabel, setOverrideLabel, customLabel, setCustomLabel }: {
   qrcodeSize: number
   setQRCodeSize: (value: number) => void
   textSizeRatio: number
@@ -74,12 +74,20 @@ function QRCodeControls({ qrcodeSize, setQRCodeSize, textSizeRatio, setTextSizeR
   customLabel: string
   setCustomLabel: (value: string) => void
 }) {
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  useEffect(() => {
+    if (overrideLabel && textareaRef.current) {
+      textareaRef.current.focus()
+    }
+  }, [overrideLabel])
+
   const formatPercentage = (value: number) => {
     const fmt = new Intl.NumberFormat(undefined, { style: 'percent' })
     return fmt.format(value)
   }
   return (
-    <Stack gap='2.5rem' style={{ flex: '0 0 250px' }}>
+    <Stack gap='2.5rem' style={{ flex: '0 0 300px' }}>
       <Stack gap={0}>
         <Text size='sm' fw={500} mb='xs'>QR Code Size (px)</Text>
         <Slider
@@ -134,18 +142,19 @@ function QRCodeControls({ qrcodeSize, setQRCodeSize, textSizeRatio, setTextSizeR
 
       <Stack gap='xs'>
         <Checkbox
-          label='Override Label'
+          label='Override Text'
           checked={overrideLabel}
           onChange={(e) => setOverrideLabel(e.currentTarget.checked)}
         />
         {overrideLabel && (
           <Textarea
-            placeholder='Enter custom label'
+            ref={textareaRef}
+            placeholder='Enter custom text'
             value={customLabel}
             onChange={(e) => setCustomLabel(e.currentTarget.value)}
             autosize
-            minRows={3}
-            maxRows={6}
+            minRows={1}
+            maxRows={3}
           />
         )}
       </Stack>
@@ -172,7 +181,7 @@ function CopyButton({ svgData }: {
   return (
     <MantineCopyButton value={svgData} timeout={1000}>
       {({ copied, copy }) => (
-        <Button color={copied ? 'gray.7' : 'blue'} onClick={copy}>
+        <Button color={copied ? 'gray.7' : ''} onClick={copy}>
           {copied ? 'Copied to Clipboard' : 'Copy SVG'}
         </Button>
       )}
