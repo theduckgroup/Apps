@@ -14,14 +14,20 @@ struct ScanView: View {
     @State var presentingReviewView = false
     @State var presentingConfirmCancel = false
     @State var didSubmitResult = false
-    @State var soundPlayer = try! AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "The_sample_workshop__2690_vial_tap_br-f5-tmc", withExtension: "aiff")!)
+    @State var soundPlayer: AVAudioPlayer
     @Environment(\.dismiss) private var dismiss
     // @Environment(AppDefaults.self) private var appDefaults
-    // let store = InventoryStore.shared
     
     init(vendor: Vendor, scanMode: ScanMode) {
         self.vendor = vendor
         self.scanMode = scanMode
+
+        self.soundPlayer = {
+            print("Create player")
+            let bundleResourcesURL = Bundle.module.url(forResource: "Resources", withExtension: "bundle")!
+            let url = bundleResourcesURL.appending(path: "ScanSound.aiff")
+            return try! AVAudioPlayer(contentsOf: url)
+        }()
         
         if isRunningForPreviews {
             _detectedBarcodes = .init(wrappedValue: ["WTBTL"])
