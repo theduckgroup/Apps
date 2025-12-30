@@ -1,19 +1,22 @@
 import Foundation
 import Backend
+import Common
 
 extension API {
     func store() async throws -> Vendor {
-        try await get(path: "inventory-app/store/\(Vendor.defaultStoreID)")
-//        var request = try await InventoryServer.makeRequest(httpMethod: "GET", path: "/api/vendor/\(vendorId)")
-//        request.url!.append(queryItems: [.init(name: "withQuantity", value: "1")])
-//        
-//        let vendor = try await HTTPClient.shared.get(request, decodeAs: Vendor.self)
-//        
-//        vendorsMap[vendor.id] = vendor
+        if isRunningForPreviews {
+            return try await get(path: "inventory-app/mock/store")
+        }
+        
+        return try await get(path: "inventory-app/store/\(Vendor.defaultStoreID)")
     }
     
     func storeStock() async throws -> StoreStock {
-        try await get(path: "inventory-app/store/\(Vendor.defaultStoreID)/stock")
+        if isRunningForPreviews {
+            return try await get(path: "inventory-app/mock/store/stock")
+        }
+        
+        return try await get(path: "inventory-app/store/\(Vendor.defaultStoreID)/stock")
     }
     
     func submit(_ vendor: Vendor, _ scannedItems: [ScannedItem]) async throws {
