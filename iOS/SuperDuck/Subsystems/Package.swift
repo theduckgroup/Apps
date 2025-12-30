@@ -60,6 +60,9 @@ let package = Package(
                 .product(name: "Common", package: "Common"),
                 .product(name: "CommonUI", package: "Common"),
             ],
+            resources: [
+                .copy("Resources.bundle")
+            ],
             swiftSettings: [
                 .defaultIsolation(MainActor.self),
                 .enableUpcomingFeature("InternalImportsByDefault"),
