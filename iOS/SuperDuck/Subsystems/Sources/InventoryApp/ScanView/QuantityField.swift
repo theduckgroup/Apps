@@ -1,9 +1,12 @@
 import Foundation
 public import SwiftUI
+import CommonUI
 
 public struct QuantityField: View {
     @Binding var value: Double
+    @FocusState var isFocused: Bool
     var unit: String? = nil
+    @ScaledMetric var numberFieldWidth: CGFloat = 39
 
     public init(value: Binding<Double>, unit: String? = nil) {
         self._value = value
@@ -15,29 +18,28 @@ public struct QuantityField: View {
             Button {
                 if value > 0 {
                     value -= 1
+                    isFocused = false                    
                 }
             } label: {
-                Image(systemName: "minus.circle.fill")
+                Image(systemName: "minus.circle")
             }
             .disabled(value <= 0)
 
             NumberField(value: $value, unit: unit, fractionLength: 0)
-                .padding(.vertical, 9)
-                .padding(.horizontal, 18)
+                .focused($isFocused)
+                .frame(width: numberFieldWidth)
+                .padding(.vertical, 7)
+                .padding(.horizontal, 9)
                 .background {
                     RoundedRectangle(cornerRadius: 9)
                         .fill(Color(UIColor.tertiarySystemFill))
                 }
-//                .background(alignment: .bottom) {
-//                    Rectangle()
-//                        .fill(Color(UIColor.separator))
-//                        .frame(height: 1)
-//                }
 
             Button {
                 value += 1
+                isFocused = false
             } label: {
-                Image(systemName: "plus.circle.fill")
+                Image(systemName: "plus.circle")
             }
         }
         .imageScale(.large)

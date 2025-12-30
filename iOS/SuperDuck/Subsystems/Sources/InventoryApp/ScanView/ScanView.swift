@@ -15,6 +15,7 @@ struct ScanView: View {
     @State var presentingConfirmCancel = false
     @State var didSubmitResult = false
     @State var soundPlayer: AVAudioPlayer
+    @State var ps = PresentationState()
     @Environment(\.dismiss) private var dismiss
     @Environment(InventoryApp.Defaults.self) private var defaults
     
@@ -36,6 +37,7 @@ struct ScanView: View {
     
     var body: some View {
         content()
+            .presentations(ps)
             .sheet(isPresented: $presentingReviewView) {
                 ReviewView(
                     vendor: vendor,
@@ -67,7 +69,7 @@ struct ScanView: View {
                     detectionEnabled: !presentingFinishedView && !didSubmitResult,
                     detectedBarcodes: $detectedBarcodes
                 ) { barcode in
-                    handleBarcode(barcode)
+                    handleBarcodeDetected(barcode)
                 }
                 
                 VStack {
@@ -191,7 +193,7 @@ struct ScanView: View {
         .padding(.vertical)
     }
     
-    private func handleBarcode(_ barcode: String) {
+    private func handleBarcodeDetected(_ barcode: String) {
         let item = vendor.catalog.items.first { $0.code == barcode }
         
         guard let item else {
@@ -202,7 +204,20 @@ struct ScanView: View {
         soundPlayer.prepareToPlay()
         soundPlayer.play()
         
-        scannedItems.append(.init(itemID: item.id, code: item.code, name: item.name))
+        ps.presentAlertCover(title: "\(item.name)\n\(item.code)" , actions: []) {
+            QuantityInputAlert(
+                onCancel: {
+                    ps.dismiss()
+                },
+                onDone: { value in
+                    ps.dismiss()
+                    scannedItems.append(.init(itemID: item.id, code: item.code, name: item.name))
+                }
+            )
+            .font(.body)
+        }
+        
+        // scannedItems.append(.init(itemID: item.id, code: item.code, name: item.name))
     }
     
     private func handleFinish() {
