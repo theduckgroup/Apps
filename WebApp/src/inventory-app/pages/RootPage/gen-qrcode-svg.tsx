@@ -41,7 +41,7 @@ export function genQrcodeSvg(data: string, name: string) {
 
   const codePathEl = codeSvgEl.querySelector('path')!
   const codeViewBox = codeSvgEl.getAttribute('viewBox')!
-  const [, , w_tmp, h_tmp] = codeViewBox.split(' ')
+  const [, ,w_tmp, h_tmp] = codeViewBox.split(' ')
   const codeSize = { width: parseInt(w_tmp), height: parseInt(h_tmp) }
   const codePath = codePathEl.getAttribute('d')!
   // console.info(codeSize, codePath)
