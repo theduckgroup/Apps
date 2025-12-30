@@ -72,7 +72,10 @@ private final class AuthImpl: AuthImplProtocol {
     private let supabase = SupabaseClient(supabaseURL: URL(string: "https://ahvebevkycanekqtnthy.supabase.co")!, supabaseKey: "sb_publishable_RYskGh0Y71aGJoncWRLZDQ_rp9Z0U2u")
     
     init() {
-        Task { @MainActor in
+        Task {
+            // It's important that this is run on main thread since we're modifying properties observed by UI            
+            MainActor.assertIsolated()
+            
             for await (event, session) in supabase.auth.authStateChanges {
                 logger.info("Received auth event \(event.rawValue), session = \(session != nil ? "not nil" : "nil")")
                 // logger.info("Received auth event \(event.rawValue), session = \(session, default: "nil")")
