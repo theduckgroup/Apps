@@ -12,10 +12,11 @@ This is a multi-platform monorepo containing web applications, backend server, a
 ├── WebApp/               # Web application frontend (React/Vite/TypeScript)
 └── iOS/                  # iOS applications (Swift/SwiftUI)
     ├── Common/           # Shared Swift packages
-    ├── SuperDuck/        # Main iOS app (active development)
-    ├── WeeklySpending/   # iOS expense tracking app
-    ├── Quiz/             # iOS quiz app
-    └── NakedBlendCalc/   # iOS calculator app
+    ├── SuperDuck/        # Main iOS app, which is a tab view of multiple "sub-apps"
+        ├── Subsystems/  
+            ├── InventoryApp/
+            ├── QuizApp/     
+            ├── WeeklySpendingApp/
 ```
 
 ### Multi-App Backend Pattern
