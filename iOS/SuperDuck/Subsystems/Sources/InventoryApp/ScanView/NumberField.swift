@@ -1,50 +1,60 @@
 import Foundation
-import SwiftUI
+public import SwiftUI
+import CommonUI
 
-struct NumberField: View {
+public struct NumberField: View {
     @Binding var value: Double
     var unit: String? = nil
+    var fractionLengthLimits: ClosedRange<Int> = 0...2
     @State private var text: String = ""
     @FocusState private var isFocused: Bool
     
-    var body: some View {
+    public init(value: Binding<Double>, unit: String? = nil, fractionLengthLimits: ClosedRange<Int>) {
+        precondition(fractionLengthLimits.lowerBound >= 0)
+        self._value = value
+        self.unit = unit
+        self.fractionLengthLimits = fractionLengthLimits
+        self.text = text
+        self.isFocused = isFocused
+    }
+    
+    public init(value: Binding<Double>, unit: String? = nil, fractionLength: Int) {
+        self.init(value: value, unit: unit, fractionLengthLimits: fractionLength...fractionLength)
+    }
+
+    public var body: some View {
         TextField("", text: $text)
-            .keyboardType(.decimalPad)
+            .keyboardType(fractionLengthLimits.upperBound == 0 ? .numberPad : .decimalPad)
             .focused($isFocused)
-            .onChange(of: text) { _, newText in
-                if let parsedValue = Double(newText) {
-                    value = parsedValue
-                } else if newText.isEmpty {
+            .onChange(of: text) { _, text in
+                if let parsedValue = Double(text) {
+                    value = parsedValue.rounded(toPlaces: fractionLengthLimits.upperBound)
+                } else if text.isEmpty {
                     value = 0
+                } else {
+                    // Leave it alone
+                    // If user enters a valid number at some point, it will be used
+                    // Otherwise the field reverts to old value after losing focus
                 }
             }
             .onChange(of: isFocused) { _, focused in
                 if focused {
-                    // When gaining focus - remove unit and grouping
-                    if value == 0 {
-                        text = ""
-                    } else {
-                        // Remove thousand grouping for easy editing
-                        text = value.formatted(.number.grouping(.never))
-                    }
+                    // Format for editting
+                    text = value != 0 ? value.formatted(.number.grouping(.never)) : ""
+                    
                 } else {
-                    // When losing focus - format the display with unit
-                    if let parsedValue = Double(text) {
-                        text = formatWithUnit(parsedValue.formatted(.number))
-                    } else {
-                        value = 0
-                        text = formatWithUnit("0")
-                    }
+                    // Format for display
+                    text = formatWithUnit(value)
                 }
             }
-            .onAppear {
-                // Initialize text with formatted value and unit
-                let formattedValue = value == 0 ? "0" : value.formatted(.number)
-                text = formatWithUnit(formattedValue)
+            .onFirstAppear {
+                text = formatWithUnit(value)
             }
     }
     
-    private func formatWithUnit(_ formattedValue: String) -> String {
+    private func formatWithUnit(_ value: Double) -> String {
+        let formattedValue = value.formatted(.number.precision(.fractionLength(fractionLengthLimits)))
+        
         if let unit {
             return "\(formattedValue) \(unit)"
         } else {
@@ -53,15 +63,25 @@ struct NumberField: View {
     }
 }
 
+extension Double {
+    func rounded(toPlaces places: Int) -> Double {
+        let divisor = Double.pow(10, Double(places))
+        return (self * divisor).rounded() / divisor
+    }
+}
+
 #Preview {
-    @Previewable @State var value: Double = 1234.56
+    @Previewable @State var value: Double = 100.02
     @Previewable @FocusState var isFocused: Bool
 
     VStack(spacing: 18) {
         Text("Value: \(value)")
 
+        // NumberField(value: $value)
         // NumberField(value: $value, unit: "kg")
-        NumberField(value: $value)
+        NumberField(value: $value, unit: "kg", fractionLength: 0)
+        // NumberField(value: $value, unit: "kg", fractionLength: 1)
+        // NumberField(value: $value, unit: "mph", fractionLengthLimits: 0...2)
             .multilineTextAlignment(.center)
             .font(.system(size: 24))
             .padding(.horizontal, 12)
@@ -80,3 +100,4 @@ struct NumberField: View {
     }
     .padding()
 }
+
