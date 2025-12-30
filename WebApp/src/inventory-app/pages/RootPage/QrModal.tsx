@@ -13,32 +13,10 @@ export default function QrModal({ opened, onClose, options }: {
 }) {
   const { item } = options
   const svg = genQrcodeSvg(item.code, item.name)
-  // const [svg, setSvg] = useState<string | undefined>()
-
-  // useEffect(() => {
-  //   if (item) {
-      
-  //     setSvg(svg) // eslint-disable-line react-hooks/set-state-in-effect
-  //   } else {
-  //     setSvg(undefined)
-  //   }
-  // }, [item])
-
-  // function copySvg() {
-  //   const svg = genQrcodeSvg(code, name)
-  //   navigator.clipboard.writeText(svg)
-  // }
 
   return (
     <Modal
       title={<Text>{item?.name ?? ''}</Text>}
-      // size='sm'
-      // padding='md'
-      // centered
-      // overlayProps={{
-      //   backgroundOpacity: 0.3,
-      //   // blur: 20
-      // }}
       returnFocus={false}
       opened={opened}
       onClose={onClose}
@@ -46,20 +24,36 @@ export default function QrModal({ opened, onClose, options }: {
     >
       <Stack justify='center' py='lg'>
         <Group justify='center'>
-          <Paper w={180} px={16} py={16} bg='white' radius={1.5}>
-            {svg && <img src={`data:image/svg+xml;utf8,${encodeURIComponent(svg)}`} width='200px' />}
-          </Paper>
+          <QrCodeComponent svg={svg} />
         </Group>
         <Group justify='center'>
-          <CopyButton value={svg ?? ''} timeout={1000}>
-            {({ copied, copy }) => (
-              <Button color={copied ? 'gray.7' : 'blue'} onClick={copy}>
-                {copied ? 'Copied to Clipboard' : 'Copy SVG'}
-              </Button>
-            )}
-          </CopyButton>
+          <CopyButtonComponent svg={svg} />
         </Group>
       </Stack>
     </Modal>
+  )
+}
+
+function QrCodeComponent({ svg }: {
+  svg: string
+}) {
+  return (
+    <Paper w={180} px={16} py={16} bg='white' radius={1.5}>
+      {svg && <img src={`data:image/svg+xml;utf8,${encodeURIComponent(svg)}`} width='200px' />}
+    </Paper>
+  )
+}
+
+function CopyButtonComponent({ svg }: {
+  svg: string
+}) {
+  return (
+    <CopyButton value={svg} timeout={1000}>
+      {({ copied, copy }) => (
+        <Button color={copied ? 'gray.7' : 'blue'} onClick={copy}>
+          {copied ? 'Copied to Clipboard' : 'Copy SVG'}
+        </Button>
+      )}
+    </CopyButton>
   )
 }
