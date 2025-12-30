@@ -48,12 +48,8 @@ public struct RootView: View {
                     }
                 } label: {
                     Text("Start \(persistedQuizName.ifEmpty("Test"))")
-                        .bold()
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
                 }
-                .buttonStyle(.borderedProminent)
-                .disabled(quiz == nil)
+                .buttonStyle(.primaryAction)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()

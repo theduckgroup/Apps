@@ -2,7 +2,6 @@ import Foundation
 
 struct StoreStock: Decodable {
     var storeId: String
-    var name: String
     var itemAttributes: [ItemAttributes]
 }
 

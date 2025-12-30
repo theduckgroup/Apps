@@ -31,8 +31,36 @@ adminRouter.get('/stores/meta', async (req, res) => {
   res.send(vendors)
 })
 
+// Gets store stock.
+adminRouter.get('/store/:storeId/stock', async (req, res) => {
+  const storeId = req.params.storeId
+
+  if (!storeId) {
+    throw createHttpError(400, `id is missing`)
+  }
+
+  const db = await getDb()
+
+  const dbStock = await db.collection_inv_storeStocks.findOne({ storeId })
+
+  if (!dbStock) {
+    throw createHttpError(500, 'Store stock not found')
+  }
+
+  const stock = jsonifyMongoId(dbStock)
+
+  // console.info(`! response = ${JSON.stringify(responseVendor)}`)
+
+  res.send(stock)
+})
+
+// User router
+
+const userRouter = express.Router()
+userRouter.use(authorizeUser)
+
 // Gets store.
-adminRouter.get('/store/:storeId', async (req, res) => {
+userRouter.get('/store/:storeId', async (req, res) => {
   const storeId = req.params.storeId
 
   if (!storeId) {
@@ -85,7 +113,7 @@ adminRouter.get('/store/:storeId', async (req, res) => {
 })
 
 // Updates a store's catalog.
-adminRouter.put('/store/:storeId/catalog', authorizeAdmin, async (req, res) => {
+userRouter.put('/store/:storeId/catalog', authorizeAdmin, async (req, res) => {
   const storeId = req.params.storeId
 
   // Body 
@@ -135,34 +163,6 @@ adminRouter.put('/store/:storeId/catalog', authorizeAdmin, async (req, res) => {
 
   eventHub.emitStoreChanged(storeId)
 })
-
-// Gets store stock.
-adminRouter.get('/store/:storeId/stock', async (req, res) => {
-  const storeId = req.params.storeId
-
-  if (!storeId) {
-    throw createHttpError(400, `id is missing`)
-  }
-
-  const db = await getDb()
-
-  const dbStock = await db.collection_inv_storeStocks.findOne({ storeId })
-
-  if (!dbStock) {
-    throw createHttpError(500, 'Store stock not found')
-  }
-
-  const stock = jsonifyMongoId(dbStock)
-
-  // console.info(`! response = ${JSON.stringify(responseVendor)}`)
-
-  res.send(stock)
-})
-
-// User router
-
-const userRouter = express.Router()
-userRouter.use(authorizeUser)
 
 // Updates store stock.
 userRouter.post('/store/:storeId/stock', async (req, res) => {
@@ -217,7 +217,7 @@ userRouter.post('/store/:storeId/stock', async (req, res) => {
         }
       }
 
-      db.collection_inv_storeStocks.updateOne(
+      await db.collection_inv_storeStocks.updateOne(
         { storeId },
         {
           $set: {
@@ -296,10 +296,33 @@ userRouter.post('/store/:storeId/stock', async (req, res) => {
 
 })
 
+// Public router
+
 const publicRouter = express.Router()
 
-publicRouter.get('/store/mock', async (req, res) => {
-  res.send()
+publicRouter.get('/mock/store', async (req, res) => {
+  const db = await getDb()
+
+  const doc = await db.collection_inv_stores.findOne()
+
+  if (!doc) {
+    throw createHttpError(404)
+  }
+
+  res.send(jsonifyMongoId(doc))
+
+})
+
+publicRouter.get('/mock/store/stock', async (req, res) => {
+  const db = await getDb()
+
+  const doc = await db.collection_inv_storeStocks.findOne()
+
+  if (!doc) {
+    throw createHttpError(404)
+  }
+
+  res.send(jsonifyMongoId(doc))
 })
 
 // Exported router
@@ -307,7 +330,7 @@ publicRouter.get('/store/mock', async (req, res) => {
 
 const router = express.Router()
 
-// router.use(publicRouter)
+router.use(publicRouter)
 router.use(userRouter)
 router.use(adminRouter)
 

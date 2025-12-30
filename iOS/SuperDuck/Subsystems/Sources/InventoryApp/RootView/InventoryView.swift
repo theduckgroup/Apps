@@ -9,87 +9,81 @@ struct InventoryView: View {
     @State private var showsFilter = false
     @State private var filterText = ""
     @FocusState private var filterFocused: Bool
+    @State var searchText = ""
+    @State var isSearchPresented = false
     
     @Environment(Auth.self) var auth
     @Environment(API.self) var api
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     var body: some View {
-        NavigationStack {
-            bodyContent()
-                .navigationTitle("Inventory")
-                .navigationBarTitleDisplayMode(.inline)
-            // .toolbarVisibility(.hidden, for: .navigationBar)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        searchButton()
-                    }
+        bodyContent()
+            .fetchOverlay(
+                isFetching: dataFetcher.isFetching,
+                fetchError: dataFetcher.error,
+                retry: {
+                    fetchData()
                 }
-        }
-        .onFirstAppear {
-            fetch()
-        }
-        .onSceneBecomeActive {
-            fetch()
-        }
-        .onReceive(api.eventHub.connectEvents) {
-            fetch()
-        }
+            )
+            .navigationTitle("Stock")
+            .searchable(text: $searchText, isPresented: $isSearchPresented, placement: .toolbar, prompt: nil)
+            .onFirstAppear {
+                fetchData()
+            }
+            .onSceneBecomeActive {
+                fetchData()
+            }
+            .onReceive(api.eventHub.connectEvents) {
+                fetchData()
+            }
     }
     
     @ViewBuilder
     private func bodyContent() -> some View {
-        VStack(alignment: .center, spacing: 0) {
-            searchField()
-            contentView()
-        }
-        .fetchOverlay(
-            isFetching: dataFetcher.isFetching,
-            fetchError: dataFetcher.error,
-            retry: {
-                fetch()
-            }
-        )
-    }
-    
-    @ViewBuilder
-    private func searchButton() -> some View {
-        Button {
-            withAnimation(.spring(duration: 0.2)) {
-                if !showsFilter {
-                    showsFilter = true
-                    filterFocused = true
-                    
-                } else {
-                    showsFilter = false
-                }
-            }
-            
-        } label: {
-            Image(systemName: "magnifyingglass")
-        }
-    }
-    
-    @ViewBuilder
-    private func searchField() -> some View {
-        if showsFilter {
-            TextField("Filter", text: $filterText)
-                .focused($filterFocused)
-                .padding(.horizontal, 9)
-                .padding(.vertical, 9)
-        }
-    }
-    
-    @ViewBuilder
-    private func contentView() -> some View {
         ScrollView {
             if let (store, stock) = dataFetcher.value {
-                LazyVStack(alignment: .leading, spacing: 0, pinnedViews: .sectionHeaders) {
+                // , pinnedViews: .sectionHeaders
+                LazyVStack(alignment: .leading, spacing: 0) {
                     listView(store, stock)
                 }
             }
         }
+        .modified {
+            if #available(iOS 26, *) {
+                $0.scrollEdgeEffectStyle(.hard, for: .top)
+            } else {
+                $0
+            }
+        }
     }
+//    
+//    @ViewBuilder
+//    private func searchButton() -> some View {
+//        Button {
+//            withAnimation(.spring(duration: 0.2)) {
+//                if !showsFilter {
+//                    showsFilter = true
+//                    filterFocused = true
+//                    
+//                } else {
+//                    showsFilter = false
+//                }
+//            }
+//            
+//        } label: {
+//            Image(systemName: "magnifyingglass")
+//        }
+//    }
+//    
+//    @ViewBuilder
+//    private func searchField() -> some View {
+//        if showsFilter {
+//            TextField("Filter", text: $filterText)
+//                .focused($filterFocused)
+//                .padding(.horizontal, 9)
+//                .padding(.vertical, 9)
+//        }
+//    }
     
     @ViewBuilder
     private func listView(_ vendor: Vendor, _ stock: StoreStock) -> some View {
@@ -111,6 +105,8 @@ struct InventoryView: View {
     
     @ViewBuilder
     private func sectionHeader(_ section: ListData.Section) -> some View {
+        // Both glass and blur background look terrible here
+        
         Text(section.name)
             .font(.title2.leading(.tight))
             .bold()
@@ -119,9 +115,6 @@ struct InventoryView: View {
             .padding(.top, 12)
             .padding(.vertical, 6)
             .background(Color(UIColor.systemBackground))
-            .overlay(alignment: .bottom) {
-                Divider()
-            }
     }
     
     @ViewBuilder
@@ -144,7 +137,7 @@ struct InventoryView: View {
         }
     }
     
-    private func fetch() {
+    private func fetchData() {
         dataFetcher.fetch {
             async let store = api.store()
             async let stock = api.storeStock()
@@ -219,8 +212,8 @@ struct InventoryView: View {
         var attrString = AttributedString(string)
         
         if let range = attrString.range(of: substring, options: .caseInsensitive) {
-            attrString[range].foregroundColor = .systemYellow
-            // attrString[range].backgroundColor = .systemYellow
+            attrString[range].foregroundColor = UIColor.label
+            attrString[range].backgroundColor = UIColor.systemYellow
         }
         
         return attrString
@@ -252,18 +245,19 @@ private extension InventoryView {
             }
         }
     }
-    
-    enum FetchState {
-        case idle
-        case fetching
-        case error(Error)
-    }
 }
 
 #Preview {
-    NavigationStack {
-        InventoryView()
-            .preferredColorScheme(.dark)
-            .navigationTitle(Text("Inventory"))
+    TabView() {
+        Tab("Inventory", image: "document.fill") {
+            NavigationStack {
+                InventoryView()
+            }
+        }
+        
+        Tab("FOH Test", image: "document.fill") {
+            EmptyView()
+        }
     }
+    .previewEnvironment()
 }
