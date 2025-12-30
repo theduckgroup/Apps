@@ -5,6 +5,7 @@ public extension Auth {
     static let mock = Auth(impl: AuthMockImpl())
 }
 
+@MainActor
 private final class AuthMockImpl: AuthImplProtocol {
     var isLoaded: Bool {
         true

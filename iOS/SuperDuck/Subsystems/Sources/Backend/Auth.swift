@@ -10,7 +10,7 @@ import Common
  - Same as above, but after launching the app
  */
 
-@Observable
+@MainActor @Observable
 public final class Auth: @unchecked Sendable {
     private let impl: AuthImplProtocol
     
@@ -49,6 +49,7 @@ public final class Auth: @unchecked Sendable {
     }
 }
 
+@MainActor
 protocol AuthImplProtocol {
     init()
     
@@ -62,8 +63,8 @@ protocol AuthImplProtocol {
     func handle(_ url: URL)
 }
 
-@Observable
-private final class AuthImpl: AuthImplProtocol, @unchecked Sendable {
+@MainActor @Observable
+private final class AuthImpl: AuthImplProtocol {
     // Probably need lock around isLoaded? Who cares
     
     public private(set) var isLoaded = false
@@ -71,7 +72,7 @@ private final class AuthImpl: AuthImplProtocol, @unchecked Sendable {
     private let supabase = SupabaseClient(supabaseURL: URL(string: "https://ahvebevkycanekqtnthy.supabase.co")!, supabaseKey: "sb_publishable_RYskGh0Y71aGJoncWRLZDQ_rp9Z0U2u")
     
     init() {
-        Task {
+        Task { @MainActor in
             for await (event, session) in supabase.auth.authStateChanges {
                 logger.info("Received auth event \(event.rawValue), session = \(session != nil ? "not nil" : "nil")")
                 // logger.info("Received auth event \(event.rawValue), session = \(session, default: "nil")")
