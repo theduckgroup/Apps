@@ -6,9 +6,9 @@ import Common
 
 struct StockView: View {
     @State var dataFetcher = ValueFetcher<(Vendor, StoreStock)>()
-    @State private var showsFilter = false
-    @State private var filterText = ""
-    @FocusState private var filterFocused: Bool
+//    @State private var showsFilter = false
+//    @State private var filterText = ""
+//    @FocusState private var filterFocused: Bool
     @State var searchText = ""
     @State var isSearchPresented = false
     
@@ -87,9 +87,7 @@ struct StockView: View {
     
     @ViewBuilder
     private func listView(_ vendor: Vendor, _ stock: StoreStock) -> some View {
-        let listData = listData(
-            vendor: vendor, stock: stock, filterEnabled: showsFilter, filterText: filterText
-        )
+        let listData = calculateListData(vendor: vendor, stock: stock, filterEnabled: isSearchPresented, filterText: searchText)
         
         ForEach(listData.sections) { section in
             Section {
@@ -145,7 +143,7 @@ struct StockView: View {
         }
     }
     
-    private func listData(vendor: Vendor, stock: StoreStock, filterEnabled: Bool, filterText: String) -> ListData {
+    private func calculateListData(vendor: Vendor, stock: StoreStock, filterEnabled: Bool, filterText: String) -> ListData {
         let filterText = filterText.trimmingCharacters(in: .whitespaces)
         
         if !filterEnabled {

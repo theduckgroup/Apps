@@ -4,11 +4,11 @@ import AppModule
 import Backend
 import Common
 import CommonUI
-import AsyncAlgorithms
 
 public struct RootView: View {
     @State var storeFetcher = ValueFetcher<Vendor>()
     @State var presentingStockView = false
+    @State var ps = PresentationState()
     @Environment(Auth.self) var auth
     @Environment(API.self) var api
     @Environment(AppDefaults.self) var appDefaults
@@ -31,6 +31,7 @@ public struct RootView: View {
                     StockView()
                 }
         }
+        .presentations(ps)
         .onFirstAppear {
             fetchStore()
         }
@@ -61,16 +62,19 @@ public struct RootView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(alignment: .firstTextBaseline) {
                         Button("Add Items", systemImage: "plus.circle") {
-                            
+                            ps.presentFullScreenCover {
+                                ScanView(vendor: storeFetcher.value!, scanMode: .add)
+                            }
                         }
                         
                         Button("Remove Items", systemImage: "minus.circle") {
-                            
+                            ps.presentFullScreenCover {
+                                ScanView(vendor: storeFetcher.value!, scanMode: .subtract)
+                            }
                         }
                     }
-                    .bold()
-                    .disabled(true)
                     .buttonStyle(.primaryAction)
+                    .disabled(storeFetcher.value == nil)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
