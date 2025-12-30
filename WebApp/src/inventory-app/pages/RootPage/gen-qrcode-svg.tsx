@@ -55,13 +55,22 @@ export function genQrcodeSvg(data: string, name: string) {
 
   const yspace = codeSize.height * 0.05
 
-  const nameTextSize = measureText(name, { fontFamily, fontWeight, fontSize })
-  const nameTextX = codeSize.width / 2 - nameTextSize.width / 2
-  const nameTextBaseline = codeSize.height + yspace + nameTextSize.height
+  // Wrap name text to fit within QR code width
+  const wrappedLines = wrapTextToWidth(
+    name,
+    codeSize.width,
+    { fontFamily, fontWeight, fontSize }
+  )
 
-  const bottomPadding = nameTextSize.height * 0.25 // There is no way to get descent of svg text!
+  // Measure single line height for line spacing
+  const singleLineHeight = measureText('M', { fontFamily, fontWeight, fontSize }).height
+  const lineSpacing = singleLineHeight * 1.2 // 1.2x line height
 
-  const viewBoxHeight = codeSize.height + yspace + nameTextSize.height + bottomPadding
+  const firstLineBaseline = codeSize.height + yspace + singleLineHeight
+  const bottomPadding = singleLineHeight * 0.25 // There is no way to get descent of svg text!
+
+  const totalTextHeight = wrappedLines.length * lineSpacing - (lineSpacing - singleLineHeight)
+  const viewBoxHeight = codeSize.height + yspace + totalTextHeight + bottomPadding
 
   const reactEl = (
     <svg
@@ -71,10 +80,18 @@ export function genQrcodeSvg(data: string, name: string) {
     >
       <path d={codePath} fill='black' fillRule='evenodd' />
       <text
-        x={nameTextX} y={nameTextBaseline}
-        fontSize={fontSize} fontWeight={fontWeight} fontFamily={fontFamily}
+        x={codeSize.width / 2}
+        y={firstLineBaseline}
+        fontSize={fontSize}
+        fontWeight={fontWeight}
+        fontFamily={fontFamily}
+        textAnchor="middle"
       >
-        {name}
+        {wrappedLines.map((line, index) => (
+          <tspan key={index} x={codeSize.width / 2} dy={index === 0 ? 0 : lineSpacing}>
+            {line}
+          </tspan>
+        ))}
       </text>
     </svg>
   )
@@ -114,6 +131,57 @@ function measureText(
   svgEl.parentNode!.removeChild(svgEl)
 
   return { width: bbox.width, height: bbox.height }
+}
+
+/**
+ * Wraps text to fit within a maximum width by breaking at word boundaries.
+ * Uses a greedy algorithm to fit as many words as possible on each line.
+ */
+function wrapTextToWidth(
+  text: string,
+  maxWidth: number,
+  fontProps: {
+    fontFamily: string,
+    fontWeight: string,
+    fontSize: number,
+  }
+): string[] {
+  const words = text.split(/\s+/)
+  const lines: string[] = []
+  let currentLine = ''
+
+  for (const word of words) {
+    const testLine = currentLine ? `${currentLine} ${word}` : word
+    const testWidth = measureText(testLine, fontProps).width
+
+    if (testWidth <= maxWidth) {
+      // Word fits on current line
+      currentLine = testLine
+    } else {
+      // Word doesn't fit, start new line
+      if (currentLine) {
+        lines.push(currentLine)
+      }
+
+      // Check if single word is too long
+      const wordWidth = measureText(word, fontProps).width
+      if (wordWidth > maxWidth) {
+        // Single word is longer than max width, add it anyway
+        lines.push(word)
+        currentLine = ''
+      } else {
+        currentLine = word
+      }
+    }
+  }
+
+  // Add remaining text
+  if (currentLine) {
+    lines.push(currentLine)
+  }
+
+  // Handle empty input
+  return lines.length > 0 ? lines : ['']
 }
 
 // Canvas drawing code
