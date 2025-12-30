@@ -1,8 +1,13 @@
-import { Button, Checkbox, CopyButton as MantineCopyButton, Flex, Modal, Paper, Slider, Stack, Text, Textarea } from '@mantine/core'
+import { Button, Checkbox, CopyButton as MantineCopyButton, Flex, Modal, Paper, Slider, Stack, Text, Textarea, Title } from '@mantine/core'
+import { useLocalStorage } from '@mantine/hooks'
 import { useEffect, useRef, useState } from 'react'
 
 import { InvStore } from 'src/inventory-app/models/InvStore'
 import { genQRCodeSvg } from './gen-qrcode-svg'
+
+const DEFAULT_QRCODE_SIZE = 200
+const DEFAULT_TEXT_SIZE_RATIO = 0.08
+const DEFAULT_TEXT_WIDTH_RATIO = 1.0
 
 export default function QrModal({ opened, onClose, options }: {
   opened: boolean
@@ -14,15 +19,15 @@ export default function QrModal({ opened, onClose, options }: {
 }) {
   const { item } = options
 
-  const [qrcodeSize, setQRCodeSize] = useState(200)
-  const [textSizeRatio, setTextSizeRatio] = useState(0.08)
-  const [textWidthRatio, setTextWidthRatio] = useState(1.0)
+  const [qrcodeSize, setQRCodeSize] = useLocalStorage({ key: 'QRCodeModal:qrcodeSize', defaultValue: DEFAULT_QRCODE_SIZE })
+  const [textSizeRatio, setTextSizeRatio] = useLocalStorage({ key: 'QRCodeModal:textSizeRatio', defaultValue: DEFAULT_TEXT_SIZE_RATIO })
+  const [textWidthRatio, setTextWidthRatio] = useLocalStorage({ key: 'QRCodeModal:textWidthRatio', defaultValue: DEFAULT_TEXT_WIDTH_RATIO })
   const [overrideLabel, setOverrideLabel] = useState(false)
   const [customLabel, setCustomLabel] = useState('')
 
   const { data: svgData, size: svgSize } = genQRCodeSvg({
     data: item.code,
-    label: overrideLabel ? customLabel : item.name,
+    label: overrideLabel ? customLabel : `${item.name}\n${item.code}`,
     qrcodeSize,
     textSizeRatio,
     textWidthRatio
@@ -34,8 +39,8 @@ export default function QrModal({ opened, onClose, options }: {
       returnFocus={false}
       opened={opened}
       onClose={onClose}
-      closeOnClickOutside={false}
       size='xl'
+      padding='lg'
     >
       <Flex gap='xl' py='lg' align='flex-start'>
         {/* Left side: Controls */}
@@ -87,8 +92,8 @@ function Controls({ qrcodeSize, setQRCodeSize, textSizeRatio, setTextSizeRatio, 
     return fmt.format(value)
   }
   return (
-    <Stack gap='2.5rem' style={{ flex: '0 0 300px' }}>
-      <Stack gap={0}>
+    <Stack gap='1rem' style={{ flex: '0 0 300px' }}>
+      <Stack gap={0} mb='1.25rem'>
         <Text size='sm' fw={500} mb='xs'>QR Code Size (px)</Text>
         <Slider
           value={qrcodeSize}
@@ -106,7 +111,7 @@ function Controls({ qrcodeSize, setQRCodeSize, textSizeRatio, setTextSizeRatio, 
         />
       </Stack>
 
-      <Stack gap={0}>
+      <Stack gap={0} mb='1.25rem'>
         <Text size='sm' fw={500} mb='xs'>Text Size (relative to QR code)</Text>
         <Slider
           value={textSizeRatio}
@@ -123,7 +128,7 @@ function Controls({ qrcodeSize, setQRCodeSize, textSizeRatio, setTextSizeRatio, 
         />
       </Stack>
 
-      <Stack gap={0}>
+      <Stack gap={0} mb='1.25rem'>
         <Text size='sm' fw={500} mb='xs'>Text Max Width (relative to QR code)</Text>
         <Slider
           value={textWidthRatio}
@@ -157,6 +162,20 @@ function Controls({ qrcodeSize, setQRCodeSize, textSizeRatio, setTextSizeRatio, 
             maxRows={3}
           />
         )}
+
+        <Button
+          variant='default'
+          color='gray.5'
+          mt='lg'
+          onClick={() => {
+            setQRCodeSize(DEFAULT_QRCODE_SIZE)
+            setTextSizeRatio(DEFAULT_TEXT_SIZE_RATIO)
+            setTextWidthRatio(DEFAULT_TEXT_WIDTH_RATIO)
+          }}
+        >
+          Reset to defaults
+        </Button>
+
       </Stack>
     </Stack>
   )
