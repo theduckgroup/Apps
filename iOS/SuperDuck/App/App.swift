@@ -5,8 +5,6 @@ import InventoryApp
 
 @main
 struct App: SwiftUI.App {
-    init() {}
-    
     var body: some Scene {
         WindowGroup {
             AppView()
@@ -17,6 +15,7 @@ struct App: SwiftUI.App {
         .environment(auth)
         .environment(api)
         .environment(appDefaults)
+        .environment(inventoryAppDefaults)
     }
 }
 
