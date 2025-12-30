@@ -85,23 +85,23 @@ function QRCodeControls({ qrcodeSize, setQRCodeSize, textSizeRatio, setTextSizeR
       </div>
 
       <div>
-        <Text size='sm' fw={500} mb='xs'>Text Size</Text>
+        <Text size='sm' fw={500} mb='xs'>Text Size (relative to code)</Text>
         <Slider
           value={textSizeRatio}
           onChange={setTextSizeRatio}
           min={0.04}
-          max={0.20}
+          max={0.15}
           step={0.01}
           marks={[
             { value: 0.04, label: 'Small' },
             { value: 0.08, label: 'Medium' },
-            { value: 0.12, label: 'Large' },
+            { value: 0.15, label: 'Large' },
           ]}
         />
       </div>
 
       <div>
-        <Text size='sm' fw={500} mb='xs'>Text Width</Text>
+        <Text size='sm' fw={500} mb='xs'>Text Width (relative to code)</Text>
         <Slider
           value={textWidthRatio}
           onChange={setTextWidthRatio}

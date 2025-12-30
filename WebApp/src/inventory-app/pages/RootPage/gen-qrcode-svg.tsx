@@ -89,7 +89,6 @@ export function genQrcodeSvg(options: QrCodeOptions) {
     { fontFamily, fontWeight, fontSize }
   )
 
-  // Measure single line height for line spacing
   const singleLineHeight = measureText('M', { fontFamily, fontWeight, fontSize }).height
   const lineSpacing = singleLineHeight * 1.2 // 1.2x line height
 
@@ -99,7 +98,7 @@ export function genQrcodeSvg(options: QrCodeOptions) {
   const totalTextHeight = wrappedLines.length * lineSpacing - (lineSpacing - singleLineHeight)
   const viewBoxHeight = codeSize.height + yspace + totalTextHeight + bottomPadding
 
-  const reactElement = (
+  const reactEl = (
     <svg
       xmlns={svgns}
       viewBox={`0 0 ${codeSize.width} ${viewBoxHeight}`}
@@ -112,7 +111,7 @@ export function genQrcodeSvg(options: QrCodeOptions) {
         fontSize={fontSize}
         fontWeight={fontWeight}
         fontFamily={fontFamily}
-        textAnchor="middle"
+        textAnchor='middle'
       >
         {wrappedLines.map((line, index) => (
           <tspan key={index} x={codeSize.width / 2} dy={index === 0 ? 0 : lineSpacing}>
@@ -123,7 +122,7 @@ export function genQrcodeSvg(options: QrCodeOptions) {
     </svg>
   )
 
-  const x = renderToString(reactElement)
+  const x = renderToString(reactEl)
   // console.info(x)
 
   return x
