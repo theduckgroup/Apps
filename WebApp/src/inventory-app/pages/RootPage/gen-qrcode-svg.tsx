@@ -4,13 +4,7 @@ import { qrcode, drawingSVG } from '@bwip-js/browser'
 
 const svgns = 'http://www.w3.org/2000/svg'
 
-interface FontOptions {
-  fontFamily: string
-  fontWeight: string
-  fontSize: number
-}
-
-export interface QrCodeOptions {
+export interface Options {
   data: string
   label: string
   qrcodeSize: number // QR code width/height in pixels (nice: 200)
@@ -18,7 +12,21 @@ export interface QrCodeOptions {
   textWidthRatio: number // Text wrap width as ratio of QR code width (nice: 1.0)
 }
 
-export function genQrcodeSvg(options: QrCodeOptions) {
+export interface SvgResult {
+  data: string
+  size: {
+    width: number,
+    height: number
+  }
+}
+
+interface FontOptions {
+  fontFamily: string
+  fontWeight: string
+  fontSize: number
+}
+
+export function genQRCodeSvg(options: Options): SvgResult {
   const { data, label, qrcodeSize, textSizeRatio, textWidthRatio } = options
 
   // name = 'This is a very long line that will wrap automatically\nBut this starts on a new line because of the explicit newline'
@@ -29,7 +37,7 @@ export function genQrcodeSvg(options: QrCodeOptions) {
   // BWIP width/height are in millimeters
   // Need to convert pixels to millimeters
   // See: https://github.com/metafloor/bwip-js#online-barcode-api
-  const width = qrcodeSize / 2.835 
+  const width = qrcodeSize / 2.835
   const height = qrcodeSize / 2.835
 
   const codeSvg = qrcode({
@@ -76,6 +84,7 @@ export function genQrcodeSvg(options: QrCodeOptions) {
   const fontFamily = 'Arial'
   const fontWeight = '500'
   const fontSize = Math.round(codeSize.width * textSizeRatio)
+  const font = { fontFamily, fontWeight, fontSize }
 
   // const dataText_bb = measureText(data, { fontFamily, fontSize })
 
@@ -86,10 +95,18 @@ export function genQrcodeSvg(options: QrCodeOptions) {
   const wrappedLines = wrapTextToWidth(
     label,
     textMaxWidth,
-    { fontFamily, fontWeight, fontSize }
+    font
   )
 
-  const singleLineHeight = measureText('M', { fontFamily, fontWeight, fontSize }).height
+  const textWidth = wrappedLines.reduce((max, line) => {
+    const lineWidth = measureText(line, font).width
+    return Math.max(max, lineWidth)
+  }, 0)
+
+  const viewBoxWidth = Math.max(codeSize.width, textWidth)
+  const codeXOffset = (viewBoxWidth - codeSize.width) / 2
+
+  const singleLineHeight = measureText('M', font).height
   const lineSpacing = singleLineHeight * 1.2 // 1.2x line height
 
   const firstLineBaseline = codeSize.height + yspace + singleLineHeight
@@ -101,12 +118,12 @@ export function genQrcodeSvg(options: QrCodeOptions) {
   const reactEl = (
     <svg
       xmlns={svgns}
-      viewBox={`0 0 ${codeSize.width} ${viewBoxHeight}`}
-      width={`${codeSize.width}px`} height={`${viewBoxHeight}px`}
+      viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
+      width={`${viewBoxWidth}px`} height={`${viewBoxHeight}px`}
     >
-      <path d={codePath} fill='black' fillRule='evenodd' />
+      <path d={codePath} fill='black' fillRule='evenodd' transform={`translate(${codeXOffset}, 0)`} />
       <text
-        x={codeSize.width / 2}
+        x={viewBoxWidth / 2}
         y={firstLineBaseline}
         fontSize={fontSize}
         fontWeight={fontWeight}
@@ -114,7 +131,7 @@ export function genQrcodeSvg(options: QrCodeOptions) {
         textAnchor='middle'
       >
         {wrappedLines.map((line, index) => (
-          <tspan key={index} x={codeSize.width / 2} dy={index === 0 ? 0 : lineSpacing}>
+          <tspan key={index} x={viewBoxWidth / 2} dy={index === 0 ? 0 : lineSpacing}>
             {line}
           </tspan>
         ))}
@@ -122,10 +139,16 @@ export function genQrcodeSvg(options: QrCodeOptions) {
     </svg>
   )
 
-  const x = renderToString(reactEl)
+  const svgData = renderToString(reactEl)
   // console.info(x)
 
-  return x
+  return {
+    data: svgData,
+    size: {
+      width: viewBoxWidth,
+      height: viewBoxHeight
+    }
+  }
 }
 
 function measureText(

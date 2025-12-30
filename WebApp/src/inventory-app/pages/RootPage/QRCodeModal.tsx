@@ -2,7 +2,7 @@ import { Button, CopyButton as MantineCopyButton, Flex, Modal, Paper, Slider, St
 import { useState } from 'react'
 
 import { InvStore } from 'src/inventory-app/models/InvStore'
-import { genQrcodeSvg } from './gen-qrcode-svg'
+import { genQRCodeSvg } from './gen-qrcode-svg'
 
 export default function QrModal({ opened, onClose, options }: {
   opened: boolean
@@ -18,12 +18,12 @@ export default function QrModal({ opened, onClose, options }: {
   const [textSizeRatio, setTextSizeRatio] = useState(0.08)
   const [textWidthRatio, setTextWidthRatio] = useState(1.0)
 
-  const svg = genQrcodeSvg({
-    data: item.code, 
-    label: item.name, 
-    qrcodeSize, 
-    textSizeRatio, 
-    textWidthRatio 
+  const { data: svgData, size: svgSize } = genQRCodeSvg({
+    data: item.code,
+    label: item.name,
+    qrcodeSize,
+    textSizeRatio,
+    textWidthRatio
   })
 
   return (
@@ -48,8 +48,8 @@ export default function QrModal({ opened, onClose, options }: {
 
         {/* Right side: QR Code and Copy Button */}
         <Stack gap='md' style={{ flex: 1 }} align='center'>
-          <QRCodeImage svg={svg} size={qrcodeSize} />
-          <CopyButton svg={svg} />
+          <QRCodeImage svgData={svgData} width={svgSize.width} />
+          <CopyButton svgData={svgData} />
         </Stack>
       </Flex>
     </Modal>
@@ -66,7 +66,7 @@ function QRCodeControls({ qrcodeSize, setQRCodeSize, textSizeRatio, setTextSizeR
 }) {
   return (
     <Stack gap='xl' style={{ flex: '0 0 250px' }}>
-      <div>
+      <Stack gap={0}>
         <Text size='sm' fw={500} mb='xs'>QR Code Size</Text>
         <Slider
           value={qrcodeSize}
@@ -82,9 +82,9 @@ function QRCodeControls({ qrcodeSize, setQRCodeSize, textSizeRatio, setTextSizeR
             { value: 500, label: '500' },
           ]}
         />
-      </div>
+      </Stack>
 
-      <div>
+      <Stack gap={0}>
         <Text size='sm' fw={500} mb='xs'>Text Size (relative to code)</Text>
         <Slider
           value={textSizeRatio}
@@ -98,10 +98,10 @@ function QRCodeControls({ qrcodeSize, setQRCodeSize, textSizeRatio, setTextSizeR
             { value: 0.15, label: 'Large' },
           ]}
         />
-      </div>
+      </Stack>
 
-      <div>
-        <Text size='sm' fw={500} mb='xs'>Text Width (relative to code)</Text>
+      <Stack gap={0}>
+        <Text size='sm' fw={500} mb='xs'>Text Max Width (relative to code)</Text>
         <Slider
           value={textWidthRatio}
           onChange={setTextWidthRatio}
@@ -114,27 +114,29 @@ function QRCodeControls({ qrcodeSize, setQRCodeSize, textSizeRatio, setTextSizeR
             { value: 1.5, label: '150%' },
           ]}
         />
-      </div>
+      </Stack>
     </Stack>
   )
 }
 
-function QRCodeImage({ svg, size }: {
-  svg: string
-  size: number
+function QRCodeImage({ svgData, width }: {
+  svgData: string
+  width: number
 }) {
+  const padding = Math.max(width * 0.08, 16)
+
   return (
-    <Paper px={16} py={16} bg='white' radius={1.5}>
-      <img src={`data:image/svg+xml;utf8,${encodeURIComponent(svg)}`} width={size} />
+    <Paper p={padding} bg='white' radius={6}>
+      <img src={`data:image/svg+xml;utf8,${encodeURIComponent(svgData)}`} width={width} />
     </Paper>
   )
 }
 
-function CopyButton({ svg }: {
-  svg: string
+function CopyButton({ svgData }: {
+  svgData: string
 }) {
   return (
-    <MantineCopyButton value={svg} timeout={1000}>
+    <MantineCopyButton value={svgData} timeout={1000}>
       {({ copied, copy }) => (
         <Button color={copied ? 'gray.7' : 'blue'} onClick={copy}>
           {copied ? 'Copied to Clipboard' : 'Copy SVG'}
