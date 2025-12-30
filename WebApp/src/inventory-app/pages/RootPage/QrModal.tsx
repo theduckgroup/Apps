@@ -1,24 +1,28 @@
-import { useEffect, useState } from "react"
 import { Button, CopyButton, Group, Modal, Paper, Stack, Text } from "@mantine/core"
 
 import { InvStore } from "src/inventory-app/models/InvStore"
 import { genQrcodeSvg } from "./gen-qrcode-svg"
 
-export default function QrModal({ opened, onClose, item }: {
+export default function QrModal({ opened, onClose, options }: {
   opened: boolean
   onClose: () => void,
-  item?: InvStore.Item
-}) {
-  const [svg, setSvg] = useState<string | undefined>()
+  options: {
+    item: InvStore.Item
+  }
 
-  useEffect(() => {
-    if (item) {
-      const svg = genQrcodeSvg(item.code, item.name)
-      setSvg(svg)
-    } else {
-      setSvg(undefined)
-    }
-  }, [item])
+}) {
+  const { item } = options
+  const svg = genQrcodeSvg(item.code, item.name)
+  // const [svg, setSvg] = useState<string | undefined>()
+
+  // useEffect(() => {
+  //   if (item) {
+      
+  //     setSvg(svg) // eslint-disable-line react-hooks/set-state-in-effect
+  //   } else {
+  //     setSvg(undefined)
+  //   }
+  // }, [item])
 
   // function copySvg() {
   //   const svg = genQrcodeSvg(code, name)
@@ -27,7 +31,7 @@ export default function QrModal({ opened, onClose, item }: {
 
   return (
     <Modal
-      title={<Text>{item?.name ?? ''} | QR Code</Text>}
+      title={<Text>{item?.name ?? ''}</Text>}
       // size='sm'
       // padding='md'
       // centered
