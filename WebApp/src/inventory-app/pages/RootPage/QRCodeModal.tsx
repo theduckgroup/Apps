@@ -74,10 +74,14 @@ function QRCodeControls({ qrcodeSize, setQRCodeSize, textSizeRatio, setTextSizeR
   customLabel: string
   setCustomLabel: (value: string) => void
 }) {
+  const formatPercentage = (value: number) => {
+    const fmt = new Intl.NumberFormat(undefined, { style: 'percent' })
+    return fmt.format(value)
+  }
   return (
     <Stack gap='2.5rem' style={{ flex: '0 0 250px' }}>
       <Stack gap={0}>
-        <Text size='sm' fw={500} mb='xs'>QR Code Size</Text>
+        <Text size='sm' fw={500} mb='xs'>QR Code Size (px)</Text>
         <Slider
           value={qrcodeSize}
           onChange={setQRCodeSize}
@@ -95,13 +99,14 @@ function QRCodeControls({ qrcodeSize, setQRCodeSize, textSizeRatio, setTextSizeR
       </Stack>
 
       <Stack gap={0}>
-        <Text size='sm' fw={500} mb='xs'>Text Size (relative to code)</Text>
+        <Text size='sm' fw={500} mb='xs'>Text Size (relative to QR code)</Text>
         <Slider
           value={textSizeRatio}
           onChange={setTextSizeRatio}
           min={0.04}
           max={0.15}
           step={0.01}
+          label={value => formatPercentage(value)}
           marks={[
             { value: 0.04, label: 'Small' },
             { value: 0.08, label: 'Medium' },
@@ -111,13 +116,14 @@ function QRCodeControls({ qrcodeSize, setQRCodeSize, textSizeRatio, setTextSizeR
       </Stack>
 
       <Stack gap={0}>
-        <Text size='sm' fw={500} mb='xs'>Text Max Width (relative to code)</Text>
+        <Text size='sm' fw={500} mb='xs'>Text Max Width (relative to QR code)</Text>
         <Slider
           value={textWidthRatio}
           onChange={setTextWidthRatio}
           min={0.5}
           max={1.5}
-          step={0.05}
+          step={0.01}
+          label={value => formatPercentage(value)}
           marks={[
             { value: 0.5, label: '50%' },
             { value: 1.0, label: '100%' },
