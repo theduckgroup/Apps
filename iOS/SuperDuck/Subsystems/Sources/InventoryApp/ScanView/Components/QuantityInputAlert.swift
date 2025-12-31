@@ -57,7 +57,7 @@ struct QuantityInputAlert: View {
                     if #available(iOS 26, *) {
                         $0.buttonStyle(.glassProminent)
                     } else {
-                        $0.buttonStyle(.bordered)
+                        $0.buttonStyle(.borderedProminent)
                     }
                 }
             }

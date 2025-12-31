@@ -6,7 +6,7 @@ import CommonUI
 
 /// View that displays camera, barcode info and Finish button.
 struct ScanView: View {
-    var vendor: Vendor
+    var store: Store
     var mode: Mode
     @State var detectedBarcodes: [String] = []
     @State var scannedItems: [ScannedItem] = []
@@ -20,8 +20,8 @@ struct ScanView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(InventoryApp.Defaults.self) private var defaults
     
-    init(vendor: Vendor, mode: Mode) {
-        self.vendor = vendor
+    init(store: Store, mode: Mode) {
+        self.store = store
         self.mode = mode
 
         self.soundPlayer = {
@@ -47,22 +47,18 @@ struct ScanView: View {
                 handleBarcodeDetected(barcode)
             },
             onRectOfInterestChange: { rect in
-                // DispatchQueue.main.async {
+                // Try DispatchQueue.main.async here if it doesn't work
+                // Did not work at some point without async
                 rectOfInterest = rect
-                // }
             }
         )
         .overlay(alignment: .top) {
             if rectOfInterest != .zero {
                 // VStack laid out in a way that it is just below the rect of interest and line up with it
                 
-                VStack(spacing: 0) {
+                VStack(spacing: 16) {
                     controlsView()
-                    
-                    if #available(iOS 26, *) {
-                        debugInputButton()
-                            .padding(.top, 16)
-                    }
+                    debugInputButton()
                 }
                 .padding(.top, rectOfInterest.maxY)
                 .padding(.top, 16)
@@ -108,6 +104,8 @@ struct ScanView: View {
                 .modified {
                     if #available(iOS 26, *) {
                         $0.glassEffect(.clear)
+                    } else {
+                        $0
                     }
                 }
             
@@ -118,7 +116,7 @@ struct ScanView: View {
             Button("Review") {
                 ps.presentSheet {
                     ReviewView(
-                        vendor: vendor,
+                        store: store,
                         scannedItems: scannedItems,
                         scanMode: mode,
                         finished: true,
@@ -134,11 +132,10 @@ struct ScanView: View {
         }
     }
     
-    @available(iOS 26.0, *)
     @ViewBuilder
     private func debugInputButton() -> some View {
-        Button("Show debug input alert") {
-            let items: [Vendor.Item] = [
+        Button("[Debug] Show input alert") {
+            let items: [Store.Item] = [
                 .init(id: "0", name: "Herbal Jelly Clone", code: "AX007"),
                 .init(id: "1", name: "Water Bottle", code: "BD020"),
                 .init(id: "2", name: "Chicken Powder", code: "CP009"),
@@ -151,13 +148,19 @@ struct ScanView: View {
             let item = items.randomElement()!
             presentQuantityInputAlert(for: item)
         }
-        .buttonSizing(.flexible)
-        .buttonStyle(.glass)
+        .modified {
+            if #available(iOS 26, *) {
+                $0.buttonSizing(.flexible)
+            } else {
+                $0
+            }
+        }
+        .buttonStyle(.bordered)
     }
     
     private func handleBarcodeDetected(_ barcode: String) {
-        let item = vendor.catalog.items.first { $0.code == barcode }
-        
+        let item = store.catalog.items.first { $0.code == barcode }
+
         guard let item else {
             return
         }
@@ -169,7 +172,7 @@ struct ScanView: View {
         presentQuantityInputAlert(for: item)
     }
     
-    private func presentQuantityInputAlert(for item: Vendor.Item) {
+    private func presentQuantityInputAlert(for item: Store.Item) {
         ps.presentAlertStyleCover(offset: .init(x: 0, y: -42)) {
             QuantityInputAlert(
                 title: item.name,
@@ -195,7 +198,7 @@ extension ScanView {
 
 #Preview {
     ScanView(
-        vendor: .init(
+        store: .init(
             id: "0",
             name: "ND Central Kitchen",
             catalog: .init(

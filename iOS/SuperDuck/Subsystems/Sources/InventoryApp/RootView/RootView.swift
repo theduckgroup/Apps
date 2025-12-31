@@ -6,7 +6,7 @@ import Common
 import CommonUI
 
 public struct RootView: View {
-    @State var storeFetcher = ValueFetcher<Vendor>()
+    @State var storeFetcher = ValueFetcher<Store>()
     @State var presentingStockView = false
     @State var ps = PresentationState()
     @Environment(Auth.self) var auth
@@ -63,13 +63,13 @@ public struct RootView: View {
                     HStack(alignment: .firstTextBaseline) {
                         Button("Add Items", systemImage: "plus.circle") {
                             ps.presentFullScreenCover {
-                                ScanView(vendor: storeFetcher.value!, mode: .add)
+                                ScanView(store: storeFetcher.value!, mode: .add)
                             }
                         }
                         
                         Button("Remove Items", systemImage: "minus.circle") {
                             ps.presentFullScreenCover {
-                                ScanView(vendor: storeFetcher.value!, mode: .subtract)
+                                ScanView(store: storeFetcher.value!, mode: .subtract)
                             }
                         }
                     }

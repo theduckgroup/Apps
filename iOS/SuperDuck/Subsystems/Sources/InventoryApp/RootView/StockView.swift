@@ -5,7 +5,7 @@ import Backend
 import Common
 
 struct StockView: View {
-    @State var dataFetcher = ValueFetcher<(Vendor, StoreStock)>()
+    @State var dataFetcher = ValueFetcher<(Store, StoreStock)>()
     @State var searchText = ""
     @State var isSearchPresented = false
     @Environment(Auth.self) var auth
@@ -46,7 +46,7 @@ struct StockView: View {
     }
     
     @ViewBuilder
-    private func listView(_ store: Vendor, _ stock: StoreStock) -> some View {
+    private func listView(_ store: Store, _ stock: StoreStock) -> some View {
         let listViewData = calculateListViewData(store, stock, searchText: searchText)
         
         ForEach(listViewData.sections) { section in
@@ -150,7 +150,7 @@ struct StockView: View {
         }
     }
     
-    private func calculateListViewData(_ store: Vendor, _ stock: StoreStock, searchText: String) -> ListViewData {
+    private func calculateListViewData(_ store: Store, _ stock: StoreStock, searchText: String) -> ListViewData {
         let searchText = searchText.trimmingCharacters(in: .whitespaces)
         
         let sections: [ListViewData.Section] = store.catalog.sections
@@ -221,7 +221,7 @@ private extension StockView {
         var sections: [Section]
         
         struct Section: Identifiable {
-            var storeSection: Vendor.Section
+            var storeSection: Store.Section
             var name: AttributedString
             var items: [Item]
             
@@ -231,7 +231,7 @@ private extension StockView {
         }
         
         struct Item: Identifiable {
-            var storeItem: Vendor.Item
+            var storeItem: Store.Item
             var name: AttributedString
             var code: AttributedString
             var quantity: Int

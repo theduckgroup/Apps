@@ -3,29 +3,29 @@ import Backend
 import Common
 
 extension API {
-    func store() async throws -> Vendor {
+    func store() async throws -> Store {
         if isRunningForPreviews {
             return try await get(authenticated: false, path: "inventory-app/mock/store")
         }
-        
-        return try await get(path: "inventory-app/store/\(Vendor.defaultStoreID)")
+
+        return try await get(path: "inventory-app/store/\(Store.defaultStoreID)")
     }
     
     func storeStock() async throws -> StoreStock {
         if isRunningForPreviews {
             return try await get(authenticated: false, path: "inventory-app/mock/store/stock")
         }
-        
-        return try await get(path: "inventory-app/store/\(Vendor.defaultStoreID)/stock")
+
+        return try await get(path: "inventory-app/store/\(Store.defaultStoreID)/stock")
     }
     
-    func submit(_ vendor: Vendor, _ scannedItems: [ScannedItem]) async throws {
+    func submit(_ store: Store, _ scannedItems: [ScannedItem]) async throws {
         // try await Task.sleep(for: .seconds(1))
-        
+
         // Server logic
-        
-        //        guard let index = vendors.firstIndex(where: { $0.id == vendor.id }) else {
-        //            throw GenericError("Vendor not found")
+
+        //        guard let index = vendors.firstIndex(where: { $0.id == store.id }) else {
+        //            throw GenericError("Store not found")
         //        }
         //
         //        for scannedItem in scannedItems {

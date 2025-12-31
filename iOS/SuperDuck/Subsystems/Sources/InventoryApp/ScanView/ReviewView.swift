@@ -3,7 +3,7 @@ import SwiftUI
 import Common
 
 struct ReviewView: View {
-    var vendor: Vendor
+    var store: Store
     var scannedItems: [ScannedItem]
     var scanMode: ScanView.Mode
     var finished: Bool
@@ -82,15 +82,15 @@ struct ReviewView: View {
         }
         
         let factor = scanMode == .add ? 1 : -1
-        
+
         let body = Body(
-            vendorId: vendor.id,
+            vendorId: store.id,
             changes: scannedItems.grouped().map {
                 .init(itemId: $0.item.itemID, inc: $0.count * factor)
             }
         )
-        
-        let path = "/api/vendor/\(vendor.id)/item-quantities"
+
+        let path = "/api/vendor/\(store.id)/item-quantities"
         // var request = try await InventoryServer.makeRequest(httpMethod: "POST", path: path)
         // request.httpBody = try! JSONEncoder().encode(body)
         
