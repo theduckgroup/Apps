@@ -6,12 +6,8 @@ import Common
 
 struct StockView: View {
     @State var dataFetcher = ValueFetcher<(Vendor, StoreStock)>()
-//    @State private var showsFilter = false
-//    @State private var filterText = ""
-//    @FocusState private var filterFocused: Bool
     @State var searchText = ""
     @State var isSearchPresented = false
-    
     @Environment(Auth.self) var auth
     @Environment(API.self) var api
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
@@ -42,90 +38,102 @@ struct StockView: View {
     private func bodyContent() -> some View {
         ScrollView {
             if let (store, stock) = dataFetcher.value {
-                // , pinnedViews: .sectionHeaders
-                LazyVStack(alignment: .leading, spacing: 0) {
+                LazyVStack(alignment: .leading, spacing: 0 /* pinnedViews: .sectionHeaders */) {
                     listView(store, stock)
                 }
             }
         }
-        .modified {
-            if #available(iOS 26, *) {
-                $0.scrollEdgeEffectStyle(.hard, for: .top)
-            } else {
-                $0
-            }
-        }
-    }
-//    
-//    @ViewBuilder
-//    private func searchButton() -> some View {
-//        Button {
-//            withAnimation(.spring(duration: 0.2)) {
-//                if !showsFilter {
-//                    showsFilter = true
-//                    filterFocused = true
-//                    
-//                } else {
-//                    showsFilter = false
-//                }
+//        .modified {
+//            if #available(iOS 26, *) {
+//                $0.scrollEdgeEffectStyle(.hard, for: .top)
+//            } else {
+//                $0
 //            }
-//            
-//        } label: {
-//            Image(systemName: "magnifyingglass")
 //        }
-//    }
-//    
-//    @ViewBuilder
-//    private func searchField() -> some View {
-//        if showsFilter {
-//            TextField("Filter", text: $filterText)
-//                .focused($filterFocused)
-//                .padding(.horizontal, 9)
-//                .padding(.vertical, 9)
-//        }
-//    }
+    }
     
     @ViewBuilder
-    private func listView(_ vendor: Vendor, _ stock: StoreStock) -> some View {
-        let listData = calculateListData(vendor: vendor, stock: stock, filterEnabled: isSearchPresented, filterText: searchText)
+    private func listView(_ store: Vendor, _ stock: StoreStock) -> some View {
+        let listViewData = calculateListViewData(store, stock, searchText: searchText)
         
-        ForEach(listData.sections) { section in
+        ForEach(listViewData.sections) { section in
             Section {
                 ForEach(section.items) { item in
                     itemRow(item)
                 }
                 
             } header: {
-                sectionHeader(section)
+                sectionHeader(section, columnNames: section.id == listViewData.sections[0].id)
             }
         }
     }
     
     @ViewBuilder
-    private func sectionHeader(_ section: ListData.Section) -> some View {
+    private func sectionHeader(_ section: ListViewData.Section, columnNames: Bool) -> some View {
         // Both glass and blur background look terrible here
         
-        Text(section.name)
-            .font(.title2.leading(.tight))
-            .bold()
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal)
-            .padding(.top, 12)
-            .padding(.vertical, 6)
-            .background(Color(UIColor.systemBackground))
+        VStack(alignment: .leading, spacing: 9) {
+            Text(section.name)
+                .font(.title2.leading(.tight))
+                .bold()
+                
+            if columnNames {
+                Group {
+                    if horizontalSizeClass == .compact {
+                        HStack {
+                            Text("Name / Code")
+                            Spacer()
+                            Text("Quantity")
+                        }
+
+                    } else {
+                        HStack {
+                            Text("Name")
+                                .containerRelativeFrame(.horizontal, count: 5, span: 3, spacing: 15, alignment: .leading)
+                            Text("Code")
+                                .containerRelativeFrame(.horizontal, count: 5, span: 1, spacing: 15, alignment: .leading)
+                            Text("Quantity")
+                                .frame(maxWidth: .infinity, alignment: .trailing)
+                        }
+                    }
+                }
+                .bold()
+                .padding(.bottom, 9)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .overlay(alignment: .bottom) {
+                    Divider()
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal)
+        .padding(.top, 18)
+        .padding(.bottom, columnNames ? 3 : 6)
+        .background(Color(UIColor.systemBackground))
     }
     
     @ViewBuilder
-    private func itemRow(_ item: ListData.Item) -> some View {
+    private func itemRow(_ item: ListViewData.Item) -> some View {
         HStack(alignment: .firstTextBaseline) {
-            VStack(alignment: .leading) {
+            if horizontalSizeClass == .compact {
+                VStack(alignment: .leading) {
+                    Text(item.name)
+                    Text(item.code).foregroundStyle(.secondary)
+                }
+                
+                Spacer()
+                
+                Text("\(item.quantity)").foregroundStyle(.secondary)
+                
+            } else {
                 Text(item.name)
+                    .containerRelativeFrame(.horizontal, count: 5, span: 3, spacing: 15, alignment: .leading)
                 Text(item.code)
+                    .containerRelativeFrame(.horizontal, count: 5, span: 1, spacing: 15, alignment: .leading)
+                Text("\(item.quantity)")
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
             }
-            
-            Spacer()
-            
-            Text("\(item.quantity)")
         }
         .padding(.horizontal)
         .padding(.vertical, 9)
@@ -143,9 +151,53 @@ struct StockView: View {
         }
     }
     
-    private func calculateListData(vendor: Vendor, stock: StoreStock, filterEnabled: Bool, filterText: String) -> ListData {
-        let filterText = filterText.trimmingCharacters(in: .whitespaces)
+    private func calculateListViewData(_ store: Vendor, _ stock: StoreStock, searchText: String) -> ListViewData {
+        let searchText = searchText.trimmingCharacters(in: .whitespaces)
         
+        let sections: [ListViewData.Section] = store.catalog.sections
+            .compactMap { storeSection in
+                let storeItems = store.catalog.itemsForSection(storeSection)
+                
+                let listItems: [ListViewData.Item] = storeItems.compactMap { storeItem in
+                    let visible = searchText == "" || storeItem.name.localizedCaseInsensitiveContains(searchText)
+                    
+                    guard visible else {
+                        return nil
+                    }
+                    
+                    let quantity = stock.itemAttributes.first { $0.itemId == storeItem.id }?.quantity ?? 0
+                    
+                    return ListViewData.Item(
+                        storeItem: storeItem,
+                        name: highlight(storeItem.name, searchText),
+                        code: highlight(storeItem.code, searchText),
+                        quantity: quantity
+                    )
+                }
+                
+                let visible: Bool = {
+                    if searchText == "" {
+                        true
+                    } else {
+                        storeSection.name.localizedCaseInsensitiveContains(searchText) || listItems.count > 0
+                    }
+                }()
+                
+                guard visible else {
+                    return nil
+                }
+                
+                return ListViewData.Section(
+                    storeSection: storeSection,
+                    name: highlight(storeSection.name, searchText),
+                    items: listItems
+                )
+                
+            }
+        
+        return ListViewData(sections: sections)
+        
+        /*
         if !filterEnabled {
             return ListData(
                 sections: vendor.catalog.sections.map { vendorSection in
@@ -168,42 +220,8 @@ struct StockView: View {
             )
             
         } else {
-            let sections: [ListData.Section] = vendor.catalog.sections
-                .compactMap { vendorSection in
-                    let vendorItems = vendor.catalog.itemsForSection(vendorSection)
-                    
-                    let listItems: [ListData.Item] = vendorItems.compactMap { vendorItem in
-                        guard filterText == "" ||
-                                vendorItem.name.localizedCaseInsensitiveContains(filterText) else {
-                            return nil
-                        }
-                        
-                        let quantity = stock.itemAttributes.first { $0.itemId == vendorItem.id }?.quantity ?? 0
-                        
-                        return ListData.Item(
-                            vendorItem: vendorItem,
-                            name: highlight(vendorItem.name, filterText),
-                            code: highlight(vendorItem.code, filterText),
-                            quantity: quantity
-                        )
-                    }
-                    
-                    guard filterText == "" ||
-                            vendorSection.name.localizedCaseInsensitiveContains(filterText) ||
-                            listItems.count > 0 else {
-                        return nil
-                    }
-                    
-                    return ListData.Section(
-                        vendorSection: vendorSection,
-                        name: highlight(vendorSection.name, filterText),
-                        items: listItems
-                    )
-                    
-                }
-            
-            return ListData(sections: sections)
         }
+        */
     }
     
     private func highlight(_ string: String, _ substring: String) -> AttributedString {
@@ -219,27 +237,27 @@ struct StockView: View {
 }
 
 private extension StockView {
-    struct ListData {
+    struct ListViewData {
         var sections: [Section]
         
         struct Section: Identifiable {
-            var vendorSection: Vendor.Section
+            var storeSection: Vendor.Section
             var name: AttributedString
             var items: [Item]
             
             var id: String {
-                vendorSection.id
+                storeSection.id
             }
         }
         
         struct Item: Identifiable {
-            var vendorItem: Vendor.Item
+            var storeItem: Vendor.Item
             var name: AttributedString
             var code: AttributedString
             var quantity: Int
             
             var id: String {
-                vendorItem.id
+                storeItem.id
             }
         }
     }
