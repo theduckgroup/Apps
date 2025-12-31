@@ -3,6 +3,8 @@ import SwiftUI
 import CommonUI
 
 struct QuantityInputAlert: View {
+    var title: String
+    var subtitle: String
     @State var value: Int = 0
     @FocusState var isFocused: Bool
     var onCancel: () -> Void
@@ -10,6 +12,13 @@ struct QuantityInputAlert: View {
     
     var body: some View {
         VStack(spacing: 24) {
+            VStack {
+                Text(title)
+                    .bold()
+                
+                Text(subtitle)
+            }
+            
             let valueBinding = Binding<Double> {
                 Double(value)
             } set: {
@@ -24,6 +33,7 @@ struct QuantityInputAlert: View {
                     onCancel()
                 } label: {
                     Text("Cancel")
+                        .padding(.vertical, 3)
                         .frame(maxWidth: .infinity)
                 }
                 .modified {
@@ -38,6 +48,7 @@ struct QuantityInputAlert: View {
                     onDone(value)
                 } label: {
                     Text("Done")
+                        .padding(.vertical, 3)
                         .frame(maxWidth: .infinity)
                 }
                 .modified {
@@ -49,10 +60,9 @@ struct QuantityInputAlert: View {
                 }
             }
         }
-        .ignoresSafeArea(.keyboard)
-        .padding(.horizontal, 0)
-        .padding(.top, 12)
-        .padding(.bottom, 0)
+        .padding()
+        .frame(width: 280)
+        .ignoresSafeArea(.keyboard, edges: .all)
         .onFirstAppear {
             isFocused = true
         }
@@ -68,14 +78,13 @@ struct QuantityInputAlert: View {
                 present()
             }
             .presentations(ps)
-            .onFirstAppear {
-                present()
-            }
         }
 
         func present() {
-            ps.presentAlertCover(title: "Quantity", actions: []) {
+            ps.presentAlertStyleCover {
                 QuantityInputAlert(
+                    title: "Herbal Jelly 000",
+                    subtitle: "BD123123",
                     onCancel: {
                         ps.dismiss()
                     },

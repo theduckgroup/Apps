@@ -28,6 +28,8 @@ public struct QuantityField: View {
             NumberField(value: $value, unit: unit, fractionLength: 0)
                 .focused($isFocused)
                 .frame(width: numberFieldWidth)
+                .multilineTextAlignment(.center)
+                .monospacedDigit()
                 .padding(.vertical, 7)
                 .padding(.horizontal, 9)
                 .background {
