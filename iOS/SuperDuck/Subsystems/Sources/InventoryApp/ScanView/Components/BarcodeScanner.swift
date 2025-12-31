@@ -116,6 +116,7 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
 
         // Blur overlay; must be above preview layer
 
+        // let blurEffect = UIGlassEffect(style: .regular) // Doesn't work with mask
         let blurEffect = UIBlurEffect(style: .systemMaterial)
         overlayView = UIVisualEffectView(effect: blurEffect)
         view.addSubview(overlayView)
