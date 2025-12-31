@@ -4,7 +4,7 @@ import Common
 import CommonUI
 
 public extension View {
-    /// Applies styling from `AppDefaults` environment object (which must be set).
+    /// Applies styling from `Defaults` environment object (which must be set).
     @ViewBuilder
     func applyAppDefaultsStyling() -> some View {
         modifier(Impl())
@@ -13,7 +13,7 @@ public extension View {
 
 private struct Impl: ViewModifier {
     @State var uikitContext = UIKitContext()
-    @Environment(AppDefaults.self) private var appDefaults
+    @Environment(AppModule.Defaults.self) private var appDefaults
     
     func body(content: Content) -> some View {
         // Notes:

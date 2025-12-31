@@ -4,7 +4,7 @@ public import CommonUI
 
 @Observable
 @dynamicMemberLookup
-public class AppDefaults {
+public class Defaults {
     public let storageKey: String = "App:defaults"
     
     public init() {
@@ -27,7 +27,7 @@ public class AppDefaults {
     }
 }
 
-public extension AppDefaults {
+public extension Defaults {
     struct Data: Codable {
         public var colorSchemeOverride: ColorSchemeOverride?
         private var accentColorData: ColorData = ColorData(Color.theme)

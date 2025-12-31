@@ -11,7 +11,6 @@ public struct RootView: View {
     @State var ps = PresentationState()
     @Environment(Auth.self) var auth
     @Environment(API.self) var api
-    @Environment(AppDefaults.self) var appDefaults
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     public init() {}
