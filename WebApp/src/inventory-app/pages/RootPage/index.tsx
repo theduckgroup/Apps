@@ -100,13 +100,20 @@ function ItemList({ store, stock, onViewCode }: {
           <Title order={3} c='gray.3' pb='xs'>{section.name}</Title>
           <Table fz='md' tabularNums verticalSpacing='sm'>
             {
-              section.id == store.catalog.sections[0].id && 
+              section.id == store.catalog.sections[0].id &&
               <Table.Thead>
-                <Table.Tr>
+                {/* Desktop header */}
+                <Table.Tr visibleFrom='sm'>
                   <Table.Th styles={{ th: { width: '40%' } }}>Name</Table.Th>
                   <Table.Th styles={{ th: { width: '25%' } }}>Code</Table.Th>
                   <Table.Th styles={{ th: { width: '10%' } }}>Quantity</Table.Th>
                   <Table.Th>{/* View Code */}</Table.Th>
+                </Table.Tr>
+                {/* Mobile header */}
+                <Table.Tr hiddenFrom='sm'>
+                  <Table.Th styles={{ th: { width: '65%' } }}>Name / Code</Table.Th>
+                  <Table.Th styles={{ th: { width: '15%' } }}>Qty</Table.Th>
+                  <Table.Th>{/* Code */}</Table.Th>
                 </Table.Tr>
               </Table.Thead>
             }
@@ -121,13 +128,30 @@ function ItemList({ store, stock, onViewCode }: {
 
                 return (
                   <Table.Tr key={item.id}>
-                    <Table.Td styles={{ td: { width: '40%' } }}>{item.name}</Table.Td>
-                    <Table.Td styles={{ td: { width: '25%' } }}>{item.code}</Table.Td>
-                    <Table.Td styles={{ td: { width: '10%' } }}>{attrs?.quantity ?? '-'}</Table.Td>
-                    <Table.Td>
+                    {/* Desktop row */}
+                    <Table.Td styles={{ td: { width: '40%' } }} visibleFrom='sm'>{item.name}</Table.Td>
+                    <Table.Td styles={{ td: { width: '25%' } }} visibleFrom='sm'>{item.code}</Table.Td>
+                    <Table.Td styles={{ td: { width: '10%' } }} visibleFrom='sm'>{attrs?.quantity ?? '-'}</Table.Td>
+                    <Table.Td visibleFrom='sm'>
                       <Group justify='end' className='ml-auto'>
                         <Button variant='subtle' size='compact-xs' onClick={() => onViewCode(item)}>
                           View Code
+                        </Button>
+                      </Group>
+                    </Table.Td>
+
+                    {/* Mobile row */}
+                    <Table.Td styles={{ td: { width: '65%' } }} hiddenFrom='sm'>
+                      <Stack gap={0}>
+                        <Text>{item.name}</Text>
+                        <Text c='dimmed' size='sm'>{item.code}</Text>
+                      </Stack>
+                    </Table.Td>
+                    <Table.Td styles={{ td: { width: '15%' } }} hiddenFrom='sm'>{attrs?.quantity ?? '-'}</Table.Td>
+                    <Table.Td hiddenFrom='sm'>
+                      <Group justify='end' className='ml-auto'>
+                        <Button variant='subtle' size='compact-xs' onClick={() => onViewCode(item)}>
+                          Code
                         </Button>
                       </Group>
                     </Table.Td>

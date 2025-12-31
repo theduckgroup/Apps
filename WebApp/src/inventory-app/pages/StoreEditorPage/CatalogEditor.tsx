@@ -491,8 +491,8 @@ function SectionHeader({ section, sectionIndex, addSection, editSection, deleteS
 
   return (
     <Group
-      bg='dark.7'
-      // neutral
+      bg='dark.7' // neutral
+      wrap='nowrap'
       className='w-full text-neutral-300 items-start flex-nowrap pl-4 pr-4 py-2 rounded-md'
     >
       {/* borderBottom: '1px solid var(--mantine-color-dark-4)' */}
