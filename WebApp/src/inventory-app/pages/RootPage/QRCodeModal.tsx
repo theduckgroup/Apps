@@ -201,7 +201,7 @@ function QRCodeImage({ svgData, width }: {
   svgData: string
   width: number
 }) {
-  const padding = Math.max(width * 0.08, 16)
+  const padding = 16
   const displayWidth = Math.min(width, QRCODE_VIEWER_SIZE - padding * 2)
   console.info(`displayWidth = ${displayWidth}`)
 
@@ -210,7 +210,10 @@ function QRCodeImage({ svgData, width }: {
       className={`flex items-center justify-center bg-white rounded-md`}
       style={{width: QRCODE_VIEWER_SIZE, height: QRCODE_VIEWER_SIZE, padding: padding}}
     >
-      <img src={`data:image/svg+xml;utf8,${encodeURIComponent(svgData)}`} width={displayWidth} />
+      <img
+        src={`data:image/svg+xml;utf8,${encodeURIComponent(svgData)}`}
+        style={{ maxWidth: displayWidth, maxHeight: displayWidth, width: 'auto', height: 'auto' }}
+      />
     </div>
   )
 }
