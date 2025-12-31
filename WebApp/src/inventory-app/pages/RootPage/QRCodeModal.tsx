@@ -46,7 +46,7 @@ export default function QrModal({ opened, onClose, options }: {
     >
       <Flex gap='xl' py='lg' align='flex-start' direction={{ base: 'column', sm: 'row' }}>
         {/* QR Code and Copy Button */}
-        <Stack gap='md' w={{ base: '100%', sm: QRCODE_VIEWER_SIZE }} align='center' className='flex-none'>
+        <Stack gap='md' w={{ base: '100%', sm: QRCODE_VIEWER_SIZE }} align='center' className='flex-none order-0 sm:order-1'>
           <QRCodeImage svgData={svgData} width={svgSize.width} />
           <CopyButton svgData={svgData} />
         </Stack>
@@ -103,7 +103,7 @@ function Controls({
     return fmt.format(value)
   }
   return (
-    <Stack gap='1rem' style={{ flex: '0 0 auto' }} w={{ base: '100%', sm: 300 }}>
+    <Stack gap='1rem' style={{ flex: '0 0 auto' }} w={{ base: '100%', sm: 300 }} className='order-1 sm:order-0'>
       <Stack gap={0} mb='1.25rem'>
         <Text size='sm' fw={500} mb='xs'>QR Code Size (px)</Text>
         <Slider
