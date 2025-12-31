@@ -41,7 +41,7 @@ export default function QrModal({ opened, onClose, options }: {
       returnFocus={false}
       opened={opened}
       onClose={onClose}
-      size='xl'
+      size='auto'
       padding='lg'
     >
       <Flex gap='xl' py='lg' align='flex-start'>
