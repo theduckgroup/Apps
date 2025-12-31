@@ -43,13 +43,6 @@ struct StockView: View {
                 }
             }
         }
-//        .modified {
-//            if #available(iOS 26, *) {
-//                $0.scrollEdgeEffectStyle(.hard, for: .top)
-//            } else {
-//                $0
-//            }
-//        }
     }
     
     @ViewBuilder
