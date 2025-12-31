@@ -17,7 +17,7 @@ struct ReviewView: View {
     var body: some View {
         NavigationStack {
             listView()
-                .navigationTitle("Review")
+                .navigationTitle("Scanned Items")
                 .toolbar { toolbarContent() }
         }
         .alert(
@@ -80,9 +80,17 @@ struct ReviewView: View {
                 }
                 
                 let totalQuantity = scanRecords.map(\.quantity).sum()
-                Text("Total: \(totalQuantity)").foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-                    .padding()
+                
+                HStack(alignment: .firstTextBaseline) {
+                    Text("Total")
+                        .bold()
+                    
+                    Spacer()
+                    
+                    Text("\(totalQuantity)")
+                        .foregroundStyle(.secondary)
+                }
+                .padding()
             }
         }
     }

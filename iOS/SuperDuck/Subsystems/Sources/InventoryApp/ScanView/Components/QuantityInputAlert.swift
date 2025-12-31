@@ -64,7 +64,7 @@ struct QuantityInputAlert: View {
         }
         .padding()
         .frame(width: 280)
-        .ignoresSafeArea(.keyboard, edges: .all)
+        .ignoresSafeArea()
         .onFirstAppear {
             isFocused = true
         }

@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import AVFoundation
+import Backend
 import Common
 import CommonUI
 
@@ -32,12 +33,6 @@ struct ScanView: View {
     }
     
     var body: some View {
-        content()
-            .presentations(ps)
-    }
-    
-    @ViewBuilder
-    private func content() -> some View {
         BarcodeScanner(
             minPresenceTime: defaults.scanner.minPresenceTime,
             minAbsenceTime: defaults.scanner.minAbsenceTime,
@@ -48,7 +43,7 @@ struct ScanView: View {
             },
             onRectOfInterestChange: { rect in
                 // Try DispatchQueue.main.async here if it doesn't work
-                // Did not work at some point without async
+                // Did not work at some point without it
                 rectOfInterest = rect
             }
         )
@@ -65,6 +60,7 @@ struct ScanView: View {
                 .padding(.horizontal, rectOfInterest.minX)
             }
         }
+        .presentations(ps)
         .ignoresSafeArea()
     }
     
@@ -95,9 +91,10 @@ struct ScanView: View {
 
             // Scanned items label
             
-            Text("Items: \(scanRecords.count)")
-                .bold()
-                .monospacedDigit()
+            let quantity = scanRecords.map(\.quantity).sum()
+            
+            Text("\(quantity) Items")
+                .font(.body.weight(.semibold).smallCaps().monospacedDigit())
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 15)
                 .padding(.vertical, 9)
@@ -125,7 +122,7 @@ struct ScanView: View {
                     )
                 }
             }
-            .fontWeight(.semibold)
+            // .fontWeight(.semibold)
             .buttonStyle(.borderedProminent)
             .disabled(scanRecords.isEmpty)
         }
@@ -134,17 +131,7 @@ struct ScanView: View {
     @ViewBuilder
     private func debugInputButton() -> some View {
         Button("[Debug] Show input alert") {
-            let items: [Store.Item] = [
-                .init(id: "0", name: "Herbal Jelly Clone", code: "AX007"),
-                .init(id: "1", name: "Water Bottle", code: "BD020"),
-                .init(id: "2", name: "Chicken Powder", code: "CP009"),
-                .init(id: "3", name: "Commodo nisi aliquip", code: "CNAL5453"),
-                .init(id: "4", name: "Eiusmod proident esse aliqua", code: "BLXZ"),
-                .init(id: "5", name: "Aliqua do irure proident", code: "AD0012"),
-                .init(id: "6", name: "Enim mollit voluptate", code: "EMV002"),
-            ]
-            
-            let item = items.randomElement()!
+            let item = store.catalog.items.randomElement()!
             presentQuantityInputAlert(for: item)
         }
         .modified {
@@ -196,27 +183,30 @@ extension ScanView {
 }
 
 #Preview {
-    ScanView(
-        store: .init(
-            id: "0",
-            name: "ND Central Kitchen",
-            catalog: .init(
-                items: [
-                    .init(
-                        id: "water-bottle",
-                        name: "Water Bottle",
-                        code: "WTBTL"
-                    ),
-                    .init(
-                        id: "rock-salt",
-                        name: "Rock Salt",
-                        code: "RKST"
-                    )
-                ],
-                sections: []
-            )
-        ),
-        mode: .add
-    )
-    .previewEnvironment()
+    struct PreviewView: View {
+        @State var ps = PresentationState()
+        @Environment(API.self) var api
+        
+        var body: some View {
+            ZStack {
+                ProgressView()
+                    .progressViewStyle(.circular)
+                    .tint(.secondary)
+                    .controlSize(.large)
+            }
+            .presentations(ps)
+            .onFirstAppear {
+                Task {
+                    let store = try await api.store()
+                    
+                    ps.presentFullScreenCover {
+                        ScanView(store: store, mode: .add)
+                    }
+                }
+            }
+        }
+    }
+    
+    return PreviewView()
+        .previewEnvironment()
 }
