@@ -62,7 +62,7 @@ struct ScanView: View {
     @ViewBuilder
     private func content() -> some View {
         GeometryReader { geometryProxy in
-            ZStack(alignment: .center) {
+            ZStack(alignment: .top) {
                 BarcodeScanner(
                     minPresenceTime: defaults.scanner.minPresenceTime,
                     minAbsenceTime: defaults.scanner.minAbsenceTime,
@@ -71,100 +71,37 @@ struct ScanView: View {
                 ) { barcode in
                     handleBarcodeDetected(barcode)
                 }
-                
-                VStack {
-                    if scannedItems.count > 0 {
-                        scannedItemsLabel()
-                            .padding(.top, max(geometryProxy.safeAreaInsets.top, 54) + 30)
-                    }
-                    
-                    Spacer()
-                    
-                    barcodesInfo()
-                        .padding(.horizontal, 36)
-                        .multilineTextAlignment(.center)
-                    
-                    bottomButtons()
-                        .padding(.bottom, max(geometryProxy.safeAreaInsets.bottom, 42))
-                }
+
+                // Controls aligned with cutout rectangle
+                let safeInsets = geometryProxy.safeAreaInsets
+                let padding: CGFloat = 24
+                let availableHeight = geometryProxy.size.height - safeInsets.top - padding - safeInsets.bottom - padding
+                let cutoutHeight = availableHeight / 2
+                let controlsTopOffset = safeInsets.top + padding + cutoutHeight + 16
+
+                controlsView()
+                    .font(.callout)
+                    .padding(.horizontal, safeInsets.leading + padding)
+                    .offset(y: controlsTopOffset)
             }
             .ignoresSafeArea()
         }
     }
     
     @ViewBuilder
-    private func scannedItemsLabel() -> some View {
-        HStack(alignment: .firstTextBaseline) {
-            Text("\(scannedItems.count) \(scannedItems.count > 1 ? "items" : "item") scanned")
-            
-            Image(systemName: "info.circle.fill")
-                // .foregroundStyle(.accent)
-        }
-        .padding()
-        .contentShape(Rectangle())
-        .onTapGesture {
-            presentingReviewView = true
-        }
-    }
-    
-    @ViewBuilder
-    private func barcodesInfo() -> some View {
-        Group {
-            switch detectedBarcodes.count {
-            case 0:
-                EmptyView()
-                
-            case 1:
-                let barcode = detectedBarcodes[0]
-                let item = vendor.catalog.items.first { $0.code == barcode }
-                
-                if let item {
-                    VStack {
-                        Text(item.name)
-                            .foregroundStyle(Color.black)
-                        
-                        Text(barcode)
-                            .foregroundStyle(Color.black)
-                    }
-                    
-                } else {
-                    VStack {
-                        Text("Invalid code (\(barcode))")
-                            .foregroundStyle(Color.red)
-                        
-//                        Text(barcodes[0])
-//                            .foregroundStyle(Color.black)
-                    }
-                }
-                
-            default:
-                Text("Multiple codes detected")
-                    .foregroundStyle(Color.red)
-            }
-        }
-        .padding(.horizontal, 18)
-        .padding(.vertical, 3)
-        .frame(minWidth: 210)
-        .background {
-            RoundedRectangle(cornerRadius: 4)
-                .fill(Color.yellow)
-        }
-    }
-    
-    @ViewBuilder
-    private func bottomButtons() -> some View {
-        HStack(spacing: 36) {
+    private func controlsView() -> some View {
+        HStack(spacing: 16) {
+            // Cancel button
             Button {
                 if scannedItems.count > 0 {
                     presentingConfirmCancel = true
-                    
                 } else {
                     dismiss()
                 }
-                
             } label: {
                 Text("Cancel")
-                    .padding(.vertical)
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 12)
                     .contentShape(Rectangle())
             }
             .alert(
@@ -174,24 +111,36 @@ struct ScanView: View {
                     Button("Stop Scanning", role: .destructive) {
                         dismiss()
                     }
-                    
                     Button("Continue Scanning", role: .cancel) {}
                 },
                 message: {
                     Text("Cancel scanning? Progress will be lost.")
                 }
             )
-            
+
+            Spacer()
+
+            // Scanned items label
+            if scannedItems.count > 0 {
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    Text("\(scannedItems.count) \(scannedItems.count > 1 ? "items" : "item") scanned")
+                    Image(systemName: "info.circle.fill")
+                }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    presentingReviewView = true
+                }
+            }
+
+            // Finish button
             Button("Finish") {
                 presentingFinishedView = true
             }
             .fontWeight(.semibold)
             .buttonStyle(.borderedProminent)
         }
-        .font(.title3)
-        .padding(.horizontal, 24)
-        .padding(.vertical)
     }
+    
     
     private func handleBarcodeDetected(_ barcode: String) {
         let item = vendor.catalog.items.first { $0.code == barcode }
