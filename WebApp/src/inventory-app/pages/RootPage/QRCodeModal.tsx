@@ -8,6 +8,7 @@ import { genQRCodeSvg } from './gen-qrcode-svg'
 const DEFAULT_QRCODE_SIZE = 200
 const DEFAULT_TEXT_SIZE_RATIO = 0.08
 const DEFAULT_TEXT_WIDTH_RATIO = 1.0
+const QRCODE_VIEWER_SIZE = 300
 
 export default function QrModal({ opened, onClose, options }: {
   opened: boolean
@@ -60,7 +61,7 @@ export default function QrModal({ opened, onClose, options }: {
         />
 
         {/* Right side: QR Code and Copy Button */}
-        <Stack gap='md' style={{ flex: 1 }} align='center'>
+        <Stack gap='md' w={QRCODE_VIEWER_SIZE} align='center' className='flex-none'>
           <QRCodeImage svgData={svgData} width={svgSize.width} />
           <CopyButton svgData={svgData} />
         </Stack>
@@ -201,11 +202,16 @@ function QRCodeImage({ svgData, width }: {
   width: number
 }) {
   const padding = Math.max(width * 0.08, 16)
+  const displayWidth = Math.min(width, QRCODE_VIEWER_SIZE - padding * 2)
+  console.info(`displayWidth = ${displayWidth}`)
 
   return (
-    <Paper p={padding} bg='white' radius={6}>
-      <img src={`data:image/svg+xml;utf8,${encodeURIComponent(svgData)}`} width={width} />
-    </Paper>
+    <div
+      className={`flex items-center justify-center bg-white rounded-md`}
+      style={{width: QRCODE_VIEWER_SIZE, height: QRCODE_VIEWER_SIZE, padding: padding}}
+    >
+      <img src={`data:image/svg+xml;utf8,${encodeURIComponent(svgData)}`} width={displayWidth} />
+    </div>
   )
 }
 
@@ -215,7 +221,7 @@ function CopyButton({ svgData }: {
   return (
     <MantineCopyButton value={svgData} timeout={1000}>
       {({ copied, copy }) => (
-        <Button color={copied ? 'gray.7' : ''} onClick={copy}>
+        <Button color={copied ? 'gray.7' : ''} onClick={copy} fullWidth>
           {copied ? 'Copied to Clipboard' : 'Copy SVG'}
         </Button>
       )}
