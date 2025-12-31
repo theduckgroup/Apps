@@ -80,7 +80,7 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
     var detectionHandler: ([String]) -> Void = { _ in }
     var persistenceHandler: ([String]) -> Void = { _ in }
     var detectionEnabled = true
-    private let captureSession = AVCaptureSession()
+    nonisolated(unsafe) private let captureSession = AVCaptureSession()
     private var previewLayer: AVCaptureVideoPreviewLayer!
     private var cutoutLayer: CAShapeLayer!
     private var rotationCoordinator: AVCaptureDevice.RotationCoordinator!
@@ -203,8 +203,7 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
     ///
     /// Must be nonisolated, otherwise will cause crash due to main actor assertion. This is because
     /// this method will be called by AVCaptureSesion on a background thread.
-    nonisolated
-    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+    nonisolated func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
             return
         }
@@ -332,31 +331,57 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
     }
     
     private func rectOfInterest() -> CGRect {
-        // let (width, height) = (previewLayer.bounds.width, previewLayer.bounds.height)
-        let (width, height) = (view.bounds.width, view.bounds.height)
-        
-        var rect = if width < height {
-            CGRect(
-                x: 0,
-                y: (height - width) / 2,
-                width: width,
-                height: width
-            )
-            
-        } else {
-            CGRect(
-                x: (width - height) / 2,
-                y: 0,
-                width: height,
-                height: height
-            )
-        }
-        
-        if traitCollection.horizontalSizeClass == .regular && traitCollection.verticalSizeClass == .regular {
-            rect = rect.insetBy(dx: 48, dy: 48)
-        }
-        
+        let bounds = view.bounds
+        let safeInsets = view.safeAreaInsets
+        let padding: CGFloat = 16
+
+        // Calculate available space respecting safe area and padding
+        let availableTop = safeInsets.top + padding
+        let availableLeft = safeInsets.left + padding
+        let availableRight = safeInsets.right + padding
+        let availableBottom = safeInsets.bottom + padding
+
+        let availableWidth = bounds.width - availableLeft - availableRight
+        let availableHeight = bounds.height - availableTop - availableBottom
+
+        // Rectangle takes up half of available height, full width
+        let rectHeight = availableHeight / 2
+
+        let rect = CGRect(
+            x: availableLeft,
+            y: availableTop,
+            width: availableWidth,
+            height: rectHeight
+        )
+
         return rect
+        
+        /*
+         // Old center logic
+         // let (width, height) = (previewLayer.bounds.width, previewLayer.bounds.height)
+         let (width, height) = (view.bounds.width, view.bounds.height)
+         
+         var rect = if width < height {
+             CGRect(
+                 x: 0,
+                 y: (height - width) / 2,
+                 width: width,
+                 height: width
+             )
+             
+         } else {
+             CGRect(
+                 x: (width - height) / 2,
+                 y: 0,
+                 width: height,
+                 height: height
+             )
+         }
+         
+         if traitCollection.horizontalSizeClass == .regular && traitCollection.verticalSizeClass == .regular {
+             rect = rect.insetBy(dx: 48, dy: 48)
+         }
+        */
     }
     
     private func barcodeRectsChanged() {
