@@ -9,7 +9,7 @@ struct ScanView: View {
     var store: Store
     var mode: Mode
     @State var detectedBarcodes: [String] = []
-    @State var scannedItems: [ScanRecord] = []
+    @State var scanRecords: [ScanRecord] = []
     @State var presentingFinishedView = false
     @State var presentingReviewView = false
     @State var presentingConfirmCancel = false
@@ -74,7 +74,7 @@ struct ScanView: View {
             // Cancel button
             
             Button {
-                if scannedItems.count > 0 {
+                if scanRecords.count > 0 {
                     ps.presentAlert(title: "Cancel scanning?", message: "Scanned items will be lost.") {
                         Button("Continue Scanning", role: .cancel) {}
 
@@ -95,7 +95,7 @@ struct ScanView: View {
 
             // Scanned items label
             
-            Text("Items: \(scannedItems.count)")
+            Text("Items: \(scanRecords.count)")
                 .bold()
                 .monospacedDigit()
                 .multilineTextAlignment(.center)
@@ -117,9 +117,8 @@ struct ScanView: View {
                 ps.presentSheet {
                     ReviewView(
                         store: store,
-                        scannedItems: scannedItems,
                         scanMode: mode,
-                        finished: true,
+                        scanRecords: scanRecords,
                         onSubmitted: {
                             dismiss()
                         }
@@ -128,7 +127,7 @@ struct ScanView: View {
             }
             .fontWeight(.semibold)
             .buttonStyle(.borderedProminent)
-            .disabled(scannedItems.isEmpty)
+            .disabled(scanRecords.isEmpty)
         }
     }
     
@@ -182,7 +181,7 @@ struct ScanView: View {
                 },
                 onDone: { quantity in
                     ps.dismiss()
-                    scannedItems.append(.init(storeItem: item, quantity: quantity))
+                    scanRecords.append(.init(storeItem: item, quantity: quantity))
                 }
             )
         }

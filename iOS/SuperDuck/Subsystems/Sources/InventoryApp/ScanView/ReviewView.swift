@@ -4,9 +4,8 @@ import Common
 
 struct ReviewView: View {
     var store: Store
-    var scannedItems: [ScanRecord]
     var scanMode: ScanView.Mode
-    var finished: Bool
+    var scanRecords: [ScanRecord]
     var onSubmitted: () -> Void = {}
     @State var submitting = false
     @State var presentedError: String?
@@ -14,31 +13,9 @@ struct ReviewView: View {
     
     var body: some View {
         NavigationStack {
-            ScannedItemListView(scannedItems: scannedItems)
+            listView()
                 .navigationTitle("Review")
-                .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button("Cancel") {
-                            dismiss()
-                        }
-                        .disabled(submitting)
-                    }
-                    
-                    if finished {
-                        ToolbarItem(placement: .topBarTrailing) {
-                            if !submitting {
-                                Button("Submit") {
-                                    submit()
-                                }
-                                .fontWeight(.bold)
-                                
-                            } else {
-                                ProgressView()
-                                    .progressViewStyle(.circular)
-                            }
-                        }
-                    }
-                }
+                .toolbar { toolbarContent() }
         }
         .alert(
             "Error",
@@ -50,6 +27,54 @@ struct ReviewView: View {
                 Text($0)
             }
         )
+    }
+    
+    @ToolbarContentBuilder
+    private func toolbarContent() -> some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            Button("Cancel") {
+                dismiss()
+            }
+            .disabled(submitting)
+        }
+        
+        ToolbarItem(placement: .topBarTrailing) {
+            if !submitting {
+                Button("Submit") {
+                    submit()
+                }
+                .fontWeight(.bold)
+                
+            } else {
+                ProgressView()
+                    .progressViewStyle(.circular)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func listView() -> some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                ForEach(scanRecords.grouped(), id: \.storeItem.id) { group in
+                    HStack(alignment: .firstTextBaseline) {
+                        VStack(alignment: .leading) {
+                            Text(group.storeItem.name)
+                            Text(group.storeItem.code)
+                        }
+
+                        Spacer()
+
+                        Text("\(group.totalQuantity)")
+                    }
+                    .padding(.horizontal)
+                    .padding(.vertical, 9)
+                    .overlay(alignment: .bottom) {
+                        Divider()
+                    }
+                }
+            }
+        }
     }
     
     private func submit() {
@@ -85,12 +110,12 @@ struct ReviewView: View {
 
         let body = Body(
             vendorId: store.id,
-            changes: scannedItems.grouped().map {
+            changes: scanRecords.grouped().map {
                 .init(itemId: $0.storeItem.id, inc: $0.totalQuantity * factor)
             }
         )
 
-        let path = "/api/vendor/\(store.id)/item-quantities"
+        let path = "/api/store/\(store.id)/catalog"
         // var request = try await InventoryServer.makeRequest(httpMethod: "POST", path: path)
         // request.httpBody = try! JSONEncoder().encode(body)
         
@@ -99,5 +124,20 @@ struct ReviewView: View {
 }
 
 #Preview {
-    
+    NavigationStack {
+        ReviewView(
+            store: .mock,
+            scanMode: .add,
+            scanRecords: [
+                .init(storeItem: .init(id: "water-bottle", name: "Water Bottle", code: "WTBLT"), quantity: 5),
+                .init(storeItem: .init(id: "water-bottle", name: "Water Bottle", code: "WTBLT"), quantity: 3),
+                .init(storeItem: .init(id: "rock-salt", name: "Rock Salt", code: "RKST"), quantity: 2),
+                .init(storeItem: .init(id: "water-bottle", name: "Water Bottle", code: "WTBLT"), quantity: 1),
+                .init(storeItem: .init(id: "rock-salt", name: "Rock Salt", code: "RKST"), quantity: 4),
+            ]
+        )
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle("Scanned Items")
+    }
+    .preferredColorScheme(.dark)
 }
