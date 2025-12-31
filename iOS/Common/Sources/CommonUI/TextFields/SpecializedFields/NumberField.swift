@@ -1,6 +1,5 @@
 import Foundation
 public import SwiftUI
-import CommonUI
 
 public struct NumberField: View {
     @Binding var value: Double
