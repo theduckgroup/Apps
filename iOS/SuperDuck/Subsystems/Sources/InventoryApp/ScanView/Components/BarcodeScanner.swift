@@ -193,9 +193,9 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
     private func invalidateCutoutLayer() {
         cutoutLayer.fillRule = .evenOdd
         cutoutLayer.fillColor = UIColor.black.withAlphaComponent(0.3).cgColor
-        
+
         let path = UIBezierPath(rect: cutoutLayer.bounds)
-        path.append(UIBezierPath(rect: rectOfInterest()))
+        path.append(UIBezierPath(roundedRect: rectOfInterest(), cornerRadius: 18))
         cutoutLayer.path = path.cgPath
     }
    
@@ -333,7 +333,7 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
     private func rectOfInterest() -> CGRect {
         let bounds = view.bounds
         let safeInsets = view.safeAreaInsets
-        let padding: CGFloat = 16
+        let padding: CGFloat = 24
 
         // Calculate available space respecting safe area and padding
         let availableTop = safeInsets.top + padding
