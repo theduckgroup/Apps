@@ -16,6 +16,7 @@ struct ScanView: View {
     @State var didSubmitResult = false
     @State var soundPlayer: AVAudioPlayer
     @State var ps = PresentationState()
+    @State var rectOfInterest: CGRect = .zero
     @Environment(\.dismiss) private var dismiss
     @Environment(InventoryApp.Defaults.self) private var defaults
     
@@ -28,119 +29,131 @@ struct ScanView: View {
             let url = bundleResourcesURL.appending(path: "ScanSound.aiff")
             return try! AVAudioPlayer(contentsOf: url)
         }()
-        
-        if isRunningForPreviews {
-            _detectedBarcodes = .init(wrappedValue: ["WTBTL"])
-            _scannedItems = .init(wrappedValue: [.init(itemID: "water-bottle", code: "WTBLT", name: "Water Bottle")])
-        }
     }
     
     var body: some View {
         content()
             .presentations(ps)
-            .sheet(isPresented: $presentingReviewView) {
-                ReviewView(
-                    vendor: vendor,
-                    scannedItems: scannedItems,
-                    scanMode: mode,
-                    finished: false
-                )
-            }
-            .sheet(isPresented: $presentingFinishedView) {
-                ReviewView(
-                    vendor: vendor,
-                    scannedItems: scannedItems,
-                    scanMode: mode,
-                    finished: true,
-                    onSubmitted: {
-                        dismiss()
-                    }
-                )
-            }
     }
     
     @ViewBuilder
     private func content() -> some View {
-        GeometryReader { geometryProxy in
-            ZStack(alignment: .top) {
-                BarcodeScanner(
-                    minPresenceTime: defaults.scanner.minPresenceTime,
-                    minAbsenceTime: defaults.scanner.minAbsenceTime,
-                    detectionEnabled: !presentingFinishedView && !didSubmitResult,
-                    detectedBarcodes: $detectedBarcodes
-                ) { barcode in
-                    handleBarcodeDetected(barcode)
-                }
-
-                // Controls aligned with cutout rectangle
-                let safeInsets = geometryProxy.safeAreaInsets
-                let padding: CGFloat = 24
-                let availableHeight = geometryProxy.size.height - safeInsets.top - padding - safeInsets.bottom - padding
-                let cutoutHeight = availableHeight / 2
-                let controlsTopOffset = safeInsets.top + padding + cutoutHeight + 16
-
-                controlsView()
-                    .font(.callout)
-                    .padding(.horizontal, safeInsets.leading + padding)
-                    .offset(y: controlsTopOffset)
+        BarcodeScanner(
+            minPresenceTime: defaults.scanner.minPresenceTime,
+            minAbsenceTime: defaults.scanner.minAbsenceTime,
+            detectionEnabled: !presentingFinishedView && !didSubmitResult,
+            detectedBarcodes: $detectedBarcodes,
+            persistentBarcodeHandler: { barcode in
+                handleBarcodeDetected(barcode)
+            },
+            onRectOfInterestChange: { rect in
+                // DispatchQueue.main.async {
+                rectOfInterest = rect
+                // }
             }
-            .ignoresSafeArea()
+        )
+        .overlay(alignment: .top) {
+            if rectOfInterest != .zero {
+                // VStack laid out in a way that it is just below the rect of interest and line up with it
+                
+                VStack(spacing: 0) {
+                    controlsView()
+                    
+                    if #available(iOS 26, *) {
+                        debugInputButton()
+                            .padding(.top, 16)
+                    }
+                }
+                .padding(.top, rectOfInterest.maxY)
+                .padding(.top, 16)
+                .padding(.horizontal, rectOfInterest.minX)
+            }
         }
+        .ignoresSafeArea()
     }
     
     @ViewBuilder
     private func controlsView() -> some View {
-        HStack(spacing: 16) {
+        HStack {
             // Cancel button
+            
             Button {
                 if scannedItems.count > 0 {
-                    presentingConfirmCancel = true
+                    ps.presentAlert(title: "Cancel scanning?", message: "Scanned items will be lost.") {
+                        Button("Continue Scanning", role: .cancel) {}
+
+                        Button("Cancel Scanning", role: .destructive) {
+                            dismiss()
+                        }
+                    }
+                    
                 } else {
                     dismiss()
                 }
             } label: {
                 Text("Cancel")
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 12)
-                    .contentShape(Rectangle())
             }
-            .alert(
-                "Confirm",
-                isPresented: $presentingConfirmCancel,
-                actions: {
-                    Button("Stop Scanning", role: .destructive) {
-                        dismiss()
-                    }
-                    Button("Continue Scanning", role: .cancel) {}
-                },
-                message: {
-                    Text("Cancel scanning? Progress will be lost.")
-                }
-            )
+            .buttonStyle(.bordered)
 
             Spacer()
 
             // Scanned items label
-            if scannedItems.count > 0 {
-                HStack(alignment: .firstTextBaseline, spacing: 6) {
-                    Text("\(scannedItems.count) \(scannedItems.count > 1 ? "items" : "item") scanned")
-                    Image(systemName: "info.circle.fill")
+            
+            Text("Items: \(scannedItems.count)")
+                .bold()
+                .monospacedDigit()
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 15)
+                .padding(.vertical, 9)
+                .modified {
+                    if #available(iOS 26, *) {
+                        $0.glassEffect(.clear)
+                    }
                 }
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    presentingReviewView = true
-                }
-            }
+            
+            Spacer()
 
-            // Finish button
-            Button("Finish") {
-                presentingFinishedView = true
+            // Review button
+            
+            Button("Review") {
+                ps.presentSheet {
+                    ReviewView(
+                        vendor: vendor,
+                        scannedItems: scannedItems,
+                        scanMode: mode,
+                        finished: true,
+                        onSubmitted: {
+                            dismiss()
+                        }
+                    )
+                }
             }
             .fontWeight(.semibold)
             .buttonStyle(.borderedProminent)
+            .disabled(scannedItems.isEmpty)
         }
     }
     
+    @available(iOS 26.0, *)
+    @ViewBuilder
+    private func debugInputButton() -> some View {
+        Button("Show debug input alert") {
+            let items: [Vendor.Item] = [
+                .init(id: "0", name: "Herbal Jelly Clone", code: "AX007"),
+                .init(id: "1", name: "Water Bottle", code: "BD020"),
+                .init(id: "2", name: "Chicken Powder", code: "CP009"),
+                .init(id: "3", name: "Commodo nisi aliquip", code: "CNAL5453"),
+                .init(id: "4", name: "Eiusmod proident esse aliqua", code: "BLXZ"),
+                .init(id: "5", name: "Aliqua do irure proident", code: "AD0012"),
+                .init(id: "6", name: "Enim mollit voluptate", code: "EMV002"),
+            ]
+            
+            let item = items.randomElement()!
+            presentQuantityInputAlert(for: item)
+        }
+        .buttonSizing(.flexible)
+        .buttonStyle(.glass)
+    }
     
     private func handleBarcodeDetected(_ barcode: String) {
         let item = vendor.catalog.items.first { $0.code == barcode }
@@ -153,6 +166,10 @@ struct ScanView: View {
         soundPlayer.prepareToPlay()
         soundPlayer.play()
         
+        presentQuantityInputAlert(for: item)
+    }
+    
+    private func presentQuantityInputAlert(for item: Vendor.Item) {
         ps.presentAlertStyleCover(offset: .init(x: 0, y: -42)) {
             QuantityInputAlert(
                 title: item.name,
@@ -166,12 +183,6 @@ struct ScanView: View {
                 }
             )
         }
-        
-        // scannedItems.append(.init(itemID: item.id, code: item.code, name: item.name))
-    }
-    
-    private func handleFinish() {
-        presentingFinishedView = true
     }
 }
 

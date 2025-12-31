@@ -69,6 +69,7 @@ struct StockView: View {
             Text(section.name)
                 .font(.title2.leading(.tight))
                 .bold()
+                .padding(.horizontal)
                 
             if columnNames {
                 Group {
@@ -78,7 +79,8 @@ struct StockView: View {
                             Spacer()
                             Text("Quantity")
                         }
-
+                        .padding(.bottom, 9)
+                        
                     } else {
                         HStack {
                             Text("Name")
@@ -88,18 +90,17 @@ struct StockView: View {
                             Text("Quantity")
                                 .frame(maxWidth: .infinity, alignment: .trailing)
                         }
+                        .padding(.bottom, 12)
                     }
                 }
                 .bold()
-                .padding(.bottom, 9)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .overlay(alignment: .bottom) {
-                    Divider()
-                }
+                .padding(.trailing)
+                .overlay(alignment: .bottom) { Divider() }
+                .padding(.leading)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal)
         .padding(.top, 18)
         .padding(.bottom, columnNames ? 3 : 6)
         .background(Color(UIColor.systemBackground))
@@ -107,29 +108,34 @@ struct StockView: View {
     
     @ViewBuilder
     private func itemRow(_ item: ListViewData.Item) -> some View {
-        HStack(alignment: .firstTextBaseline) {
+        Group {
             if horizontalSizeClass == .compact {
-                VStack(alignment: .leading) {
-                    Text(item.name)
-                    Text(item.code).foregroundStyle(.secondary)
+                HStack(alignment: .firstTextBaseline) {
+                    VStack(alignment: .leading) {
+                        Text(item.name)
+                        Text(item.code).foregroundStyle(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    Text("\(item.quantity)").foregroundStyle(.secondary)
                 }
-                
-                Spacer()
-                
-                Text("\(item.quantity)").foregroundStyle(.secondary)
+                .padding(.vertical, 9)
                 
             } else {
-                Text(item.name)
-                    .containerRelativeFrame(.horizontal, count: 5, span: 3, spacing: 15, alignment: .leading)
-                Text(item.code)
-                    .containerRelativeFrame(.horizontal, count: 5, span: 1, spacing: 15, alignment: .leading)
-                Text("\(item.quantity)")
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .trailing)
+                HStack(alignment: .firstTextBaseline) {
+                    Text(item.name)
+                        .containerRelativeFrame(.horizontal, count: 5, span: 3, spacing: 15, alignment: .leading)
+                    Text(item.code)
+                        .containerRelativeFrame(.horizontal, count: 5, span: 1, spacing: 15, alignment: .leading)
+                    Text("\(item.quantity)")
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                }
+                .padding(.vertical, 15)
             }
         }
         .padding(.horizontal)
-        .padding(.vertical, 9)
         .frame(maxWidth: .infinity, alignment: .leading)
         .overlay(alignment: .bottom) {
             Divider().padding(.leading)
@@ -152,7 +158,14 @@ struct StockView: View {
                 let storeItems = store.catalog.itemsForSection(storeSection)
                 
                 let listItems: [ListViewData.Item] = storeItems.compactMap { storeItem in
-                    let visible = searchText == "" || storeItem.name.localizedCaseInsensitiveContains(searchText)
+                    let visible: Bool = {
+                        if searchText.isEmpty {
+                            true
+                        } else {
+                            storeItem.name.localizedCaseInsensitiveContains(searchText) ||
+                            storeItem.code.localizedCaseInsensitiveContains(searchText)
+                        }
+                    }()
                     
                     guard visible else {
                         return nil
@@ -189,32 +202,6 @@ struct StockView: View {
             }
         
         return ListViewData(sections: sections)
-        
-        /*
-        if !filterEnabled {
-            return ListData(
-                sections: vendor.catalog.sections.map { vendorSection in
-                    ListData.Section(
-                        vendorSection: vendorSection,
-                        name: AttributedString(vendorSection.name),
-                        items: vendor.catalog.itemsForSection(vendorSection).map { vendorItem in
-                            let quantity = stock.itemAttributes.first { $0.itemId == vendorItem.id }?.quantity ?? 0
-                            
-                            return ListData.Item(
-                                vendorItem: vendorItem,
-                                name: AttributedString(vendorItem.name),
-                                // name: highlight(vendorItem.name, "Yoghurt"),
-                                code: AttributedString(vendorItem.code),
-                                quantity: quantity
-                            )
-                        }
-                    )
-                }
-            )
-            
-        } else {
-        }
-        */
     }
     
     private func highlight(_ string: String, _ substring: String) -> AttributedString {

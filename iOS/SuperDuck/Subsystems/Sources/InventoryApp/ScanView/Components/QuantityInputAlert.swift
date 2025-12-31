@@ -26,6 +26,7 @@ struct QuantityInputAlert: View {
             }
             
             QuantityField(value: valueBinding)
+                .font(.system(size: 18))
                 .focused($isFocused)
             
             HStack {
@@ -51,6 +52,7 @@ struct QuantityInputAlert: View {
                         .padding(.vertical, 3)
                         .frame(maxWidth: .infinity)
                 }
+                .disabled(value == 0)
                 .modified {
                     if #available(iOS 26, *) {
                         $0.buttonStyle(.glassProminent)

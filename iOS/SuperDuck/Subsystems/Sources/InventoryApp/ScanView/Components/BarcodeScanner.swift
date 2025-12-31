@@ -12,23 +12,26 @@ import Common
 struct BarcodeScanner: View {
     /// Minimum time the barcode needs to be present to be considered.
     var minPresenceTime: TimeInterval
-    
+
     /// Minimum time a barcode needs to be absent to be considered again.
     ///
     /// This value is needed because sometimes Vision takes a long time before recognizing a code
     /// again despite the code staying in camera feed (likely on slow devices). Make sure this is
     /// not too small.
     var minAbsenceTime: TimeInterval
-    
+
     /// If detection is enabled.
     var detectionEnabled: Bool
-    
+
     /// Barcodes detected within camera view.
     @Binding var detectedBarcodes: [String]
-    
+
     /// A closure called when a barcode is within camera view and has been (persistently) visible
     /// for a minimum duration. This only triggers if there is exactly one barcode.
     var persistentBarcodeHandler: (String) -> Void
+
+    /// Called when the rect of interest changes (e.g., due to rotation or layout).
+    var onRectOfInterestChange: ((CGRect) -> Void)?
     
     var body: some View {
         BarcodeScannerViewControllerRepresentable(
@@ -42,7 +45,8 @@ struct BarcodeScanner: View {
                 if barcodes.count == 1 {
                     persistentBarcodeHandler(barcodes[0])
                 }
-            }
+            },
+            onRectOfInterestChange: onRectOfInterestChange
         )
         .ignoresSafeArea()
     }
@@ -59,11 +63,12 @@ private struct BarcodeScannerViewControllerRepresentable: UIViewControllerRepres
     var detectionEnabled: Bool
     var detectionHandler: ([String]) -> Void
     var persistenceHandler: ([String]) -> Void
-    
+    var onRectOfInterestChange: ((CGRect) -> Void)?
+
     func makeUIViewController(context: Context) -> BarcodeScannerViewController {
         BarcodeScannerViewController()
     }
-    
+
     func updateUIViewController(_ vc: BarcodeScannerViewController, context: Context) {
         print("! Update barcode scanner | Min presence time = \(minPresenceTime) | Min absence time = \(minAbsenceTime)")
         vc.minPresenceTime = minPresenceTime
@@ -71,6 +76,7 @@ private struct BarcodeScannerViewControllerRepresentable: UIViewControllerRepres
         vc.detectionEnabled = detectionEnabled
         vc.detectionHandler = detectionHandler
         vc.persistenceHandler = persistenceHandler
+        vc.onRectOfInterestChange = onRectOfInterestChange
     }
 }
 
@@ -80,6 +86,7 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
     var detectionHandler: ([String]) -> Void = { _ in }
     var persistenceHandler: ([String]) -> Void = { _ in }
     var detectionEnabled = true
+    var onRectOfInterestChange: ((CGRect) -> Void)?
     nonisolated(unsafe) private let captureSession = AVCaptureSession()
     private var previewLayer: AVCaptureVideoPreviewLayer!
     private var overlayView: UIVisualEffectView!
@@ -201,6 +208,10 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
         previewLayer?.frame = view.bounds
         overlayView.frame = view.bounds
         invalidateCutoutLayer()
+
+        // Notify about rect of interest changes
+        let rect = rectOfInterest()
+        onRectOfInterestChange?(rect)
     }
     
     private func invalidateCutoutLayer() {
@@ -359,7 +370,7 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
     private func rectOfInterest() -> CGRect {
         let bounds = view.bounds
         let safeInsets = view.safeAreaInsets
-        let padding: CGFloat = 24
+        let padding: CGFloat = traitCollection.horizontalSizeClass == .regular ? 24 : 18
 
         // Calculate available space respecting safe area and padding
         let availableTop = safeInsets.top + padding

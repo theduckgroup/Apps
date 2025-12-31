@@ -15,8 +15,7 @@ struct ReviewView: View {
     var body: some View {
         NavigationStack {
             ScannedItemListView(scannedItems: scannedItems)
-                .navigationBarTitleDisplayMode(.inline)
-                .navigationTitle("Scanned Items (\(scannedItems.count))")
+                .navigationTitle("Review")
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
                         Button("Cancel") {
@@ -97,4 +96,8 @@ struct ReviewView: View {
         
         // _ = try await HTTPClient.shared.post(request, json: true)
     }
+}
+
+#Preview {
+    
 }
