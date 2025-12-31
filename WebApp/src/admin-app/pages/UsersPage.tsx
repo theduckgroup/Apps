@@ -183,7 +183,7 @@ function UserRow({ user, onDelete }: {
               position='bottom-end'
             >
               <Menu.Target>
-                <Button variant='transparent' size='compact-xs'>
+                <Button variant='transparent' size='compact-sm'>
                   Manage
                 </Button>
               </Menu.Target>

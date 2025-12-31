@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 import { produce } from 'immer'
-import { ActionIcon, Box, Button, Divider, Group, Menu, Paper, Stack, Text, Title } from '@mantine/core'
+import { ActionIcon, Box, Button, Group, Menu, Paper, Stack, Text } from '@mantine/core'
 import { DragDropContext, Draggable, DraggableProvided, DraggableProvidedDragHandleProps, Droppable, DropResult } from '@hello-pangea/dnd'
 
 import { InvStore } from 'src/inventory-app/models/InvStore'
@@ -491,8 +491,8 @@ function SectionHeader({ section, sectionIndex, addSection, editSection, deleteS
 
   return (
     <Group
-      bg='dark.7'
-      // neutral
+      bg='dark.7' // neutral
+      wrap='nowrap'
       className='w-full text-neutral-300 items-start flex-nowrap pl-4 pr-4 py-2 rounded-md'
     >
       {/* borderBottom: '1px solid var(--mantine-color-dark-4)' */}

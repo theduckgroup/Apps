@@ -4,17 +4,52 @@ import { qrcode, drawingSVG } from '@bwip-js/browser'
 
 const svgns = 'http://www.w3.org/2000/svg'
 
-export function genQrcodeSvg(data: string, name: string) {
+export interface Options {
+  data: string
+  label: string
+  qrcodeSize: number // QR code width/height in pixels (nice: 200)
+  textSizeRatio: number // Font size as ratio of QR code width (nice: 0.08)
+  textWidthRatio: number // Text wrap width as ratio of QR code width (nice: 1.0)
+}
+
+export interface SvgResult {
+  data: string
+  size: {
+    width: number,
+    height: number
+  }
+}
+
+interface FontOptions {
+  fontFamily: string
+  fontWeight: string
+  fontSize: number
+}
+
+export function genQRCodeSvg(options: Options): SvgResult {
+  const { data, label, qrcodeSize, textSizeRatio, textWidthRatio } = options
+
+  // name = 'This is a very long line that will wrap automatically\nBut this starts on a new line because of the explicit newline'
+
+  // Calculate scale based on desired size (200 is baseline)
+  // const scale = (qrcodeSize / 200) * 2
+
+  // BWIP width/height are in millimeters
+  // Need to convert pixels to millimeters
+  // See: https://github.com/metafloor/bwip-js#online-barcode-api
+  const width = qrcodeSize / 2.835
+  const height = qrcodeSize / 2.835
+
   const codeSvg = qrcode({
     bcid: 'code128',       // Barcode type
-    text: data,    // Text to encode
-    scale: 2,
-    width: 200,
-    height: 200,              // Bar height, in millimeters
+    text: data,            // Data to encode
+    scale: 1,
+    width,
+    height,
     barcolor: '000000',
-    includetext: true,            // Show human-readable text
-    textxalign: 'center',        // Always good to set this
-    textcolor: 'ff0000',        // Red text
+    // includetext: true,    // Show human-readable text
+    // textxalign: 'center', // Always good to set this
+    // textcolor: 'ff0000',  // Red text
   }, drawingSVG())
 
   // let svgString = code128({
@@ -48,50 +83,77 @@ export function genQrcodeSvg(data: string, name: string) {
 
   const fontFamily = 'Arial'
   const fontWeight = '500'
-  // const fontSize = Math.round(codeSize.width * 0.12)
-  const fontSize = Math.round(codeSize.width * 0.08)
+  const fontSize = Math.round(codeSize.width * textSizeRatio)
+  const font = { fontFamily, fontWeight, fontSize }
 
   // const dataText_bb = measureText(data, { fontFamily, fontSize })
 
   const yspace = codeSize.height * 0.05
 
-  const nameTextSize = measureText(name, { fontFamily, fontWeight, fontSize })
-  const nameTextX = codeSize.width / 2 - nameTextSize.width / 2
-  const nameTextBaseline = codeSize.height + yspace + nameTextSize.height
+  // Wrap name text to fit within QR code width (using textWidthRatio)
+  const textMaxWidth = codeSize.width * textWidthRatio
+  const wrappedLines = wrapTextToWidth(
+    label,
+    textMaxWidth,
+    font
+  )
 
-  const bottomPadding = nameTextSize.height * 0.25 // There is no way to get descent of svg text!
+  const textWidth = wrappedLines.reduce((max, line) => {
+    const lineWidth = measureText(line, font).width
+    return Math.max(max, lineWidth)
+  }, 0)
 
-  const viewBoxHeight = codeSize.height + yspace + nameTextSize.height + bottomPadding
+  const viewBoxWidth = Math.max(codeSize.width, textWidth)
+  const codeXOffset = (viewBoxWidth - codeSize.width) / 2
+
+  const singleLineHeight = measureText('M', font).height
+  const lineSpacing = singleLineHeight * 1.2 // 1.2x line height
+
+  const firstLineBaseline = codeSize.height + yspace + singleLineHeight
+  const bottomPadding = singleLineHeight * 0.25 // There is no way to get descent of svg text!
+
+  const totalTextHeight = wrappedLines.length * lineSpacing - (lineSpacing - singleLineHeight)
+  const viewBoxHeight = codeSize.height + yspace + totalTextHeight + bottomPadding
 
   const reactEl = (
     <svg
       xmlns={svgns}
-      viewBox={`0 0 ${codeSize.width} ${viewBoxHeight}`}
-      width={`${codeSize.width}px`} height={`${viewBoxHeight}px`}
+      viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
+      width={`${viewBoxWidth}px`} height={`${viewBoxHeight}px`}
     >
-      <path d={codePath} fill='black' fillRule='evenodd' />
+      <path d={codePath} fill='black' fillRule='evenodd' transform={`translate(${codeXOffset}, 0)`} />
       <text
-        x={nameTextX} y={nameTextBaseline}
-        fontSize={fontSize} fontWeight={fontWeight} fontFamily={fontFamily}
+        x={viewBoxWidth / 2}
+        y={firstLineBaseline}
+        fontSize={fontSize}
+        fontWeight={fontWeight}
+        fontFamily={fontFamily}
+        textAnchor='middle'
       >
-        {name}
+        {wrappedLines.map((line, index) => (
+          <tspan key={index} x={viewBoxWidth / 2} dy={index === 0 ? 0 : lineSpacing}>
+            {line}
+          </tspan>
+        ))}
       </text>
     </svg>
   )
 
-  const x = renderToString(reactEl)
+  const svgData = renderToString(reactEl)
   // console.info(x)
 
-  return x
+  return {
+    data: svgData,
+    size: {
+      width: viewBoxWidth,
+      height: viewBoxHeight
+    }
+  }
 }
 
 function measureText(
   text: string,
-  { fontFamily, fontWeight, fontSize }: {
-    fontFamily: string,
-    fontWeight: string,
-    fontSize: number,
-  }
+  { fontFamily, fontWeight, fontSize }: FontOptions
 ): { width: number, height: number } {
   // From: https://www.reddit.com/r/webdev/comments/1e809pz/getting_the_bounding_box_of_an_svg_text_element/
 
@@ -114,6 +176,67 @@ function measureText(
   svgEl.parentNode!.removeChild(svgEl)
 
   return { width: bbox.width, height: bbox.height }
+}
+
+/**
+ * Wraps text to fit within a maximum width by breaking at word boundaries.
+ * Uses a greedy algorithm to fit as many words as possible on each line.
+ * Respects explicit line breaks (\n).
+ */
+function wrapTextToWidth(
+  text: string,
+  maxWidth: number,
+  fontProps: FontOptions
+): string[] {
+  // First split by explicit newlines to preserve them
+  const paragraphs = text.split('\n')
+  const allLines: string[] = []
+
+  for (const paragraph of paragraphs) {
+    // Wrap each paragraph independently
+    const words = paragraph.split(/\s+/).filter(w => w.length > 0)
+
+    if (words.length === 0) {
+      // Empty paragraph (from consecutive \n or leading/trailing \n)
+      allLines.push('')
+      continue
+    }
+
+    let currentLine = ''
+
+    for (const word of words) {
+      const testLine = currentLine ? `${currentLine} ${word}` : word
+      const testWidth = measureText(testLine, fontProps).width
+
+      if (testWidth <= maxWidth) {
+        // Word fits on current line
+        currentLine = testLine
+      } else {
+        // Word doesn't fit, start new line
+        if (currentLine) {
+          allLines.push(currentLine)
+        }
+
+        // Check if single word is too long
+        const wordWidth = measureText(word, fontProps).width
+        if (wordWidth > maxWidth) {
+          // Single word is longer than max width, add it anyway
+          allLines.push(word)
+          currentLine = ''
+        } else {
+          currentLine = word
+        }
+      }
+    }
+
+    // Add remaining text from this paragraph
+    if (currentLine) {
+      allLines.push(currentLine)
+    }
+  }
+
+  // Handle empty input
+  return allLines.length > 0 ? allLines : ['']
 }
 
 // Canvas drawing code

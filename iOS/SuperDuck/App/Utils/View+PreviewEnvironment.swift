@@ -1,5 +1,5 @@
 import SwiftUI
-import AppShared
+import AppModule
 import Backend
 import CommonUI
 
@@ -9,6 +9,6 @@ extension View {
         self.tint(.theme)
             .environment(Auth.mock)
             .environment(API.mock)
-            .environment(AppDefaults.mock)
+            .environment(AppDefaults())
     }
 }

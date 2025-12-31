@@ -10,7 +10,7 @@ import Common
  - Same as above, but after launching the app
  */
 
-@Observable
+@MainActor @Observable
 public final class Auth: @unchecked Sendable {
     private let impl: AuthImplProtocol
     
@@ -49,6 +49,7 @@ public final class Auth: @unchecked Sendable {
     }
 }
 
+@MainActor
 protocol AuthImplProtocol {
     init()
     
@@ -62,8 +63,8 @@ protocol AuthImplProtocol {
     func handle(_ url: URL)
 }
 
-@Observable
-private final class AuthImpl: AuthImplProtocol, @unchecked Sendable {
+@MainActor @Observable
+private final class AuthImpl: AuthImplProtocol {
     // Probably need lock around isLoaded? Who cares
     
     public private(set) var isLoaded = false
@@ -72,6 +73,9 @@ private final class AuthImpl: AuthImplProtocol, @unchecked Sendable {
     
     init() {
         Task {
+            // It's important that this is run on main thread since we're modifying properties observed by UI            
+            MainActor.assertIsolated()
+            
             for await (event, session) in supabase.auth.authStateChanges {
                 logger.info("Received auth event \(event.rawValue), session = \(session != nil ? "not nil" : "nil")")
                 // logger.info("Received auth event \(event.rawValue), session = \(session, default: "nil")")

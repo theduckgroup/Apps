@@ -186,7 +186,7 @@ function RedirectToRootIfAuthorized({ children }: { children: ReactNode }) {
 function NoMatch() {
   return (
     <h3>
-      <p>Page not found... What was you trying to do?</p>
+      <p>Page not found...</p>
     </h3>
   )
 }

@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "Common",
     platforms: [
-        .iOS(.v17),
+        .iOS(.v17), .macOS(.v15)
     ],
     products: [
         .library(
@@ -16,10 +16,7 @@ let package = Package(
             name: "Backend_deprecated",
             targets: ["Backend_deprecated"]
         ),
-        .library(
-            name: "Common",
-            targets: ["Common"],
-        ),
+        .library(name: "Common", targets: ["Common"]),
         .library(
             name: "CommonUI",
             targets: ["CommonUI"],

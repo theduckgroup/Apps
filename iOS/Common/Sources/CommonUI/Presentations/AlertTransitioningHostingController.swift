@@ -7,12 +7,13 @@ import SwiftUI
 /// This implements alert transitioning delegate, fitting size and styling.
 class AlertTransitioningHostingController<Content: View>: UIViewController {
     private let hostingController: UIHostingController<Content>
-    private let transitioningDelegateRef = AlertTransitioningDelegate()
+    private let transitioningDelegateRef: AlertTransitioningDelegate
     
-    init(rootView: Content) {
+    init(rootView: Content, offset: CGPoint = .zero) {
         // UIHostingController is added as a child controller
         // Using it directly (via inheritance) causes issue with sizing
         
+        transitioningDelegateRef = .init(offset: offset)
         hostingController = UIHostingController(rootView: rootView)
         
         super.init(nibName: nil, bundle: nil)

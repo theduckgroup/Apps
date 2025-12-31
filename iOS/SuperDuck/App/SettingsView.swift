@@ -1,6 +1,6 @@
 import Foundation
 import SwiftUI
-import AppShared
+import AppModule
 import Auth
 import Backend
 import CommonUI
@@ -56,6 +56,7 @@ struct SettingsView: View {
                 versionView()
             }
         }
+        .nonProdEnvWarningOverlay()
     }
     
     @ViewBuilder
@@ -96,4 +97,10 @@ struct SettingsView: View {
                 .padding(.top, 3)
         }
     }
+}
+
+#Preview {
+    SettingsView()
+        .applyAppDefaultsStyling()
+        .previewEnvironment()        
 }

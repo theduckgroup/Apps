@@ -1,25 +1,25 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { Button, Group, Space, Stack, Table, Title } from '@mantine/core'
-import { useNavigate } from 'react-router'
-import axios from 'axios'
 import { useQuery } from '@tanstack/react-query'
 import { Text } from '@mantine/core'
-import { useDisclosure } from '@mantine/hooks'
 import { IconEdit } from '@tabler/icons-react'
 
 import { InvStore } from 'src/inventory-app/models/InvStore'
 import { InvStoreStock } from 'src/inventory-app/models/InvStoreStock'
-import QrModal from './QrModal'
+import QrModal from './QRCodeModal'
 import eventHub from 'src/inventory-app/event-hub'
 import formatError from 'src/common/format-error'
 import { useApi, usePath } from 'src/app/contexts'
 import { NonProdEnvWarning } from 'src/app/NonProdEnvWarning'
+import useModal from 'src/utils/use-modal'
 
 export default function RootPage() {
   // const { user } = useAuth()
   const { axios } = useApi()
   const { navigate } = usePath()
   const storeId = '69509ae69da8c740e58d83c1'
+
+  const qrModal = useModal(QrModal)
 
   const { data, isLoading, error, refetch: fetch } = useQuery({
     // queryKey: ['store-with-stock', 'code=ND_CENTRAL_KITCHEN'],
@@ -47,12 +47,8 @@ export default function RootPage() {
     })
   }
 
-  const [qrModalOpened, { open: openQrModal, close: closeQrModal }] = useDisclosure(false)
-  const [qrModalItem, setQrModalItem] = useState<InvStore.Item | undefined>()
-
   function handleViewCode(item: InvStore.Item) {
-    setQrModalItem(item)
-    openQrModal()
+    qrModal.open({ item })
   }
 
   if (isLoading) {
@@ -87,15 +83,7 @@ export default function RootPage() {
         <ItemList store={data.store} stock={data.stock} onViewCode={handleViewCode} />
       </Stack>
 
-      {/* Modals */}
-      {/* <QrModal
-        opened={qrModalOpened}
-        onClose={() => {
-          closeQrModal()
-          setQrModalItem(undefined)
-        }}
-        item={qrModalItem}
-      /> */}
+      {qrModal.element}
     </>
   )
 }
@@ -111,26 +99,24 @@ function ItemList({ store, stock, onViewCode }: {
         <Stack key={section.id} gap={0}>
           <Title order={3} c='gray.3' pb='xs'>{section.name}</Title>
           <Table fz='md' tabularNums verticalSpacing='sm'>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th styles={{
-                  th: { width: '40%' }
-                }}>
-                  Name
-                </Table.Th>
-                <Table.Th styles={{
-                  th: { width: '25%' }
-                }}>
-                  Code
-                </Table.Th>
-                <Table.Th styles={{
-                  th: { width: '10%' }
-                }}>
-                  Quantity
-                </Table.Th>
-                <Table.Th></Table.Th>
-              </Table.Tr>
-            </Table.Thead>
+            {
+              section.id == store.catalog.sections[0].id &&
+              <Table.Thead>
+                {/* Desktop header */}
+                <Table.Tr visibleFrom='sm'>
+                  <Table.Th styles={{ th: { width: '40%' } }}>Name</Table.Th>
+                  <Table.Th styles={{ th: { width: '25%' } }}>Code</Table.Th>
+                  <Table.Th styles={{ th: { width: '10%' } }}>Quantity</Table.Th>
+                  <Table.Th>{/* View Code */}</Table.Th>
+                </Table.Tr>
+                {/* Mobile header */}
+                <Table.Tr hiddenFrom='sm'>
+                  <Table.Th styles={{ th: { width: '65%' } }}>Name / Code</Table.Th>
+                  <Table.Th styles={{ th: { width: '15%' } }}>Qty</Table.Th>
+                  <Table.Th>{/* Code */}</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+            }
             <Table.Tbody>
               {section.rows.map(row => {
                 const item = store.catalog.items.find(x => x.id == row.itemId)
@@ -142,14 +128,30 @@ function ItemList({ store, stock, onViewCode }: {
 
                 return (
                   <Table.Tr key={item.id}>
-                    <Table.Td>{item.name}</Table.Td>
-                    <Table.Td>{item.code}</Table.Td>
-                    <Table.Td>{attrs?.quantity ?? '-'}</Table.Td>
-                    <Table.Td>
+                    {/* Desktop row */}
+                    <Table.Td styles={{ td: { width: '40%' } }} visibleFrom='sm'>{item.name}</Table.Td>
+                    <Table.Td styles={{ td: { width: '25%' } }} visibleFrom='sm'>{item.code}</Table.Td>
+                    <Table.Td styles={{ td: { width: '10%' } }} visibleFrom='sm'>{attrs?.quantity ?? '-'}</Table.Td>
+                    <Table.Td visibleFrom='sm'>
                       <Group justify='end' className='ml-auto'>
                         <Button variant='subtle' size='compact-xs' onClick={() => onViewCode(item)}>
-                          {/* <IconQrcode size={24} stroke={1.33} /> */}
                           View Code
+                        </Button>
+                      </Group>
+                    </Table.Td>
+
+                    {/* Mobile row */}
+                    <Table.Td styles={{ td: { width: '65%' } }} hiddenFrom='sm'>
+                      <Stack gap={0}>
+                        <Text>{item.name}</Text>
+                        <Text c='dimmed' size='sm'>{item.code}</Text>
+                      </Stack>
+                    </Table.Td>
+                    <Table.Td styles={{ td: { width: '15%' } }} hiddenFrom='sm'>{attrs?.quantity ?? '-'}</Table.Td>
+                    <Table.Td hiddenFrom='sm'>
+                      <Group justify='end' className='ml-auto'>
+                        <Button variant='subtle' size='compact-xs' onClick={() => onViewCode(item)}>
+                          Code
                         </Button>
                       </Group>
                     </Table.Td>

@@ -48,44 +48,6 @@ adminRouter.get('/quizzes', async (req, res) => {
   res.send(resData)
 })
 
-adminRouter.get('/quiz/:id', async (req, res) => {
-  const id = req.params.id
-
-  const db = await getDb()
-
-  const dbQuiz = await db.collection_qz_quizzes.findOne({
-    _id: new ObjectId(id)
-  })
-
-  if (!dbQuiz) {
-    throw createHttpError(400, 'Document not found')
-  }
-
-  const quiz = jsonifyMongoId(dbQuiz)
-
-  // Fix data
-
-  for (const item of quiz.items) {
-    if (item.kind == 'textInputItem') {
-      if (!item.data.layout) {
-        item.data.layout = 'stack'
-      }
-    }
-
-    if (item.kind == 'listItem') {
-      for (const subitem of item.data.items) {
-        if (subitem.kind == 'textInputItem') {
-          if (!subitem.data.layout) {
-            subitem.data.layout = 'stack'
-          }
-        }
-      }
-    }
-  }
-
-  res.send(quiz)
-})
-
 adminRouter.put('/quiz/:id', async (req, res) => {
   const id = req.params.id
 
@@ -210,6 +172,48 @@ const userRouter = express.Router()
 
 userRouter.use(authorizeUser)
 
+userRouter.get('/quiz/:id', async (req, res) => {
+  const id = req.params.id
+
+  const db = await getDb()
+
+  const dbQuiz = await db.collection_qz_quizzes.findOne({
+    _id: new ObjectId(id)
+  })
+
+  if (!dbQuiz) {
+    throw createHttpError(400, 'Document not found')
+  }
+
+  const quiz = jsonifyMongoId(dbQuiz)
+
+  // Fix data
+  // TODO: Remove
+
+  /*
+  for (const item of quiz.items) {
+    if (item.kind == 'textInputItem') {
+      if (!item.data.layout) {
+        item.data.layout = 'stack'
+      }
+    }
+
+    if (item.kind == 'listItem') {
+      for (const subitem of item.data.items) {
+        if (subitem.kind == 'textInputItem') {
+          if (!subitem.data.layout) {
+            subitem.data.layout = 'stack'
+          }
+        }
+      }
+    }
+  }
+  */
+
+  res.send(quiz)
+})
+
+// TODO: Remove
 userRouter.get('/quiz' /* ?code=XYZ */, async (req, res) => {
   const code = req.query.code
 

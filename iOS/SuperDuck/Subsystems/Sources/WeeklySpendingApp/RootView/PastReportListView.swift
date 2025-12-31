@@ -26,7 +26,7 @@ struct PastReportListView: View {
     @ViewBuilder
     private func bodyImpl() -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Past Spendings")
+            Text("Recent")
                 .font(.system(size: 27, weight: .regular))
                 .frame(maxWidth: .infinity, alignment: .leading)
             
@@ -38,10 +38,10 @@ struct PastReportListView: View {
                                 onView(report)
                             }
                         }
-                        
-                        Text("Only data for the past 6 months is shown.")
-                            .foregroundStyle(.secondary)
-                            .padding(.top)
+
+//                        Text("Data for the past 6 months is shown.")
+//                            .foregroundStyle(.secondary)
+//                            .padding(.top)
                     }
                     .padding(.top, 24)
                 

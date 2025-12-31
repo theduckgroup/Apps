@@ -1,6 +1,6 @@
 import Foundation
 import SwiftUI
-import AppShared
+import AppModule
 import Backend
 import Common
 import CommonUI
@@ -42,7 +42,7 @@ struct QuizResponseView: View {
                 ),
                 for: .scrollContent
             )
-            .scrollDismissesKeyboard(.immediately)
+            // .scrollDismissesKeyboard(.immediately)
             .dynamicTypeSize(dynamicTypeSizeOverride?.dynamicTypeSize ?? systemDynamicTypeSize)
             .navigationTitle("")
             .toolbar { toolbarContent() }
@@ -239,7 +239,7 @@ struct QuizResponseView: View {
         .onAppear {
             Task {
                 do {
-                    quiz = try await API.mock.mockQuiz()
+                    quiz = try await API.mock.quiz()
                     
                 } catch {
                     logger.error("Unable to get mock quiz: \(error)")

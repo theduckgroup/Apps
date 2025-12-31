@@ -1,21 +1,14 @@
 import Foundation
 import Backend
+import Common
 
 extension API {
-    func quiz(code: String) async throws -> Quiz {
-        try await get(
-            path: "quiz-app/quiz",
-            queryItems: [.init(name: "code", value: code)],
-            decodeAs: Quiz.self
-        )
-    }
-    
-    func mockQuiz(success: Bool = true) async throws -> Quiz {
-        try await get(
-            authenticated: false,
-            path: success ? "quiz-app/mock-quiz" : "???",
-            decodeAs: Quiz.self
-        )
+    func quiz() async throws -> Quiz {
+        if isRunningForPreviews {
+            return try await get(authenticated: false, path: "quiz-app/mock-quiz")
+        }
+        
+        return try await get( path: "quiz-app/quiz/68e5052313908f614bbab024")
     }
     
     func submitQuizResponse(_ quizResponse: QuizResponse) async throws {

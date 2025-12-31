@@ -1,6 +1,5 @@
 import { Button, Group, Modal, Stack, TextInput } from "@mantine/core"
 import { isNotEmpty, useForm } from "@mantine/form"
-import { useEffect, useRef } from "react"
 import { InvStore } from 'src/inventory-app/models/InvStore'
 
 export function EditSectionModal({ opened, onClose, options }: {

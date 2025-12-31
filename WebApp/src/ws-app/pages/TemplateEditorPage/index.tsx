@@ -221,7 +221,7 @@ function MetaAndContent({ template, setTemplate, revertTemplate, saving, dirty }
               </Group>
             </Button>
             {/* Save loader */}
-            {saving && <Loader ml='auto' size='sm' />}
+            {saving && <Loader ml='auto' size='xs' />}
             {/* Revert button */}
             {(dirty && !saving) &&
               <Button ml='auto' variant='light' size='compact-sm' fw='normal' onClick={handleRevert}>

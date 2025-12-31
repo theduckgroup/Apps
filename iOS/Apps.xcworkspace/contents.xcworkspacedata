@@ -5,12 +5,6 @@
       location = "group:SuperDuck/SuperDuck.xcodeproj">
    </FileRef>
    <FileRef
-      location = "container:Quiz/Quiz.xcodeproj">
-   </FileRef>
-   <FileRef
-      location = "group:WeeklySpending/WeeklySpending.xcodeproj">
-   </FileRef>
-   <FileRef
       location = "group:NakedBlendCalc/NakedBlendCalc.xcodeproj">
    </FileRef>
    <FileRef
