@@ -82,7 +82,7 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
     var detectionEnabled = true
     nonisolated(unsafe) private let captureSession = AVCaptureSession()
     private var previewLayer: AVCaptureVideoPreviewLayer!
-    private var cutoutLayer: CAShapeLayer!
+    private var overlayView: UIVisualEffectView!
     private var rotationCoordinator: AVCaptureDevice.RotationCoordinator!
     private var detectTask: Task<Void, Never>?
     private var detectionEvents: [DetectionEvent] = []
@@ -108,12 +108,26 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
         super.viewDidLoad()
         
         if isRunningForPreviews {
-            view.backgroundColor = .black.withAlphaComponent(0.5)
-            cutoutLayer = CAShapeLayer()
-            view.layer.addSublayer(cutoutLayer)
-            return
+            initStaticImageForPreview()
+           
+        } else {
+            initCaptureSessionAndPreviewLayer()
         }
+
+        // Blur overlay; must be above preview layer
+
+        let blurEffect = UIBlurEffect(style: .systemMaterial)
+        overlayView = UIVisualEffectView(effect: blurEffect)
+        view.addSubview(overlayView)
+
+        // Start
         
+        DispatchQueue.global().async {
+            self.captureSession.startRunning()
+        }
+    }
+    
+    private func initCaptureSessionAndPreviewLayer() {
         // Capture session
         
         captureSession.beginConfiguration()
@@ -157,17 +171,15 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
                 previewLayer?.connection!.videoRotationAngle = value
             }
             .store(in: &cancellables)
-        
-        // Cutout layer; must be above preview layer
-        
-        cutoutLayer = CAShapeLayer()
-        view.layer.addSublayer(cutoutLayer)
-        
-        // Start
-        
-        DispatchQueue.global().async {
-            self.captureSession.startRunning()
-        }
+    }
+    
+    private func initStaticImageForPreview() {
+        let imageView = UIImageView(image: UIImage(named: "DeskPhoto", in: .module, with: nil))
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.frame = view.bounds
+        imageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        view.addSubview(imageView)
     }
     
     deinit {
@@ -182,21 +194,34 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        
+
         // Preview layer is nil in preview
-        
+
         previewLayer?.frame = view.bounds
-        cutoutLayer.frame = view.bounds
+        overlayView.frame = view.bounds
         invalidateCutoutLayer()
     }
     
     private func invalidateCutoutLayer() {
+        let maskLayer = CAShapeLayer()
+        maskLayer.fillRule = .evenOdd
+
+        let path = UIBezierPath(rect: overlayView.bounds)
+        path.append(UIBezierPath(roundedRect: rectOfInterest(), cornerRadius: 18))
+        maskLayer.path = path.cgPath
+
+        overlayView.layer.mask = maskLayer
+        
+        /*
+        // Old logic
+         
         cutoutLayer.fillRule = .evenOdd
         cutoutLayer.fillColor = UIColor.black.withAlphaComponent(0.3).cgColor
 
         let path = UIBezierPath(rect: cutoutLayer.bounds)
         path.append(UIBezierPath(roundedRect: rectOfInterest(), cornerRadius: 18))
         cutoutLayer.path = path.cgPath
+        */
     }
    
     /// Called by AVCaptureSesion.
@@ -357,7 +382,8 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
         return rect
         
         /*
-         // Old center logic
+         // Old logic that places the cutout at center
+         
          // let (width, height) = (previewLayer.bounds.width, previewLayer.bounds.height)
          let (width, height) = (view.bounds.width, view.bounds.height)
          
