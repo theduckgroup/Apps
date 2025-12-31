@@ -2,21 +2,26 @@ public import Foundation
 import Common
 
 @Observable
+@dynamicMemberLookup
 public class Defaults {
     private let storageKey = "InventoryApp:defaults"
-
+    
     public init() {
         data = Persistence.value(for: storageKey) ?? .init()
-    }
-    
-    var scanner: Scanner {
-        get { data.scanner }
-        set { data.scanner = newValue }
     }
     
     private var data: Data {
         didSet {
             Persistence.setValue(data, for: storageKey)
+        }
+    }
+    
+    subscript<T>(dynamicMember keyPath: WritableKeyPath<Data, T>) -> T {
+        get {
+            data[keyPath: keyPath]
+        }
+        set {
+            data[keyPath: keyPath] = newValue
         }
     }
 }

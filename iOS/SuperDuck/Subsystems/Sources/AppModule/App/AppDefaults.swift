@@ -5,29 +5,15 @@ public import CommonUI
 @Observable
 @dynamicMemberLookup
 public class AppDefaults {
-    public let storageKey: String
+    public let storageKey: String = "App:defaults"
     
     public init() {
-        self.storageKey = "App:defaults"
-        
-        if let rawData = UserDefaults.standard.data(forKey: storageKey) {
-            do {
-                self.data = try JSONDecoder().decode(Data.self, from: rawData)
-                
-            } catch {
-                data = Data()
-                logger.error("Unable to decode AppDefaults data: \(error)")
-                assertionFailure()
-            }
-        } else {
-            data = Data()
-        }
+        data = Persistence.value(for: storageKey) ?? .init()
     }
     
     private var data: Data {
         didSet {
-            let rawData = try! JSONEncoder().encode(data)
-            UserDefaults.standard.set(rawData, forKey: storageKey)
+            Persistence.setValue(data, for: storageKey)
         }
     }
     
