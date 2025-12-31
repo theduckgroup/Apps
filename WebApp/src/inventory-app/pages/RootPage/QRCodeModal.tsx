@@ -44,8 +44,14 @@ export default function QrModal({ opened, onClose, options }: {
       size='auto'
       padding='lg'
     >
-      <Flex gap='xl' py='lg' align='flex-start'>
-        {/* Left side: Controls */}
+      <Flex gap='xl' py='lg' align='flex-start' direction={{ base: 'column', sm: 'row' }}>
+        {/* QR Code and Copy Button */}
+        <Stack gap='md' w={{ base: '100%', sm: QRCODE_VIEWER_SIZE }} align='center' className='flex-none'>
+          <QRCodeImage svgData={svgData} width={svgSize.width} />
+          <CopyButton svgData={svgData} />
+        </Stack>
+
+        {/* Controls */}
         <Controls
           qrcodeSize={qrcodeSize}
           setQRCodeSize={setQRCodeSize}
@@ -59,12 +65,6 @@ export default function QrModal({ opened, onClose, options }: {
           setOverrideLabel={setOverrideLabel}
           defaultLabel={defaultLabel}
         />
-
-        {/* Right side: QR Code and Copy Button */}
-        <Stack gap='md' w={QRCODE_VIEWER_SIZE} align='center' className='flex-none'>
-          <QRCodeImage svgData={svgData} width={svgSize.width} />
-          <CopyButton svgData={svgData} />
-        </Stack>
       </Flex>
     </Modal>
   )
@@ -103,7 +103,7 @@ function Controls({
     return fmt.format(value)
   }
   return (
-    <Stack gap='1rem' style={{ flex: '0 0 300px' }}>
+    <Stack gap='1rem' style={{ flex: '0 0 auto' }} w={{ base: '100%', sm: 300 }}>
       <Stack gap={0} mb='1.25rem'>
         <Text size='sm' fw={500} mb='xs'>QR Code Size (px)</Text>
         <Slider
