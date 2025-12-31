@@ -49,6 +49,7 @@ struct QuantityInputAlert: View {
                     onDone(value)
                 } label: {
                     Text("Done")
+                        .fontWeight(.semibold)
                         .padding(.vertical, 3)
                         .frame(maxWidth: .infinity)
                 }
@@ -79,6 +80,7 @@ struct QuantityInputAlert: View {
             Button("Present") {
                 present()
             }
+            .ignoresSafeArea()
             .presentations(ps)
         }
 

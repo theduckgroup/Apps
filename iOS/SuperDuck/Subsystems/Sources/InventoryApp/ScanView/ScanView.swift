@@ -16,8 +16,8 @@ struct ScanView: View {
     @State var presentingConfirmCancel = false
     @State var didSubmitResult = false
     @State var soundPlayer: AVAudioPlayer
+    @State var rectOfInterest: CGRect?
     @State var ps = PresentationState()
-    @State var rectOfInterest: CGRect = .zero
     @Environment(\.dismiss) private var dismiss
     @Environment(InventoryApp.Defaults.self) private var defaults
     
@@ -48,7 +48,7 @@ struct ScanView: View {
             }
         )
         .overlay(alignment: .top) {
-            if rectOfInterest != .zero {
+            if let rectOfInterest {
                 // VStack laid out in a way that it is just below the rect of interest and line up with it
                 
                 VStack(spacing: 16) {
@@ -122,7 +122,6 @@ struct ScanView: View {
                     )
                 }
             }
-            // .fontWeight(.semibold)
             .buttonStyle(.borderedProminent)
             .disabled(scanRecords.isEmpty)
         }

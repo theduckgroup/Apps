@@ -10,7 +10,7 @@ struct ReviewView: View {
     var scanRecords: [ScanRecord]
     var onSubmitted: () -> Void = {}
     @State var submitting = false
-    @State var presentedError: String?
+    @State var ps = PresentationState()
     @Environment(API.self) var api
     @Environment(\.dismiss) var dismiss
     
@@ -19,17 +19,8 @@ struct ReviewView: View {
             listView()
                 .navigationTitle("Scanned Items")
                 .toolbar { toolbarContent() }
+                .presentations(ps)
         }
-        .alert(
-            "Error",
-            presenting: $presentedError,
-            actions: { _ in
-                Button("OK") {}
-            },
-            message: {
-                Text($0)
-            }
-        )
     }
     
     @ToolbarContentBuilder
@@ -51,6 +42,7 @@ struct ReviewView: View {
             } else {
                 ProgressView()
                     .progressViewStyle(.circular)
+                    .tint(.secondary)
             }
         }
     }
@@ -108,14 +100,16 @@ struct ReviewView: View {
                 onSubmitted()
                 
             } catch {
-                presentedError = formatError(error)
+                ps.presentAlert(error: error)
             }
         }
     }
     
     private func submitImpl() async throws {
+        submitting = true
+        defer { submitting = false }
+        
         struct Body: Encodable {
-            var vendorId: String
             var changes: [Change]
             
             struct Change: Encodable {
@@ -127,19 +121,20 @@ struct ReviewView: View {
         let factor = scanMode == .add ? 1 : -1
 
         let body = Body(
-            vendorId: store.id,
             changes: scanRecords.map {
                 .init(itemId: $0.storeItem.id, inc: $0.quantity * factor)
             }
         )
 
         let path = "/api/store/\(store.id)/catalog"
-
-        try await api.submit(store, scanRecords)
-        // var request = try await InventoryServer.makeRequest(httpMethod: "POST", path: path)
-        // request.httpBody = try! JSONEncoder().encode(body)
         
-        // _ = try await HTTPClient.shared.post(request, json: true)
+        if isRunningForPreviews {
+            try await Task.sleep(for: .seconds(1))
+            // throw GenericError("Anim deserunt do eiusmod cupidatat.")
+            return
+        }
+
+        try await api.post(method: "POST", path: path, body: body)
     }
 }
 
