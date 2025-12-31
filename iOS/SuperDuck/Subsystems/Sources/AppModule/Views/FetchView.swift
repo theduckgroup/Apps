@@ -30,6 +30,7 @@ public struct FetchView: View {
                 Capsule()
                     .fill(.regularMaterial)
             }
+            .padding()
             
         } else if let fetchError {
             VStack(alignment: .leading) {
@@ -51,6 +52,7 @@ public struct FetchView: View {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color(UIColor.tertiarySystemFill))
             }
+            .padding()
         }
     }
 }
@@ -60,8 +62,8 @@ public extension View {
     @ViewBuilder
     func fetchOverlay(isFetching: Bool, fetchError: Error?, retry: @escaping () -> Void) -> some View {
         safeAreaInset(edge: .bottom) {
+            // Note: adding `padding()` here causes extra space to scroll view, even if FetchView is empty
             FetchView(isFetching: isFetching, fetchError: fetchError, retry: retry)
-                .padding()
         }
     }
 }
