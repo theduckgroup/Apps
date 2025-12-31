@@ -204,8 +204,10 @@ struct ScanView: View {
         soundPlayer.prepareToPlay()
         soundPlayer.play()
         
-        ps.presentCustomAlert(title: "\(item.name)\n\(item.code)" , actions: []) {
+        ps.presentAlertStyleCover(offset: .init(x: 0, y: -42)) {
             QuantityInputAlert(
+                title: item.name,
+                subtitle: item.code,
                 onCancel: {
                     ps.dismiss()
                 },
@@ -214,7 +216,6 @@ struct ScanView: View {
                     scannedItems.append(.init(itemID: item.id, code: item.code, name: item.name))
                 }
             )
-            .font(.body)
         }
         
         // scannedItems.append(.init(itemID: item.id, code: item.code, name: item.name))

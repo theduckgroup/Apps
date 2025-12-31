@@ -4,24 +4,26 @@ import SwiftUI
 public extension View {
     /// Presents an alert cover.
     @ViewBuilder
-    func smallSheet<Content: View>(
+    func alertStyleCover<Content: View>(
         isPresented: Binding<Bool>,
+        offset: CGPoint = .zero,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View {
-        modifier(SmallSheetModifier(isPresented: isPresented, content: content))
+        modifier(AlertStyleCoverModifier(isPresented: isPresented, offset: offset, content: content))
     }
 }
 
 public extension PresentationState {
-    func presentSmallSheet<C: View>(@ViewBuilder content: @escaping () -> C) {
+    func presentAlertStyleCover<C: View>(offset: CGPoint = .zero, @ViewBuilder content: @escaping () -> C) {
         present { hostView, $isPresented in
-            hostView.smallSheet(isPresented: $isPresented, content: content)
+            hostView.alertStyleCover(isPresented: $isPresented, offset: offset, content: content)
         }
     }
 }
 
-private struct SmallSheetModifier<C: View>: ViewModifier {
+private struct AlertStyleCoverModifier<C: View>: ViewModifier {
     @Binding var isPresented: Bool
+    let offset: CGPoint
     let content: () -> C
     @State private var uikitContext = UIKitContext()
     
@@ -30,13 +32,13 @@ private struct SmallSheetModifier<C: View>: ViewModifier {
             .attach(uikitContext)
             .onFirstAppear {
                 if isPresented {
-                    let controller = AlertTransitioningHostingController(rootView: self.content())
+                    let controller = AlertTransitioningHostingController(rootView: self.content(), offset: offset)
                     uikitContext.present(controller, animated: false)
                 }
             }
             .onChange(of: isPresented) {
                 if isPresented {
-                    let controller = AlertTransitioningHostingController(rootView: self.content())
+                    let controller = AlertTransitioningHostingController(rootView: self.content(), offset: offset)
                     uikitContext.present(controller, animated: true)
                     
                 } else {
@@ -52,7 +54,7 @@ private struct SmallSheetModifier<C: View>: ViewModifier {
     Button("Present") {
         presenting = true
     }
-    .smallSheet(isPresented: $presenting) {
+    .alertStyleCover(isPresented: $presenting, offset: .init(x: 0, y: -30)) {
         VStack {
             Text("Tempor sit ad ad excepteur deserunt nulla consequat sit. Aliquip veniam voluptate cillum sunt ea.")
             Text("[A link](https://makemerich.com)")
