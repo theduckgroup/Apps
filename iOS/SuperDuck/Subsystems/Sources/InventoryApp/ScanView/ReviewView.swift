@@ -1,6 +1,8 @@
 import Foundation
 import SwiftUI
+import Backend
 import Common
+import CommonUI
 
 struct ReviewView: View {
     var store: Store
@@ -9,6 +11,7 @@ struct ReviewView: View {
     var onSubmitted: () -> Void = {}
     @State var submitting = false
     @State var presentedError: String?
+    @Environment(API.self) var api
     @Environment(\.dismiss) var dismiss
     
     var body: some View {
@@ -56,23 +59,30 @@ struct ReviewView: View {
     private func listView() -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                ForEach(scanRecords.grouped(), id: \.storeItem.id) { group in
+                let sortedScanRecords = scanRecords.localizedStandardSorted(on: \.storeItem.name)
+                
+                ForEach(Array(sortedScanRecords.enumerated()), id: \.offset) { _, record in
                     HStack(alignment: .firstTextBaseline) {
                         VStack(alignment: .leading) {
-                            Text(group.storeItem.name)
-                            Text(group.storeItem.code)
+                            Text(record.storeItem.name)
+                            Text(record.storeItem.code).foregroundStyle(.secondary)
                         }
-
+                        
                         Spacer()
 
-                        Text("\(group.totalQuantity)")
+                        Text("\(record.quantity)").foregroundStyle(.secondary)
                     }
                     .padding(.horizontal)
                     .padding(.vertical, 9)
                     .overlay(alignment: .bottom) {
-                        Divider()
+                        Divider().padding(.leading)
                     }
                 }
+                
+                let totalQuantity = scanRecords.map(\.quantity).sum()
+                Text("Total: \(totalQuantity)").foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    .padding()
             }
         }
     }
@@ -110,12 +120,14 @@ struct ReviewView: View {
 
         let body = Body(
             vendorId: store.id,
-            changes: scanRecords.grouped().map {
-                .init(itemId: $0.storeItem.id, inc: $0.totalQuantity * factor)
+            changes: scanRecords.map {
+                .init(itemId: $0.storeItem.id, inc: $0.quantity * factor)
             }
         )
 
         let path = "/api/store/\(store.id)/catalog"
+
+        try await api.submit(store, scanRecords)
         // var request = try await InventoryServer.makeRequest(httpMethod: "POST", path: path)
         // request.httpBody = try! JSONEncoder().encode(body)
         
@@ -124,20 +136,40 @@ struct ReviewView: View {
 }
 
 #Preview {
-    NavigationStack {
-        ReviewView(
-            store: .mock,
-            scanMode: .add,
-            scanRecords: [
-                .init(storeItem: .init(id: "water-bottle", name: "Water Bottle", code: "WTBLT"), quantity: 5),
-                .init(storeItem: .init(id: "water-bottle", name: "Water Bottle", code: "WTBLT"), quantity: 3),
-                .init(storeItem: .init(id: "rock-salt", name: "Rock Salt", code: "RKST"), quantity: 2),
-                .init(storeItem: .init(id: "water-bottle", name: "Water Bottle", code: "WTBLT"), quantity: 1),
-                .init(storeItem: .init(id: "rock-salt", name: "Rock Salt", code: "RKST"), quantity: 4),
-            ]
-        )
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationTitle("Scanned Items")
+    struct PreviewView: View {
+        @State var ps = PresentationState()
+        @Environment(API.self) var api
+        
+        var body: some View {
+            ZStack {
+                ProgressView()
+                    .progressViewStyle(.circular)
+                    .tint(.secondary)
+                    .controlSize(.large)
+            }
+            .presentations(ps)
+            .onFirstAppear {
+                Task {
+                    let store = try await api.store()
+                    
+                    let scanRecords = (0..<10).map { _ in
+                        let storeItem = store.catalog.items.randomElement()!
+                        let quantity = Int.random(in: 1...20)
+                        return ScanRecord(storeItem: storeItem, quantity: quantity)
+                    }
+                    
+                    ps.presentSheet {
+                        ReviewView(
+                            store: store,
+                            scanMode: .add,
+                            scanRecords: scanRecords
+                        )
+                    }
+                }
+            }
+        }
     }
-    .preferredColorScheme(.dark)
+    
+    return PreviewView()
+        .previewEnvironment()
 }
