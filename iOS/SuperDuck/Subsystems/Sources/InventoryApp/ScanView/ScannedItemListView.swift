@@ -2,7 +2,6 @@ import Foundation
 import SwiftUI
 
 struct ScannedItemListView: View {
-    // @State var store = InventoryStore.shared
     var scannedItems: [ScannedItem]
     @Environment(\.dismiss) private var dismiss
     
