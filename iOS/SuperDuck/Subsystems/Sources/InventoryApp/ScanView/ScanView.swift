@@ -191,7 +191,7 @@ struct ScanView: View {
 extension ScanView {
     enum Mode {
         case add
-        case subtract
+        case remove
     }
 }
 

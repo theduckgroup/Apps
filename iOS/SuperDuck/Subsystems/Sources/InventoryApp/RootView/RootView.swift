@@ -69,7 +69,7 @@ public struct RootView: View {
                         
                         Button("Remove Items", systemImage: "minus.circle") {
                             ps.presentFullScreenCover {
-                                ScanView(store: storeFetcher.value!, mode: .subtract)
+                                ScanView(store: storeFetcher.value!, mode: .remove)
                             }
                         }
                     }
