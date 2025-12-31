@@ -19,7 +19,7 @@ extension API {
         return try await get(path: "inventory-app/store/\(Store.defaultStoreID)/stock")
     }
     
-    func submit(_ store: Store, _ scannedItems: [ScannedItem]) async throws {
+    func submit(_ store: Store, _ scanRecords: [ScanRecord]) async throws {
         // try await Task.sleep(for: .seconds(1))
 
         // Server logic

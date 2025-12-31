@@ -2,22 +2,22 @@ import Foundation
 import SwiftUI
 
 struct ScannedItemListView: View {
-    var scannedItems: [ScannedItem]
+    var scannedItems: [ScanRecord]
     @Environment(\.dismiss) private var dismiss
-    
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                ForEach(scannedItems.grouped(), id: \.item.itemID) { group in
+                ForEach(scannedItems.grouped(), id: \.storeItem.id) { group in
                     HStack(alignment: .firstTextBaseline) {
                         VStack(alignment: .leading) {
-                            Text(group.item.name)
-                            Text(group.item.code)
+                            Text(group.storeItem.name)
+                            Text(group.storeItem.code)
                         }
-                        
+
                         Spacer()
-                        
-                        Text("\(group.count)")
+
+                        Text("\(group.totalQuantity)")
                     }
                     .padding(.horizontal)
                     .padding(.vertical, 9)
@@ -34,11 +34,11 @@ struct ScannedItemListView: View {
     NavigationStack {
         ScannedItemListView(
             scannedItems: [
-                .init(itemID: "water-bottle", code: "WTBLT", name: "Water Bottle"),
-                .init(itemID: "water-bottle", code: "WTBLT", name: "Water Bottle"),
-                .init(itemID: "rock-salt", code: "RKST", name: "Rock Salt"),
-                .init(itemID: "water-bottle", code: "WTBLT", name: "Water Bottle"),
-                .init(itemID: "rock-salt", code: "RKST", name: "Rock Salt"),
+                .init(storeItem: .init(id: "water-bottle", name: "Water Bottle", code: "WTBLT"), quantity: 5),
+                .init(storeItem: .init(id: "water-bottle", name: "Water Bottle", code: "WTBLT"), quantity: 3),
+                .init(storeItem: .init(id: "rock-salt", name: "Rock Salt", code: "RKST"), quantity: 2),
+                .init(storeItem: .init(id: "water-bottle", name: "Water Bottle", code: "WTBLT"), quantity: 1),
+                .init(storeItem: .init(id: "rock-salt", name: "Rock Salt", code: "RKST"), quantity: 4),
             ]
         )
         .navigationBarTitleDisplayMode(.inline)

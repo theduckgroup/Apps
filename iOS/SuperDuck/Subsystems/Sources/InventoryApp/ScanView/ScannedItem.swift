@@ -1,22 +1,22 @@
 import Foundation
 
-struct ScannedItem {
-    let itemID: String
-    let code: String
-    let name: String
+struct ScanRecord {
+    let storeItem: Store.Item
+    let quantity: Int
 }
 
-struct ScannedItemGroup {
-    let item: ScannedItem
-    let count: Int
+struct ScanRecordGroup {
+    let storeItem: Store.Item
+    let totalQuantity: Int
 }
 
-extension Sequence<ScannedItem> {
-    func grouped() -> [ScannedItemGroup] {
-        Dictionary(grouping: self, by: \.itemID )
-            .map { key, items in
-                .init(item: items[0], count: items.count)
+extension Sequence<ScanRecord> {
+    func grouped() -> [ScanRecordGroup] {
+        Dictionary(grouping: self, by: \.storeItem.id)
+            .map { key, records in
+                let totalQuantity = records.reduce(0) { $0 + $1.quantity }
+                return ScanRecordGroup(storeItem: records[0].storeItem, totalQuantity: totalQuantity)
             }
-            .localizedStandardSorted(on: \.item.name)
+            .localizedStandardSorted(on: \.storeItem.name)
     }
 }

@@ -4,7 +4,7 @@ import Common
 
 struct ReviewView: View {
     var store: Store
-    var scannedItems: [ScannedItem]
+    var scannedItems: [ScanRecord]
     var scanMode: ScanView.Mode
     var finished: Bool
     var onSubmitted: () -> Void = {}
@@ -86,7 +86,7 @@ struct ReviewView: View {
         let body = Body(
             vendorId: store.id,
             changes: scannedItems.grouped().map {
-                .init(itemId: $0.item.itemID, inc: $0.count * factor)
+                .init(itemId: $0.storeItem.id, inc: $0.totalQuantity * factor)
             }
         )
 

@@ -9,7 +9,7 @@ struct ScanView: View {
     var store: Store
     var mode: Mode
     @State var detectedBarcodes: [String] = []
-    @State var scannedItems: [ScannedItem] = []
+    @State var scannedItems: [ScanRecord] = []
     @State var presentingFinishedView = false
     @State var presentingReviewView = false
     @State var presentingConfirmCancel = false
@@ -180,9 +180,9 @@ struct ScanView: View {
                 onCancel: {
                     ps.dismiss()
                 },
-                onDone: { value in
+                onDone: { quantity in
                     ps.dismiss()
-                    scannedItems.append(.init(itemID: item.id, code: item.code, name: item.name))
+                    scannedItems.append(.init(storeItem: item, quantity: quantity))
                 }
             )
         }
