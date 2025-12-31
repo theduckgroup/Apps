@@ -3,21 +3,21 @@ import Common
 
 @Observable
 public class Defaults {
-    private var data: Data {
-        didSet {
-            // TODO
-        }
-    }
+    private let storageKey = "InventoryApp:defaults"
 
     public init() {
-        // TODO
-        // @KeyValueCodableStorage("InventoryApp:defaults")
-        data = .init()
+        data = Persistence.value(for: storageKey) ?? .init()
     }
     
     var scanner: Scanner {
         get { data.scanner }
         set { data.scanner = newValue }
+    }
+    
+    private var data: Data {
+        didSet {
+            Persistence.setValue(data, for: storageKey)
+        }
     }
 }
 
@@ -26,20 +26,8 @@ extension Defaults {
         var scanner = Scanner()
     }
     
-    struct Scanner: Codable {
+    struct Scanner: Hashable, Codable {
         var minPresenceTime: TimeInterval = BarcodeScanner.defaultMinPresenceTime
         var minAbsenceTime: TimeInterval = BarcodeScanner.defaultMinAbsenceTime
-        
-        var isDefault: Bool {
-            minPresenceTime == BarcodeScanner.defaultMinPresenceTime &&
-            minAbsenceTime == BarcodeScanner.defaultMinAbsenceTime
-        }
-        
-        mutating func reset() {
-            self = .init(
-                minPresenceTime: BarcodeScanner.defaultMinPresenceTime,
-                minAbsenceTime: BarcodeScanner.defaultMinAbsenceTime
-            )
-        }
     }
 }
