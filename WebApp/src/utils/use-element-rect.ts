@@ -16,7 +16,7 @@ export function useElementRect(elementRef: React.RefObject<HTMLElement | null>):
 
   // This was used to clean up observation when elementRef changes
   // But we no longer do that...
-  const resizeObserverRef = useRef<ResizeObserver | null>(null) 
+  const resizeObserverRef = useRef<ResizeObserver | null>(null)
 
   const updateRect = useCallback(() => {
     const element = elementRef.current
@@ -56,12 +56,12 @@ export function useElementRect(elementRef: React.RefObject<HTMLElement | null>):
     resizeObserverRef.current = resizeObserver
 
     // Observe scroll and window resize
-    window.addEventListener('scroll', updateRect, true)
+    window.addEventListener('scroll', updateRect)
     window.addEventListener('resize', updateRect)
 
     return () => {
       resizeObserver.disconnect()
-      window.removeEventListener('scroll', updateRect, true)
+      window.removeEventListener('scroll', updateRect)
       window.removeEventListener('resize', updateRect)
     }
   }, [updateRect, elementRef])
