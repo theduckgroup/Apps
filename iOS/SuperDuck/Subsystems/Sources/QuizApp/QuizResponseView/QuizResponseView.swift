@@ -12,7 +12,6 @@ struct QuizResponseView: View {
     @State var ps = PresentationState()
     @Environment(API.self) var api
     @Environment(QuizAppDefaults.self) var defaults
-    @Environment(\.dynamicTypeSize) var systemDynamicTypeSize
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.dismiss) var dismiss
     
@@ -43,7 +42,13 @@ struct QuizResponseView: View {
                 for: .scrollContent
             )
             // .scrollDismissesKeyboard(.immediately)
-            .dynamicTypeSize(defaults.dynamicTypeSizeOverride?.dynamicTypeSize ?? systemDynamicTypeSize)
+            .modified {
+                if let dynamicTypeSizeOverride = defaults.dynamicTypeSizeOverride {
+                    $0.dynamicTypeSize(dynamicTypeSizeOverride.dynamicTypeSize)
+                } else {
+                    $0
+                }
+            }
             .navigationTitle("")
             .toolbar { toolbarContent() }
         }
