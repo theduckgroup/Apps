@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button, FocusTrap, Group, Modal, Stack, Text } from '@mantine/core'
+import { Button, ButtonVariant, DefaultMantineColor, FocusTrap, Group, Modal, Stack, Text } from '@mantine/core'
 import formatError from 'src/common/format-error'
 
 export function ConfirmModal({ opened, onClose, options: { title, message, actions } }: {
@@ -9,6 +9,16 @@ export function ConfirmModal({ opened, onClose, options: { title, message, actio
 }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<Error | undefined>()
+
+  if (!actions.find(x => x.role == 'cancel')) {
+    const cancelAction: ConfirmModal.Action = {
+      label: 'Cancel',
+      role: 'cancel',
+      handler: onClose
+    }
+    
+    actions = [cancelAction, ...actions]
+  }
 
   async function handleActionClick(action: ConfirmModal.Action) {
     try {
@@ -35,6 +45,7 @@ export function ConfirmModal({ opened, onClose, options: { title, message, actio
       opened={opened}
       onClose={onClose}
       title={title}
+      withCloseButton={!!title}
       closeOnClickOutside={false}
     >
       <Stack gap='md'>
@@ -46,14 +57,21 @@ export function ConfirmModal({ opened, onClose, options: { title, message, actio
         </Stack>
 
         <Group justify='flex-end'>
-          <Button variant='default' onClick={onClose}>
-            Cancel
-          </Button>
           {actions.map(action => {
+            const [variant, color]: [ButtonVariant, DefaultMantineColor | undefined] = (() => {
+              const role = action.role ?? 'confirm'
+
+              switch (role) {
+                case 'cancel': return ['default', undefined]
+                case 'confirm': return ['filled', undefined /* theme color */]
+                case 'destructive': return ['filled', 'red']
+              }
+            })()
+
             return (
               <Button
-                variant='filled'
-                color={(action.role ?? 'confirm') == 'confirm' ? undefined : 'red'}
+                variant={variant}
+                color={color}
                 onClick={() => handleActionClick(action)}
                 loading={loading}
                 disabled={loading}
@@ -77,7 +95,7 @@ export namespace ConfirmModal {
 
   export type Action = {
     label: React.ReactNode
-    role?: 'confirm' | 'destructive'
+    role?: 'cancel' | 'confirm' | 'destructive'
     handler: () => void | Promise<void>
   }
 }
