@@ -1,4 +1,4 @@
-import { Button, Checkbox, CopyButton as MantineCopyButton, Flex, Modal, Paper, Slider, Stack, Text, Textarea, Title } from '@mantine/core'
+import { Button, Checkbox, CopyButton as MantineCopyButton, Flex, Modal, Slider, Stack, Text, Textarea } from '@mantine/core'
 import { useLocalStorage } from '@mantine/hooks'
 import { useEffect, useRef, useState } from 'react'
 
