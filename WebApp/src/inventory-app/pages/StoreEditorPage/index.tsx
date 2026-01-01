@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 import { useMutation } from '@tanstack/react-query'
-import { Anchor, Button, Group, Loader, Stack, Text, Title } from '@mantine/core'
+import { Anchor, Box, Button, Group, Loader, Stack, Text, Title } from '@mantine/core'
 import { IconArrowBackUp, IconChevronLeft } from '@tabler/icons-react'
 
 import { useApi, usePath } from 'src/app/contexts'
@@ -11,6 +11,8 @@ import formatError from 'src/common/format-error'
 import useModal from 'src/utils/use-modal'
 import { ConfirmModal } from 'src/utils/ConfirmModal'
 import { Dispatch, ValueOrReducer } from 'src/utils/types-lib'
+import { useElementRect } from 'src/utils/use-element-rect'
+import { useViewportSize } from '@mantine/hooks'
 
 export default function StoreEditorPage() {
   const { storeId } = useParams()
@@ -62,94 +64,120 @@ export default function StoreEditorPage() {
 
   const setStoreAndSave: Dispatch<ValueOrReducer<InvStore | null>> = useCallback(valueOrReducer => {
     setStore(valueOrReducer)
-    setNeedsSave()
     setDirty(true)
-  }, [setStore, setNeedsSave])
+  }, [setStore])
 
-  const revertStoreAndSave = useCallback(() => {
-    setStore(initialStore)
+  const handleSaveChanges = useCallback(() => {
     setNeedsSave()
     setDirty(false)
-  }, [initialStore, setStore, setNeedsSave])
+  }, [setNeedsSave])
+
+  const handleDiscardChanges = useCallback(() => {
+    setStore(initialStore)
+    setDirty(false)
+  }, [initialStore, setStore])
+
+  const [mainRef, mainRect] = useElementRect()
+  const viewportSize = useViewportSize()
 
   return (
-    <Stack align='flex-start' gap='lg'>
-      {/* Save error */}
-      {
-        saveError &&
-        <Stack align='center'>
-          <Group>
-            <Text c='red'>{formatError(saveError)}</Text>
-            {/* <Button variant='subtle' size='compact-md'>Retry</Button> */}
-            <Anchor href='#' onClick={() => saveStore(store!)}>Retry</Anchor>
+    <>
+      <Stack ref={mainRef} align='flex-start' gap='lg'>
+        {/* Save error */}
+        {
+          saveError &&
+          <Stack align='center'>
+            <Group>
+              <Text c='red'>{formatError(saveError)}</Text>
+              {/* <Button variant='subtle' size='compact-md'>Retry</Button> */}
+              <Anchor href='#' onClick={() => saveStore(store!)}>Retry</Anchor>
+            </Group>
+          </Stack>
+        }
+
+        {/* Back link */}
+        <Anchor size='sm' href='#' onClick={() => navigate(`/`)}>
+          <Group gap='0.2rem'>
+            <IconChevronLeft size={18} />
+            Back to Inventory
           </Group>
-        </Stack>
-      }
+        </Anchor>
 
-      {/* Back link */}
-      <Anchor size='sm' href='#' onClick={() => navigate(`/`)}>
-        <Group gap='0.2rem'>
-          <IconChevronLeft size={18} />
-          Back to Inventory
-        </Group>
-      </Anchor>
+        {/* Content */}
+        {(() => {
+          if (isLoading) {
+            return <Text>Loading...</Text>
+          }
 
-      {/* Content */}
-      {(() => {
-        if (isLoading) {
-          return <Text>Loading...</Text>
-        }
+          if (loadError) {
+            return <Text c='red'>{formatError(loadError)}</Text>
+          }
 
-        if (loadError) {
-          return <Text c='red'>{formatError(loadError)}</Text>
-        }
+          if (!store) {
+            return <>???</>
+          }
 
-        if (!store) {
-          return <>???</>
-        }
+          return (
+            <>
+              <title>{store.name + ' | The Duck Group'}</title>
+              <MetaAndContent
+                store={store}
+                setStore={setStoreAndSave}
+                saving={isSaving}
+                dirty={dirty}
+              />
+            </>
+          )
+        })()}
+      </Stack>
 
-        return (
-          <>
-            <title>{store.name + ' | The Duck Group'}</title>
-            <MetaAndContent
-              store={store}
-              setStore={setStoreAndSave}
-              revertStore={revertStoreAndSave}
-              saving={isSaving}
-              dirty={dirty}
-            />
-          </>
-        )
-      })()}
-    </Stack >
+      {/* Floating save bar */}
+      {dirty && (
+        <>
+          {/* pb-[max(1rem, env(safe-area-inset-bottom))]  */}
+          <div
+            className='
+              fixed left-0 right-0 bottom-0 h-24 pb-[env(safe-area-inset-bottom)] 
+              bg-[var(--mantine-color-dark-6)]
+            '
+          />
+          {/* <div className='sticky bottom-0 pt-6 pb-[env(safe-area-inset-bottom)] flex justify-center items-center'> */}
+          <div
+            className='
+              fixed bottom-0 h-24 pb-[env(safe-area-inset-bottom)] 
+              bg-[var(--mantine-color-dark-6)]
+              flex justify-center
+            '
+            style={{
+              right: viewportSize.width - (mainRect?.right ?? 0)
+            }}
+          >
+            <div className='mb-4 bg-[var(--mantine-color-dark-6)] rounded-lg'>
+              <div className='flex flex-row items-center px-6 py-4 gap-4 pointer-events-auto'>
+                <Button variant='default' onClick={handleDiscardChanges} disabled={isSaving}>
+                  Discard Changes
+                </Button>
+                <Button onClick={handleSaveChanges} loading={isSaving}>
+                  Save Changes
+                </Button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </>
   )
 }
 
 /**
  * Store meta (name etc) and content (items and sections).
  */
-function MetaAndContent({ store, setStore, revertStore, saving, dirty }: {
+function MetaAndContent({ store, setStore, saving, dirty }: {
   store: InvStore
   setStore: Dispatch<ValueOrReducer<InvStore | null>>,
-  revertStore: () => void
   saving: boolean
   dirty: boolean
 }) {
-  const confirmModal = useModal(ConfirmModal)
-
-  function handleRevert() {
-    confirmModal.open({
-      title: 'Revert changes?',
-      message: 'Data will be reverted back to the state when you visited this page (before any changes were made).',
-      actions: [
-        {
-          label: 'Revert',
-          role: 'destructive',
-          handler: revertStore
-        }
-      ]
-    })
-  }
 
   type Reducer<T> = (prev: T) => T
 
@@ -167,28 +195,12 @@ function MetaAndContent({ store, setStore, revertStore, saving, dirty }: {
         {/* Metadata + Edit button */}
         {/* <Stack w='100%' gap='xs' align='flex-start' mr='auto'> */}
         <Stack className='w-full gap-2 items-start mr-auto'>
-          {/* Title + Edit button + Saving loader + Reset button */}
+          {/* Title + Saving loader */}
           <Group bg='dark.9' pt='sm' className='gap-2 items-baseline'>
             {/* Name */}
             <Title order={1} c='gray.1'>Edit Items</Title>
-            {/* Edit button */}
-            {/* <Button variant='light' size='compact-xs' fw='normal' onClick={handleEdit}>
-              <Group gap='0.25rem'>
-                <IconPencil size={13} />
-                Edit
-              </Group>
-            </Button> */}
             {/* Save loader */}
             {saving && <Loader ml='auto' size='xs' />}
-            {/* Revert button */}
-            {(dirty && !saving) &&
-              <Button ml='auto' variant='light' size='compact-sm' fw='normal' onClick={handleRevert}>
-                <Group gap='0.35rem'>
-                  <IconArrowBackUp size={15} />
-                  Revert
-                </Group>
-              </Button>
-            }
           </Group>
           {/* Code, items per page */}
           {/* <Stack gap='0'>
@@ -204,10 +216,6 @@ function MetaAndContent({ store, setStore, revertStore, saving, dirty }: {
         sections={store.catalog.sections}
         setData={setData}
       />
-
-      {/* Modals */}
-      {confirmModal.element}
-
     </Stack>
   )
 }
