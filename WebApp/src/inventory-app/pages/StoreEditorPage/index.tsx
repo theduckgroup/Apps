@@ -40,7 +40,7 @@ export default function StoreEditorPage() {
 
   // Save
 
-  const { mutate: saveStore, mutateAsync: saveStoreAsync, error: saveError, isPending: saving } = useMutation({
+  const { mutateAsync: saveStoreAsync } = useMutation({
     mutationFn: async (store: InvStore) => {
       // await sleep(1000)
       // throw new Error('Excepteur dolor culpa aute ea magna proident ad adipisicing fugiat ad. Excepteur dolor culpa aute ea magna proident ad adipisicing fugiat ad.')
@@ -101,8 +101,6 @@ export default function StoreEditorPage() {
                   setDidChange(true)
                   setHasUnsavedChanges(true)
                 }}
-                saving={saving}
-                dirty={hasUnsavedChanges}
               />
             </>
           )
@@ -128,11 +126,9 @@ export default function StoreEditorPage() {
 /**
  * Store meta (name etc) and content (items and sections).
  */
-function MetaAndContent({ store, setStore, saving, dirty }: {
+function MetaAndContent({ store, setStore }: {
   store: InvStore
-  setStore: Dispatch<ValueOrReducer<InvStore | null>>,
-  saving: boolean
-  dirty: boolean
+  setStore: Dispatch<ValueOrReducer<InvStore | null>>
 }) {
 
   type Reducer<T> = (prev: T) => T

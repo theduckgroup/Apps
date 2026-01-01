@@ -64,7 +64,7 @@ export default function TemplateEditorPage() {
 
   // Save
 
-  const { mutate: saveTemplate, mutateAsync: saveTemplateAsync, error: saveError, isPending: saving } = useMutation({
+  const { mutateAsync: saveTemplateAsync } = useMutation({
     mutationFn: async (template: WsTemplate) => {
       // await sleep(1000)
       // throw new Error('Nisi minim ea culpa aliquip.')
