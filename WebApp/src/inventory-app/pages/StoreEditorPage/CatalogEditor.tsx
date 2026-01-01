@@ -601,9 +601,8 @@ function RowComponent({ item, rowIndex, addItem, editItem, deleteItem, validateI
   }
 
   return (
-    <Group
-      className='w-full flex-nowrap items-start pl-4 pr-4 py-4 border-b-1 border-b-neutral-700'
-      gap='md'
+    <div
+      className='w-full flex flex-row flex-nowrap items-start gap-4 pl-4 pr-4 py-4 border-b-1 border-b-neutral-700'
     >
       {/* Item name + code */}
       <Stack mr='auto' gap='0.25rem' align='start'>
@@ -639,7 +638,7 @@ function RowComponent({ item, rowIndex, addItem, editItem, deleteItem, validateI
 
       {/* Modals */}
       {editItemModal.element}
-    </Group>
+    </div>
   )
 }
 
