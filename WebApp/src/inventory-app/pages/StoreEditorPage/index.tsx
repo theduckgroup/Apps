@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router'
 import { useMutation } from '@tanstack/react-query'
 import { Anchor, Box, Button, Group, Loader, Stack, Text, Title } from '@mantine/core'
@@ -11,8 +11,8 @@ import formatError from 'src/common/format-error'
 import useModal from 'src/utils/use-modal'
 import { ConfirmModal } from 'src/utils/ConfirmModal'
 import { Dispatch, ValueOrReducer } from 'src/utils/types-lib'
-import { useElementRect } from 'src/utils/use-element-rect'
-import { useViewportSize } from '@mantine/hooks'
+import { EditorFooter } from 'src/utils/EditorFooter'
+import sleep from 'src/common/sleep'
 
 export default function StoreEditorPage() {
   const { storeId } = useParams()
@@ -43,34 +43,22 @@ export default function StoreEditorPage() {
 
   const { mutate: saveStore, error: saveError, isPending: saving } = useMutation({
     mutationFn: async (store: InvStore) => {
+      await sleep(1000)
+      throw new Error('Excepteur dolor culpa aute ea magna proident ad adipisicing fugiat ad. Excepteur dolor culpa aute ea magna proident ad adipisicing fugiat ad.')
+
       const body = store.catalog
       await axios.put(`store/${storeId}/catalog`, body)
+    },
+    onSuccess: () => {
+      setHasUnsavedChanges(false)
     }
   })
 
-  const handleSaveChanges = useCallback(() => {
-    saveStore(store!)
-    setHasUnsavedChanges(false)
-  }, [store, saveStore])
-
-  const [mainRef, mainRect] = useElementRect()
-  const viewportSize = useViewportSize()
+  const mainRef = useRef<HTMLDivElement>(null)
 
   return (
     <>
       <div ref={mainRef} className='flex flex-col gap-6 items-start'>
-        {/* Save error */}
-        {
-          saveError &&
-          <Stack align='center'>
-            <Group>
-              <Text c='red'>{formatError(saveError)}</Text>
-              {/* <Button variant='subtle' size='compact-md'>Retry</Button> */}
-              <Anchor href='#' onClick={() => saveStore(store!)}>Retry</Anchor>
-            </Group>
-          </Stack>
-        }
-
         {/* Back link */}
         <Anchor size='sm' href='#' onClick={() => navigate(`/`)}>
           <Group gap='0.2rem'>
@@ -111,29 +99,14 @@ export default function StoreEditorPage() {
         })()}
       </div>
 
-      {/* Floating save bar */}
-      {didChange && (
-        <>
-          {/* pb-[max(1rem, env(safe-area-inset-bottom))]  */}
-          <div className='h-26' />
-          <div
-            className='
-              fixed left-0 right-0 bottom-0 h-22 pb-[env(safe-area-inset-bottom)] 
-              bg-[var(--mantine-color-dark-7)]
-              flex justify-end
-            '
-            style={{
-              paddingRight: viewportSize.width - (mainRect?.right ?? 0)
-            }}
-          >
-            <div className='flex flex-row items-center px-4 py-4 gap-4'>
-              <Button onClick={handleSaveChanges} loading={saving} disabled={!hasUnsavedChanges}>
-                Save Changes
-              </Button>
-            </div>
-          </div>
-        </>
-      )
+      {didChange &&
+        <EditorFooter
+          editorRef={mainRef}
+          save={() => saveStore(store!)}
+          isSaving={saving}
+          hasUnsavedChanges={hasUnsavedChanges}
+          saveError={saveError}
+        />
       }
     </>
   )

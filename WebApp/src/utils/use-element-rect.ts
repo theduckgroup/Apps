@@ -11,28 +11,12 @@ export interface ElementRect {
   left: number
 }
 
-/**
- * Hook that tracks an element's position and dimensions
- *
- * @example
- * ```tsx
- * function MyComponent() {
- *   const [ref, rect] = useElementRect()
- *
- *   return (
- *     <div ref={ref}>
- *       Position: {rect?.x}, {rect?.y}
- *     </div>
- *   )
- * }
- * ```
- */
-export function useElementRect<T extends HTMLElement = HTMLElement>(
-
-): [(node: T | null) => void, ElementRect | null] {
-  const elementRef = useRef<T | null>(null)
+export function useElementRect(elementRef: React.RefObject<HTMLElement | null>): ElementRect | null {
   const [rect, setRect] = useState<ElementRect | null>(null)
-  const resizeObserverRef = useRef<ResizeObserver | null>(null)
+
+  // This was used to clean up observation when elementRef changes
+  // But we no longer do that...
+  const resizeObserverRef = useRef<ResizeObserver | null>(null) 
 
   const updateRect = useCallback(() => {
     const element = elementRef.current
@@ -53,30 +37,13 @@ export function useElementRect<T extends HTMLElement = HTMLElement>(
       bottom: domRect.bottom,
       left: domRect.left
     })
-  }, [])
-
-  const ref = useCallback((node: T | null) => {
-    // Cleanup previous element
-    if (resizeObserverRef.current) {
-      resizeObserverRef.current.disconnect()
-      resizeObserverRef.current = null
-    }
-
-    elementRef.current = node
-
-    if (!node) {
-      setRect(null)
-      return
-    }
-
-    // Update rect immediately
-    updateRect()
-  }, [updateRect])
+  }, [elementRef])
 
   useEffect(() => {
     const element = elementRef.current
 
     if (!element) {
+      setRect(null) // eslint-disable-line react-hooks/set-state-in-effect
       return
     }
 
@@ -89,7 +56,7 @@ export function useElementRect<T extends HTMLElement = HTMLElement>(
     resizeObserverRef.current = resizeObserver
 
     // Observe scroll and window resize
-    window.addEventListener('scroll', updateRect, true) // Use capture to catch all scrolls
+    window.addEventListener('scroll', updateRect, true)
     window.addEventListener('resize', updateRect)
 
     return () => {
@@ -97,7 +64,7 @@ export function useElementRect<T extends HTMLElement = HTMLElement>(
       window.removeEventListener('scroll', updateRect, true)
       window.removeEventListener('resize', updateRect)
     }
-  }, [updateRect])
+  }, [updateRect, elementRef])
 
-  return [ref, rect]
+  return rect
 }
