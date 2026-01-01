@@ -133,7 +133,7 @@ function validateQuiz(quiz: QuizSchemaInferredType) {
 
   const rowItemIDs = new Set<string>()
 
-  let errors: string[] = []
+  const errors: string[] = []
 
   for (const section of quiz.sections) {
     for (const row of section.rows) {
