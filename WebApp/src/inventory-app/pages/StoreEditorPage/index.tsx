@@ -135,36 +135,54 @@ export default function StoreEditorPage() {
       {dirty && (
         <>
           {/* pb-[max(1rem, env(safe-area-inset-bottom))]  */}
+          <div className='h-26' />
           <div
             className='
-              fixed left-0 right-0 bottom-0 h-24 pb-[env(safe-area-inset-bottom)] 
+              fixed left-0 right-0 bottom-0 h-22 pb-[env(safe-area-inset-bottom)] 
               bg-[var(--mantine-color-dark-6)]
+              flex justify-end
             '
-          />
+            style={{
+              paddingRight: viewportSize.width - (mainRect?.right ?? 0)
+            }}
+          >
+            <div className='flex flex-row items-center px-4 py-4 gap-4'>
+              <Button variant='default' onClick={handleDiscardChanges} disabled={isSaving}>
+                Discard Changes
+              </Button>
+              <Button onClick={handleSaveChanges} loading={isSaving}>
+                Save Changes
+              </Button>
+            </div>
+          </div>
           {/* <div className='sticky bottom-0 pt-6 pb-[env(safe-area-inset-bottom)] flex justify-center items-center'> */}
-          <div
+          {/* <div
+            // className='
+            //   fixed bottom-0 h-22 pb-[env(safe-area-inset-bottom)] 
+            //   //bg-[var(--mantine-color-dark-6)]
+            //   flex justify-center items-center
+            // '
             className='
-              fixed bottom-0 h-24 pb-[env(safe-area-inset-bottom)] 
+              fixed left-0 bottom-0 h-22 pb-[env(safe-area-inset-bottom)] 
               bg-[var(--mantine-color-dark-6)]
-              flex justify-center
+              flex justify-center items-center
             '
             style={{
               right: viewportSize.width - (mainRect?.right ?? 0)
             }}
           >
-            <div className='mb-4 bg-[var(--mantine-color-dark-6)] rounded-lg'>
-              <div className='flex flex-row items-center px-6 py-4 gap-4 pointer-events-auto'>
-                <Button variant='default' onClick={handleDiscardChanges} disabled={isSaving}>
-                  Discard Changes
-                </Button>
-                <Button onClick={handleSaveChanges} loading={isSaving}>
-                  Save Changes
-                </Button>
-              </div>
+            <div className='flex flex-row items-center px-4 py-4 gap-4'>
+              <Button variant='default' onClick={handleDiscardChanges} disabled={isSaving}>
+                Discard Changes
+              </Button>
+              <Button onClick={handleSaveChanges} loading={isSaving}>
+                Save Changes
+              </Button>
             </div>
-          </div>
+          </div> */}
         </>
-      )}
+      )
+      }
     </>
   )
 }

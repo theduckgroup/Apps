@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 export interface ElementRect {
   x: number
@@ -9,20 +9,6 @@ export interface ElementRect {
   right: number
   bottom: number
   left: number
-}
-
-export interface UseElementRectOptions {
-  /**
-   * Whether to observe element size changes
-   * @default true
-   */
-  observeSize?: boolean
-
-  /**
-   * Whether to observe scroll/resize events
-   * @default true
-   */
-  observeScroll?: boolean
 }
 
 /**
@@ -42,56 +28,76 @@ export interface UseElementRectOptions {
  * ```
  */
 export function useElementRect<T extends HTMLElement = HTMLElement>(
-  options: UseElementRectOptions = {}
-): [React.RefObject<T | null>, ElementRect | null] {
-  const { observeSize = true, observeScroll = true } = options
-  const ref = useRef<T | null>(null)
+
+): [(node: T | null) => void, ElementRect | null] {
+  const elementRef = useRef<T | null>(null)
   const [rect, setRect] = useState<ElementRect | null>(null)
+  const resizeObserverRef = useRef<ResizeObserver | null>(null)
+
+  const updateRect = useCallback(() => {
+    const element = elementRef.current
+
+    if (!element) {
+      return
+    }
+
+    const domRect = element.getBoundingClientRect()
+
+    setRect({
+      x: domRect.x,
+      y: domRect.y,
+      width: domRect.width,
+      height: domRect.height,
+      top: domRect.top,
+      right: domRect.right,
+      bottom: domRect.bottom,
+      left: domRect.left
+    })
+  }, [])
+
+  const ref = useCallback((node: T | null) => {
+    // Cleanup previous element
+    if (resizeObserverRef.current) {
+      resizeObserverRef.current.disconnect()
+      resizeObserverRef.current = null
+    }
+
+    elementRef.current = node
+
+    if (!node) {
+      setRect(null)
+      return
+    }
+
+    // Update rect immediately
+    updateRect()
+  }, [updateRect])
 
   useEffect(() => {
-    const element = ref.current
-    if (!element) return
+    const element = elementRef.current
 
-    const updateRect = () => {
-      const domRect = element.getBoundingClientRect()
-      setRect({
-        x: domRect.x,
-        y: domRect.y,
-        width: domRect.width,
-        height: domRect.height,
-        top: domRect.top,
-        right: domRect.right,
-        bottom: domRect.bottom,
-        left: domRect.left
-      })
+    if (!element) {
+      return
     }
 
     // Initial measurement
     updateRect()
 
     // Observe size changes
-    let resizeObserver: ResizeObserver | null = null
-    if (observeSize) {
-      resizeObserver = new ResizeObserver(updateRect)
-      resizeObserver.observe(element)
-    }
+    const resizeObserver = new ResizeObserver(updateRect)
+    resizeObserver.observe(element)
+    resizeObserverRef.current = resizeObserver
 
     // Observe scroll and window resize
-    if (observeScroll) {
-      window.addEventListener('scroll', updateRect, true) // Use capture to catch all scrolls
-      window.addEventListener('resize', updateRect)
-    }
+    window.addEventListener('scroll', updateRect, true) // Use capture to catch all scrolls
+    window.addEventListener('resize', updateRect)
 
     return () => {
-      if (resizeObserver) {
-        resizeObserver.disconnect()
-      }
-      if (observeScroll) {
-        window.removeEventListener('scroll', updateRect, true)
-        window.removeEventListener('resize', updateRect)
-      }
+      resizeObserver.disconnect()
+      window.removeEventListener('scroll', updateRect, true)
+      window.removeEventListener('resize', updateRect)
     }
-  }, [observeSize, observeScroll])
+  }, [updateRect])
 
   return [ref, rect]
 }
