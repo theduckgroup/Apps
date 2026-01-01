@@ -11,6 +11,7 @@ import formatError from 'src/common/format-error'
 import { Dispatch, ValueOrReducer } from 'src/utils/types-lib'
 import { EditorFooter } from 'src/utils/EditorFooter'
 import { UnsavedChangesModal } from 'src/utils/UnsavedChangesModal'
+import { useBeforeUnload } from 'src/utils/use-before-unload'
 
 export default function StoreEditorPage() {
   const { storeId } = useParams()
@@ -52,19 +53,7 @@ export default function StoreEditorPage() {
     }
   })
 
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (hasUnsavedChanges) {
-        e.preventDefault()
-      }
-    }
-
-    window.addEventListener('beforeunload', handleBeforeUnload)
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload)
-    }
-  }, [hasUnsavedChanges])
+  useBeforeUnload(hasUnsavedChanges)
 
   return (
     <>

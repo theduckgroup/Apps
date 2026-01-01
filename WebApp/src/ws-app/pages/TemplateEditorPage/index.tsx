@@ -14,7 +14,7 @@ import useModal from 'src/utils/use-modal'
 import formatError from 'src/common/format-error'
 import { EditorFooter } from 'src/utils/EditorFooter'
 import { UnsavedChangesModal } from 'src/utils/UnsavedChangesModal'
-import sleep from 'src/common/sleep'
+import { useBeforeUnload } from 'src/utils/use-before-unload'
 
 export default function TemplateEditorPage() {
   const { templateId } = useParams()
@@ -75,19 +75,7 @@ export default function TemplateEditorPage() {
     }
   })
 
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (hasUnsavedChanges) {
-        e.preventDefault()
-      }
-    }
-
-    window.addEventListener('beforeunload', handleBeforeUnload)
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload)
-    }
-  }, [hasUnsavedChanges])
+  useBeforeUnload(hasUnsavedChanges)
 
   return (
     <>
