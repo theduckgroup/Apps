@@ -43,9 +43,8 @@ export default function StoreEditorPage() {
 
   const { mutate: saveStore, error: saveError, isPending: saving } = useMutation({
     mutationFn: async (store: InvStore) => {
-      await sleep(1000)
-      throw new Error('Excepteur dolor culpa aute ea magna proident ad adipisicing fugiat ad. Excepteur dolor culpa aute ea magna proident ad adipisicing fugiat ad.')
-
+      // await sleep(1000)
+      // throw new Error('Excepteur dolor culpa aute ea magna proident ad adipisicing fugiat ad. Excepteur dolor culpa aute ea magna proident ad adipisicing fugiat ad.')
       const body = store.catalog
       await axios.put(`store/${storeId}/catalog`, body)
     },
