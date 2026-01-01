@@ -14,6 +14,7 @@ import useModal from 'src/utils/use-modal'
 import formatError from 'src/common/format-error'
 import { EditorFooter } from 'src/utils/EditorFooter'
 import { UnsavedChangesModal } from 'src/utils/UnsavedChangesModal'
+import sleep from 'src/common/sleep'
 
 export default function TemplateEditorPage() {
   const { templateId } = useParams()
@@ -63,8 +64,10 @@ export default function TemplateEditorPage() {
 
   // Save
 
-  const { mutate: saveTemplate, error: saveError, isPending: saving } = useMutation({
+  const { mutate: saveTemplate, mutateAsync: saveTemplateAsync, error: saveError, isPending: saving } = useMutation({
     mutationFn: async (template: WsTemplate) => {
+      // await sleep(1000)
+      // throw new Error('Nisi minim ea culpa aliquip.')
       await axios.put(`/templates/${template.id}`, template)
     },
     onSuccess: () => {
@@ -139,9 +142,7 @@ export default function TemplateEditorPage() {
 
       <UnsavedChangesModal
         blocker={blocker}
-        save={() => saveTemplate(template!)}
-        saving={saving}
-        saveError={saveError}
+        save={() => saveTemplateAsync(template!)}
       />
     </>
   )

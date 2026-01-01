@@ -1,18 +1,34 @@
+import { useState } from 'react'
 import { Button, FocusTrap, Group, Modal, Stack, Text } from '@mantine/core'
 import { Blocker } from 'react-router'
 import formatError from 'src/common/format-error'
 
-export function UnsavedChangesModal({ blocker, save, saving, saveError }: {
+export function UnsavedChangesModal({ blocker, save }: {
   blocker: Blocker
-  save: () => void
-  saving: boolean
-  saveError: Error | null
+  save: () => Promise<void>
 }) {
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<Error | null>(null)
+
+  async function handleSave() {
+    try {
+      setError(null)
+      setSaving(true)
+      await save()
+      blocker.proceed?.()
+    } catch (e) {
+      setError(e as Error)
+    } finally {
+      setSaving(false)
+    }
+  }
+
   return (
     <Modal
       opened={blocker.state === 'blocked'}
       onClose={() => blocker.reset?.()}
       title='Unsaved Changes'
+      size='md'
       closeOnClickOutside={false}
     >
       <Stack gap='md'>
@@ -22,9 +38,9 @@ export function UnsavedChangesModal({ blocker, save, saving, saveError }: {
           <Text>You have unsaved changes. Discard?</Text>
         </Stack>
 
-        {saveError && (
+        {error && (
           <Text size='sm' c='red'>
-            {formatError(saveError)}
+            {formatError(error)}
           </Text>
         )}
 
@@ -46,7 +62,7 @@ export function UnsavedChangesModal({ blocker, save, saving, saveError }: {
           </Button>
           <Button
             variant='filled'
-            onClick={save}
+            onClick={handleSave}
             loading={saving}
             disabled={saving}
           >

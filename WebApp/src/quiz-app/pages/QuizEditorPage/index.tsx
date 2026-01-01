@@ -62,7 +62,7 @@ export default function QuizEditorPage() {
 
   // Save
 
-  const { mutate: saveQuiz, error: saveError, isPending: saving } = useMutation({
+  const { mutate: saveQuiz, mutateAsync: saveQuizAsync, error: saveError, isPending: saving } = useMutation({
     mutationFn: async (quiz: Quiz) => {
       await axios.put(`/quiz/${quiz.id}`, quiz)
     },
@@ -138,9 +138,7 @@ export default function QuizEditorPage() {
 
       <UnsavedChangesModal
         blocker={blocker}
-        save={() => saveQuiz(quiz!)}
-        saving={saving}
-        saveError={saveError}
+        save={() => saveQuizAsync(quiz!)}
       />
     </>
   )
