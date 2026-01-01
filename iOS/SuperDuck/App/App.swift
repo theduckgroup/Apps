@@ -30,6 +30,6 @@ let api = {
     }
 }()
 
-let appDefaults = AppModule.Defaults()
+let appDefaults = AppModule.AppDefaults()
 
-let inventoryAppDefaults = InventoryApp.Defaults()
+let inventoryAppDefaults = InventoryApp.InventoryAppDefaults()

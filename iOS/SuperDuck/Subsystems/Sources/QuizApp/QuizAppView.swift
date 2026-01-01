@@ -5,7 +5,7 @@ import Backend
 import Common
 import CommonUI
 
-public struct RootView: View {
+public struct QuizAppView: View {
     @State var quizFetcher = ValueFetcher<Quiz>()
     // @AppStorage("App:persistedQuizName") var persistedQuizName: String = ""
     @State var presentedQuiz: Quiz?
@@ -68,6 +68,6 @@ public struct RootView: View {
 }
 
 #Preview {
-    RootView()
+    QuizAppView()
         .previewEnvironment()
 }

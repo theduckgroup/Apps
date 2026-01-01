@@ -6,7 +6,7 @@ import CommonUI
 struct QRAppearanceView: View {
     // TODO: Use AppStorage or QuizApp.Defaults rather than sharing app defaults
     @Binding var dynamicTypeSizeOverride: DynamicTypeSizeOverride?
-    @Environment(AppModule.Defaults.self) var appDefaults
+    @Environment(AppModule.AppDefaults.self) var appDefaults
     @Environment(\.dynamicTypeSize) private var systemDynamicTypeSize
     
     init(dynamicTypeSizeOverride: Binding<DynamicTypeSizeOverride?>) {

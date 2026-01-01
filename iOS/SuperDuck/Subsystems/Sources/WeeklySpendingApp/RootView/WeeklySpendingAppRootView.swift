@@ -5,7 +5,7 @@ import Backend
 import Common
 import CommonUI
 
-public struct RootView: View {
+public struct WeeklySpendingAppView: View {
     @State var templateFetcher = ValueFetcher<WSTemplate>()
     @State var reportsFetcher = ValueFetcher<[WSReportMeta]>()
     @State var presentedReportMeta: WSReportMeta?
@@ -91,6 +91,6 @@ public struct RootView: View {
 }
 
 #Preview {
-    RootView()
+    WeeklySpendingAppView()
         .previewEnvironment()
 }

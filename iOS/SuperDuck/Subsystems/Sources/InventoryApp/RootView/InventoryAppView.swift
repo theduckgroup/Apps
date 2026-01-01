@@ -5,7 +5,7 @@ import Backend
 import Common
 import CommonUI
 
-public struct RootView: View {
+public struct InventoryAppView: View {
     @State var storeFetcher = ValueFetcher<Store>()
     @State var presentingStockView = false
     @State var ps = PresentationState()
@@ -91,7 +91,7 @@ public struct RootView: View {
 #Preview {
     TabView() {
         Tab("Inventory", image: "document.fill") {
-            RootView()
+            InventoryAppView()
         }
         
         Tab("FOH Test", image: "document.fill") {

@@ -19,7 +19,7 @@ struct ScanView: View {
     @State var rectOfInterest: CGRect?
     @State var ps = PresentationState()
     @Environment(\.dismiss) private var dismiss
-    @Environment(InventoryApp.Defaults.self) private var defaults
+    @Environment(InventoryApp.InventoryAppDefaults.self) private var defaults
     
     init(store: Store, mode: Mode) {
         self.store = store

@@ -13,7 +13,7 @@ public extension View {
 
 private struct Impl: ViewModifier {
     @State var uikitContext = UIKitContext()
-    @Environment(AppModule.Defaults.self) private var appDefaults
+    @Environment(AppModule.AppDefaults.self) private var appDefaults
     
     func body(content: Content) -> some View {
         // Notes:

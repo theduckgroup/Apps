@@ -3,7 +3,7 @@ import Common
 
 @Observable
 @dynamicMemberLookup
-public class Defaults {
+public class InventoryAppDefaults {
     private let storageKey = "InventoryApp:defaults"
     
     public init() {
@@ -26,7 +26,7 @@ public class Defaults {
     }
 }
 
-extension Defaults {
+extension InventoryAppDefaults {
     struct Data: Codable {
         var scanner = Scanner()
     }
