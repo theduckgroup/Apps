@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useState } from 'react'
-import { useParams } from 'react-router'
-import { Anchor, Button, Group, Loader, Stack, Text, Title } from '@mantine/core'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useBlocker, useParams } from 'react-router'
+import { Anchor, Button, Group, Stack, Text, Title } from '@mantine/core'
 import { useMutation } from '@tanstack/react-query'
 import { ObjectId } from 'bson'
-import { IconArrowBackUp, IconChevronLeft, IconPencil } from '@tabler/icons-react'
+import { IconChevronLeft, IconPencil } from '@tabler/icons-react'
 import { produce } from 'immer'
 
 import { usePath, useApi } from 'src/app/contexts'
@@ -14,15 +14,18 @@ import useModal from 'src/utils/use-modal'
 import formatError from 'src/common/format-error'
 import { Dispatch, Reducer } from 'src/utils/types-lib'
 import { ConfirmModal } from 'src/utils/ConfirmModal'
+import { EditorFooter } from 'src/utils/EditorFooter'
 
 export default function QuizEditorPage() {
   const { quizId } = useParams()
   const { axios } = useApi()
   const { navigate } = usePath()
-  const [initialQuiz, setInitialQuiz] = useState<Quiz | null>(null)
+
   const [quiz, setQuiz] = useState<Quiz | null>(null)
-  const [saveTrigger, setSaveTrigger] = useState(0)
-  const [dirty, setDirty] = useState(false)
+  const [didChange, setDidChange] = useState(false) // Whether user made changes or not
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false) // Whether there is pending changes
+  const blocker = useBlocker(hasUnsavedChanges)
+  const mainRef = useRef<HTMLDivElement>(null)
 
   const { mutate: loadQuiz, error: loadError, isPending: isLoading } = useMutation({
     mutationFn: async () => {
@@ -49,7 +52,6 @@ export default function QuizEditorPage() {
       }
     },
     onSuccess: (data) => {
-      setInitialQuiz(data)
       setQuiz(data)
     }
   })
@@ -58,99 +60,111 @@ export default function QuizEditorPage() {
     loadQuiz()
   }, [loadQuiz])
 
-  const { mutate: saveQuiz, error: saveError, isPending: isSaving } = useMutation({
+  // Save
+
+  const { mutate: saveQuiz, error: saveError, isPending: saving } = useMutation({
     mutationFn: async (quiz: Quiz) => {
       await axios.put(`/quiz/${quiz.id}`, quiz)
+    },
+    onSuccess: () => {
+      setHasUnsavedChanges(false)
     }
   })
 
-  const setNeedsSave = useCallback(() => {
-    setSaveTrigger(x => x + 1)
-  }, [setSaveTrigger])
-
   useEffect(() => {
-    if (saveTrigger > 0) {
-      saveQuiz(quiz!)
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault()
+      }
     }
-  }, [quiz, saveQuiz, saveTrigger])
 
-  const setQuizAndSave: React.Dispatch<React.SetStateAction<Quiz | null>> = useCallback((reduceQuiz) => {
-    setQuiz(reduceQuiz)
-    setNeedsSave()
-    setDirty(true)
-  }, [setQuiz, setNeedsSave])
+    window.addEventListener('beforeunload', handleBeforeUnload)
 
-  const revertQuizAndSave = useCallback(() => {
-    setQuiz(initialQuiz)
-    setNeedsSave()
-    setDirty(false)
-  }, [initialQuiz, setQuiz, setNeedsSave])
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [hasUnsavedChanges])
 
   return (
-    <Stack>
-      {/* <title>{quiz ? quiz.name : 'FOH Test'} | The Duck Group</title> */}
-      <title>'FOH Test | The Duck Group</title>
-
-      {/* Save error */}
-      {
-        saveError &&
-        <Stack align='center'>
-          <Group>
-            <Text c='red'>{formatError(saveError)}</Text>
-            {/* <Button variant='subtle' size='compact-md'>Retry</Button> */}
-            <Anchor onClick={e => { e.preventDefault(); saveQuiz(quiz!) }}>Retry</Anchor>
+    <>
+      <div ref={mainRef} className='flex flex-col gap-6 items-start'>
+        {/* Back link */}
+        <Anchor size='sm' onClick={e => { e.preventDefault(); navigate(`/list`) }}>
+          <Group gap='0.2rem'>
+            <IconChevronLeft size={18} />
+            Back to Tests
           </Group>
-        </Stack>
+        </Anchor>
+
+        {/* Content */}
+        {(() => {
+          if (isLoading) {
+            return <Text>Loading...</Text>
+          }
+
+          if (loadError) {
+            return <Text c='red'>{formatError(loadError)}</Text>
+          }
+
+          if (!quiz) {
+            return <>???</>
+          }
+
+          return (
+            <>
+              <title>{quiz.name + ' | The Duck Group'}</title>
+              <Content
+                quiz={quiz}
+                setQuiz={valueOrReducer => {
+                  setQuiz(valueOrReducer)
+                  setDidChange(true)
+                  setHasUnsavedChanges(true)
+                }}
+              />
+            </>
+          )
+        })()}
+      </div>
+
+      {didChange &&
+        <EditorFooter
+          editorRef={mainRef}
+          save={() => saveQuiz(quiz!)}
+          isSaving={saving}
+          hasUnsavedChanges={hasUnsavedChanges}
+          saveError={saveError}
+        />
       }
 
-      {/* Home link */}
-      <Anchor size='sm' onClick={e => { e.preventDefault(); navigate(`/list`) }}>
-        <Group gap='0.2rem'>
-          <IconChevronLeft size={18} />
-          Back to Tests
-        </Group>
-      </Anchor>
-
-      {/* Main content */}
-      {(() => {
-        if (isLoading) {
-          return <Text>Loading...</Text>
-        }
-
-        if (loadError) {
-          return <Text c='red'>{formatError(loadError)}</Text>
-        }
-
-        if (!quiz) {
-          return <>???</>
-        }
-
-        return (
-          <>
-            <title>{quiz.name + ' | The Duck Group'}</title>
-            <Content
-              quiz={quiz}
-              setQuiz={setQuizAndSave}
-              revertQuiz={revertQuizAndSave}
-              saving={isSaving}
-              dirty={dirty}
-            />
-          </>
-        )
-      })()}
-    </Stack>
+      <ConfirmModal
+        opened={blocker.state == 'blocked'}
+        onClose={() => blocker.reset!()}
+        options={{
+          title: 'Confirm',
+          message: 'You have unsaved changes. Discard?',
+          actions: [
+            {
+              label: 'Cancel',
+              role: 'cancel',
+              handler: () => blocker.reset!()
+            },
+            {
+              label: 'Discard',
+              role: 'destructive',
+              handler: () => blocker.proceed!()
+            }
+          ]
+        }}
+      />
+    </>
   )
 }
 
-function Content({ quiz, setQuiz, revertQuiz, saving, dirty }: {
+function Content({ quiz, setQuiz }: {
   quiz: Quiz,
-  setQuiz: React.Dispatch<React.SetStateAction<Quiz | null>>,
-  revertQuiz: () => void,
-  saving: boolean
-  dirty: boolean
+  setQuiz: React.Dispatch<React.SetStateAction<Quiz | null>>
 }) {
   const editModal = useModal(EditMetadataModal)
-  const confirmModal = useModal(ConfirmModal)
 
   function handleEdit() {
     editModal.open({
@@ -170,20 +184,6 @@ function Content({ quiz, setQuiz, revertQuiz, saving, dirty }: {
       }
     })
   }
-
-  function handleRevert() {
-    confirmModal.open({
-      title: 'Revert Changes?',
-      message: 'The test will be reverted back to the state when you visited this page (before any changes were made).',
-      actions: [
-        {
-          label: 'Revert',
-          role: 'destructive',
-          handler: revertQuiz
-        }
-      ]
-    })
-  }
   const setData: Dispatch<Reducer<[Quiz.Item[], Quiz.Section[]]>> = (fn) => {
     setQuiz(quiz => {
       const [items, sections] = fn([quiz!.items, quiz!.sections])
@@ -197,41 +197,23 @@ function Content({ quiz, setQuiz, revertQuiz, saving, dirty }: {
   }
 
   return (
-    <Stack gap='lg'>
-      {/* Quiz metadata + Save loader */}
-      <Group align='flex-start'>
-        {/* Quiz metadata + Edit button */}
-        <Stack w='100%' gap='xs' align='flex-start' mr='auto'>
-          {/* Quiz title + Edit button + Save loader + Revert button */}
-          <Group w='100%' gap='md' align='baseline'>
-            {/* Name */}
-            <Title order={2} c='gray.1'>{quiz!.name}</Title>
-            {/* Edit */}
-            <Button variant='light' size='compact-sm' fw='normal' onClick={handleEdit}>
-              <Group gap='0.35rem'>
-                <IconPencil size={13} />
-                Edit
-              </Group>
-            </Button>
-            {/* Save loader */}
-            {saving && <Loader ml='auto' size='xs' />}
-            {/* Revert button */}
-            {(dirty && !saving) &&
-              <Button ml='auto' variant='light' size='compact-sm' fw='normal' onClick={handleRevert}>
-                <Group gap='0.35rem'>
-                  <IconArrowBackUp size={15} />
-                  Revert
-                </Group>
-              </Button>
-            }
+    <Stack className='w-full' gap='md'>
+      {/* Title + Edit button */}
+      <Group w='100%' gap='md' align='baseline'>
+        <Title order={2} c='gray.1'>{quiz.name}</Title>
+        <Button variant='light' size='compact-xs' fw='normal' onClick={handleEdit}>
+          <Group gap='0.25rem'>
+            <IconPencil size={13} />
+            Edit
           </Group>
-          {/* Code, items per page */}
-          <Stack gap='0'>
-            <Text>Code: {quiz.code}</Text>
-            <Text>Email Recipients: {quiz.emailRecipients.join(', ')}</Text>
-          </Stack>
-        </Stack>
+        </Button>
       </Group>
+
+      {/* Code, email recipients */}
+      <Stack gap='0'>
+        <Text>Code: {quiz.code}</Text>
+        <Text>Email Recipients: {quiz.emailRecipients.join(', ')}</Text>
+      </Stack>
 
       {/* Content editor */}
       <ContentEditor
@@ -242,7 +224,6 @@ function Content({ quiz, setQuiz, revertQuiz, saving, dirty }: {
 
       {/* Modals */}
       {editModal.element}
-      {confirmModal.element}
     </Stack>
   )
 }
