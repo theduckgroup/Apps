@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { useParams } from 'react-router'
+import { useEffect, useRef, useState } from 'react'
+import { useBlocker, useParams } from 'react-router'
 import { useMutation } from '@tanstack/react-query'
-import { Anchor, Box, Button, Group, Loader, Stack, Text, Title } from '@mantine/core'
-import { IconArrowBackUp, IconChevronLeft } from '@tabler/icons-react'
+import { Anchor, Group, Stack, Text, Title } from '@mantine/core'
+import { IconChevronLeft } from '@tabler/icons-react'
 
 import { useApi, usePath } from 'src/app/contexts'
 import { InvStore } from 'src/inventory-app/models/InvStore'
@@ -12,7 +12,6 @@ import useModal from 'src/utils/use-modal'
 import { ConfirmModal } from 'src/utils/ConfirmModal'
 import { Dispatch, ValueOrReducer } from 'src/utils/types-lib'
 import { EditorFooter } from 'src/utils/EditorFooter'
-import sleep from 'src/common/sleep'
 
 export default function StoreEditorPage() {
   const { storeId } = useParams()
