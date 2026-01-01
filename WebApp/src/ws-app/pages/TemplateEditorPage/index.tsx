@@ -133,10 +133,8 @@ export default function TemplateEditorPage() {
       {didChange &&
         <EditorFooter
           editorRef={mainRef}
-          save={() => saveTemplate(template!)}
-          isSaving={saving}
           hasUnsavedChanges={hasUnsavedChanges}
-          saveError={saveError}
+          save={() => saveTemplateAsync(template!)}
         />
       }
 

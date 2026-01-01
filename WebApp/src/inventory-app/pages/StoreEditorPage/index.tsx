@@ -112,10 +112,8 @@ export default function StoreEditorPage() {
       {didChange &&
         <EditorFooter
           editorRef={mainRef}
-          save={() => saveStore(store!)}
-          isSaving={saving}
           hasUnsavedChanges={hasUnsavedChanges}
-          saveError={saveError}
+          save={() => saveStoreAsync(store!)}
         />
       }
 

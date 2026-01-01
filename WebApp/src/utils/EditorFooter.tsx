@@ -1,18 +1,32 @@
+import { useState } from 'react'
 import { useViewportSize } from '@mantine/hooks'
 import { useElementRect } from './use-element-rect'
 import { Button, Text } from '@mantine/core'
 import formatError from 'src/common/format-error'
 
-export function EditorFooter({ editorRef, hasUnsavedChanges, save, isSaving, saveError }: {
+export function EditorFooter({ editorRef, hasUnsavedChanges, save }: {
   editorRef: React.RefObject<HTMLElement | null>
   hasUnsavedChanges: boolean
-  save: () => void
-  isSaving: boolean
-  saveError: Error | null
+  save: () => Promise<void>
 }) {
   const viewportSize = useViewportSize()
   const editorRect = useElementRect(editorRef)
   const height = 80
+
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<Error | null>(null)
+
+  async function handleSave() {
+    try {
+      setError(null)
+      setSaving(true)
+      await save()
+    } catch (e) {
+      setError(e as Error)
+    } finally {
+      setSaving(false)
+    }
+  }
 
   return (
     <>
@@ -30,10 +44,10 @@ export function EditorFooter({ editorRef, hasUnsavedChanges, save, isSaving, sav
         }}
       >
         <div className='w-full h-full flex flex-row justify-between items-center px-4 pt-3 pb-6 gap-4'>
-          {saveError ? <Text c='red' lineClamp={2} lh='xs'>{formatError(saveError)}</Text> : <div />}
+          {error ? <Text c='red' lineClamp={2} lh='xs'>{formatError(error)}</Text> : <div />}
           <Button
-            onClick={save}
-            loading={isSaving}
+            onClick={handleSave}
+            loading={saving}
             disabled={!hasUnsavedChanges}
             className='flex-none'
           >

@@ -129,10 +129,8 @@ export default function QuizEditorPage() {
       {didChange &&
         <EditorFooter
           editorRef={mainRef}
-          save={() => saveQuiz(quiz!)}
-          isSaving={saving}
           hasUnsavedChanges={hasUnsavedChanges}
-          saveError={saveError}
+          save={() => saveQuizAsync(quiz!)}
         />
       }
 
