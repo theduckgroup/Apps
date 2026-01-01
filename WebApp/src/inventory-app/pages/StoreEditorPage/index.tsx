@@ -20,10 +20,9 @@ export default function StoreEditorPage() {
   const { axios } = useApi()
   // const storeName = location.state?.storeName
 
-  const [initialStore, setInitialStore] = useState<InvStore | null>(null)
   const [store, setStore] = useState<InvStore | null>(null)
-  const [saveTrigger, setSaveTrigger] = useState(0)
-  const [dirty, setDirty] = useState(false)
+  const [didChange, setDidChange] = useState(false) // Whether user made changes or not
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false) // Whether there is pending changes
 
   // Load
 
@@ -32,7 +31,6 @@ export default function StoreEditorPage() {
       return (await axios.get<InvStore>(`store/${storeId}`)).data
     },
     onSuccess: store => {
-      setInitialStore(store)
       setStore(store)
     }
   })
@@ -43,39 +41,17 @@ export default function StoreEditorPage() {
 
   // Save
 
-  const { mutate: saveStore, error: saveError, isPending: isSaving } = useMutation({
+  const { mutate: saveStore, error: saveError, isPending: saving } = useMutation({
     mutationFn: async (store: InvStore) => {
       const body = store.catalog
       await axios.put(`store/${storeId}/catalog`, body)
     }
   })
 
-  useEffect(() => {
-    if (saveTrigger > 0) {
-      saveStore(store!)
-    }
-  }, [store, saveStore, saveTrigger])
-
-  const setNeedsSave = useCallback(() => {
-    setSaveTrigger(x => x + 1)
-  }, [setSaveTrigger])
-
-  // Set
-
-  const setStoreAndSave: Dispatch<ValueOrReducer<InvStore | null>> = useCallback(valueOrReducer => {
-    setStore(valueOrReducer)
-    setDirty(true)
-  }, [setStore])
-
   const handleSaveChanges = useCallback(() => {
-    setNeedsSave()
-    setDirty(false)
-  }, [setNeedsSave])
-
-  const handleDiscardChanges = useCallback(() => {
-    setStore(initialStore)
-    setDirty(false)
-  }, [initialStore, setStore])
+    saveStore(store!)
+    setHasUnsavedChanges(false)
+  }, [store, saveStore])
 
   const [mainRef, mainRect] = useElementRect()
   const viewportSize = useViewportSize()
@@ -122,9 +98,13 @@ export default function StoreEditorPage() {
               <title>{store.name + ' | The Duck Group'}</title>
               <MetaAndContent
                 store={store}
-                setStore={setStoreAndSave}
-                saving={isSaving}
-                dirty={dirty}
+                setStore={valueOrReducer => {
+                  setStore(valueOrReducer)
+                  setDidChange(true)
+                  setHasUnsavedChanges(true)
+                }}
+                saving={saving}
+                dirty={hasUnsavedChanges}
               />
             </>
           )
@@ -132,14 +112,14 @@ export default function StoreEditorPage() {
       </div>
 
       {/* Floating save bar */}
-      {dirty && (
+      {didChange && (
         <>
           {/* pb-[max(1rem, env(safe-area-inset-bottom))]  */}
           <div className='h-26' />
           <div
             className='
               fixed left-0 right-0 bottom-0 h-22 pb-[env(safe-area-inset-bottom)] 
-              bg-[var(--mantine-color-dark-6)]
+              bg-[var(--mantine-color-dark-7)]
               flex justify-end
             '
             style={{
@@ -147,39 +127,11 @@ export default function StoreEditorPage() {
             }}
           >
             <div className='flex flex-row items-center px-4 py-4 gap-4'>
-              <Button variant='default' onClick={handleDiscardChanges} disabled={isSaving}>
-                Discard Changes
-              </Button>
-              <Button onClick={handleSaveChanges} loading={isSaving}>
+              <Button onClick={handleSaveChanges} loading={saving} disabled={!hasUnsavedChanges}>
                 Save Changes
               </Button>
             </div>
           </div>
-          {/* <div className='sticky bottom-0 pt-6 pb-[env(safe-area-inset-bottom)] flex justify-center items-center'> */}
-          {/* <div
-            // className='
-            //   fixed bottom-0 h-22 pb-[env(safe-area-inset-bottom)] 
-            //   //bg-[var(--mantine-color-dark-6)]
-            //   flex justify-center items-center
-            // '
-            className='
-              fixed left-0 bottom-0 h-22 pb-[env(safe-area-inset-bottom)] 
-              bg-[var(--mantine-color-dark-6)]
-              flex justify-center items-center
-            '
-            style={{
-              right: viewportSize.width - (mainRect?.right ?? 0)
-            }}
-          >
-            <div className='flex flex-row items-center px-4 py-4 gap-4'>
-              <Button variant='default' onClick={handleDiscardChanges} disabled={isSaving}>
-                Discard Changes
-              </Button>
-              <Button onClick={handleSaveChanges} loading={isSaving}>
-                Save Changes
-              </Button>
-            </div>
-          </div> */}
         </>
       )
       }
@@ -208,25 +160,8 @@ function MetaAndContent({ store, setStore, saving, dirty }: {
 
   return (
     <Stack className='w-full' gap='xl'>
-      {/* Metadata + Save loader */}
-      <Group className='w-full items-start'>
-        {/* Metadata + Edit button */}
-        {/* <Stack w='100%' gap='xs' align='flex-start' mr='auto'> */}
-        <Stack className='w-full gap-2 items-start mr-auto'>
-          {/* Title + Saving loader */}
-          <Group bg='dark.9' pt='sm' className='gap-2 items-baseline'>
-            {/* Name */}
-            <Title order={1} c='gray.1'>Edit Items</Title>
-            {/* Save loader */}
-            {saving && <Loader ml='auto' size='xs' />}
-          </Group>
-          {/* Code, items per page */}
-          {/* <Stack gap='0'>
-            <Text>Code: {template.code}</Text>
-            <Text>Email Recipients: {template.emailRecipients.join(', ')}</Text>
-          </Stack> */}
-        </Stack>
-      </Group>
+      {/* Title */}
+      <Title order={1} c='gray.1'>Edit Items</Title>
 
       {/* Items editor */}
       <CatalogEditor
