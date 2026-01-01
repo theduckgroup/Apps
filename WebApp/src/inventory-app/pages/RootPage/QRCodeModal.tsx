@@ -203,8 +203,7 @@ function QRCodeImage({ svgData, width }: {
 }) {
   const padding = 16
   const displayWidth = Math.min(width, QRCODE_VIEWER_SIZE - padding * 2)
-  console.info(`displayWidth = ${displayWidth}`)
-
+  
   return (
     <div
       className={`flex items-center justify-center bg-white rounded-md`}
