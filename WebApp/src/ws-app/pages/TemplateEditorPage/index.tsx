@@ -12,8 +12,8 @@ import { EditMetadataModal } from './EditMetadataModal'
 import { ContentEditor } from './ContentEditor'
 import useModal from 'src/utils/use-modal'
 import formatError from 'src/common/format-error'
-import { ConfirmModal } from 'src/utils/ConfirmModal'
 import { EditorFooter } from 'src/utils/EditorFooter'
+import { UnsavedChangesModal } from 'src/utils/UnsavedChangesModal'
 
 export default function TemplateEditorPage() {
   const { templateId } = useParams()
@@ -137,25 +137,11 @@ export default function TemplateEditorPage() {
         />
       }
 
-      <ConfirmModal
-        opened={blocker.state == 'blocked'}
-        onClose={() => blocker.reset!()}
-        options={{
-          title: 'Confirm',
-          message: 'You have unsaved changes. Discard?',
-          actions: [
-            {
-              label: 'Cancel',
-              role: 'cancel',
-              handler: () => blocker.reset!()
-            },
-            {
-              label: 'Discard',
-              role: 'destructive',
-              handler: () => blocker.proceed!()
-            }
-          ]
-        }}
+      <UnsavedChangesModal
+        blocker={blocker}
+        save={() => saveTemplate(template!)}
+        saving={saving}
+        saveError={saveError}
       />
     </>
   )

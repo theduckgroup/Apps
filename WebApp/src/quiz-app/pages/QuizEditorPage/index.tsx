@@ -13,8 +13,8 @@ import ContentEditor from './ContentEditor'
 import useModal from 'src/utils/use-modal'
 import formatError from 'src/common/format-error'
 import { Dispatch, Reducer } from 'src/utils/types-lib'
-import { ConfirmModal } from 'src/utils/ConfirmModal'
 import { EditorFooter } from 'src/utils/EditorFooter'
+import { UnsavedChangesModal } from 'src/utils/UnsavedChangesModal'
 
 export default function QuizEditorPage() {
   const { quizId } = useParams()
@@ -136,25 +136,11 @@ export default function QuizEditorPage() {
         />
       }
 
-      <ConfirmModal
-        opened={blocker.state == 'blocked'}
-        onClose={() => blocker.reset!()}
-        options={{
-          title: 'Confirm',
-          message: 'You have unsaved changes. Discard?',
-          actions: [
-            {
-              label: 'Cancel',
-              role: 'cancel',
-              handler: () => blocker.reset!()
-            },
-            {
-              label: 'Discard',
-              role: 'destructive',
-              handler: () => blocker.proceed!()
-            }
-          ]
-        }}
+      <UnsavedChangesModal
+        blocker={blocker}
+        save={() => saveQuiz(quiz!)}
+        saving={saving}
+        saveError={saveError}
       />
     </>
   )

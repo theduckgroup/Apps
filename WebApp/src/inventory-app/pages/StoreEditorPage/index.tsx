@@ -8,9 +8,9 @@ import { useApi, usePath } from 'src/app/contexts'
 import { InvStore } from 'src/inventory-app/models/InvStore'
 import { CatalogEditor } from './CatalogEditor'
 import formatError from 'src/common/format-error'
-import { ConfirmModal } from 'src/utils/ConfirmModal'
 import { Dispatch, ValueOrReducer } from 'src/utils/types-lib'
 import { EditorFooter } from 'src/utils/EditorFooter'
+import { UnsavedChangesModal } from 'src/utils/UnsavedChangesModal'
 
 export default function StoreEditorPage() {
   const { storeId } = useParams()
@@ -119,26 +119,11 @@ export default function StoreEditorPage() {
         />
       }
 
-      {/*  */}
-      <ConfirmModal
-        opened={blocker.state == 'blocked'}
-        onClose={() => blocker.reset!()}
-        options={{
-          title: 'Confirm',
-          message: 'You have unsaved changes. Discard?',
-          actions: [
-            {
-              label: 'Cancel',
-              role: 'cancel',
-              handler: () => blocker.reset!()
-            },
-            {
-              label: 'Discard',
-              role: 'destructive',
-              handler: () => blocker.proceed!()
-            }
-          ]
-        }}
+      <UnsavedChangesModal
+        blocker={blocker}
+        save={() => saveStore(store!)}
+        saving={saving}
+        saveError={saveError}
       />
     </>
   )
