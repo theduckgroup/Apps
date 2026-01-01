@@ -245,7 +245,7 @@ struct QuizResponseView: View {
         .onAppear {
             Task {
                 do {
-                    quiz = try await API.mock.quiz()
+                    quiz = try await API.localWithMockAuth.quiz()
                     
                 } catch {
                     logger.error("Unable to get mock quiz: \(error)")

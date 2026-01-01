@@ -157,14 +157,7 @@ struct PastReportView: View {
                     isFetching = false
                 }
                 
-                let report: WSReport = try await {
-                    if isRunningForPreviews {
-                        try await Task.sleep(for: .seconds(1))
-                        return try await api.mockReport()
-                    }
-                    
-                    return try await api.report(id: reportMeta.id)
-                }()
+                let report = try await api.report(id: reportMeta.id)
                 
                 self.report = report
                 

@@ -4,15 +4,19 @@ import Backend
 
 extension API {
     func template() async throws -> WSTemplate {
-        try await get(path: "ws-app/templates/6905482c7eb3588dc38a48c8")
+        if isRunningForPreviews {
+            return try await get(authenticated: false, path: "ws-app/mock/template")
+        }
+
+        return try await get(path: "ws-app/templates/6905482c7eb3588dc38a48c8")
     }
     
-    func mockTemplate() async throws -> WSTemplate {
-        try await get(authenticated: false, path: "ws-app/mock-template")
-    }
-        
     func report(id: String) async throws -> WSReport {
-        try await get(path: "ws-app/reports/\(id)")
+        if isRunningForPreviews {
+            return try await get(authenticated: false, path: "ws-app/mock/report")
+        }
+        
+        return try await get(path: "ws-app/reports/\(id)")
     }
     
     func userReports(userID: String) async throws -> [WSReportMeta] {
@@ -21,9 +25,5 @@ extension API {
     
     func submitReport(_ report: WSReport) async throws {
         try await post(method: "POST", path: "ws-app/reports/submit", body: report)
-    }
-
-    func mockReport() async throws -> WSReport {
-        try await get(authenticated: false, path: "ws-app/mock-report")
     }
 }

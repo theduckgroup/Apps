@@ -5,5 +5,5 @@ public extension API {
     ///
     /// This uses local backend.
     @MainActor
-    static let mock = API(env: .local, auth: .mock)
+    static let localWithMockAuth = API(env: .local, auth: .mock)
 }

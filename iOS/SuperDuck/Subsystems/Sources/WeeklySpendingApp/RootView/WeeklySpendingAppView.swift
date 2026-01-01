@@ -68,12 +68,7 @@ public struct WeeklySpendingAppView: View {
     
     private func fetchTemplate() {
         templateFetcher.fetch {
-            if isRunningForPreviews {
-                try await Task.sleep(for: .seconds(1))
-                return try await api.mockTemplate()
-            }
-            
-            return try await api.template()
+            try await api.template()
         }
     }
     
@@ -81,8 +76,8 @@ public struct WeeklySpendingAppView: View {
         reportsFetcher.fetch {
             if isRunningForPreviews {
                 try await Task.sleep(for: .seconds(1))
-                return [.mock1, .mock2, .mock3]
                 // throw GenericError("Cupidatat est sit fugiat consectetur tempor fugiat culpa.")
+                return [.mock1, .mock2, .mock3]
             }
                 
             return try await api.userReports(userID: auth.user!.idString)
