@@ -11,7 +11,7 @@ struct QuizResponseView: View {
     @State var presentingAppearancePopover = false
     @State var ps = PresentationState()
     @Environment(API.self) var api
-    @AppStorage("QuizResponseView:dynamicTypeSizeOverride") var dynamicTypeSizeOverride: DynamicTypeSizeOverride?
+    @Environment(QuizAppDefaults.self) var defaults
     @Environment(\.dynamicTypeSize) var systemDynamicTypeSize
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.dismiss) var dismiss
@@ -43,10 +43,11 @@ struct QuizResponseView: View {
                 for: .scrollContent
             )
             // .scrollDismissesKeyboard(.immediately)
-            .dynamicTypeSize(dynamicTypeSizeOverride?.dynamicTypeSize ?? systemDynamicTypeSize)
+            .dynamicTypeSize(defaults.dynamicTypeSizeOverride?.dynamicTypeSize ?? systemDynamicTypeSize)
             .navigationTitle("")
             .toolbar { toolbarContent() }
         }
+        .preferredColorScheme(defaults.colorSchemeOverride?.colorScheme)
         .presentations(ps)
         .environment(viewModel)
     }
@@ -99,7 +100,7 @@ struct QuizResponseView: View {
                 .padding(.horizontal, 3)
         }
         .popover(isPresented: $presentingAppearancePopover) {
-            QRAppearanceView(dynamicTypeSizeOverride: $dynamicTypeSizeOverride)
+            QRAppearanceView()
         }
     }
     

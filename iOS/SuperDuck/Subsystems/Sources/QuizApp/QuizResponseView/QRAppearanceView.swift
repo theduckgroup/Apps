@@ -4,33 +4,27 @@ import AppModule
 import CommonUI
 
 struct QRAppearanceView: View {
-    // TODO: Use AppStorage or QuizApp.Defaults rather than sharing app defaults
-    @Binding var dynamicTypeSizeOverride: DynamicTypeSizeOverride?
-    @Environment(AppDefaults.self) var appDefaults
+    @Environment(QuizAppDefaults.self) var defaults
     @Environment(\.dynamicTypeSize) private var systemDynamicTypeSize
-    
-    init(dynamicTypeSizeOverride: Binding<DynamicTypeSizeOverride?>) {
-        _dynamicTypeSizeOverride = dynamicTypeSizeOverride
-    }
-    
+
     var body: some View {
-        @Bindable var appDefaults = appDefaults
+        @Bindable var defaults = defaults
 
         VStack(alignment: .leading, spacing: 18) {
             VStack(alignment: .leading, spacing: 9) {
                 Text("Theme")
-                ColorSchemeView(colorSchemeOverride: $appDefaults.colorSchemeOverride)
+                ColorSchemeView(colorSchemeOverride: $defaults.colorSchemeOverride)
             }
-            
+
             Divider()
-            
+
             textSizeView()
         }
         .frame(width: 320)
         .padding(.horizontal, 27)
         .padding(.vertical, 24)
         .presentationCompactAdaptation(.popover)
-        .preferredColorScheme(appDefaults.colorSchemeOverride?.colorScheme)
+        .preferredColorScheme(defaults.colorSchemeOverride?.colorScheme)
     }
     
     @ViewBuilder
@@ -47,13 +41,13 @@ struct QRAppearanceView: View {
             let maxValue = keys.last!
             
             let valueBinding = Binding<Double> {
-                let value = dynamicTypeSizeOverride ?? .init(from: systemDynamicTypeSize) ?? .large
+                let value = defaults.dynamicTypeSizeOverride ?? .init(from: systemDynamicTypeSize) ?? .large
                 return Double(reverseMap[value] ?? keys.last!)
             } set: {
                 let value = map[Int($0.rounded())]!
-                dynamicTypeSizeOverride = value
+                defaults.dynamicTypeSizeOverride = value
             }
-            
+
             Slider(
                 value: valueBinding,
                 in: Double(minValue)...Double(maxValue),
@@ -62,12 +56,12 @@ struct QRAppearanceView: View {
                 minimumValueLabel: { },
                 maximumValueLabel: { }
             )
-            
-            Button("Reset Default") {
-                dynamicTypeSizeOverride = nil
+
+            Button("Reset to Default") {
+                defaults.dynamicTypeSizeOverride = nil
             }
             .padding(.top, 6)
-            .disabled(dynamicTypeSizeOverride == nil || dynamicTypeSizeOverride?.dynamicTypeSize == systemDynamicTypeSize)
+            .disabled(defaults.dynamicTypeSizeOverride == nil || defaults.dynamicTypeSizeOverride?.dynamicTypeSize == systemDynamicTypeSize)
         }
     }
 }

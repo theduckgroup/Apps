@@ -2,6 +2,7 @@ import SwiftUI
 import Backend
 import AppModule
 import InventoryApp
+import QuizApp
 
 @main
 struct App: SwiftUI.App {
@@ -16,6 +17,7 @@ struct App: SwiftUI.App {
         .environment(api)
         .environment(AppDefaults())
         .environment(InventoryAppDefaults())
+        .environment(QuizAppDefaults())
     }
 }
 
