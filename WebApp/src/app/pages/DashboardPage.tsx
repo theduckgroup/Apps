@@ -117,7 +117,7 @@ const ProfileButton = ({ closeNavbar }: {
 
   function handleLogout() {
     confirmModal.open({
-      message: 'Log out?',
+      title: 'Log out?',
       actions: [{
         label: 'Log out',
         handler: logout
