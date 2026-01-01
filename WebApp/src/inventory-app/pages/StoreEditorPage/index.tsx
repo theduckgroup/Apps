@@ -82,7 +82,7 @@ export default function StoreEditorPage() {
 
   return (
     <>
-      <Stack ref={mainRef} align='flex-start' gap='lg'>
+      <div ref={mainRef} className='flex flex-col gap-6 items-start'>
         {/* Save error */}
         {
           saveError &&
@@ -129,7 +129,7 @@ export default function StoreEditorPage() {
             </>
           )
         })()}
-      </Stack>
+      </div>
 
       {/* Floating save bar */}
       {dirty && (
