@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useBlocker, useParams } from 'react-router'
 import { useMutation } from '@tanstack/react-query'
 import { Anchor, Group, Stack, Text, Title } from '@mantine/core'
@@ -8,7 +8,6 @@ import { useApi, usePath } from 'src/app/contexts'
 import { InvStore } from 'src/inventory-app/models/InvStore'
 import { CatalogEditor } from './CatalogEditor'
 import formatError from 'src/common/format-error'
-import useModal from 'src/utils/use-modal'
 import { ConfirmModal } from 'src/utils/ConfirmModal'
 import { Dispatch, ValueOrReducer } from 'src/utils/types-lib'
 import { EditorFooter } from 'src/utils/EditorFooter'
@@ -17,12 +16,13 @@ export default function StoreEditorPage() {
   const { storeId } = useParams()
   const { navigate } = usePath()
   const { axios } = useApi()
-  // const storeName = location.state?.storeName
-
+  
   const [store, setStore] = useState<InvStore | null>(null)
   const [didChange, setDidChange] = useState(false) // Whether user made changes or not
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false) // Whether there is pending changes
-
+  const blocker = useBlocker(useMemo(() => hasUnsavedChanges, [hasUnsavedChanges]))
+  const mainRef = useRef<HTMLDivElement>(null)
+  
   // Load
 
   const { mutate: loadStore, error: loadError, isPending: isLoading } = useMutation({
@@ -52,7 +52,11 @@ export default function StoreEditorPage() {
     }
   })
 
-  const mainRef = useRef<HTMLDivElement>(null)
+  window.addEventListener('beforeunload', (e) => {
+    if (hasUnsavedChanges) {
+      e.preventDefault()
+    }
+  })
 
   return (
     <>
@@ -106,6 +110,28 @@ export default function StoreEditorPage() {
           saveError={saveError}
         />
       }
+
+      {/*  */}
+      <ConfirmModal
+        opened={blocker.state == 'blocked'}
+        onClose={() => blocker.reset!()}
+        options={{
+          title: 'Confirm',
+          message: 'You have unsaved changes. Discard?',
+          actions: [
+            {
+              label: 'Cancel',
+              role: 'cancel',
+              handler: () => blocker.reset!()
+            },
+            {
+              label: 'Discard',
+              role: 'destructive',
+              handler: () => blocker.proceed!()
+            }
+          ]
+        }}
+      />
     </>
   )
 }
