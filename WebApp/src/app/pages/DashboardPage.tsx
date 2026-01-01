@@ -75,7 +75,7 @@ function HeaderContent({ navbarOpened, toggleNavbar, closeNavbar }: {
               size='sm'
             />
             {/* The Duck Group title */}
-            <Anchor href='#' underline='never' onClick={() => navigate('/')}>
+            <Anchor underline='never' onClick={e => { e.preventDefault(); navigate('/') }}>
               <Text fw='bold' fz={20} c='gray.0'>The Duck Group</Text>
             </Anchor>
             {/* {
@@ -194,7 +194,6 @@ function NavbarLink({ label, path, onClose }: {
 
   return (
     <NavLink
-      href='#'
       label={label}
       rightSection={
         <IconChevronRight size={15} stroke={1.5} className='mantine-rotate-rtl' />
@@ -202,7 +201,8 @@ function NavbarLink({ label, path, onClose }: {
       variant='filled'
       py='xs'
       active={location.pathname.startsWith(path)}
-      onClick={() => {
+      onClick={e => {
+        e.preventDefault()
         navigate(path)
         onClose()
       }}

@@ -98,13 +98,13 @@ export default function QuizEditorPage() {
           <Group>
             <Text c='red'>{formatError(saveError)}</Text>
             {/* <Button variant='subtle' size='compact-md'>Retry</Button> */}
-            <Anchor href='#' onClick={() => saveQuiz(quiz!)}>Retry</Anchor>
+            <Anchor onClick={e => { e.preventDefault(); saveQuiz(quiz!) }}>Retry</Anchor>
           </Group>
         </Stack>
       }
 
       {/* Home link */}
-      <Anchor size='sm' href='#' onClick={() => navigate(`/list`)}>
+      <Anchor size='sm' onClick={e => { e.preventDefault(); navigate(`/list`) }}>
         <Group gap='0.2rem'>
           <IconChevronLeft size={18} />
           Back to Tests

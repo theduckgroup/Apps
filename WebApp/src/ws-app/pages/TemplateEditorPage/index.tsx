@@ -103,13 +103,13 @@ export default function TemplateEditorPage() {
           <Group>
             <Text c='red'>{formatError(saveError)}</Text>
             {/* <Button variant='subtle' size='compact-md'>Retry</Button> */}
-            <Anchor href='#' onClick={() => saveTemplate(template!)}>Retry</Anchor>
+            <Anchor onClick={e => { e.preventDefault(); saveTemplate(template!) }}>Retry</Anchor>
           </Group>
         </Stack>
       }
 
       {/* Back link */}
-      <Anchor size='sm' href='#' onClick={() => navigate(`/list`)}>
+      <Anchor size='sm' onClick={e => { e.preventDefault(); navigate(`/list`) }}>
         <Group gap='0.2rem'>
           <IconChevronLeft size={18} />
           Back to Templates

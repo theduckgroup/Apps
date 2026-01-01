@@ -58,7 +58,7 @@ export default function StoreEditorPage() {
     <>
       <div ref={mainRef} className='flex flex-col gap-6 items-start'>
         {/* Back link */}
-        <Anchor size='sm' href='#' onClick={() => navigate(`/`)}>
+        <Anchor size='sm' onClick={e => { e.preventDefault(); navigate(`/`) }}>
           <Group gap='0.2rem'>
             <IconChevronLeft size={18} />
             Back to Inventory
