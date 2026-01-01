@@ -14,22 +14,16 @@ struct App: SwiftUI.App {
         }
         .environment(auth)
         .environment(api)
-        .environment(appDefaults)
-        .environment(inventoryAppDefaults)
+        .environment(AppDefaults())
+        .environment(InventoryAppDefaults())
     }
 }
 
-// Singletons
+private let auth = Auth()
 
-let auth = Auth()
-
-let api = {
+private let api = {
     switch AppInfo.buildTarget {
     case .prod: API(env: .prod, auth: auth)
     case .local: API(env: .local, auth: auth)
     }
 }()
-
-let appDefaults = AppModule.AppDefaults()
-
-let inventoryAppDefaults = InventoryApp.InventoryAppDefaults()

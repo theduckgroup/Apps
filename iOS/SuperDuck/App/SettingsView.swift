@@ -11,7 +11,7 @@ import CommonUI
 struct SettingsView: View {
     @State private var ps = PresentationState()
     @Environment(Auth.self) var auth
-    @Environment(AppModule.AppDefaults.self) var appDefaults
+    @Environment(AppDefaults.self) var appDefaults
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
     public var body: some View {
