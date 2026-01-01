@@ -52,11 +52,19 @@ export default function StoreEditorPage() {
     }
   })
 
-  window.addEventListener('beforeunload', (e) => {
-    if (hasUnsavedChanges) {
-      e.preventDefault()
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault()
+      }
     }
-  })
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [hasUnsavedChanges])
 
   return (
     <>
