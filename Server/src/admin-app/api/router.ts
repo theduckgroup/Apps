@@ -59,6 +59,8 @@ const CreateUserSchema = z.object({
   app_metadata: AppMetadataSchema
 })
 
+// Create user
+
 router.post('/users', async (req, res) => {
   // Body
 
@@ -116,9 +118,14 @@ router.patch('/users/:id', async (req, res) => {
   const uid = req.params.id
   const targetUser = await getUser(req.params.id)
 
-  // Permissions
-
+  // Permissions - check current roles
   checkRoles(getUserRoles(req.user!), getUserRoles(targetUser), 'update')
+
+  // Permissions - check new roles if being updated
+  // (This is basically the same check as if the target user already has the new roles applied)
+  if (data.app_metadata) {
+    checkRoles(getUserRoles(req.user!), data.app_metadata.roles, 'update')
+  }
 
   // Update user
 
@@ -169,10 +176,10 @@ router.delete('/users/:id', async (req, res) => {
 })
 
 /**
- *  Check if source (current) user have permission to create/update/delete target 
+ * Check if source (current) user have permission to create/update/delete target 
  * (another) user. Throws 403 if not permitted.
  */
-function checkRoles(sourceRoles: Role[], targetRoles: Role[], action: 'create' | 'update' | 'delete') {
+function checkRoles(sourceRoles: Role[], targetRoles: Role[], _action: 'create' | 'update' | 'delete') {
   const source_isOwner = sourceRoles.includes('org:owner')
   const source_isAdmin = sourceRoles.includes('org:admin')
   const target_isOwner = targetRoles.includes('org:owner')
