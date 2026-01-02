@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import createHttpError from 'http-errors'
 import { User } from '@supabase/supabase-js'
 import supabase from './supabase-client'
+import logger from 'src/logger'
 
 /**
  * Middleware that authorizes user.
@@ -16,10 +17,25 @@ export async function authorizeUser(req: Request, res: Response, next: NextFunct
 /**
  * Middleware that authorizes user and checks for owner or admin roles.
  */
-export async function authorizeAdmin(req: Request, res: Response, next: NextFunction) {
+export async function authorizeAdmin(req: Request, _res: Response, next: NextFunction) {
   await authorizeImpl(req)
 
-  const roles: string[] = req.user!.app_metadata.roles ?? []
+  const roles = (() => {
+    const rolesData: unknown = req.user!.app_metadata.roles
+
+    if (!Array.isArray(rolesData)) {
+      logger.warn('app_metadata.roles is not an array', { rolesData })
+      return []
+    }
+
+    const hasNonString = rolesData.some(r => typeof r !== 'string')
+    if (hasNonString) {
+      logger.warn('app_metadata.roles contains non-string elements', { rolesData })
+    }
+
+    return rolesData.filter((r): r is string => typeof r === 'string')
+  })()
+
   const authorized = roles.includes('org:owner') || roles.includes('org:admin')
 
   if (!authorized) {
