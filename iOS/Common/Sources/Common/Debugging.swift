@@ -21,3 +21,11 @@ public let debugging: Bool = {
 public var isRunningForPreviews: Bool {
     ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
 }
+
+public var isSimulator: Bool {
+#if targetEnvironment(simulator)
+    return true
+#else
+    return false
+#endif
+}

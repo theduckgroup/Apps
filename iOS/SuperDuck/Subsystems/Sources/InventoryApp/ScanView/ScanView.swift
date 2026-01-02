@@ -66,7 +66,7 @@ struct ScanView: View {
     
     @ViewBuilder
     private func controlsView() -> some View {
-        HStack {
+        HStack(alignment: .firstTextBaseline) {
             // Cancel button
             
             Button {
@@ -93,18 +93,18 @@ struct ScanView: View {
             
             let quantity = scanRecords.map(\.quantity).sum()
             
-            Text("\(quantity) Items")
+            Text("\(quantity) \("Item".pluralized(count: quantity))")
                 .font(.body.weight(.semibold).smallCaps().monospacedDigit())
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, 15)
-                .padding(.vertical, 9)
-                .modified {
-                    if #available(iOS 26, *) {
-                        $0.glassEffect(.clear)
-                    } else {
-                        $0
-                    }
-                }
+//                .padding(.horizontal, 15)
+//                .padding(.vertical, 9)
+//                .modified {
+//                    if #available(iOS 26, *) {
+//                        $0.glassEffect(.clear)
+//                    } else {
+//                        $0
+//                    }
+//                }
             
             Spacer()
 

@@ -29,6 +29,8 @@ struct ReviewView: View {
             Button("Cancel") {
                 dismiss()
             }
+            .fixedSize()
+            .buttonStyle(.automatic)
             .disabled(submitting)
         }
         
@@ -37,7 +39,13 @@ struct ReviewView: View {
                 Button("Submit") {
                     submit()
                 }
-                .fontWeight(.bold)
+                .modified {
+                    if #available(iOS 26, *) {
+                        $0.buttonStyle(.glassProminent)
+                    } else {
+                        $0.buttonStyle(.borderedProminent)
+                    }
+                }
                 
             } else {
                 ProgressView()
