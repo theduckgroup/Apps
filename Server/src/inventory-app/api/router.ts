@@ -54,6 +54,58 @@ adminRouter.get('/store/:storeId/stock', async (req, res) => {
   res.send(stock)
 })
 
+// Updates a store's catalog.
+adminRouter.put('/store/:storeId/catalog', async (req, res) => {
+  const storeId = req.params.storeId
+
+  // Body 
+
+  const { data, error: schemaError } = UpdateStoreCatalogBodySchema.safeParse(req.body)
+
+  if (schemaError) {
+    logger.error(schemaError)
+    throw createHttpError(400)
+  }
+
+  const { items, sections } = data
+
+  // Valid items & sections
+
+  const itemIDs = new Set(items.map(x => x.id))
+
+  for (const section of sections) {
+    for (const row of section.rows) {
+      if (!itemIDs.has(row.itemId)) {
+        throw createHttpError(`Section row's item ID ${row.itemId} does not exist in items`)
+      }
+    }
+  }
+
+  // Update db
+
+  const db = await getDb()
+
+  const result = await db.collection_inv_stores.updateOne(
+    {
+      _id: new ObjectId(storeId)
+    },
+    {
+      $set: {
+        'catalog.items': items,
+        'catalog.sections': sections
+      }
+    }
+  )
+
+  if (result.matchedCount == 0) {
+    throw createHttpError(404, `Store ${storeId} not found`)
+  }
+
+  res.send()
+
+  eventHub.emitStoreChanged(storeId)
+})
+
 // User router
 
 const userRouter = express.Router()
@@ -110,58 +162,6 @@ userRouter.get('/store/:storeId', async (req, res) => {
   // console.info(`! response = ${JSON.stringify(responseVendor)}`)
 
   res.send(store)
-})
-
-// Updates a store's catalog.
-userRouter.put('/store/:storeId/catalog', authorizeAdmin, async (req, res) => {
-  const storeId = req.params.storeId
-
-  // Body 
-
-  const { data, error: schemaError } = UpdateStoreCatalogBodySchema.safeParse(req.body)
-
-  if (schemaError) {
-    logger.error(schemaError)
-    throw createHttpError(400)
-  }
-
-  const { items, sections } = data
-
-  // Valid items & sections
-
-  const itemIds = new Set(items.map(x => x.id))
-
-  for (const section of sections) {
-    for (const row of section.rows) {
-      if (!itemIds.has(row.itemId)) {
-        throw createHttpError(`Section row's item ID ${row.itemId} does not exist in items`)
-      }
-    }
-  }
-
-  // Update db
-
-  const db = await getDb()
-
-  const result = await db.collection_inv_stores.updateOne(
-    {
-      _id: new ObjectId(storeId)
-    },
-    {
-      $set: {
-        'catalog.items': items,
-        'catalog.sections': sections
-      }
-    }
-  )
-
-  if (result.matchedCount == 0) {
-    throw createHttpError(404, `Store ${storeId} not found`)
-  }
-
-  res.send()
-
-  eventHub.emitStoreChanged(storeId)
 })
 
 // Updates store stock.
@@ -367,51 +367,3 @@ router.use(userRouter)
 router.use(adminRouter)
 
 export default router
-
-// // Mock data
-
-// const dbVendors: DbVendor[] = [
-//   {
-//     _id: new ObjectId('67befca13d7c24d268721b5d'),
-//     name: 'ND Central Kitchen',
-//     items: [
-//       {
-//         id: new ObjectId('67bdab6e04dcec6a07f42238'),
-//         name: 'Water',
-//         code: 'WATER_CODE'
-//       },
-//       {
-//         id: new ObjectId('67bdab78c766213546fd64fe'),
-//         name: 'Salt',
-//         code: 'SALT_CODE'
-//       }
-//     ],
-//     sections: [
-//       {
-//         id: new ObjectId(),
-//         name: 'Cooked Products',
-//         rows: [
-//           {
-//             itemId: new ObjectId('67bdab6e04dcec6a07f42238'),
-//           },
-//           {
-//             itemId: new ObjectId('67bdab78c766213546fd64fe')
-//           }
-//         ]
-//       }
-//     ]
-//   }
-// ]
-
-// const dbItemsQuantity: DbItemQuantityRecord[] = [
-//   {
-//     vendorId: new ObjectId('67befca13d7c24d268721b5d'),
-//     itemId: new ObjectId('67bdab6e04dcec6a07f42238'),
-//     quantity: 0,
-//   },
-//   {
-//     vendorId: new ObjectId('67befca13d7c24d268721b5d'),
-//     itemId: new ObjectId('67bdab78c766213546fd64fe'),
-//     quantity: 0,
-//   }
-// ]
