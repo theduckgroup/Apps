@@ -7,7 +7,7 @@ export function ConfirmModal({ opened, onClose, options: { title, message, actio
   onClose: () => void
   options: ConfirmModal.Options
 }) {
-  const [loading, setLoading] = useState(false)
+  const [loadingAction, setLoadingAction] = useState<ConfirmModal.Action | undefined>()
   const [error, setError] = useState<Error | undefined>()
 
   if (!actions.find(x => x.role == 'cancel')) {
@@ -27,7 +27,7 @@ export function ConfirmModal({ opened, onClose, options: { title, message, actio
       const result = action.handler()
 
       if (result instanceof Promise) {
-        setLoading(true)
+        setLoadingAction(action)
         await result
       }
 
@@ -36,7 +36,7 @@ export function ConfirmModal({ opened, onClose, options: { title, message, actio
     } catch (e) {
       setError(e as Error)
     } finally {
-      setLoading(false)
+      setLoadingAction(undefined)
     }
   }
 
@@ -73,8 +73,8 @@ export function ConfirmModal({ opened, onClose, options: { title, message, actio
                 variant={variant}
                 color={color}
                 onClick={() => handleActionClick(action)}
-                loading={loading}
-                disabled={loading}
+                loading={loadingAction === action}
+                disabled={loadingAction !== undefined}
               >
                 {action.label}
               </Button>
