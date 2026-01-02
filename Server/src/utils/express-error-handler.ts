@@ -1,7 +1,3 @@
-/*
- ! IMPORTANT: Modify this file in Common folder.
-*/
-
 import express from 'express'
 
 /**

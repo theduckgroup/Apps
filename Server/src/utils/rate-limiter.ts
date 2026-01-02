@@ -1,7 +1,3 @@
-/*
- IMPORTANT: Modify this in Common.
- */
-
 import rateLimit from 'express-rate-limit'
 
 export default function createRateLimiter(kind?: 'login' | 'password_reset' | 'default') {
