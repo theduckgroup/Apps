@@ -6,7 +6,7 @@ import CommonUI
 
 struct ReviewView: View {
     var store: Store
-    var mode: ScanView.Mode
+    var scanMode: ScanMode
     var scanRecords: [ScanRecord]
     var onSubmitted: () -> Void = {}
     @State var submitting = false
@@ -101,7 +101,7 @@ struct ReviewView: View {
             defer { submitting = false }
             
             do {
-                try await api.submit(store, mode, scanRecords)
+                try await api.submit(store, scanMode, scanRecords)
                 onSubmitted()
                 
             } catch {
@@ -112,7 +112,7 @@ struct ReviewView: View {
 }
 
 private extension API {
-    func submit(_ store: Store, _ mode: ScanView.Mode, _ scanRecords: [ScanRecord]) async throws {
+    func submit(_ store: Store, _ scanMode: ScanMode, _ scanRecords: [ScanRecord]) async throws {
         if isRunningForPreviews {
             try await Task.sleep(for: .seconds(1))
             // throw GenericError("Anim deserunt do eiusmod cupidatat.")
@@ -127,8 +127,8 @@ private extension API {
                 var inc: Int
             }
         }
-        
-        let factor = mode == .add ? 1 : -1
+
+        let factor = scanMode == .add ? 1 : -1
 
         let body = Body(
             changes: scanRecords.map {
@@ -168,7 +168,7 @@ private extension API {
                     ps.presentSheet {
                         ReviewView(
                             store: store,
-                            mode: .add,
+                            scanMode: .add,
                             scanRecords: scanRecords
                         )
                     }

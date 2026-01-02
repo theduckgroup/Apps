@@ -8,7 +8,7 @@ import CommonUI
 /// View that displays camera, barcode info and Finish button.
 struct ScanView: View {
     var store: Store
-    var mode: Mode
+    var scanMode: ScanMode
     @State var detectedBarcodes: [String] = []
     @State var scanRecords: [ScanRecord] = []
     @State var presentingFinishedView = false
@@ -21,9 +21,9 @@ struct ScanView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(InventoryAppDefaults.self) private var defaults
     
-    init(store: Store, mode: Mode) {
+    init(store: Store, scanMode: ScanMode) {
         self.store = store
-        self.mode = mode
+        self.scanMode = scanMode
 
         self.soundPlayer = {
             let bundleResourcesURL = Bundle.module.url(forResource: "Resources", withExtension: "bundle")!
@@ -114,7 +114,7 @@ struct ScanView: View {
                 ps.presentSheet {
                     ReviewView(
                         store: store,
-                        mode: mode,
+                        scanMode: scanMode,
                         scanRecords: scanRecords,
                         onSubmitted: {
                             dismiss()
@@ -174,12 +174,6 @@ struct ScanView: View {
     }
 }
 
-extension ScanView {
-    enum Mode {
-        case add
-        case remove
-    }
-}
 
 #Preview {
     struct PreviewView: View {
@@ -199,7 +193,7 @@ extension ScanView {
                     let store = try await api.store()
                     
                     ps.presentFullScreenCover {
-                        ScanView(store: store, mode: .add)
+                        ScanView(store: store, scanMode: .add)
                     }
                 }
             }
