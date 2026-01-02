@@ -101,6 +101,7 @@ export default function StoreEditorPage() {
           editorRef={mainRef}
           hasUnsavedChanges={hasUnsavedChanges}
           save={() => saveStoreAsync(store!)}
+          saveButtonLabel='Save Items'
         />
       }
 

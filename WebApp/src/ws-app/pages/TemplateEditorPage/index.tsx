@@ -123,6 +123,7 @@ export default function TemplateEditorPage() {
           editorRef={mainRef}
           hasUnsavedChanges={hasUnsavedChanges}
           save={() => saveTemplateAsync(template!)}
+          saveButtonLabel='Save Template'
         />
       }
 

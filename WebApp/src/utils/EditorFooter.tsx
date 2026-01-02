@@ -4,10 +4,11 @@ import { useElementRect } from './use-element-rect'
 import { Button, Text } from '@mantine/core'
 import formatError from 'src/common/format-error'
 
-export function EditorFooter({ editorRef, hasUnsavedChanges, save }: {
+export function EditorFooter({ editorRef, hasUnsavedChanges, save, saveButtonLabel }: {
   editorRef: React.RefObject<HTMLElement | null>
   hasUnsavedChanges: boolean
   save: () => Promise<void>
+  saveButtonLabel: string
 }) {
   const viewportSize = useViewportSize()
   const editorRect = useElementRect(editorRef)
@@ -51,7 +52,7 @@ export function EditorFooter({ editorRef, hasUnsavedChanges, save }: {
             disabled={!hasUnsavedChanges}
             className='flex-none'
           >
-            Save Changes
+            {saveButtonLabel}
           </Button>
         </div>
       </div>

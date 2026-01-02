@@ -35,7 +35,7 @@ export function UnsavedChangesModal({ blocker, save }: {
         <FocusTrap.InitialFocus />
 
         <Stack fz='sm' gap='xs'>
-          <Text>You have unsaved changes. Discard?</Text>
+          <Text>You have unsaved changes.</Text>
         </Stack>
 
         {error && (
@@ -66,7 +66,7 @@ export function UnsavedChangesModal({ blocker, save }: {
             loading={saving}
             disabled={saving}
           >
-            Save Changes
+            Keep Changes
           </Button>
         </Group>
       </Stack>

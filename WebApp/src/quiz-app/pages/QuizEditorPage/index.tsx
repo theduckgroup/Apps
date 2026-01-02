@@ -120,6 +120,7 @@ export default function QuizEditorPage() {
           editorRef={mainRef}
           hasUnsavedChanges={hasUnsavedChanges}
           save={() => saveQuizAsync(quiz!)}
+          saveButtonLabel='Save Test'
         />
       }
 
