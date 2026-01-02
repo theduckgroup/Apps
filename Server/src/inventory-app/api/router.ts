@@ -212,6 +212,9 @@ userRouter.post('/store/:storeId/stock', async (req, res) => {
 
       const itemAttrs = dbStock.itemAttributes
       const itemAttrsMap = new Map(itemAttrs.map(x => [x.itemId, x]))
+      const storeItemsMap = new Map(dbStore.catalog.items.map(x => [x.id, x]))
+
+      const insufficientStockErrors: string[] = []
 
       for (const change of itemQuantityChanges) {
         let itemAttr = itemAttrsMap.get(change.itemId)
@@ -225,10 +228,19 @@ userRouter.post('/store/:storeId/stock', async (req, res) => {
         const newQuantity = itemAttr.quantity + change.delta
 
         if (newQuantity < 0) {
-          throw createHttpError(400, `Insufficient stock for item ${change.itemId}: current=${itemAttr.quantity}, delta=${change.delta}`)
+          const storeItem = storeItemsMap.get(change.itemId)!
+          const currentQty = itemAttr.quantity
+          const removeQty = Math.abs(change.delta)
+          insufficientStockErrors.push(
+            `- ${storeItem.name} (${storeItem.code}): ${currentQty} in stock, attempting to remove ${removeQty}`
+          )
+        } else {
+          itemAttr.quantity = newQuantity
         }
+      }
 
-        itemAttr.quantity = newQuantity
+      if (insufficientStockErrors.length > 0) {
+        throw createHttpError(400, `Insufficient stock for the following items:\n${insufficientStockErrors.join('\n')}`)
       }
 
       await db.collection_inv_storeStocks.updateOne(
