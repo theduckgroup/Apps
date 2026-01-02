@@ -3,7 +3,7 @@ import { useDisclosure } from '@mantine/hooks'
 import { Outlet, useLocation, useNavigate } from 'react-router'
 import { IconChevronRight, IconLogout2, IconUserCircle } from '@tabler/icons-react'
 
-import { useAuth } from 'src/app/contexts'
+import { useAuth, useEnv } from 'src/app/contexts'
 import useModal from 'src/utils/use-modal'
 import { ConfirmModal } from 'src/utils/ConfirmModal'
 
@@ -156,12 +156,14 @@ const ProfileButton = ({ closeNavbar }: {
 function NavbarContent({ onClose }: {
   onClose: () => void
 }) {
+  const { info } = useEnv()
+
   return (
     <>
       <NavbarLink label='FOH Test' path='/quiz-app' onClose={onClose} />
       <NavbarLink label='Weekly Spending' path='/ws-app' onClose={onClose} />
       {
-        import.meta.env.DEV &&
+        (info && info.env !== 'production') &&
         <NavbarLink label='Inventory' path='/inventory-app' onClose={onClose} />
       }
       <NavbarLink label='Admin' path='/admin' onClose={onClose} />
