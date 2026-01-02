@@ -78,23 +78,8 @@ function HeaderContent({ navbarOpened, toggleNavbar, closeNavbar }: {
             <Anchor underline='never' onClick={e => { e.preventDefault(); navigate('/') }}>
               <Text fw='bold' fz={20} c='gray.0'>The Duck Group</Text>
             </Anchor>
-            {/* {
-              !isProdEnv &&
-              <Box bg='yellow.3' c='dark.8' px='xs' bdrs={3}>
-                <Text lineClamp={1} fw={600} className='[font-variant:small-caps]'>test environment</Text>
-              </Box>
-            } */}
           </Group>
-          {/* Env badge */}
-          {/* {
-            !isProdEnv &&
-            <Group c='yellow' gap='0.25rem' wrap='nowrap'>
-              <IconChevronRight size={17} strokeWidth={2.5} className='flex-none' />
-              <Text lineClamp={1}>You are in test environment. Changes will not affect production.</Text>
-            </Group>
-          } */}
         </Stack>
-        {/* </Center> */}
 
         <Space flex={1} />
 

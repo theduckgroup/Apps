@@ -69,7 +69,7 @@ app.use('/api/ws-app', wsAppRouter)
 import inventoryAppRouter from './inventory-app/api/router'
 app.use('/api/inventory-app', inventoryAppRouter)
 
-app.get('/api/info', async (req, res) => {
+app.get('/api/info', (req, res) => {
   res.send({
     env: env.nodeEnv
   })
