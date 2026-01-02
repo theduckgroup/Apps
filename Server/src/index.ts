@@ -5,9 +5,9 @@ import nocache from 'nocache'
 import createHttpError from 'http-errors'
 import path from 'path'
 
-import rateLimiter from 'src/common/rate-limiter'
-import requestLogger from 'src/common/express-request-logger'
-import errorHandler from 'src/common/express-error-handler'
+import rateLimiter from 'src/utils/rate-limiter'
+import requestLogger from 'src/utils/express-request-logger'
+import errorHandler from 'src/utils/express-error-handler'
 import logger from './logger'
 
 // Env
