@@ -41,8 +41,6 @@ router.get('/users/:id', async (req, res) => {
   res.send(user)
 })
 
-// Create user
-
 const UserMetadataSchema = z.object({
   first_name: z.string(),
   last_name: z.string()
