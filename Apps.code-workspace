@@ -3,12 +3,6 @@
 		{
 			"name": "Apps",
 			"path": "."
-		},
-		{
-			"path": "../Common"
-		},
-		{
-			"path": "../README"
 		}
 	],
 	"settings": {
