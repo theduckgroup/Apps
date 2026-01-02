@@ -120,23 +120,23 @@ private extension API {
         }
 
         struct Body: Encodable {
-            var changes: [Change]
+            var itemQuantityChanges: [Change]
             
             struct Change: Encodable {
                 var itemId: String
-                var inc: Int
+                var delta: Int
             }
         }
 
         let factor = scanMode == .add ? 1 : -1
 
         let body = Body(
-            changes: scanRecords.map {
-                .init(itemId: $0.storeItem.id, inc: $0.quantity * factor)
+            itemQuantityChanges: scanRecords.map {
+                .init(itemId: $0.storeItem.id, delta: $0.quantity * factor)
             }
         )
 
-        let path = "/api/store/\(store.id)/catalog"
+        let path = "inventory-app/store/\(store.id)/stock"
         
         try await post(method: "POST", path: path, body: body)
     }
