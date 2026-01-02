@@ -6,7 +6,7 @@ import CommonUI
 
 struct ReviewView: View {
     var store: Store
-    var scanMode: ScanView.Mode
+    var mode: ScanView.Mode
     var scanRecords: [ScanRecord]
     var onSubmitted: () -> Void = {}
     @State var submitting = false
@@ -17,7 +17,7 @@ struct ReviewView: View {
     var body: some View {
         NavigationStack {
             listView()
-                .navigationTitle("Scanned Items")
+                .navigationTitle("Items")
                 .toolbar { toolbarContent() }
                 .presentations(ps)
         }
@@ -98,13 +98,10 @@ struct ReviewView: View {
     private func submit() {
         Task {
             submitting = true
-            
-            defer {
-                submitting = false
-            }
+            defer { submitting = false }
             
             do {
-                try await submitImpl()
+                try await api.submit(store, mode, scanRecords)
                 onSubmitted()
                 
             } catch {
@@ -112,11 +109,16 @@ struct ReviewView: View {
             }
         }
     }
-    
-    private func submitImpl() async throws {
-        submitting = true
-        defer { submitting = false }
-        
+}
+
+private extension API {
+    func submit(_ store: Store, _ mode: ScanView.Mode, _ scanRecords: [ScanRecord]) async throws {
+        if isRunningForPreviews {
+            try await Task.sleep(for: .seconds(1))
+            // throw GenericError("Anim deserunt do eiusmod cupidatat.")
+            return
+        }
+
         struct Body: Encodable {
             var changes: [Change]
             
@@ -126,7 +128,7 @@ struct ReviewView: View {
             }
         }
         
-        let factor = scanMode == .add ? 1 : -1
+        let factor = mode == .add ? 1 : -1
 
         let body = Body(
             changes: scanRecords.map {
@@ -136,13 +138,7 @@ struct ReviewView: View {
 
         let path = "/api/store/\(store.id)/catalog"
         
-        if isRunningForPreviews {
-            try await Task.sleep(for: .seconds(1))
-            // throw GenericError("Anim deserunt do eiusmod cupidatat.")
-            return
-        }
-
-        try await api.post(method: "POST", path: path, body: body)
+        try await post(method: "POST", path: path, body: body)
     }
 }
 
@@ -172,7 +168,7 @@ struct ReviewView: View {
                     ps.presentSheet {
                         ReviewView(
                             store: store,
-                            scanMode: .add,
+                            mode: .add,
                             scanRecords: scanRecords
                         )
                     }

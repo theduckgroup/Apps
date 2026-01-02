@@ -53,7 +53,7 @@ struct ScanView: View {
                 
                 VStack(spacing: 16) {
                     controlsView()
-                    debugInputButton()
+                    debugAddItemButton()
                 }
                 .padding(.top, rectOfInterest.maxY)
                 .padding(.top, 16)
@@ -114,7 +114,7 @@ struct ScanView: View {
                 ps.presentSheet {
                     ReviewView(
                         store: store,
-                        scanMode: mode,
+                        mode: mode,
                         scanRecords: scanRecords,
                         onSubmitted: {
                             dismiss()
@@ -128,8 +128,8 @@ struct ScanView: View {
     }
     
     @ViewBuilder
-    private func debugInputButton() -> some View {
-        Button("[Debug] Show input alert") {
+    private func debugAddItemButton() -> some View {
+        Button("[Debug] Add Item") {
             let item = store.catalog.items.randomElement()!
             presentQuantityInputAlert(for: item)
         }
