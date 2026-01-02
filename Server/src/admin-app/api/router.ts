@@ -229,7 +229,7 @@ function sendOwnerUpdatedEmail(currentUser: User, targetUser: User, action: stri
   logger.info('Sending owner updated email')
 
   // Not waiting
-  mailer.sendMail({
+  void mailer.sendMail({
     recipients: [
       {
         name: getUserName(targetUser),
