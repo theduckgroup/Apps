@@ -7,18 +7,16 @@ export default function createMiddleware(options: Options) {
   const { logger } = options
 
   function fn(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const req_any: any = req
-    const res_any: any = res
-
-    req_any[key_startAt] = Date.now()
+    // Store timing data on req/res objects
+    req._reqlogStartAt = Date.now()
 
     const message = `${req.method} ${req.originalUrl}`
-    
+
     /*
 
     if (req.body && !_.isEmpty(req.body)) {
       const excluded = options.excludes.some(s => req.path.includes(s));
-    
+
       if (!excluded) {
         const json = JSON.stringify(req.body, null, 2)
         message += `\n${json}\n`
@@ -33,13 +31,13 @@ export default function createMiddleware(options: Options) {
 
     // Record time when response headers are written to calculate elapsed time when the response is finished
     // (from https://github.com/expressjs/morgan/blob/master/index.js)
-    
+
     onHeaders(res, () => {
-      res_any[key_startAt] = Date.now()
+      res._reqlogStartAt = Date.now()
     })
 
-    onFinished(res, (err: Error | null, res: express.Response) => {
-      const elapsed = res_any[key_startAt] - req_any[key_startAt]
+    onFinished(res, (_err: Error | null, res: express.Response) => {
+      const elapsed = (res._reqlogStartAt ?? 0) - (req._reqlogStartAt ?? 0)
       
       const statusPhrase = httpStatusCodes.getReasonPhrase(res.statusCode)
 
@@ -70,5 +68,13 @@ interface Options {
 }
 
 const xClear = '\x1b[0m'
-const key_startAt = 'reqlog_startAt'
 
+// Extend Express types to include our custom properties
+declare module 'express-serve-static-core' {
+  interface Request {
+    _reqlogStartAt?: number
+  }
+  interface Response {
+    _reqlogStartAt?: number
+  }
+}
