@@ -1,5 +1,5 @@
 import env from 'src/env'
-import createLogger from 'src/common/logger-factory'
+import createLogger from 'src/utils/logger-factory'
 
 export default createLogger({
   app: 'quiz',

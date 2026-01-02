@@ -1,4 +1,3 @@
-
 interface Options<Return> {
   key: unknown
   fn: () => Promise<Return>

@@ -2,13 +2,14 @@ import { Request, Response, NextFunction } from 'express'
 import createHttpError from 'http-errors'
 import { User } from '@supabase/supabase-js'
 import supabase from './supabase-client'
+import { getUserRoles, Roles } from 'src/utils/user-extensions'
 
 /**
  * Middleware that authorizes user.
- * 
+ *
  * If authorization is successful, `req.user` is set to the authorized user.
  */
-export async function authorizeUser(req: Request, res: Response, next: NextFunction) {
+export async function authorizeUser(req: Request, _res: Response, next: NextFunction) {
   await authorizeImpl(req)
   next()
 }
@@ -16,11 +17,11 @@ export async function authorizeUser(req: Request, res: Response, next: NextFunct
 /**
  * Middleware that authorizes user and checks for owner or admin roles.
  */
-export async function authorizeAdmin(req: Request, res: Response, next: NextFunction) {
+export async function authorizeAdmin(req: Request, _res: Response, next: NextFunction) {
   await authorizeImpl(req)
 
-  const roles: string[] = req.user!.app_metadata.roles ?? []
-  const authorized = roles.includes('org:owner') || roles.includes('org:admin')
+  const roles = getUserRoles(req.user!)
+  const authorized = roles.includes(Roles.owner) || roles.includes(Roles.admin)
 
   if (!authorized) {
     throw createHttpError(403, `Not permitted`)

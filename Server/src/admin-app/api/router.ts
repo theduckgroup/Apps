@@ -6,7 +6,7 @@ import z from 'zod'
 import supabase from 'src/auth/supabase-client'
 import { authorizeAdmin } from 'src/auth/authorize'
 import eventHub from './event-hub'
-import { Role, Roles, getUserName, getUserRoles } from './user-extensions'
+import { Role, Roles, getUserName, getUserRoles } from 'src/utils/user-extensions'
 import logger from 'src/logger'
 import { mailer } from 'src/utils/mailer'
 
@@ -41,8 +41,6 @@ router.get('/users/:id', async (req, res) => {
   res.send(user)
 })
 
-// Create user
-
 const UserMetadataSchema = z.object({
   first_name: z.string(),
   last_name: z.string()
@@ -58,6 +56,8 @@ const CreateUserSchema = z.object({
   user_metadata: UserMetadataSchema,
   app_metadata: AppMetadataSchema
 })
+
+// Create user
 
 router.post('/users', async (req, res) => {
   // Body
@@ -116,9 +116,23 @@ router.patch('/users/:id', async (req, res) => {
   const uid = req.params.id
   const targetUser = await getUser(req.params.id)
 
-  // Permissions
-
+  // Permissions - check current roles
   checkRoles(getUserRoles(req.user!), getUserRoles(targetUser), 'update')
+
+  // Permissions - check new roles if being updated
+  if (data.app_metadata) {
+    checkRoles(getUserRoles(req.user!), data.app_metadata.roles, 'update')
+
+    // Demoting last owner check
+
+    const currentRoles = getUserRoles(targetUser)
+    const newRoles = data.app_metadata.roles
+    const isDemotingOwner = currentRoles.includes(Roles.owner) && !newRoles.includes(Roles.owner)
+
+    if (isDemotingOwner) {
+      await checkLastOwner(targetUser)
+    }
+  }
 
   // Update user
 
@@ -152,6 +166,10 @@ router.delete('/users/:id', async (req, res) => {
 
   checkRoles(getUserRoles(req.user!), getUserRoles(targetUser), 'delete')
 
+  // Deleting last owner check
+
+  await checkLastOwner(targetUser)
+
   // Delete user
 
   const { error } = await supabase.auth.admin.deleteUser(uid, false)
@@ -169,10 +187,10 @@ router.delete('/users/:id', async (req, res) => {
 })
 
 /**
- *  Check if source (current) user have permission to create/update/delete target 
+ * Check if source (current) user have permission to create/update/delete target
  * (another) user. Throws 403 if not permitted.
  */
-function checkRoles(sourceRoles: Role[], targetRoles: Role[], action: 'create' | 'update' | 'delete') {
+function checkRoles(sourceRoles: Role[], targetRoles: Role[], _action: 'create' | 'update' | 'delete') {
   const source_isOwner = sourceRoles.includes('org:owner')
   const source_isAdmin = sourceRoles.includes('org:admin')
   const target_isOwner = targetRoles.includes('org:owner')
@@ -196,6 +214,31 @@ function checkRoles(sourceRoles: Role[], targetRoles: Role[], action: 'create' |
     // Cannot modify owners, admins or users
 
     throw createHttpError(403, 'Not Permitted')
+  }
+}
+
+/**
+ * Checks if a user is the last owner in the system.
+ * Throws 403 if attempting to delete/demote the last owner.
+ */
+async function checkLastOwner(targetUser: User) {
+  const targetRoles = getUserRoles(targetUser)
+
+  if (!targetRoles.includes(Roles.owner)) {
+    return
+  }
+
+  const { data: { users }, error } = await supabase.auth.admin.listUsers()
+
+  if (error) {
+    logger.error(error, 'Failed to list users for last owner check')
+    throw createHttpError(500)
+  }
+
+  const ownerCount = users.filter(u => getUserRoles(u).includes(Roles.owner)).length
+
+  if (ownerCount <= 1) {
+    throw createHttpError(403, 'Cannot delete or demote the last owner')
   }
 }
 
@@ -229,7 +272,7 @@ function sendOwnerUpdatedEmail(currentUser: User, targetUser: User, action: stri
   logger.info('Sending owner updated email')
 
   // Not waiting
-  mailer.sendMail({
+  void mailer.sendMail({
     recipients: [
       {
         name: getUserName(targetUser),

@@ -1,7 +1,7 @@
 import { MongoClient, Db } from 'mongodb'
 
 import env from 'src/env'
-import deduplicate from 'src/common/deduplicate'
+import deduplicate from 'src/utils/deduplicate'
 
 // Without these imports, there is no TypeScript error but app will crash because the extension properties are not defined
 import 'src/quiz-app/db/Db+collections'

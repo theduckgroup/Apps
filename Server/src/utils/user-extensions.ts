@@ -20,9 +20,13 @@ export const Roles = {
 
 export type Role = typeof Roles['owner'] | typeof Roles['admin']
 
+function isRole(value: unknown): value is Role {
+  return value === Roles.owner || value === Roles.admin
+}
+
 export function getUserRoles(user: User): Role[] {
-  const sbroles = user.app_metadata.roles
-  let roles: Role[] = []
+  const sbroles: unknown = user.app_metadata.roles
+  const roles: Role[] = []
 
   if (!sbroles) {
     console.error('Supabase roles are undefined')
@@ -35,9 +39,7 @@ export function getUserRoles(user: User): Role[] {
   }
 
   for (const x of sbroles) {
-    if (x == Roles.owner) {
-      roles.push(x)
-    } else if (x == Roles.admin) {
+    if (isRole(x)) {
       roles.push(x)
     } else {
       console.error(`Unknown role: ${x}`)
