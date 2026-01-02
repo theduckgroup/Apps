@@ -27,6 +27,8 @@ export default function createLogger(options: Options) {
 
   // Logger
 
+  // pino.transport() returns ThreadStream (not exported), which is compatible with DestinationStream
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const transport = pino.transport({ targets: transportTargets })
 
   return pino(
@@ -38,6 +40,7 @@ export default function createLogger(options: Options) {
       },
       timestamp: pino.stdTimeFunctions.isoTime
     },
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     transport
   )
 }
