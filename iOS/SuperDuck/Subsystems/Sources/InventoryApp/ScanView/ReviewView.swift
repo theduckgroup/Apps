@@ -104,6 +104,15 @@ struct ReviewView: View {
                 try await api.submit(store, scanMode, scanRecords)
                 onSubmitted()
                 
+            } catch let error as HTTPClient.BadStatusCodeError {
+                if let errorPayload = try? JSONDecoder().decode(ServerErrorPayload.self, from: error.data),
+                   errorPayload.message.contains("insufficient stock", options: .caseInsensitive) {
+                    ps.presentAlert(errorMessage: errorPayload.message)
+                    
+                } else {
+                    ps.presentAlert(errorMessage: formatError(error))
+                }
+                
             } catch {
                 ps.presentAlert(errorMessage: formatError(error))
             }
