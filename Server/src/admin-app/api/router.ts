@@ -120,9 +120,18 @@ router.patch('/users/:id', async (req, res) => {
   checkRoles(getUserRoles(req.user!), getUserRoles(targetUser), 'update')
 
   // Permissions - check new roles if being updated
-  // (This is basically the same check as if the target user already has the new roles applied)
   if (data.app_metadata) {
     checkRoles(getUserRoles(req.user!), data.app_metadata.roles, 'update')
+
+    // Demoting last owner check
+
+    const currentRoles = getUserRoles(targetUser)
+    const newRoles = data.app_metadata.roles
+    const isDemotingOwner = currentRoles.includes(Roles.owner) && !newRoles.includes(Roles.owner)
+
+    if (isDemotingOwner) {
+      await checkLastOwner(targetUser)
+    }
   }
 
   // Update user
@@ -157,6 +166,10 @@ router.delete('/users/:id', async (req, res) => {
 
   checkRoles(getUserRoles(req.user!), getUserRoles(targetUser), 'delete')
 
+  // Deleting last owner check
+
+  await checkLastOwner(targetUser)
+
   // Delete user
 
   const { error } = await supabase.auth.admin.deleteUser(uid, false)
@@ -174,7 +187,7 @@ router.delete('/users/:id', async (req, res) => {
 })
 
 /**
- * Check if source (current) user have permission to create/update/delete target 
+ * Check if source (current) user have permission to create/update/delete target
  * (another) user. Throws 403 if not permitted.
  */
 function checkRoles(sourceRoles: Role[], targetRoles: Role[], _action: 'create' | 'update' | 'delete') {
@@ -201,6 +214,31 @@ function checkRoles(sourceRoles: Role[], targetRoles: Role[], _action: 'create' 
     // Cannot modify owners, admins or users
 
     throw createHttpError(403, 'Not Permitted')
+  }
+}
+
+/**
+ * Checks if a user is the last owner in the system.
+ * Throws 403 if attempting to delete/demote the last owner.
+ */
+async function checkLastOwner(targetUser: User) {
+  const targetRoles = getUserRoles(targetUser)
+
+  if (!targetRoles.includes(Roles.owner)) {
+    return
+  }
+
+  const { data: { users }, error } = await supabase.auth.admin.listUsers()
+
+  if (error) {
+    logger.error(error, 'Failed to list users for last owner check')
+    throw createHttpError(500)
+  }
+
+  const ownerCount = users.filter(u => getUserRoles(u).includes(Roles.owner)).length
+
+  if (ownerCount <= 1) {
+    throw createHttpError(403, 'Cannot delete or demote the last owner')
   }
 }
 
