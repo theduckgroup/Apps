@@ -58,7 +58,7 @@ adminRouter.get('/store/:storeId/stock', async (req, res) => {
 adminRouter.put('/store/:storeId/catalog', async (req, res) => {
   const storeId = req.params.storeId
 
-  // Body 
+  // Body
 
   const { data, error: schemaError } = UpdateStoreCatalogBodySchema.safeParse(req.body)
 
@@ -76,34 +76,84 @@ adminRouter.put('/store/:storeId/catalog', async (req, res) => {
   for (const section of sections) {
     for (const row of section.rows) {
       if (!itemIDs.has(row.itemId)) {
-        throw createHttpError(`Section row's item ID ${row.itemId} does not exist in items`)
+        throw createHttpError(400, `Section row's item ID ${row.itemId} does not exist in items`)
       }
     }
   }
 
   // Update db
 
-  const db = await getDb()
+  const session = client.startSession()
 
-  const result = await db.collection_inv_stores.updateOne(
-    {
-      _id: new ObjectId(storeId)
-    },
-    {
-      $set: {
-        'catalog.items': items,
-        'catalog.sections': sections
+  try {
+    await session.withTransaction(async () => {
+      const db = await getDb()
+
+      const dbStore = await db.collection_inv_stores.findOne(
+        { _id: new ObjectId(storeId) },
+        { session }
+      )
+
+      if (!dbStore) {
+        throw createHttpError(404, `Store ${storeId} not found`)
       }
-    }
-  )
 
-  if (result.matchedCount == 0) {
-    throw createHttpError(404, `Store ${storeId} not found`)
+      const dbStock = await db.collection_inv_storeStocks.findOne(
+        { storeId },
+        { session }
+      )
+
+      if (!dbStock) {
+        throw createHttpError(404, `Store stock not found`)
+      }
+
+      // Update store catalog
+      await db.collection_inv_stores.updateOne(
+        { _id: new ObjectId(storeId) },
+        {
+          $set: {
+            'catalog.items': items,
+            'catalog.sections': sections
+          }
+        },
+        { session }
+      )
+
+      // Synchronize stock itemAttributes with catalog items
+      const existingAttrsMap = new Map(dbStock.itemAttributes.map(x => [x.itemId, x]))
+
+      const newItemAttrs = items.map(item => ({
+        itemId: item.id,
+        quantity: existingAttrsMap.get(item.id)?.quantity ?? 0
+      }))
+
+      await db.collection_inv_storeStocks.updateOne(
+        { storeId },
+        {
+          $set: {
+            itemAttributes: newItemAttrs
+          }
+        },
+        { session }
+      )
+    })
+
+  } catch (error) {
+    logger.error(error)
+
+    if (error instanceof createHttpError.HttpError) {
+      throw error
+    }
+
+    throw createHttpError(500)
+
+  } finally {
+    await session.endSession()
   }
 
-  res.send()
-
   eventHub.emitStoreChanged(storeId)
+
+  res.send()
 })
 
 // User router
