@@ -185,8 +185,14 @@ userRouter.post('/store/:storeId/stock', async (req, res) => {
 
       const db = await getDb()
 
-      const dbStore = await db.collection_inv_stores.findOne({ _id: new ObjectId(storeId) })
-      const dbStock = await db.collection_inv_storeStocks.findOne({ storeId })
+      const dbStore = await db.collection_inv_stores.findOne(
+        { _id: new ObjectId(storeId) },
+        { session }
+      )
+      const dbStock = await db.collection_inv_storeStocks.findOne(
+        { storeId },
+        { session }
+      )
 
       if (!dbStore || !dbStock) {
         throw createHttpError(404, `Store/stock not found`)
@@ -202,19 +208,27 @@ userRouter.post('/store/:storeId/stock', async (req, res) => {
         throw createHttpError(400, `Invalid item IDs: ${invalidItemIDs.values().toArray().join(', ')}`)
       }
 
-      // Update
+      // Update quantities with validation
 
       const itemAttrs = dbStock.itemAttributes
       const itemAttrsMap = new Map(itemAttrs.map(x => [x.itemId, x]))
 
       for (const change of itemQuantityChanges) {
-        const itemAttr = itemAttrsMap.get(change.itemId)
+        let itemAttr = itemAttrsMap.get(change.itemId)
 
-        if (itemAttr) {
-          itemAttr.quantity += change.delta
-        } else {
-          itemAttrs.push({ itemId: change.itemId, quantity: change.delta })
+        if (!itemAttr) {
+          itemAttr = { itemId: change.itemId, quantity: 0 }
+          itemAttrs.push(itemAttr)
+          itemAttrsMap.set(change.itemId, itemAttr)
         }
+
+        const newQuantity = itemAttr.quantity + change.delta
+
+        if (newQuantity < 0) {
+          throw createHttpError(400, `Insufficient stock for item ${change.itemId}: current=${itemAttr.quantity}, delta=${change.delta}`)
+        }
+
+        itemAttr.quantity = newQuantity
       }
 
       await db.collection_inv_storeStocks.updateOne(
@@ -223,12 +237,18 @@ userRouter.post('/store/:storeId/stock', async (req, res) => {
           $set: {
             itemAttributes: itemAttrs
           }
-        }
+        },
+        { session }
       )
     })
 
   } catch (error) {
     logger.error(error)
+
+    if (error instanceof createHttpError.HttpError) {
+      throw error
+    }
+
     throw createHttpError(500)
 
   } finally {
