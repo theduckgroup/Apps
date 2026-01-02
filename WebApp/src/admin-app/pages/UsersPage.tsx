@@ -87,7 +87,7 @@ function Content({ users }: { users: User[] }) {
             <Table.Tr>
               {/* Mobile */}
               <Table.Th hiddenFrom='sm' styles={{ th: { width: '70%' } }}>
-                Name | Email | Role
+                User
               </Table.Th>
               {/* Desktop */}
               <Table.Th visibleFrom='sm' styles={{ th: { width: '30%' } }}>
@@ -176,7 +176,7 @@ function UserRow({ user, onDelete }: {
         <Stack gap='0.125rem'>
           <Text>{user.name} {user.id == currentUser?.id ? ' *' : null} </Text>
           <Text>{user.email}</Text>
-          <Text c='dimmed'>{user.roleName}</Text>
+          <Text c='dimmed'>Role: {user.roleName}</Text>
         </Stack>
       </Table.Td>
       {/* Desktop */}
