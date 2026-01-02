@@ -22,7 +22,7 @@ export type Role = typeof Roles['owner'] | typeof Roles['admin']
 
 export function getUserRoles(user: User): Role[] {
   const sbroles = user.app_metadata.roles
-  let roles: Role[] = []
+  const roles: Role[] = []
 
   if (!sbroles) {
     console.error('Supabase roles are undefined')
