@@ -34,4 +34,16 @@ public extension PresentationState {
             hostView.alert("Error", presenting: $error)
         }
     }
+    
+    /// Presents an error alert with given message.
+    func presentAlert(errorMessage: String) {
+        present(item: errorMessage) { hostView, $errorMessage in
+            hostView.alert(
+                "Error",
+                presenting: $errorMessage,
+                actions: { message in Button("OK") {} },
+                message: { message in Text(message) }
+            )
+        }
+    }
 }

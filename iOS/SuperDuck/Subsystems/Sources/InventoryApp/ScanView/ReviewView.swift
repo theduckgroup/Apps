@@ -105,7 +105,7 @@ struct ReviewView: View {
                 onSubmitted()
                 
             } catch {
-                ps.presentAlert(error: error)
+                ps.presentAlert(errorMessage: formatError(error))
             }
         }
     }
