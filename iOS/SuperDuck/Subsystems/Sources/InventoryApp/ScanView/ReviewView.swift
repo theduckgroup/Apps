@@ -17,7 +17,8 @@ struct ReviewView: View {
     var body: some View {
         NavigationStack {
             listView()
-                .navigationTitle("Items")
+                .navigationTitle("Review Items")
+                .navigationBarTitleDisplayMode(.inline)
                 .toolbar { toolbarContent() }
                 .presentations(ps)
         }
