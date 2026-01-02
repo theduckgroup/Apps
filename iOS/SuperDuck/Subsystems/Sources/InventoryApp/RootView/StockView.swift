@@ -26,10 +26,10 @@ struct StockView: View {
             .onFirstAppear {
                 fetchData()
             }
-            .onSceneBecomeActive {
+            .onReceive(api.eventHub.connectEvents) {
                 fetchData()
             }
-            .onReceive(api.eventHub.connectEvents) {
+            .onReceive(api.eventHub.storeChangeEvents) {
                 fetchData()
             }
     }
