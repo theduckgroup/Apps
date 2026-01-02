@@ -85,13 +85,18 @@ function Content({ users }: { users: User[] }) {
         <Table fz='md' verticalSpacing='sm'>
           <Table.Thead>
             <Table.Tr>
-              <Table.Th styles={{ th: { width: '30%' } }}>
+              {/* Mobile */}
+              <Table.Th hiddenFrom='sm' styles={{ th: { width: '70%' } }}>
+                User
+              </Table.Th>
+              {/* Desktop */}
+              <Table.Th visibleFrom='sm' styles={{ th: { width: '30%' } }}>
                 Name
               </Table.Th>
-              <Table.Th styles={{ th: { width: '40%' } }}>
+              <Table.Th visibleFrom='sm' styles={{ th: { width: '40%' } }}>
                 Email
               </Table.Th>
-              <Table.Th styles={{ th: { width: '15%' } }}>
+              <Table.Th visibleFrom='sm' styles={{ th: { width: '15%' } }}>
                 Role
               </Table.Th>
               <Table.Th styles={{ th: { width: '15%' } }}>
@@ -166,12 +171,18 @@ function UserRow({ user, onDelete }: {
 
   return (
     <Table.Tr key={user.id}>
-      <Table.Td>
-        {user.name}
-        {user.id == currentUser?.id ? ' *' : null}
+      {/* Mobile */}
+      <Table.Td hiddenFrom='sm'>
+        <Stack gap='0.125rem'>
+          <Text>{user.name} {user.id == currentUser?.id ? ' *' : null} </Text>
+          <Text>{user.email}</Text>
+          <Text c='dimmed'>Role: {user.roleName}</Text>
+        </Stack>
       </Table.Td>
-      <Table.Td>{user.email}</Table.Td>
-      <Table.Td>{user.roleName}</Table.Td>
+      {/* Desktop */}
+      <Table.Td visibleFrom='sm'>{user.name} {user.id == currentUser?.id ? ' *' : null}</Table.Td>
+      <Table.Td visibleFrom='sm'>{user.email}</Table.Td>
+      <Table.Td visibleFrom='sm'>{user.roleName}</Table.Td>
       <Table.Td>
         {
           (checkRoles('update') || checkRoles('delete')) &&

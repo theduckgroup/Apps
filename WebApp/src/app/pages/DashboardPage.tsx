@@ -3,7 +3,7 @@ import { useDisclosure } from '@mantine/hooks'
 import { Outlet, useLocation, useNavigate } from 'react-router'
 import { IconChevronRight, IconLogout2, IconUserCircle } from '@tabler/icons-react'
 
-import { useAuth } from 'src/app/contexts'
+import { useAuth, useEnv } from 'src/app/contexts'
 import useModal from 'src/utils/use-modal'
 import { ConfirmModal } from 'src/utils/ConfirmModal'
 
@@ -78,23 +78,8 @@ function HeaderContent({ navbarOpened, toggleNavbar, closeNavbar }: {
             <Anchor underline='never' onClick={e => { e.preventDefault(); navigate('/') }}>
               <Text fw='bold' fz={20} c='gray.0'>The Duck Group</Text>
             </Anchor>
-            {/* {
-              !isProdEnv &&
-              <Box bg='yellow.3' c='dark.8' px='xs' bdrs={3}>
-                <Text lineClamp={1} fw={600} className='[font-variant:small-caps]'>test environment</Text>
-              </Box>
-            } */}
           </Group>
-          {/* Env badge */}
-          {/* {
-            !isProdEnv &&
-            <Group c='yellow' gap='0.25rem' wrap='nowrap'>
-              <IconChevronRight size={17} strokeWidth={2.5} className='flex-none' />
-              <Text lineClamp={1}>You are in test environment. Changes will not affect production.</Text>
-            </Group>
-          } */}
         </Stack>
-        {/* </Center> */}
 
         <Space flex={1} />
 
@@ -171,12 +156,14 @@ const ProfileButton = ({ closeNavbar }: {
 function NavbarContent({ onClose }: {
   onClose: () => void
 }) {
+  const { info } = useEnv()
+
   return (
     <>
       <NavbarLink label='FOH Test' path='/quiz-app' onClose={onClose} />
       <NavbarLink label='Weekly Spending' path='/ws-app' onClose={onClose} />
       {
-        import.meta.env.DEV &&
+        (info && info.env !== 'production') &&
         <NavbarLink label='Inventory' path='/inventory-app' onClose={onClose} />
       }
       <NavbarLink label='Admin' path='/admin' onClose={onClose} />

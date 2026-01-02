@@ -69,7 +69,7 @@ app.use('/api/ws-app', wsAppRouter)
 import inventoryAppRouter from './inventory-app/api/router'
 app.use('/api/inventory-app', inventoryAppRouter)
 
-app.get('/api/info', async (req, res) => {
+app.get('/api/info', (req, res) => {
   res.send({
     env: env.nodeEnv
   })
@@ -89,6 +89,12 @@ app.get('/*splat', nocache(), (req, res) => {
   res.header('Cache-Control', 'no-store')
 
   res.sendFile(publicDir + '/index.html')
+})
+
+// Health check for DigitalOcean App Platform
+
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
 // Send error response

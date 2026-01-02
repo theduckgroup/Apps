@@ -31,4 +31,4 @@ export default async function deduplicate<Return>(options: Options<Return>): Pro
   }
 }
 
-let pendingPromises = new Map<string, Promise<unknown>>()
+const pendingPromises = new Map<string, Promise<unknown>>()
