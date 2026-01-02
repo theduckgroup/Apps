@@ -70,16 +70,5 @@ private func formatBadStatusCodeError(_ error: HTTPClient.BadStatusCodeError) ->
         return String(data: data, encoding: .utf8)!
     }
     
-    if payload.code == "INVALID_CREDENTIALS" {
-        return "Incorrect username or password"
-        
-    } else {
-        return "\(HTTPClient.formatStatusCode(statusCode)): \(payload.message)"
-    }
-}
-
-private struct ServerErrorPayload: Decodable {
-    var code: String?
-    var message: String
-    var stack: String
+    return "\(HTTPClient.formatStatusCode(statusCode)): \(payload.message)"
 }
