@@ -50,7 +50,7 @@ public struct FetchView: View {
             .frame(maxWidth: horizontalSizeClass == .compact ? .infinity : nil)
             .background {
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color(UIColor.tertiarySystemFill))
+                    .fill(.regularMaterial)
             }
             .padding()
         }
