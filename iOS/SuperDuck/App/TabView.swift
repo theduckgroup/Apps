@@ -9,7 +9,6 @@ import CommonUI
 
 struct TabView: View {
     @AppStorage("tabViewSelection") private var tabViewSelection = TabViewSelection.quiz
-    @State var inventoryAppDefaults = InventoryApp.Defaults()
     
     var body: some View {
         SwiftUI.TabView(selection: $tabViewSelection) {
@@ -18,23 +17,21 @@ struct TabView: View {
             // append.page.fill
             // quiz-app
             Tab("FOH Test", systemImage: "questionmark.text.page.fill", value: .quiz) {
-                QuizApp.RootView()
+                QuizAppView()
             }
 
             Tab("Weekly Spending", systemImage: "wallet.bifold", value: .weeklySpending) {
-                WeeklySpendingApp.RootView()
+                WeeklySpendingAppView()
             }
             
             // list.triangle
             // list.bullet.clipboard.fill
             Tab("Inventory", image: "inventory-app", value: .inventory) {
-                InventoryApp.RootView()
-                    .environment(inventoryAppDefaults)
+                InventoryAppView()
             }
 
             Tab("Settings", systemImage: "gearshape", value: .settings) {
                 SettingsView()
-                    .environment(inventoryAppDefaults)
             }
         }
           

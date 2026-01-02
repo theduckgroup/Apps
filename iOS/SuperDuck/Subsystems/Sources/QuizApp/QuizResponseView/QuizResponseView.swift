@@ -11,8 +11,7 @@ struct QuizResponseView: View {
     @State var presentingAppearancePopover = false
     @State var ps = PresentationState()
     @Environment(API.self) var api
-    @AppStorage("QuizResponseView:dynamicTypeSizeOverride") var dynamicTypeSizeOverride: DynamicTypeSizeOverride?
-    @Environment(\.dynamicTypeSize) var systemDynamicTypeSize
+    @Environment(QuizAppDefaults.self) var defaults
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.dismiss) var dismiss
     
@@ -43,10 +42,17 @@ struct QuizResponseView: View {
                 for: .scrollContent
             )
             // .scrollDismissesKeyboard(.immediately)
-            .dynamicTypeSize(dynamicTypeSizeOverride?.dynamicTypeSize ?? systemDynamicTypeSize)
+            .modified {
+                if let dynamicTypeSizeOverride = defaults.dynamicTypeSizeOverride {
+                    $0.dynamicTypeSize(dynamicTypeSizeOverride.dynamicTypeSize)
+                } else {
+                    $0
+                }
+            }
             .navigationTitle("")
             .toolbar { toolbarContent() }
         }
+        .preferredColorScheme(defaults.colorSchemeOverride?.colorScheme)
         .presentations(ps)
         .environment(viewModel)
     }
@@ -99,7 +105,7 @@ struct QuizResponseView: View {
                 .padding(.horizontal, 3)
         }
         .popover(isPresented: $presentingAppearancePopover) {
-            QRAppearanceView(dynamicTypeSizeOverride: $dynamicTypeSizeOverride)
+            QRAppearanceView()
         }
     }
     
@@ -239,7 +245,7 @@ struct QuizResponseView: View {
         .onAppear {
             Task {
                 do {
-                    quiz = try await API.mock.quiz()
+                    quiz = try await API.localWithMockAuth.quiz()
                     
                 } catch {
                     logger.error("Unable to get mock quiz: \(error)")

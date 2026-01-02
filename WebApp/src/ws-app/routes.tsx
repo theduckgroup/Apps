@@ -1,13 +1,13 @@
-import { Navigate, Route } from 'react-router'
+import { Navigate, RouteObject } from 'react-router'
 import TemplateListPage from './pages/TemplateListPage'
 import TemplateEditorPage from './pages/TemplateEditorPage'
 import { withErrorBoundary } from 'src/utils/with-error-boundary'
 
-export default (
-  <>
-    <Route index element={<Navigate to='list' replace />} />
-    <Route path='list' element={withErrorBoundary(<TemplateListPage />)} />
-    <Route path='template' element={withErrorBoundary(<TemplateEditorPage />)} />
-    <Route path='template/:templateId' element={withErrorBoundary(<TemplateEditorPage />)} />
-  </>
-)
+const routes: RouteObject[] = [
+  { index: true, element: <Navigate to='list' replace /> },
+  { path: 'list', element: withErrorBoundary(<TemplateListPage />) },
+  { path: 'template', element: withErrorBoundary(<TemplateEditorPage />) },
+  { path: 'template/:templateId', element: withErrorBoundary(<TemplateEditorPage />) }
+]
+
+export default routes

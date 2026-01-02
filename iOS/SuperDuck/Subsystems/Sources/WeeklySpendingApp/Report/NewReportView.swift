@@ -502,7 +502,7 @@ private struct SectionBackgroundModififer: ViewModifier {
         }
         .task {
             do {
-                template = try await API.mock.mockTemplate()
+                template = try await API.localWithMockAuth.template()
             } catch {
                 print("Error retrieving template \(error)")
             }

@@ -54,6 +54,108 @@ adminRouter.get('/store/:storeId/stock', async (req, res) => {
   res.send(stock)
 })
 
+// Updates a store's catalog.
+adminRouter.put('/store/:storeId/catalog', async (req, res) => {
+  const storeId = req.params.storeId
+
+  // Body
+
+  const { data, error: schemaError } = UpdateStoreCatalogBodySchema.safeParse(req.body)
+
+  if (schemaError) {
+    logger.error(schemaError)
+    throw createHttpError(400)
+  }
+
+  const { items, sections } = data
+
+  // Valid items & sections
+
+  const itemIDs = new Set(items.map(x => x.id))
+
+  for (const section of sections) {
+    for (const row of section.rows) {
+      if (!itemIDs.has(row.itemId)) {
+        throw createHttpError(400, `Section row's item ID ${row.itemId} does not exist in items`)
+      }
+    }
+  }
+
+  // Update db
+
+  const session = client.startSession()
+
+  try {
+    await session.withTransaction(async () => {
+      const db = await getDb()
+
+      const dbStore = await db.collection_inv_stores.findOne(
+        { _id: new ObjectId(storeId) },
+        { session }
+      )
+
+      if (!dbStore) {
+        throw createHttpError(404, `Store ${storeId} not found`)
+      }
+
+      const dbStock = await db.collection_inv_storeStocks.findOne(
+        { storeId },
+        { session }
+      )
+
+      if (!dbStock) {
+        throw createHttpError(404, `Store stock not found`)
+      }
+
+      // Update store catalog
+      await db.collection_inv_stores.updateOne(
+        { _id: new ObjectId(storeId) },
+        {
+          $set: {
+            'catalog.items': items,
+            'catalog.sections': sections
+          }
+        },
+        { session }
+      )
+
+      // Synchronize stock itemAttributes with catalog items
+      const existingAttrsMap = new Map(dbStock.itemAttributes.map(x => [x.itemId, x]))
+
+      const newItemAttrs = items.map(item => ({
+        itemId: item.id,
+        quantity: existingAttrsMap.get(item.id)?.quantity ?? 0
+      }))
+
+      await db.collection_inv_storeStocks.updateOne(
+        { storeId },
+        {
+          $set: {
+            itemAttributes: newItemAttrs
+          }
+        },
+        { session }
+      )
+    })
+
+  } catch (error) {
+    logger.error(error)
+
+    if (error instanceof createHttpError.HttpError) {
+      throw error
+    }
+
+    throw createHttpError(500)
+
+  } finally {
+    await session.endSession()
+  }
+
+  eventHub.emitStoreChanged(storeId)
+
+  res.send()
+})
+
 // User router
 
 const userRouter = express.Router()
@@ -112,58 +214,6 @@ userRouter.get('/store/:storeId', async (req, res) => {
   res.send(store)
 })
 
-// Updates a store's catalog.
-userRouter.put('/store/:storeId/catalog', authorizeAdmin, async (req, res) => {
-  const storeId = req.params.storeId
-
-  // Body 
-
-  const { data, error: schemaError } = UpdateStoreCatalogBodySchema.safeParse(req.body)
-
-  if (schemaError) {
-    logger.error(schemaError)
-    throw createHttpError(400)
-  }
-
-  const { items, sections } = data
-
-  // Valid items & sections
-
-  const itemIds = new Set(items.map(x => x.id))
-
-  for (const section of sections) {
-    for (const row of section.rows) {
-      if (!itemIds.has(row.itemId)) {
-        throw createHttpError(`Section row's item ID ${row.itemId} does not exist in items`)
-      }
-    }
-  }
-
-  // Update db
-
-  const db = await getDb()
-
-  const result = await db.collection_inv_stores.updateOne(
-    {
-      _id: new ObjectId(storeId)
-    },
-    {
-      $set: {
-        'catalog.items': items,
-        'catalog.sections': sections
-      }
-    }
-  )
-
-  if (result.matchedCount == 0) {
-    throw createHttpError(404, `Store ${storeId} not found`)
-  }
-
-  res.send()
-
-  eventHub.emitStoreChanged(storeId)
-})
-
 // Updates store stock.
 userRouter.post('/store/:storeId/stock', async (req, res) => {
   const storeId = req.params.storeId
@@ -185,8 +235,14 @@ userRouter.post('/store/:storeId/stock', async (req, res) => {
 
       const db = await getDb()
 
-      const dbStore = await db.collection_inv_stores.findOne({ _id: new ObjectId(storeId) })
-      const dbStock = await db.collection_inv_storeStocks.findOne({ storeId })
+      const dbStore = await db.collection_inv_stores.findOne(
+        { _id: new ObjectId(storeId) },
+        { session }
+      )
+      const dbStock = await db.collection_inv_storeStocks.findOne(
+        { storeId },
+        { session }
+      )
 
       if (!dbStore || !dbStock) {
         throw createHttpError(404, `Store/stock not found`)
@@ -202,19 +258,39 @@ userRouter.post('/store/:storeId/stock', async (req, res) => {
         throw createHttpError(400, `Invalid item IDs: ${invalidItemIDs.values().toArray().join(', ')}`)
       }
 
-      // Update
+      // Update quantities with validation
 
       const itemAttrs = dbStock.itemAttributes
       const itemAttrsMap = new Map(itemAttrs.map(x => [x.itemId, x]))
+      const storeItemsMap = new Map(dbStore.catalog.items.map(x => [x.id, x]))
+
+      const insufficientStockErrors: string[] = []
 
       for (const change of itemQuantityChanges) {
-        const itemAttr = itemAttrsMap.get(change.itemId)
+        let itemAttr = itemAttrsMap.get(change.itemId)
 
-        if (itemAttr) {
-          itemAttr.quantity += change.delta
-        } else {
-          itemAttrs.push({ itemId: change.itemId, quantity: change.delta })
+        if (!itemAttr) {
+          itemAttr = { itemId: change.itemId, quantity: 0 }
+          itemAttrs.push(itemAttr)
+          itemAttrsMap.set(change.itemId, itemAttr)
         }
+
+        const newQuantity = itemAttr.quantity + change.delta
+
+        if (newQuantity < 0) {
+          const storeItem = storeItemsMap.get(change.itemId)!
+          const currentQty = itemAttr.quantity
+          const removeQty = Math.abs(change.delta)
+          insufficientStockErrors.push(
+            `- ${storeItem.name} (${storeItem.code}): ${currentQty} in stock, attempting to remove ${removeQty}`
+          )
+        } else {
+          itemAttr.quantity = newQuantity
+        }
+      }
+
+      if (insufficientStockErrors.length > 0) {
+        throw createHttpError(400, `Insufficient stock for the following items:\n${insufficientStockErrors.join('\n')}`)
       }
 
       await db.collection_inv_storeStocks.updateOne(
@@ -223,12 +299,18 @@ userRouter.post('/store/:storeId/stock', async (req, res) => {
           $set: {
             itemAttributes: itemAttrs
           }
-        }
+        },
+        { session }
       )
     })
 
   } catch (error) {
     logger.error(error)
+
+    if (error instanceof createHttpError.HttpError) {
+      throw error
+    }
+
     throw createHttpError(500)
 
   } finally {
@@ -335,51 +417,3 @@ router.use(userRouter)
 router.use(adminRouter)
 
 export default router
-
-// // Mock data
-
-// const dbVendors: DbVendor[] = [
-//   {
-//     _id: new ObjectId('67befca13d7c24d268721b5d'),
-//     name: 'ND Central Kitchen',
-//     items: [
-//       {
-//         id: new ObjectId('67bdab6e04dcec6a07f42238'),
-//         name: 'Water',
-//         code: 'WATER_CODE'
-//       },
-//       {
-//         id: new ObjectId('67bdab78c766213546fd64fe'),
-//         name: 'Salt',
-//         code: 'SALT_CODE'
-//       }
-//     ],
-//     sections: [
-//       {
-//         id: new ObjectId(),
-//         name: 'Cooked Products',
-//         rows: [
-//           {
-//             itemId: new ObjectId('67bdab6e04dcec6a07f42238'),
-//           },
-//           {
-//             itemId: new ObjectId('67bdab78c766213546fd64fe')
-//           }
-//         ]
-//       }
-//     ]
-//   }
-// ]
-
-// const dbItemsQuantity: DbItemQuantityRecord[] = [
-//   {
-//     vendorId: new ObjectId('67befca13d7c24d268721b5d'),
-//     itemId: new ObjectId('67bdab6e04dcec6a07f42238'),
-//     quantity: 0,
-//   },
-//   {
-//     vendorId: new ObjectId('67befca13d7c24d268721b5d'),
-//     itemId: new ObjectId('67bdab78c766213546fd64fe'),
-//     quantity: 0,
-//   }
-// ]

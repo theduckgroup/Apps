@@ -5,13 +5,12 @@ import Backend
 import Common
 import CommonUI
 
-public struct RootView: View {
+public struct QuizAppView: View {
     @State var quizFetcher = ValueFetcher<Quiz>()
     // @AppStorage("App:persistedQuizName") var persistedQuizName: String = ""
     @State var presentedQuiz: Quiz?
     @Environment(Auth.self) var auth
     @Environment(API.self) var api
-    @Environment(AppDefaults.self) var appDefaults
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
     public init() {}
@@ -69,6 +68,6 @@ public struct RootView: View {
 }
 
 #Preview {
-    RootView()
+    QuizAppView()
         .previewEnvironment()
 }

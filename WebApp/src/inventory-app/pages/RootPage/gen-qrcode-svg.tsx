@@ -140,8 +140,7 @@ export function genQRCodeSvg(options: Options): SvgResult {
   )
 
   const svgData = renderToString(reactEl)
-  // console.info(x)
-
+  
   return {
     data: svgData,
     size: {
@@ -157,21 +156,21 @@ function measureText(
 ): { width: number, height: number } {
   // From: https://www.reddit.com/r/webdev/comments/1e809pz/getting_the_bounding_box_of_an_svg_text_element/
 
-  // console.info(fontFamily, fontSize)
   const svgEl = document.createElementNS(svgns, 'svg')
+
   document.body.appendChild(svgEl)
 
   const textEl = document.createElementNS(svgns, 'text')
   textEl.setAttribute('y', '0')
   textEl.style.fontFamily = fontFamily
-  textEl.style.fontSize = fontSize.toString()
+  textEl.style.fontSize = `${fontSize}px` // Firefox needs unit | Can also do: textEl.setAttribute('font-size', ...)
   textEl.style.fontWeight = fontWeight
   textEl.textContent = text
   svgEl.appendChild(textEl)
 
   const bbox = textEl.getBBox()
+
   textEl.parentNode!.removeChild(textEl)
-  // console.info(`bbox: ${bbox.width} ${bbox.height}`)
 
   svgEl.parentNode!.removeChild(svgEl)
 

@@ -6,7 +6,7 @@ import CommonUI
 
 struct ReviewView: View {
     var store: Store
-    var scanMode: ScanView.Mode
+    var scanMode: ScanMode
     var scanRecords: [ScanRecord]
     var onSubmitted: () -> Void = {}
     @State var submitting = false
@@ -17,7 +17,8 @@ struct ReviewView: View {
     var body: some View {
         NavigationStack {
             listView()
-                .navigationTitle("Scanned Items")
+                .navigationTitle("Review Items")
+                .navigationBarTitleDisplayMode(.inline)
                 .toolbar { toolbarContent() }
                 .presentations(ps)
         }
@@ -29,6 +30,8 @@ struct ReviewView: View {
             Button("Cancel") {
                 dismiss()
             }
+            .fixedSize()
+            .buttonStyle(.automatic)
             .disabled(submitting)
         }
         
@@ -37,7 +40,13 @@ struct ReviewView: View {
                 Button("Submit") {
                     submit()
                 }
-                .fontWeight(.bold)
+                .modified {
+                    if #available(iOS 26, *) {
+                        $0.buttonStyle(.glassProminent)
+                    } else {
+                        $0.buttonStyle(.borderedProminent)
+                    }
+                }
                 
             } else {
                 ProgressView()
@@ -90,51 +99,56 @@ struct ReviewView: View {
     private func submit() {
         Task {
             submitting = true
-            
-            defer {
-                submitting = false
-            }
+            defer { submitting = false }
             
             do {
-                try await submitImpl()
+                try await api.submit(store, scanMode, scanRecords)
                 onSubmitted()
                 
+            } catch let error as HTTPClient.BadStatusCodeError {
+                if let errorPayload = try? JSONDecoder().decode(ServerErrorPayload.self, from: error.data),
+                   errorPayload.message.contains("insufficient stock", options: .caseInsensitive) {
+                    ps.presentAlert(errorMessage: errorPayload.message)
+                    
+                } else {
+                    ps.presentAlert(errorMessage: formatError(error))
+                }
+                
             } catch {
-                ps.presentAlert(error: error)
+                ps.presentAlert(errorMessage: formatError(error))
             }
         }
     }
-    
-    private func submitImpl() async throws {
-        submitting = true
-        defer { submitting = false }
-        
-        struct Body: Encodable {
-            var changes: [Change]
-            
-            struct Change: Encodable {
-                var itemId: String
-                var inc: Int
-            }
-        }
-        
-        let factor = scanMode == .add ? 1 : -1
+}
 
-        let body = Body(
-            changes: scanRecords.map {
-                .init(itemId: $0.storeItem.id, inc: $0.quantity * factor)
-            }
-        )
-
-        let path = "/api/store/\(store.id)/catalog"
-        
+private extension API {
+    func submit(_ store: Store, _ scanMode: ScanMode, _ scanRecords: [ScanRecord]) async throws {
         if isRunningForPreviews {
             try await Task.sleep(for: .seconds(1))
             // throw GenericError("Anim deserunt do eiusmod cupidatat.")
             return
         }
 
-        try await api.post(method: "POST", path: path, body: body)
+        struct Body: Encodable {
+            var itemQuantityChanges: [Change]
+            
+            struct Change: Encodable {
+                var itemId: String
+                var delta: Int
+            }
+        }
+
+        let factor = scanMode == .add ? 1 : -1
+
+        let body = Body(
+            itemQuantityChanges: scanRecords.map {
+                .init(itemId: $0.storeItem.id, delta: $0.quantity * factor)
+            }
+        )
+
+        let path = "inventory-app/store/\(store.id)/stock"
+        
+        try await post(method: "POST", path: path, body: body)
     }
 }
 

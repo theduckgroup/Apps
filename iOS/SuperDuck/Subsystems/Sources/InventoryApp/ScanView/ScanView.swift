@@ -8,7 +8,7 @@ import CommonUI
 /// View that displays camera, barcode info and Finish button.
 struct ScanView: View {
     var store: Store
-    var mode: Mode
+    var scanMode: ScanMode
     @State var detectedBarcodes: [String] = []
     @State var scanRecords: [ScanRecord] = []
     @State var presentingFinishedView = false
@@ -19,11 +19,11 @@ struct ScanView: View {
     @State var rectOfInterest: CGRect?
     @State var ps = PresentationState()
     @Environment(\.dismiss) private var dismiss
-    @Environment(InventoryApp.Defaults.self) private var defaults
+    @Environment(InventoryAppDefaults.self) private var defaults
     
-    init(store: Store, mode: Mode) {
+    init(store: Store, scanMode: ScanMode) {
         self.store = store
-        self.mode = mode
+        self.scanMode = scanMode
 
         self.soundPlayer = {
             let bundleResourcesURL = Bundle.module.url(forResource: "Resources", withExtension: "bundle")!
@@ -33,6 +33,51 @@ struct ScanView: View {
     }
     
     var body: some View {
+        NavigationStack {
+            bodyContent()
+                .toolbar { toolbarContent() }
+                .navigationTitle(scanMode == .add ? "Add Items" : "Remove Items")
+                .navigationBarTitleDisplayMode(.inline)
+                .presentations(ps)
+                .ignoresSafeArea()
+        }
+    }
+    
+    @ToolbarContentBuilder
+    private func toolbarContent() -> some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            Button("Cancel") {
+                dismiss()
+            }
+            .buttonStyle(.automatic)
+        }
+        
+        ToolbarItem(placement: .topBarTrailing) {
+            Button("Review") {
+                ps.presentSheet {
+                    ReviewView(
+                        store: store,
+                        scanMode: scanMode,
+                        scanRecords: scanRecords,
+                        onSubmitted: {
+                            dismiss()
+                        }
+                    )
+                }
+            }
+            .modified {
+                if #available(iOS 26, *) {
+                    $0.buttonStyle(.glassProminent)
+                } else {
+                    $0.buttonStyle(.borderedProminent)
+                }
+            }
+            .disabled(scanRecords.isEmpty)
+        }
+    }
+    
+    @ViewBuilder
+    private func bodyContent() -> some View {
         BarcodeScanner(
             minPresenceTime: defaults.scanner.minPresenceTime,
             minAbsenceTime: defaults.scanner.minAbsenceTime,
@@ -52,93 +97,42 @@ struct ScanView: View {
                 // VStack laid out in a way that it is just below the rect of interest and line up with it
                 
                 VStack(spacing: 16) {
-                    controlsView()
-                    debugInputButton()
+                    quantityLabel()
+                    debugAddItemButton()
                 }
                 .padding(.top, rectOfInterest.maxY)
                 .padding(.top, 16)
                 .padding(.horizontal, rectOfInterest.minX)
             }
         }
-        .presentations(ps)
-        .ignoresSafeArea()
     }
     
     @ViewBuilder
-    private func controlsView() -> some View {
-        HStack {
-            // Cancel button
-            
-            Button {
-                if scanRecords.count > 0 {
-                    ps.presentAlert(title: "Cancel scanning?", message: "Scanned items will be lost.") {
-                        Button("Continue Scanning", role: .cancel) {}
-
-                        Button("Cancel Scanning", role: .destructive) {
-                            dismiss()
-                        }
-                    }
-                    
-                } else {
-                    dismiss()
-                }
-            } label: {
-                Text("Cancel")
-            }
-            .buttonStyle(.bordered)
-
-            Spacer()
-
-            // Scanned items label
-            
-            let quantity = scanRecords.map(\.quantity).sum()
-            
-            Text("\(quantity) Items")
-                .font(.body.weight(.semibold).smallCaps().monospacedDigit())
+    private func quantityLabel() -> some View {
+        let quantity = scanRecords.map(\.quantity).sum()
+        
+        if quantity > 0 {
+            Text("\(quantity) \("Item".pluralized(count: quantity)) selected")
+                .font(.title3.smallCaps().monospacedDigit())
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, 15)
-                .padding(.vertical, 9)
-                .modified {
-                    if #available(iOS 26, *) {
-                        $0.glassEffect(.clear)
-                    } else {
-                        $0
-                    }
-                }
-            
-            Spacer()
-
-            // Review button
-            
-            Button("Review") {
-                ps.presentSheet {
-                    ReviewView(
-                        store: store,
-                        scanMode: mode,
-                        scanRecords: scanRecords,
-                        onSubmitted: {
-                            dismiss()
-                        }
-                    )
-                }
-            }
-            .buttonStyle(.borderedProminent)
-            .disabled(scanRecords.isEmpty)
+//                .modified {
+//                    if #available(iOS 26, *) {
+//                        $0.glassEffect(.clear)
+//                    } else {
+//                        $0
+//                    }
+//                }
+        } else {
+            Text("Align QR code within the frame")
+                .font(.title3)
         }
     }
     
     @ViewBuilder
-    private func debugInputButton() -> some View {
-        Button("[Debug] Show input alert") {
+    private func debugAddItemButton() -> some View {
+        Button("[Debug] Add Item") {
             let item = store.catalog.items.randomElement()!
             presentQuantityInputAlert(for: item)
-        }
-        .modified {
-            if #available(iOS 26, *) {
-                $0.buttonSizing(.flexible)
-            } else {
-                $0
-            }
         }
         .buttonStyle(.bordered)
     }
@@ -174,12 +168,6 @@ struct ScanView: View {
     }
 }
 
-extension ScanView {
-    enum Mode {
-        case add
-        case remove
-    }
-}
 
 #Preview {
     struct PreviewView: View {
@@ -199,7 +187,7 @@ extension ScanView {
                     let store = try await api.store()
                     
                     ps.presentFullScreenCover {
-                        ScanView(store: store, mode: .add)
+                        ScanView(store: store, scanMode: .add)
                     }
                 }
             }

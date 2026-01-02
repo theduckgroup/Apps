@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router'
+import { createBrowserRouter, Navigate, Outlet, RouteObject, RouterProvider } from 'react-router'
 import { MantineProvider, Loader, Text } from '@mantine/core'
 
 import { AuthProvider, useAuth, PathProvider, ApiProvider, EnvProvider } from './contexts'
@@ -21,16 +21,14 @@ function App() {
     <MantineProvider defaultColorScheme='dark' theme={theme}>
       <AuthProvider>
         <EnvProvider>
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
+          <RouterProvider router={createRouter()} />
         </EnvProvider>
       </AuthProvider>
     </MantineProvider>
   )
 }
 
-function AppRoutes() {
+function AuthLoader() {
   // Used to wait for session to be restored
   // Without this it will always redirect to login at startup
   // Then redirect to default authenticated page after session is restored
@@ -40,95 +38,110 @@ function AppRoutes() {
     return <LoadingPage />
   }
 
-  return (
-    <Routes>
-      {/* Login & reset password */}
-      {loginRoutes}
+  return <Outlet />
+}
 
-      {/* Public routes */}
-      {publicRoutes}
+// Router
 
-      {/* Authenticated routes */}
-      <Route path='/' element={
-        <RedirectToLoginIfUnauthorized>
-          <DashboardPage />
-        </RedirectToLoginIfUnauthorized>
-      }>
-        <Route index element={<Navigate to='quiz-app' />} />
-        {subappRoutes}
-        <Route path='profile' element={withErrorBoundary(<ProfilePage />)} />
-        <Route path='*' element={<NoMatch />} />
-      </Route>
-    </Routes>
-  )
+function createRouter() {
+  return createBrowserRouter([
+    {
+      element: <AuthLoader />,
+      children: [
+        ...createLoginRoutes(),
+        ...createPublicRoutes(),
+        {
+          // Authenticated routes
+          path: '/',
+          element: (
+            <RedirectToLoginIfUnauthorized>
+              <DashboardPage />
+            </RedirectToLoginIfUnauthorized>
+          ),
+          children: [
+            { index: true, element: <Navigate to='quiz-app' /> },
+            ...createSubappRoutes(),
+            { path: 'profile', element: withErrorBoundary(<ProfilePage />) },
+            { path: '*', element: <NoMatch /> }
+          ]
+        }
+      ]
+    }
+  ])
 }
 
 // Login routes
 
-const loginRoutes = (
-  <>
-    <Route path='/login' element={
-      <RedirectToRootIfAuthorized>
-        <LoginPage />
-      </RedirectToRootIfAuthorized>
-    } />
-
-    <Route path='/reset-password' element={
-      <RedirectToRootIfAuthorized>
-        <ResetPasswordPage />
-      </RedirectToRootIfAuthorized>
-    } />
-
-    <Route path='/reset-password-2' element={
-      <RedirectToLoginIfUnauthorized>
-        <ResetPassword2Page />
-      </RedirectToLoginIfUnauthorized>
-    } />
-  </>
-)
+function createLoginRoutes(): RouteObject[] {
+  return [
+    {
+      path: '/login',
+      element: (
+        <RedirectToRootIfAuthorized>
+          <LoginPage />
+        </RedirectToRootIfAuthorized>
+      )
+    },
+    {
+      path: '/reset-password',
+      element: (
+        <RedirectToRootIfAuthorized>
+          <ResetPasswordPage />
+        </RedirectToRootIfAuthorized>
+      )
+    },
+    {
+      path: '/reset-password-2',
+      element: (
+        <RedirectToLoginIfUnauthorized>
+          <ResetPassword2Page />
+        </RedirectToLoginIfUnauthorized>
+      )
+    }
+  ]
+}
 
 // Public routes
 
-const publicRoutes = (
-  <>
-    <Route path='/fohtest/view/:id' element={
-      <ApiProvider baseUrl='/api/quiz-app'>
-        <QuizResponsePage />
-      </ApiProvider>
-    } />
-  </>
-)
+function createPublicRoutes(): RouteObject[] {
+  return [
+    {
+      path: '/fohtest/view/:id',
+      element: (
+        <ApiProvider baseUrl='/api/quiz-app'>
+          <QuizResponsePage />
+        </ApiProvider>
+      )
+    }
+  ]
+}
 
 // (Sub)App routes
 
-const subappRoutes = (
-  <>
-    {/* Admin */}
-    <Route path='admin' element={
-      <SubappLayout path='/admin' apiPath='/api/admin' />
-    }>
-      {adminAppRoutes}
-    </Route>
-    {/* Quiz */}
-    <Route path='quiz-app' element={
-      <SubappLayout path='/quiz-app' apiPath='/api/quiz-app' />
-    }>
-      {quizAppRoutes}
-    </Route>
-    {/* Weekly Spending */}
-    <Route path='ws-app' element={
-      <SubappLayout path='/ws-app' apiPath='/api/ws-app' />
-    }>
-      {weeklySpendingApp}
-    </Route>
-    {/* Inventory */}
-    <Route path='inventory-app' element={
-      <SubappLayout path='/inventory-app' apiPath='/api/inventory-app' />
-    }>
-      {inventoryApp}
-    </Route>
-  </>
-)
+function createSubappRoutes(): RouteObject[] {
+  return [
+    {
+      path: 'admin',
+      element: <SubappLayout path='/admin' apiPath='/api/admin' />,
+      children: adminAppRoutes
+    },
+    {
+      path: 'quiz-app',
+      element: <SubappLayout path='/quiz-app' apiPath='/api/quiz-app' />,
+      children: quizAppRoutes
+    },
+    {
+      path: 'ws-app',
+      element: <SubappLayout path='/ws-app' apiPath='/api/ws-app' />,
+      children: weeklySpendingApp
+    },
+    {
+      path: 'inventory-app',
+      element: <SubappLayout path='/inventory-app' apiPath='/api/inventory-app' />,
+      children: inventoryApp
+    }
+  ]
+}
 
 function SubappLayout({ path, apiPath }: {
   path: string,

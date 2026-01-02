@@ -2,6 +2,7 @@ import SwiftUI
 import Backend
 import AppModule
 import InventoryApp
+import QuizApp
 
 @main
 struct App: SwiftUI.App {
@@ -14,22 +15,17 @@ struct App: SwiftUI.App {
         }
         .environment(auth)
         .environment(api)
-        .environment(appDefaults)
-        .environment(inventoryAppDefaults)
+        .environment(AppDefaults())
+        .environment(InventoryAppDefaults())
+        .environment(QuizAppDefaults())
     }
 }
 
-// Singletons
+private let auth = Auth()
 
-let auth = Auth()
-
-let api = {
+private let api = {
     switch AppInfo.buildTarget {
     case .prod: API(env: .prod, auth: auth)
     case .local: API(env: .local, auth: auth)
     }
 }()
-
-let appDefaults = AppDefaults()
-
-let inventoryAppDefaults = InventoryApp.Defaults()

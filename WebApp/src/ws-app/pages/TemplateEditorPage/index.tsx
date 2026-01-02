@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useState } from 'react'
-import { useParams } from 'react-router'
-import { Anchor, Button, Group, Loader, Stack, Text, Title } from '@mantine/core'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useBlocker, useParams } from 'react-router'
+import { Anchor, Button, Group, Stack, Text, Title } from '@mantine/core'
 import { useMutation } from '@tanstack/react-query'
 import { ObjectId } from 'bson'
-import { IconArrowBackUp, IconChevronLeft, IconPencil } from '@tabler/icons-react'
+import { IconChevronLeft, IconPencil } from '@tabler/icons-react'
 import { produce } from 'immer'
 
 import { usePath, useApi } from 'src/app/contexts'
@@ -12,16 +12,20 @@ import { EditMetadataModal } from './EditMetadataModal'
 import { ContentEditor } from './ContentEditor'
 import useModal from 'src/utils/use-modal'
 import formatError from 'src/common/format-error'
-import { ConfirmModal } from 'src/utils/ConfirmModal'
+import { EditorFooter } from 'src/utils/EditorFooter'
+import { UnsavedChangesModal } from 'src/utils/UnsavedChangesModal'
+import { useBeforeUnload } from 'src/utils/use-before-unload'
 
 export default function TemplateEditorPage() {
   const { templateId } = useParams()
   const { axios } = useApi()
   const { navigate } = usePath()
-  const [initialTemplate, setInitialTemplate] = useState<WsTemplate | null>(null)
+
   const [template, setTemplate] = useState<WsTemplate | null>(null)
-  const [saveTrigger, setSaveTrigger] = useState(0)
-  const [dirty, setDirty] = useState(false)
+  const [didChange, setDidChange] = useState(false) // Whether user made changes or not
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false) // Whether there is pending changes
+  const blocker = useBlocker(useMemo(() => hasUnsavedChanges, [hasUnsavedChanges]))
+  const mainRef = useRef<HTMLDivElement>(null)
 
   // Load
 
@@ -50,7 +54,6 @@ export default function TemplateEditorPage() {
       }
     },
     onSuccess: (data) => {
-      setInitialTemplate(data)
       setTemplate(data)
     }
   })
@@ -61,104 +64,85 @@ export default function TemplateEditorPage() {
 
   // Save
 
-  const { mutate: saveTemplate, error: saveError, isPending: isSaving } = useMutation({
+  const { mutateAsync: saveTemplateAsync } = useMutation({
     mutationFn: async (template: WsTemplate) => {
+      // await sleep(1000)
+      // throw new Error('Nisi minim ea culpa aliquip.')
       await axios.put(`/templates/${template.id}`, template)
+    },
+    onSuccess: () => {
+      setHasUnsavedChanges(false)
     }
   })
 
-  useEffect(() => {
-    if (saveTrigger > 0) {
-      saveTemplate(template!)
-    }
-  }, [template, saveTemplate, saveTrigger])
-
-  const setNeedsSave = useCallback(() => {
-    setSaveTrigger(x => x + 1)
-  }, [setSaveTrigger])
-
-  // Set
-
-  const setTemplateAndSave = useCallback((valueOrReducer: ValueOrReducer<WsTemplate | null>) => {
-    setTemplate(valueOrReducer)
-    setNeedsSave()
-    setDirty(true)
-  }, [setTemplate, setNeedsSave])
-
-  const revertTemplateAndSave = useCallback(() => {
-    setTemplate(initialTemplate)
-    setNeedsSave()
-    setDirty(false)
-  }, [initialTemplate, setTemplate, setNeedsSave])
+  useBeforeUnload(hasUnsavedChanges)
 
   return (
-    <Stack>
-      {/* <title>{quiz ? quiz.name : 'FOH Test'} | The Duck Group</title> */}
-      <title>Weekly Spending | The Duck Group</title>
-
-      {/* Save error */}
-      {
-        saveError &&
-        <Stack align='center'>
-          <Group>
-            <Text c='red'>{formatError(saveError)}</Text>
-            {/* <Button variant='subtle' size='compact-md'>Retry</Button> */}
-            <Anchor href='#' onClick={() => saveTemplate(template!)}>Retry</Anchor>
+    <>
+      <div ref={mainRef} className='flex flex-col gap-6 items-start'>
+        {/* Back link */}
+        <Anchor size='sm' onClick={e => { e.preventDefault(); navigate(`/list`) }}>
+          <Group gap='0.2rem'>
+            <IconChevronLeft size={18} />
+            Back to Templates
           </Group>
-        </Stack>
+        </Anchor>
+
+        {/* Content */}
+        {(() => {
+          if (isLoading) {
+            return <Text>Loading...</Text>
+          }
+
+          if (loadError) {
+            return <Text c='red'>{formatError(loadError)}</Text>
+          }
+
+          if (!template) {
+            return <>???</>
+          }
+
+          return (
+            <>
+              <title>{template.name + ' | The Duck Group'}</title>
+              <MetaAndContent
+                template={template}
+                setTemplate={valueOrReducer => {
+                  setTemplate(valueOrReducer)
+                  setDidChange(true)
+                  setHasUnsavedChanges(true)
+                }}
+              />
+            </>
+          )
+        })()}
+      </div>
+
+      {didChange &&
+        <EditorFooter
+          editorRef={mainRef}
+          hasUnsavedChanges={hasUnsavedChanges}
+          save={() => saveTemplateAsync(template!)}
+          saveButtonLabel='Save Template'
+        />
       }
 
-      {/* Back link */}
-      <Anchor size='sm' href='#' onClick={() => navigate(`/list`)}>
-        <Group gap='0.2rem'>
-          <IconChevronLeft size={18} />
-          Back to Templates
-        </Group>
-      </Anchor>
-
-      {/* Main content */}
-      {(() => {
-        if (isLoading) {
-          return <Text>Loading...</Text>
-        }
-
-        if (loadError) {
-          return <Text c='red'>{formatError(loadError)}</Text>
-        }
-
-        if (!template) {
-          return <>???</>
-        }
-
-        return (
-          <>
-            <title>{template!.name + ' | The Duck Group'}</title>
-            <MetaAndContent
-              template={template}
-              setTemplate={setTemplateAndSave}
-              revertTemplate={revertTemplateAndSave}
-              saving={isSaving}
-              dirty={dirty}
-            />
-          </>
-        )
-      })()}
-    </Stack>
+      <UnsavedChangesModal
+        blocker={blocker}
+        save={() => saveTemplateAsync(template!)}
+      />
+    </>
   )
 }
 
 /**
  * Template meta (name, code etc) and content (items and sections).
  */
-function MetaAndContent({ template, setTemplate, revertTemplate, saving, dirty }: {
+function MetaAndContent({ template, setTemplate }: {
   template: WsTemplate
   setTemplate: React.Dispatch<React.SetStateAction<WsTemplate | null>>
-  revertTemplate: () => void
-  saving: boolean
-  dirty: boolean
 }) {
   const editModal = useModal(EditMetadataModal)
-  const confirmModal = useModal(ConfirmModal)
 
   function handleEdit() {
     editModal.open({
@@ -179,20 +163,6 @@ function MetaAndContent({ template, setTemplate, revertTemplate, saving, dirty }
     })
   }
 
-  function handleRevert() {
-    confirmModal.open({
-      title: 'Revert Changes?',
-      message: 'The template will be reverted back to the state when you visited this page (before any changes were made).',
-      actions: [
-        {
-          label: 'Revert',
-          role: 'destructive',
-          handler: revertTemplate
-        }
-      ]
-    })
-  }
-
   type Reducer<T> = (prev: T) => T
 
   const setData = (fn: Reducer<[WsTemplate.Supplier[], WsTemplate.Section[]]>) => {
@@ -204,42 +174,23 @@ function MetaAndContent({ template, setTemplate, revertTemplate, saving, dirty }
   }
 
   return (
-    <Stack gap='lg'>
-      {/* Metadata + Save loader */}
-      <Group align='flex-start'>
-        {/* Metadata + Edit button */}
-        <Stack w='100%' gap='xs' align='flex-start' mr='auto'>
-          {/* Title + Edit button + Saving loader + Reset button */}
-          <Group w='100%' gap='md' align='baseline' bg='dark.9'>
-            {/* Name */}
-            <Title order={3} c='gray.1'>{template!.name}</Title>
-            {/* Edit button */}
-            <Button variant='light' size='compact-xs' fw='normal' onClick={handleEdit}>
-              <Group gap='0.25rem'>
-                <IconPencil size={13} />
-                Edit
-              </Group>
-            </Button>
-            {/* Save loader */}
-            {saving && <Loader ml='auto' size='xs' />}
-            {/* Revert button */}
-            {(dirty && !saving) &&
-              <Button ml='auto' variant='light' size='compact-sm' fw='normal' onClick={handleRevert}>
-                <Group gap='0.35rem'>
-                  <IconArrowBackUp size={15} />
-                  Revert
-                </Group>
-              </Button>
-            }
+    <Stack className='w-full' gap='md'>
+      {/* Title + Edit button */}
+      <Group w='100%' gap='md' align='baseline'>
+        <Title order={2} c='gray.1'>{template.name}</Title>
+        <Button variant='light' size='compact-xs' fw='normal' onClick={handleEdit}>
+          <Group gap='0.25rem'>
+            <IconPencil size={13} />
+            Edit
           </Group>
-          {/* Code, items per page */}
-          <Stack gap='0'>
-            <Text>Code: {template.code}</Text>
-            <Text>Email Recipients: {template.emailRecipients.join(', ')}</Text>
-          </Stack>
-        </Stack>
-
+        </Button>
       </Group>
+
+      {/* Code, email recipients */}
+      <Stack gap='0'>
+        <Text>Code: {template.code}</Text>
+        <Text>Email Recipients: {template.emailRecipients.join(', ')}</Text>
+      </Stack>
 
       {/* Items editor */}
       <ContentEditor
@@ -248,27 +199,8 @@ function MetaAndContent({ template, setTemplate, revertTemplate, saving, dirty }
         setData={setData}
       />
 
-      {/* Bottom bar */}
-      {/* Spacers (<Box />es) have same bg color as AppShell.Main */}
-      {/* <div className='sticky bottom-0 w-full pb-safe'>
-        <Stack gap='0'>
-          <Box h='12px' bg='dark.9' />
-          <Paper p='md'>
-            <Group>
-              <Button variant='default' ml='auto'>Discard Changes</Button>
-              <Button variant='filled'>Save Changes</Button>
-            </Group>
-          </Paper>
-          <Box h='12px' bg='dark.9'/>
-        </Stack>
-      </div> */}
-
       {/* Modals */}
       {editModal.element}
-      {confirmModal.element}
-
     </Stack>
   )
 }
-
-type ValueOrReducer<T> = T | ((prev: T) => T)  

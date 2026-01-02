@@ -5,13 +5,12 @@ import Backend
 import Common
 import CommonUI
 
-public struct RootView: View {
+public struct WeeklySpendingAppView: View {
     @State var templateFetcher = ValueFetcher<WSTemplate>()
     @State var reportsFetcher = ValueFetcher<[WSReportMeta]>()
     @State var presentedReportMeta: WSReportMeta?
     @Environment(Auth.self) var auth
     @Environment(API.self) var api
-    @Environment(AppDefaults.self) var appDefaults
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     public init() {}
@@ -69,12 +68,7 @@ public struct RootView: View {
     
     private func fetchTemplate() {
         templateFetcher.fetch {
-            if isRunningForPreviews {
-                try await Task.sleep(for: .seconds(1))
-                return try await api.mockTemplate()
-            }
-            
-            return try await api.template()
+            try await api.template()
         }
     }
     
@@ -82,8 +76,8 @@ public struct RootView: View {
         reportsFetcher.fetch {
             if isRunningForPreviews {
                 try await Task.sleep(for: .seconds(1))
-                return [.mock1, .mock2, .mock3]
                 // throw GenericError("Cupidatat est sit fugiat consectetur tempor fugiat culpa.")
+                return [.mock1, .mock2, .mock3]
             }
                 
             return try await api.userReports(userID: auth.user!.idString)
@@ -92,6 +86,6 @@ public struct RootView: View {
 }
 
 #Preview {
-    RootView()
+    WeeklySpendingAppView()
         .previewEnvironment()
 }

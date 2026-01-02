@@ -133,7 +133,7 @@ function validateQuiz(quiz: QuizSchemaInferredType) {
 
   const rowItemIDs = new Set<string>()
 
-  let errors: string[] = []
+  const errors: string[] = []
 
   for (const section of quiz.sections) {
     for (const row of section.rows) {
@@ -279,7 +279,7 @@ userRouter.post('/quiz-response/submit', async (req, res) => {
 const publicRouter = express.Router()
 
 if (env.nodeEnv == 'development') {
-  publicRouter.get('/mock-quiz', async (req, res) => {
+  publicRouter.get('/mock/quiz', async (req, res) => {
     const db = await getDb()
 
     const dbQuiz = await db.collection_qz_quizzes.findOne({ code: 'FOH_STAFF_KNOWLEDGE' })
@@ -294,7 +294,7 @@ if (env.nodeEnv == 'development') {
     res.send(resQuiz)
   })
 
-  publicRouter.get('/mock-quiz-response-email', async (req, res) => {
+  publicRouter.get('/mock/quiz-response-email', async (req, res) => {
     const db = await getDb()
 
     const doc = await db.collection_qz_quizResponses.findOne({}, { sort: { 'submittedDate': -1 } })

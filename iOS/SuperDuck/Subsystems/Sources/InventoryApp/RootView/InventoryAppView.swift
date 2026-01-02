@@ -5,13 +5,12 @@ import Backend
 import Common
 import CommonUI
 
-public struct RootView: View {
+public struct InventoryAppView: View {
     @State var storeFetcher = ValueFetcher<Store>()
     @State var presentingStockView = false
     @State var ps = PresentationState()
     @Environment(Auth.self) var auth
     @Environment(API.self) var api
-    @Environment(AppDefaults.self) var appDefaults
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     public init() {}
@@ -63,13 +62,13 @@ public struct RootView: View {
                     HStack(alignment: .firstTextBaseline) {
                         Button("Add Items", systemImage: "plus.circle") {
                             ps.presentFullScreenCover {
-                                ScanView(store: storeFetcher.value!, mode: .add)
+                                ScanView(store: storeFetcher.value!, scanMode: .add)
                             }
                         }
                         
                         Button("Remove Items", systemImage: "minus.circle") {
                             ps.presentFullScreenCover {
-                                ScanView(store: storeFetcher.value!, mode: .remove)
+                                ScanView(store: storeFetcher.value!, scanMode: .remove)
                             }
                         }
                     }
@@ -92,7 +91,7 @@ public struct RootView: View {
 #Preview {
     TabView() {
         Tab("Inventory", image: "document.fill") {
-            RootView()
+            InventoryAppView()
         }
         
         Tab("FOH Test", image: "document.fill") {

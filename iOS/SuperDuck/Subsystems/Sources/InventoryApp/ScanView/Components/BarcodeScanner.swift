@@ -114,8 +114,8 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if isRunningForPreviews {
-            initStaticImageForPreview()
+        if isSimulator || isRunningForPreviews {
+            initWithFakeCameraImage()
            
         } else {
             initCaptureSessionAndPreviewLayer()
@@ -181,7 +181,7 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
             .store(in: &cancellables)
     }
     
-    private func initStaticImageForPreview() {
+    private func initWithFakeCameraImage() {
         let imageView = UIImageView(image: UIImage(named: "DeskPhoto", in: .module, with: nil))
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true

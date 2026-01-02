@@ -1,4 +1,4 @@
-import { Button, Checkbox, CopyButton as MantineCopyButton, Flex, Modal, Paper, Slider, Stack, Text, Textarea, Title } from '@mantine/core'
+import { Button, Checkbox, CopyButton as MantineCopyButton, Flex, Modal, Slider, Stack, Text, Textarea } from '@mantine/core'
 import { useLocalStorage } from '@mantine/hooks'
 import { useEffect, useRef, useState } from 'react'
 
@@ -203,8 +203,7 @@ function QRCodeImage({ svgData, width }: {
 }) {
   const padding = 16
   const displayWidth = Math.min(width, QRCODE_VIEWER_SIZE - padding * 2)
-  console.info(`displayWidth = ${displayWidth}`)
-
+  
   return (
     <div
       className={`flex items-center justify-center bg-white rounded-md`}

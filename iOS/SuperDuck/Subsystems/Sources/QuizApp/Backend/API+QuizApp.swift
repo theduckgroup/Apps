@@ -5,7 +5,7 @@ import Common
 extension API {
     func quiz() async throws -> Quiz {
         if isRunningForPreviews {
-            return try await get(authenticated: false, path: "quiz-app/mock-quiz")
+            return try await get(authenticated: false, path: "quiz-app/mock/quiz")
         }
         
         return try await get( path: "quiz-app/quiz/68e5052313908f614bbab024")

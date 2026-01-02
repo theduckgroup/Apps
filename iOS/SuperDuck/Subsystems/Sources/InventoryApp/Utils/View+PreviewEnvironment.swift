@@ -7,8 +7,7 @@ extension View {
     func previewEnvironment() -> some View {
         self.tint(.theme)
             .environment(Auth.mock)
-            .environment(API.mock)
-            .environment(AppDefaults())
-            .environment(InventoryApp.Defaults())
+            .environment(API.localWithMockAuth)
+            .environment(InventoryAppDefaults())
     }
 }
