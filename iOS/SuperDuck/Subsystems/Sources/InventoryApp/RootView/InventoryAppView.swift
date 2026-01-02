@@ -62,13 +62,13 @@ public struct InventoryAppView: View {
                     HStack(alignment: .firstTextBaseline) {
                         Button("Add Items", systemImage: "plus.circle") {
                             ps.presentFullScreenCover {
-                                ScanView(store: storeFetcher.value!, mode: .add)
+                                ScanView(store: storeFetcher.value!, scanMode: .add)
                             }
                         }
                         
                         Button("Remove Items", systemImage: "minus.circle") {
                             ps.presentFullScreenCover {
-                                ScanView(store: storeFetcher.value!, mode: .remove)
+                                ScanView(store: storeFetcher.value!, scanMode: .remove)
                             }
                         }
                     }
