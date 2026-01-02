@@ -6,7 +6,7 @@ import z from 'zod'
 import supabase from 'src/auth/supabase-client'
 import { authorizeAdmin } from 'src/auth/authorize'
 import eventHub from './event-hub'
-import { Role, Roles, getUserName, getUserRoles } from './user-extensions'
+import { Role, Roles, getUserName, getUserRoles } from 'src/utils/user-extensions'
 import logger from 'src/logger'
 import { mailer } from 'src/utils/mailer'
 

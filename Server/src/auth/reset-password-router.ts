@@ -4,7 +4,7 @@ import logger from 'src/logger'
 
 import env from 'src/env'
 import supabase from './supabase-client'
-import { getUserRoles } from 'src/admin-app/api/user-extensions'
+import { getUserRoles } from 'src/utils/user-extensions'
 
 const router = express.Router() // Public
 
