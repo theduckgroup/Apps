@@ -5,6 +5,9 @@
 
 # To test: docker compose up --build
 
+# The health check settings in Digital Ocean seems to affect how fast it detects that the container is up
+# I left it as default (TCP 10 seconds) instead of using /health endpoint
+
 FROM node:24-alpine
 
 # Install mongodb-database-tools

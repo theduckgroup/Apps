@@ -91,11 +91,14 @@ app.get('/*splat', nocache(), (req, res) => {
   res.sendFile(publicDir + '/index.html')
 })
 
+/*
 // Health check for DigitalOcean App Platform
+// No longer used (it uses TCP now)
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() })
 })
+*/
 
 // Send error response
 
