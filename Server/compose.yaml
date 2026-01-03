@@ -1,0 +1,16 @@
+# This is not used by Digital Ocean, only for local testing
+
+services:
+  server:
+    env_file: .env.dev-local
+    build: .
+    
+    # Run an init process inside the container. 
+    # This process forwards signals and reaps zombie processes, which helps ensure clean container shutdown.
+    init: true 
+
+    ports:
+      - "8080:8080"
+    
+    # Optional: Automatically restarts if your app crashes
+    # restart: always

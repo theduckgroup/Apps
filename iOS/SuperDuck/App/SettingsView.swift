@@ -4,12 +4,14 @@ import AppModule
 import Auth
 import Backend
 import CommonUI
+import InventoryApp
 
 /// Settings view.
 ///
 /// Use `TabView` to preview.
 struct SettingsView: View {
     @State private var ps = PresentationState()
+    @State private var presentingInventoryAppSettings = false
     @Environment(Auth.self) var auth
     @Environment(AppDefaults.self) var appDefaults
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -50,6 +52,15 @@ struct SettingsView: View {
             
             Section("Theme") {
                 themeView()
+            }
+            
+            Section("Advanced") {
+                Button("Inventory App") {
+                    presentingInventoryAppSettings = true
+                }
+                .navigationDestination(isPresented: $presentingInventoryAppSettings) {
+                    InventoryAppSettingsView()
+                }
             }
             
             Section("Version") {

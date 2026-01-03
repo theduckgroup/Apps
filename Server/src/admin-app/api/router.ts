@@ -271,8 +271,7 @@ function sendOwnerUpdatedEmail(currentUser: User, targetUser: User, action: stri
 
   logger.info('Sending owner updated email')
 
-  // Not waiting
-  void mailer.sendMail({
+  mailer.sendMail({
     recipients: [
       {
         name: getUserName(targetUser),
@@ -281,6 +280,9 @@ function sendOwnerUpdatedEmail(currentUser: User, targetUser: User, action: stri
     ],
     subject: `Account ${action}`,
     contentHtml: `Your account has been ${action} by ${getUserName(currentUser)}`
+  })
+  .catch(e => {
+    logger.error(e, 'Failed to send mail')
   })
 }
 

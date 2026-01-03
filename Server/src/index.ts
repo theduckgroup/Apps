@@ -91,17 +91,27 @@ app.get('/*splat', nocache(), (req, res) => {
   res.sendFile(publicDir + '/index.html')
 })
 
+/*
 // Health check for DigitalOcean App Platform
+// No longer used (it uses TCP now)
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() })
 })
+*/
 
 // Send error response
 
 app.use(errorHandler({ logger }))
 
 // Start server
+// Using 0.0.0.0 is considered best practice with Dockerfile
+// However when I tried it, it keeps failing with "address already in use" error!
 
 const port = parseInt(process.env.PORT!)
 server.listen(port, () => logger.info(`Listening on port ${port}`))
+
+// Backup service
+
+import { startBackupService } from './backup-service'
+startBackupService()

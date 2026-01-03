@@ -6,5 +6,6 @@
 		}
 	],
 	"settings": {
+		"swift.swiftSDK": "arm64-apple-ios"
 	}
 }
