@@ -23,7 +23,7 @@ Notes:
 - --archive and --gzip: needed because we used them for creating backup
 - Replace {username} and {password} with actual values
 - --nsFrom and --nsTo: to rename the database, useful for testing, may not be needed in real world
-- --dryRun: check for errors without any actual changes
+- --dryRun: check for errors without making actual changes
 */
 
 /**
