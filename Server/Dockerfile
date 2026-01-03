@@ -1,5 +1,11 @@
 FROM node:24-alpine
 
+# Install mongodb-database-tools
+RUN apk add mongodb-tools
+
+# Can't see the output of this
+# RUN mongodump --version
+
 # Set the working directory inside the container
 WORKDIR /usr/src/app
 
