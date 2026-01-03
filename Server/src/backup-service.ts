@@ -63,7 +63,6 @@ async function cleanupTempFolder(): Promise<void> {
   } catch (error) {
     // Log error and continue
     logger.error(error, 'Error cleaning up temp folder')
-
   }
 }
 
@@ -414,9 +413,9 @@ const config: Config = (() => {
 
     case 'development':
       return {
-        checkIntervalMs: 5 * 60 * 1000,
+        checkIntervalMs: 30 * 1000,
         retentionMs: 12 * 60 * 1000,
-        isSamePeriodFn: isSameHourUTC,
+        isSamePeriodFn: isSameMinuteUTC,
         supabaseBucket: 'apps-dev',
         supabaseBackupFolder: 'db-backup',
       }
