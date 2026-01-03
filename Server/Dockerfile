@@ -33,5 +33,6 @@ COPY . .
 EXPOSE 8080
 
 # Define the command to start your app
-# CMD ["npm", "start"] also works
-CMD ["npx", "tsx", "src/index.ts"]
+# CMD ["npx", "tsx", "src/index.ts"] also works; I am unclear of the benefits
+CMD ["npm", "start"]
+
