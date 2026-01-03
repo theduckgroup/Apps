@@ -42,7 +42,7 @@ async function checkAndCreateBackup(): Promise<void> {
     if (backupFiles.length > 0) {
       const mostRecentBackup = backupFiles[0]
 
-      if (isSameDayUTC(mostRecentBackup.createdAt, now)) {
+      if (config.isSameDayFn(mostRecentBackup.createdAt, now)) {
         logger.info(`Backup already exists for today: ${mostRecentBackup.name}`)
         return
       }
@@ -273,13 +273,15 @@ const config: Config = env.nodeEnv == 'production' ?
     checkIntervalMs: 5 * 60 * 1000, // 5 minutes
     retentionMs: 30 * 24 * 60 * 60 * 1000, // 30 days
     supabaseBucket: 'apps',
-    supabaseBackupFolder: 'db-backup'
+    supabaseBackupFolder: 'db-backup',
+    isSameDayFn: isSameDayUTC
   } :
   {
     checkIntervalMs: 30 * 1000, // 30 seconds
     retentionMs: 2 * 60 * 1000, // 2 minutes
     supabaseBucket: 'apps-dev',
-    supabaseBackupFolder: 'db-backup'
+    supabaseBackupFolder: 'db-backup',
+    isSameDayFn: isSameMinuteUTC
   }
 
 interface Config {
@@ -287,6 +289,7 @@ interface Config {
   retentionMs: number
   supabaseBucket: string
   supabaseBackupFolder: string
+  isSameDayFn: (date1: Date, date2: Date) => boolean
 }
 
 const TMP_FOLDER = path.join(__dirname, '../tmp/backups')
