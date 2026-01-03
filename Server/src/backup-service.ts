@@ -14,7 +14,7 @@ const execAsync = promisify(exec)
  * Starts the backup service with periodic checks
  */
 export function startBackupService(): void {
-  logger.info(`Starting backup service (check interval: ${BACKUP_CHECK_INTERVAL_MS}ms, ${BACKUPS_PER_DAY} backup/day, retention: ${BACKUP_RETENTION_DAYS} days)`)
+  logger.info(`Starting backup service (check interval: ${config.checkIntervalMs}ms, retention: ${config.retentionMs}ms)`)
 
   // Run initial check
   checkAndCreateBackup()
@@ -23,8 +23,8 @@ export function startBackupService(): void {
   // Schedule periodic checks
   setInterval(() => {
     checkAndCreateBackup()
-      .catch(e => { })      
-  }, BACKUP_CHECK_INTERVAL_MS)
+      .catch(e => { })
+  }, config.checkIntervalMs)
 }
 
 /**
@@ -32,6 +32,8 @@ export function startBackupService(): void {
  */
 async function checkAndCreateBackup(): Promise<void> {
   try {
+    logger.info('Checking backup...')
+    
     const backupFiles = await listBackupFiles()
     const now = new Date()
 
@@ -91,9 +93,9 @@ async function createBackup(): Promise<void> {
     logger.info(`Archive size: ${archiveData.length} bytes`)
 
     // Upload to Supabase Storage
-    const filePath = `${SUPABASE_BACKUP_FOLDER}/${filename}`
+    const filePath = `${config.supabaseBackupFolder}/${filename}`
     const { error } = await supabaseClient.storage
-      .from(SUPABASE_BUCKET)
+      .from(config.supabaseBucket)
       .upload(filePath, archiveData, {
         contentType: 'application/gzip',
         upsert: false
@@ -121,13 +123,12 @@ async function createBackup(): Promise<void> {
 async function deleteOldBackups(backupFiles: BackupFile[]): Promise<void> {
   try {
     const now = new Date()
-    const retentionMs = BACKUP_RETENTION_DAYS * 24 * 60 * 60 * 1000
 
     const filesToDelete: string[] = []
 
     for (const backup of backupFiles) {
       const ageMs = now.getTime() - backup.createdAt.getTime()
-      if (ageMs > retentionMs) {
+      if (ageMs > config.retentionMs) {
         filesToDelete.push(backup.name)
       }
     }
@@ -140,9 +141,9 @@ async function deleteOldBackups(backupFiles: BackupFile[]): Promise<void> {
     logger.info(`Deleting ${filesToDelete.length} old backup(s)...`)
 
     // Delete files from Supabase Storage
-    const filePaths = filesToDelete.map(name => `${SUPABASE_BACKUP_FOLDER}/${name}`)
+    const filePaths = filesToDelete.map(name => `${config.supabaseBackupFolder}/${name}`)
     const { error } = await supabaseClient.storage
-      .from(SUPABASE_BUCKET)
+      .from(config.supabaseBucket)
       .remove(filePaths)
 
     if (error) {
@@ -162,8 +163,8 @@ async function deleteOldBackups(backupFiles: BackupFile[]): Promise<void> {
 async function listBackupFiles(): Promise<BackupFile[]> {
   try {
     const { data, error } = await supabaseClient.storage
-      .from(SUPABASE_BUCKET)
-      .list(SUPABASE_BACKUP_FOLDER, {
+      .from(config.supabaseBucket)
+      .list(config.supabaseBackupFolder, {
         sortBy: { column: 'created_at', order: 'desc' }
       })
 
@@ -267,10 +268,25 @@ function isSameMinuteUTC(date1: Date, date2: Date): boolean {
 // Configuration
 // Adjust these values for testing and production
 
-const BACKUP_CHECK_INTERVAL_MS = 5 * 60 * 1000 // Check every 5 minutes
-const BACKUPS_PER_DAY = 1 // One backup per day
-const BACKUP_RETENTION_DAYS = 30 // Delete backups older than 30 days
+const config: Config = env.nodeEnv == 'production' ?
+  {
+    checkIntervalMs: 5 * 60 * 1000, // 5 minutes
+    retentionMs: 30 * 24 * 60 * 60 * 1000, // 30 days
+    supabaseBucket: 'apps',
+    supabaseBackupFolder: 'db-backup'
+  } :
+  {
+    checkIntervalMs: 30 * 1000, // 30 seconds
+    retentionMs: 2 * 60 * 1000, // 2 minutes
+    supabaseBucket: 'apps-dev',
+    supabaseBackupFolder: 'db-backup'
+  }
 
-const SUPABASE_BUCKET = 'apps'
-const SUPABASE_BACKUP_FOLDER = 'db-backup'
+interface Config {
+  checkIntervalMs: number
+  retentionMs: number
+  supabaseBucket: string
+  supabaseBackupFolder: string
+}
+
 const TMP_FOLDER = path.join(__dirname, '../tmp/backups')
