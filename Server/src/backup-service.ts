@@ -2,7 +2,8 @@ import { exec } from 'child_process'
 import { promisify } from 'util'
 import { readFile, rm, mkdir } from 'fs/promises'
 import path from 'path'
-import { format, parseISO, isSameDay } from 'date-fns'
+import { parseISO } from 'date-fns'
+import { formatInTimeZone } from 'date-fns-tz'
 import supabaseClient from 'src/auth/supabase-client'
 import env from 'src/env'
 import logger from 'src/logger'
@@ -34,12 +35,12 @@ async function checkAndCreateBackup(): Promise<void> {
     const backupFiles = await listBackupFiles()
     const now = new Date()
 
-    // Check if we have a backup from today
+    // Check if we have a backup from today (UTC)
 
     if (backupFiles.length > 0) {
       const mostRecentBackup = backupFiles[0]
 
-      if (isSameDay(mostRecentBackup.createdAt, now)) {
+      if (isSameDayUTC(mostRecentBackup.createdAt, now)) {
         logger.info(`Backup already exists for today: ${mostRecentBackup.name}`)
         return
       }
@@ -231,12 +232,23 @@ interface BackupFile {
 // Utils
 
 /**
- * Generates a backup filename using ISO 8601 format without spaces
+ * Generates a backup filename using ISO 8601 format without spaces (UTC timezone)
  */
 function generateBackupFilename(): string {
   // Format: YYYY-MM-DDTHH-MM-SSZ.gz (colons replaced with hyphens for filename compatibility)
-  const isoString = format(new Date(), "yyyy-MM-dd'T'HH-mm-ss'Z'")
+  const isoString = formatInTimeZone(new Date(), 'UTC', "yyyy-MM-dd'T'HH-mm-ss'Z'")
   return `${isoString}.gz`
+}
+
+/**
+ * Checks if two dates are on the same day (UTC)
+ */
+function isSameDayUTC(date1: Date, date2: Date): boolean {
+  return (
+    date1.getUTCFullYear() === date2.getUTCFullYear() &&
+    date1.getUTCMonth() === date2.getUTCMonth() &&
+    date1.getUTCDate() === date2.getUTCDate()
+  )
 }
 
 
