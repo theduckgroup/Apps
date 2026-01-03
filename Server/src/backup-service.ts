@@ -10,6 +10,22 @@ import logger from 'src/logger'
 
 const execAsync = promisify(exec)
 
+/*
+To restore backup:
+
+mongorestore 
+--archive=/Users/knguyen/Downloads/{backup-file-name}.gz --gzip 
+--uri="mongodb+srv://{username}:{password}@cluster0.puox5gp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0" 
+--nsFrom=apps-dev.* --nsTo=apps-backup-restore-test.*
+--dryRun
+
+Notes:
+- --archive and --gzip: needed because we used them for creating backup
+- Replace {username} and {password} with actual values
+- --nsFrom and --nsTo: to rename the database, useful for testing, may not be needed in real world
+- --dryRun: check for errors without any actual changes
+*/
+
 /**
  * Starts the backup service with periodic checks
  */
