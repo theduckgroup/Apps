@@ -304,21 +304,28 @@ function isSameMinuteUTC(date1: Date, date2: Date): boolean {
 // Configuration
 // Adjust these values for testing and production
 
-const config: Config = env.nodeEnv == 'production' ?
-  {
-    checkIntervalMs: 5 * 60 * 1000, // 5 minutes
-    retentionMs: 30 * 24 * 60 * 60 * 1000, // 30 days
-    supabaseBucket: 'apps',
-    supabaseBackupFolder: 'db-backup',
-    isSamePeriodFn: isSameDayUTC
-  } :
-  {
-    checkIntervalMs: 30 * 1000, // 30 seconds
-    retentionMs: 2 * 60 * 1000, // 2 minutes
-    supabaseBucket: 'apps-dev',
-    supabaseBackupFolder: 'db-backup',
-    isSamePeriodFn: isSameMinuteUTC
+
+const config: Config = (() => {
+  switch (env.nodeEnv) {
+    case 'production':
+      return {
+        checkIntervalMs: 5 * 60 * 1000, // 5 minutes
+        retentionMs: 30 * 24 * 60 * 60 * 1000, // 30 days
+        supabaseBucket: 'apps',
+        supabaseBackupFolder: 'db-backup',
+        isSamePeriodFn: isSameDayUTC
+      }
+
+    case 'development':
+      return {
+        checkIntervalMs: 30 * 1000,
+        retentionMs: 5 * 60 * 1000,
+        supabaseBucket: 'apps-dev',
+        supabaseBackupFolder: 'db-backup',
+        isSamePeriodFn: isSameMinuteUTC
+      }
   }
+})()
 
 interface Config {
   checkIntervalMs: number
