@@ -1,3 +1,5 @@
+import { exec } from 'child_process'
+import { promisify } from 'util'
 import { readFile, writeFile, rm, mkdir } from 'fs/promises'
 import { create as createTar } from 'tar'
 import path from 'path'
@@ -9,10 +11,19 @@ import env from 'src/env'
 import logger from 'src/logger'
 
 /*
-To restore backup:
-1. Download the .tar.gz file from Supabase Storage
-2. Extract: tar -xzf {backup-file-name}.tar.gz
-3. Import each collection JSON file back into MongoDB using mongoimport or custom script
+To restore mongodump backup:
+
+mongorestore 
+--archive=/Users/knguyen/Downloads/{backup-file-name}.gz --gzip 
+--uri="mongodb+srv://{username}:{password}@cluster0.puox5gp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0" 
+--nsFrom=apps-dev.* --nsTo=apps-backup-restore-test.*
+--dryRun
+
+Notes:
+- --archive and --gzip: needed because we used them for creating backup
+- Replace {username} and {password} with actual values
+- --nsFrom and --nsTo: to rename the database, useful for testing, may not be needed in real world
+- --dryRun: check for errors without making actual changes
 */
 
 /**
@@ -80,7 +91,7 @@ async function checkAndCreateBackup(): Promise<void> {
     // No backup for today, create one
 
     logger.info('No backup found for backup period, creating new backup...')
-    await createBackup()
+    await createBackupWithMongodump()
 
     // Delete old backups
 
@@ -92,9 +103,65 @@ async function checkAndCreateBackup(): Promise<void> {
 }
 
 /**
+ * Creates a MongoDB backup using mongodump with gzip compression
+ */
+async function createBackupWithMongodump(): Promise<void> {
+  try {
+    logger.info('Starting database backup...')
+
+    // Ensure tmp folder exists
+    await mkdir(TEMP_FOLDER, { recursive: true })
+
+    // Generate filename and paths
+    const filename = generateBackupFilename()
+    const backupDir = path.join(TEMP_FOLDER, path.basename(filename, path.extname(filename)))
+    const archivePath = path.join(backupDir, filename)
+
+    // Create backup directory
+    await mkdir(backupDir, { recursive: true })
+
+    // Run mongodump with --gzip and --archive
+    const mongodumpCmd = `mongodump --uri="${env.mongodb.uri}" --db="${env.mongodb.dbName}" --gzip --archive="${archivePath}"`
+
+    logger.info('Running mongodump...')
+    const execAsync = promisify(exec)
+    await execAsync(mongodumpCmd)
+
+    logger.info(`Database dumped to: ${archivePath}`)
+
+    // Read the compressed archive
+    const archiveData = await readFile(archivePath)
+    logger.info(`Archive size: ${archiveData.length} bytes`)
+
+    // Upload to Supabase Storage
+    const filePath = `${config.supabaseBackupFolder}/${filename}`
+    const { error } = await supabaseClient.storage
+      .from(config.supabaseBucket)
+      .upload(filePath, archiveData, {
+        contentType: 'application/gzip',
+        upsert: false
+      })
+
+    if (error) {
+      throw error
+    }
+
+    logger.info(`Backup uploaded successfully: ${filename}`)
+
+    // Clean up temp files
+    await rm(backupDir, { recursive: true, force: true })
+    logger.info('Temporary files cleaned up')
+
+  } catch (error) {
+    logger.error(error, 'Error creating backup')
+    throw error
+  }
+}
+
+/**
  * Creates a MongoDB backup by exporting collections to separate JSON files and creating tar.gz archive
  */
-async function createBackup(): Promise<void> {
+async function createBackupAsJsonFiles(): Promise<void> {
   try {
     logger.info('Starting database backup...')
 
