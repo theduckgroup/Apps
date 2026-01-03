@@ -74,7 +74,7 @@ async function createBackup(): Promise<void> {
 
     // Generate filename and paths
     const filename = generateBackupFilename()
-    const backupDir = path.join(TMP_FOLDER, `backup-${Date.now()}`)
+    const backupDir = path.join(TMP_FOLDER, path.basename(filename, path.extname(filename)))
     const archivePath = path.join(backupDir, filename)
 
     // Create backup directory
