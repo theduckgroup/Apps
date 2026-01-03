@@ -16,11 +16,13 @@ export function startBackupService(): void {
   logger.info(`Starting backup service (check interval: ${BACKUP_CHECK_INTERVAL_MS}ms, ${BACKUPS_PER_DAY} backup/day, retention: ${BACKUP_RETENTION_DAYS} days)`)
 
   // Run initial check
-  void checkAndCreateBackup()
+  checkAndCreateBackup()
+    .catch(e => { })
 
   // Schedule periodic checks
   setInterval(() => {
-    void checkAndCreateBackup()
+    checkAndCreateBackup()
+      .catch(e => { })      
   }, BACKUP_CHECK_INTERVAL_MS)
 }
 
@@ -33,6 +35,7 @@ async function checkAndCreateBackup(): Promise<void> {
     const now = new Date()
 
     // Check if we have a backup from today
+
     if (backupFiles.length > 0) {
       const mostRecentBackup = backupFiles[0]
 
@@ -43,8 +46,14 @@ async function checkAndCreateBackup(): Promise<void> {
     }
 
     // No backup for today, create one
+
     logger.info('No backup found for today, creating new backup...')
     await createBackup()
+
+    // Delete old backups
+
+    await deleteOldBackups(backupFiles)
+
   } catch (error) {
     logger.error(error, 'Error in backup check')
   }
@@ -68,7 +77,7 @@ async function createBackup(): Promise<void> {
     // Create backup directory
     await mkdir(backupDir, { recursive: true })
 
-    // Run mongodump with gzip compression
+    // Run mongodump with --gzip and --archive
     const mongodumpCmd = `mongodump --uri="${env.mongodb.uri}" --db="${env.mongodb.dbName}" --gzip --archive="${archivePath}"`
 
     logger.info('Running mongodump...')
@@ -99,9 +108,6 @@ async function createBackup(): Promise<void> {
     await rm(backupDir, { recursive: true, force: true })
     logger.info('Temporary files cleaned up')
 
-    // Delete old backups after creating a new one
-    await deleteOldBackups()
-
   } catch (error) {
     logger.error(error, 'Error creating backup')
     throw error
@@ -111,9 +117,8 @@ async function createBackup(): Promise<void> {
 /**
  * Deletes backups older than the retention period
  */
-async function deleteOldBackups(): Promise<void> {
+async function deleteOldBackups(backupFiles: BackupFile[]): Promise<void> {
   try {
-    const backupFiles = await listBackupFiles()
     const now = new Date()
     const retentionMs = BACKUP_RETENTION_DAYS * 24 * 60 * 60 * 1000
 
@@ -191,6 +196,7 @@ async function listBackupFiles(): Promise<BackupFile[]> {
 
 /**
  * Parses ISO 8601 filename (e.g., "2026-01-03T10-30-00Z.gz")
+ * 
  * Returns null if the filename doesn't match the expected format
  */
 function parseBackupFilename(filename: string): Date | null {
