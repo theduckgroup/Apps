@@ -1,5 +1,11 @@
-# This is only used for testing Dockerfile locally, not used by Digital Ocean
-# To test Dockerfile: docker compose up --build
+# This is only used for testing Dockerfile locally
+# Only Dockerfile is used by Digital Ocean
+
+# To test: docker compose up --build
+
+# Before testing, in .env.dev-local, set PORT to 8080
+# This is the same behaviour as Digital Ocean
+
 
 services:
   server:
@@ -11,7 +17,7 @@ services:
     init: true 
 
     ports:
-      - "8121:8021"
+      - "8080:8080"
     
     # Optional: Automatically restarts if your app crashes
     # restart: always
