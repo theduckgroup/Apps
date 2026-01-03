@@ -316,13 +316,13 @@ async function listBackupFiles(): Promise<BackupFile[]> {
 }
 
 /**
- * Parses ISO 8601 filename (e.g., "2026-01-03T10-30-00Z.tar.gz")
+ * Parses ISO 8601 filename (e.g., "2026-01-03T10-30-00Z.gz")
  *
  * Returns null if the filename doesn't match the expected format
  */
 function parseBackupFilename(filename: string): Date | null {
-  // Match ISO 8601 format without spaces: YYYY-MM-DDTHH-MM-SSZ.tar.gz
-  const match = filename.match(/^(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}Z)\.tar\.gz$/)
+  // Match ISO 8601 format without spaces: YYYY-MM-DDTHH-MM-SSZ.gz
+  const match = filename.match(/^(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}Z)\.gz$/)
 
   if (!match) {
     return null
@@ -355,9 +355,9 @@ interface BackupFile {
  * Generates a backup filename using ISO 8601 format without spaces (UTC timezone)
  */
 function generateBackupFilename(): string {
-  // Format: YYYY-MM-DDTHH-MM-SSZ.tar.gz (colons replaced with hyphens for filename compatibility)
+  // Format: YYYY-MM-DDTHH-MM-SSZ.gz (colons replaced with hyphens for filename compatibility)
   const isoString = formatInTimeZone(new Date(), 'UTC', "yyyy-MM-dd'T'HH-mm-ss'Z'")
-  return `${isoString}.tar.gz`
+  return `${isoString}.gz`
 }
 
 /**
