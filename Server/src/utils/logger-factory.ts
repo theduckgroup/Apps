@@ -1,5 +1,9 @@
 import pino, { TransportTargetOptions } from 'pino'
 
+// Note: even though pino-pretty is included in prod dependencies, it is never used in prod
+// Including it just makes code easier to write -- don't have to gate code behind env check etc
+// TODO: try to fix this
+
 export default function createLogger(options: Options) {
   const { app, console, axiomConfig } = options
 
