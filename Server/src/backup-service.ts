@@ -264,7 +264,6 @@ function isSameMinuteUTC(date1: Date, date2: Date): boolean {
   )
 }
 
-
 // Configuration
 // Adjust these values for testing and production
 
