@@ -334,11 +334,11 @@ const config: Config = (() => {
 
     case 'development':
       return {
-        checkIntervalMs: 30 * 1000,
-        retentionMs: 5 * 60 * 1000,
+        checkIntervalMs: 5 * 60 * 1000,
+        retentionMs: 12 * 60 * 1000,
         supabaseBucket: 'apps-dev',
         supabaseBackupFolder: 'db-backup',
-        isSamePeriodFn: isSameMinuteUTC
+        isSamePeriodFn: isSameHourUTC
       }
   }
 })()
