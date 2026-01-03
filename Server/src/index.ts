@@ -106,9 +106,10 @@ app.use(errorHandler({ logger }))
 
 // Start server
 // Using 0.0.0.0 is considered best practice with Dockerfile
+// However when I tried it, it keeps failing with "address already in use" error!
 
 const port = parseInt(process.env.PORT!)
-server.listen(port, '0.0.0.0', () => logger.info(`Listening on port ${port}`))
+server.listen(port, () => logger.info(`Listening on port ${port}`))
 
 // Backup service
 
