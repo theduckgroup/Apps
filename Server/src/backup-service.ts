@@ -2,6 +2,7 @@ import { exec } from 'child_process'
 import { promisify } from 'util'
 import { readFile, rm, mkdir } from 'fs/promises'
 import path from 'path'
+import { format, parseISO, isSameDay } from 'date-fns'
 import supabaseClient from 'src/auth/supabase-client'
 import env from 'src/env'
 import logger from 'src/logger'
@@ -194,22 +195,26 @@ async function listBackupFiles(): Promise<BackupFile[]> {
  */
 function parseBackupFilename(filename: string): Date | null {
   // Match ISO 8601 format without spaces: YYYY-MM-DDTHH-MM-SSZ.gz
-  const match = filename.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2})-(\d{2})-(\d{2})Z\.gz$/)
+  const match = filename.match(/^(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}Z)\.gz$/)
 
   if (!match) {
     return null
   }
 
-  const [, year, month, day, hour, minute, second] = match
-  const dateStr = `${year}-${month}-${day}T${hour}:${minute}:${second}Z`
-  const date = new Date(dateStr)
+  try {
+    // Convert hyphens back to colons for ISO 8601 parsing
+    const isoString = match[1].replace(/T(\d{2})-(\d{2})-(\d{2})Z/, 'T$1:$2:$3Z')
+    const date = parseISO(isoString)
 
-  // Validate the date is valid
-  if (isNaN(date.getTime())) {
+    // Validate the date is valid
+    if (isNaN(date.getTime())) {
+      return null
+    }
+
+    return date
+  } catch {
     return null
   }
-
-  return date
 }
 
 interface BackupFile {
@@ -223,24 +228,14 @@ interface BackupFile {
  * Generates a backup filename using ISO 8601 format without spaces
  */
 function generateBackupFilename(): string {
-  const now = new Date()
-  // Format: YYYY-MM-DDTHH-MM-SSZ.gz
-  const isoString = now.toISOString().replace(/:/g, '-').replace(/\.\d{3}/, '')
+  // Format: YYYY-MM-DDTHH-MM-SSZ.gz (colons replaced with hyphens for filename compatibility)
+  const isoString = format(new Date(), "yyyy-MM-dd'T'HH-mm-ss'Z'")
   return `${isoString}.gz`
 }
 
-/**
- * Checks if two dates are on the same day (UTC)
- */
-function isSameDay(date1: Date, date2: Date): boolean {
-  return (
-    date1.getUTCFullYear() === date2.getUTCFullYear() &&
-    date1.getUTCMonth() === date2.getUTCMonth() &&
-    date1.getUTCDate() === date2.getUTCDate()
-  )
-}
 
-// Configuration - adjust these values for testing and production
+// Configuration
+// Adjust these values for testing and production
 
 const BACKUP_CHECK_INTERVAL_MS = 5 * 60 * 1000 // Check every 5 minutes
 const BACKUPS_PER_DAY = 1 // One backup per day
