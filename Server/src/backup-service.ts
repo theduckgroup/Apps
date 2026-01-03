@@ -413,9 +413,9 @@ const config: Config = (() => {
 
     case 'development':
       return {
-        checkIntervalMs: 30 * 1000,
-        retentionMs: 3 * 60 * 1000,
-        isSamePeriodFn: isSameMinuteUTC,
+        checkIntervalMs: 5 * 60 * 1000,
+        retentionMs: 12 * 60 * 60 * 1000,
+        isSamePeriodFn: isSameHourUTC,
         supabaseBucket: 'apps-dev',
         supabaseBackupFolder: 'db-backup',
       }
