@@ -24,5 +24,6 @@ COPY . .
 # Expose the port Express app listens on
 EXPOSE 8080
 
-# 7. Define the command to start your app
-CMD ["npm", "start"]
+# Define the command to start your app
+# CMD ["npm", "start"] also works
+CMD ["npx", "tsx", "src/index.ts"]
