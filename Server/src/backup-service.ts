@@ -1,29 +1,18 @@
-import { exec } from 'child_process'
-import { promisify } from 'util'
-import { readFile, rm, mkdir } from 'fs/promises'
+import { readFile, writeFile, rm, mkdir } from 'fs/promises'
+import * as tar from 'tar'
 import path from 'path'
 import { parseISO } from 'date-fns'
 import { formatInTimeZone } from 'date-fns-tz'
 import supabaseClient from 'src/auth/supabase-client'
+import { getDb } from 'src/db'
 import env from 'src/env'
 import logger from 'src/logger'
 
-const execAsync = promisify(exec)
-
 /*
 To restore backup:
-
-mongorestore 
---archive=/Users/knguyen/Downloads/{backup-file-name}.gz --gzip 
---uri="mongodb+srv://{username}:{password}@cluster0.puox5gp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0" 
---nsFrom=apps-dev.* --nsTo=apps-backup-restore-test.*
---dryRun
-
-Notes:
-- --archive and --gzip: needed because we used them for creating backup
-- Replace {username} and {password} with actual values
-- --nsFrom and --nsTo: to rename the database, useful for testing, may not be needed in real world
-- --dryRun: check for errors without making actual changes
+1. Download the .tar.gz file from Supabase Storage
+2. Extract: tar -xzf {backup-file-name}.tar.gz
+3. Import each collection JSON file back into MongoDB using mongoimport or custom script
 */
 
 /**
@@ -83,14 +72,14 @@ async function checkAndCreateBackup(): Promise<void> {
       const mostRecentBackup = backupFiles[0]
 
       if (config.isSamePeriodFn(mostRecentBackup.createdAt, now)) {
-        logger.info(`Backup already exists for today: ${mostRecentBackup.name}`)
+        logger.info(`Backup already exists for backup period: ${mostRecentBackup.name}`)
         return
       }
     }
 
     // No backup for today, create one
 
-    logger.info('No backup found for today, creating new backup...')
+    logger.info('No backup found for backup period, creating new backup...')
     await createBackup()
 
     // Delete old backups
@@ -103,7 +92,7 @@ async function checkAndCreateBackup(): Promise<void> {
 }
 
 /**
- * Creates a MongoDB backup using mongodump with gzip compression
+ * Creates a MongoDB backup by exporting collections to separate JSON files and creating tar.gz archive
  */
 async function createBackup(): Promise<void> {
   try {
@@ -112,28 +101,50 @@ async function createBackup(): Promise<void> {
     // Ensure tmp folder exists
     await mkdir(TEMP_FOLDER, { recursive: true })
 
-    // Generate filename and paths
-    const filename = generateBackupFilename()
-    const backupDir = path.join(TEMP_FOLDER, path.basename(filename, path.extname(filename)))
-    const archivePath = path.join(backupDir, filename)
+    // Generate paths
+    const timestamp = formatInTimeZone(new Date(), 'UTC', "yyyy-MM-dd'T'HH-mm-ss'Z'")
+    const backupDir = path.join(TEMP_FOLDER, timestamp)
+    const archiveName = `${timestamp}.tar.gz`
+    const archivePath = path.join(TEMP_FOLDER, archiveName)
 
     // Create backup directory
     await mkdir(backupDir, { recursive: true })
 
-    // Run mongodump with --gzip and --archive
-    const mongodumpCmd = `mongodump --uri="${env.mongodb.uri}" --db="${env.mongodb.dbName}" --gzip --archive="${archivePath}"`
+    // Export each collection to separate JSON file
+    logger.info('Exporting database collections...')
+    const db = await getDb()
+    const collections = await db.listCollections().toArray()
 
-    logger.info('Running mongodump...')
-    await execAsync(mongodumpCmd)
+    for (const collectionInfo of collections) {
+      const collectionName = collectionInfo.name
+      const collection = db.collection(collectionName)
+      const documents = await collection.find({}).toArray()
 
-    logger.info(`Database dumped to: ${archivePath}`)
+      const jsonPath = path.join(backupDir, `${collectionName}.json`)
+      await writeFile(jsonPath, JSON.stringify(documents, null, 2))
 
-    // Read the compressed archive
+      logger.info(`Exported collection: ${collectionName} (${documents.length} documents)`)
+    }
+
+    // Create tar.gz archive
+    logger.info('Creating tar.gz archive...')
+    await tar.create(
+      {
+        gzip: true,
+        file: archivePath,
+        cwd: TEMP_FOLDER
+      },
+      [timestamp]
+    )
+
+    logger.info(`Archive created: ${archivePath}`)
+
+    // Read archive for upload
     const archiveData = await readFile(archivePath)
     logger.info(`Archive size: ${archiveData.length} bytes`)
 
     // Upload to Supabase Storage
-    const filePath = `${config.supabaseBackupFolder}/${filename}`
+    const filePath = `${config.supabaseBackupFolder}/${archiveName}`
     const { error } = await supabaseClient.storage
       .from(config.supabaseBucket)
       .upload(filePath, archiveData, {
@@ -145,10 +156,11 @@ async function createBackup(): Promise<void> {
       throw error
     }
 
-    logger.info(`Backup uploaded successfully: ${filename}`)
+    logger.info(`Backup uploaded successfully: ${archiveName}`)
 
     // Clean up temp files
     await rm(backupDir, { recursive: true, force: true })
+    await rm(archivePath, { force: true })
     logger.info('Temporary files cleaned up')
 
   } catch (error) {
@@ -237,13 +249,13 @@ async function listBackupFiles(): Promise<BackupFile[]> {
 }
 
 /**
- * Parses ISO 8601 filename (e.g., "2026-01-03T10-30-00Z.gz")
- * 
+ * Parses ISO 8601 filename (e.g., "2026-01-03T10-30-00Z.tar.gz")
+ *
  * Returns null if the filename doesn't match the expected format
  */
 function parseBackupFilename(filename: string): Date | null {
-  // Match ISO 8601 format without spaces: YYYY-MM-DDTHH-MM-SSZ.gz
-  const match = filename.match(/^(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}Z)\.gz$/)
+  // Match ISO 8601 format without spaces: YYYY-MM-DDTHH-MM-SSZ.tar.gz
+  const match = filename.match(/^(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}Z)\.tar\.gz$/)
 
   if (!match) {
     return null
@@ -276,9 +288,9 @@ interface BackupFile {
  * Generates a backup filename using ISO 8601 format without spaces (UTC timezone)
  */
 function generateBackupFilename(): string {
-  // Format: YYYY-MM-DDTHH-MM-SSZ.gz (colons replaced with hyphens for filename compatibility)
+  // Format: YYYY-MM-DDTHH-MM-SSZ.tar.gz (colons replaced with hyphens for filename compatibility)
   const isoString = formatInTimeZone(new Date(), 'UTC', "yyyy-MM-dd'T'HH-mm-ss'Z'")
-  return `${isoString}.gz`
+  return `${isoString}.tar.gz`
 }
 
 /**
@@ -327,18 +339,18 @@ const config: Config = (() => {
       return {
         checkIntervalMs: 5 * 60 * 1000, // 5 minutes
         retentionMs: 30 * 24 * 60 * 60 * 1000, // 30 days
+        isSamePeriodFn: isSameDayUTC,
         supabaseBucket: 'apps',
-        supabaseBackupFolder: 'db-backup',
-        isSamePeriodFn: isSameDayUTC
+        supabaseBackupFolder: 'db-backup',        
       }
 
     case 'development':
       return {
         checkIntervalMs: 5 * 60 * 1000,
         retentionMs: 12 * 60 * 1000,
+        isSamePeriodFn: isSameMinuteUTC,
         supabaseBucket: 'apps-dev',
         supabaseBackupFolder: 'db-backup',
-        isSamePeriodFn: isSameHourUTC
       }
   }
 })()
@@ -346,9 +358,9 @@ const config: Config = (() => {
 interface Config {
   checkIntervalMs: number
   retentionMs: number
-  supabaseBucket: string
-  supabaseBackupFolder: string
   isSamePeriodFn: (date1: Date, date2: Date) => boolean
+  supabaseBucket: string
+  supabaseBackupFolder: string  
 }
 
 const TEMP_FOLDER = path.join(__dirname, '../tmp/backups')
