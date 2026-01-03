@@ -1,4 +1,9 @@
-# See compose.yaml for Docker docs
+# compose.yaml is not used by Digital Ocean, only for local testing
+
+# For local testing, in .env.dev-local set PORT to 8080
+# This is the same as Digital Ocean
+
+# To test: docker compose up --build
 
 FROM node:24-alpine
 
