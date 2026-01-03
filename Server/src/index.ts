@@ -105,3 +105,8 @@ app.use(errorHandler({ logger }))
 
 const port = parseInt(process.env.PORT!)
 server.listen(port, () => logger.info(`Listening on port ${port}`))
+
+// Backup service
+
+import { startBackupService } from './backup-service'
+startBackupService()
