@@ -12,14 +12,14 @@ WORKDIR /usr/src/app
 # Copy dependency files first to leverage build cache
 COPY package*.json ./
 
-# Copy the rest of your application code
-COPY . .
-
 # Install production dependencies only
 RUN npm ci --only=production
 # RUN npm ci
 
-# Expose the port your Express app listens on (default is often 3000)
+# Copy the rest of your application code
+COPY . .
+
+# Expose the port Express app listens on
 EXPOSE 8021
 
 # 7. Define the command to start your app
