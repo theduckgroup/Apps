@@ -14,7 +14,15 @@ const execAsync = promisify(exec)
  * Starts the backup service with periodic checks
  */
 export function startBackupService(): void {
+  startBackupServiceAsync()
+    .catch(e => { }) // Error handled internally
+}
+
+async function startBackupServiceAsync(): Promise<void> {
   logger.info(`Starting backup service (check interval: ${config.checkIntervalMs}ms, retention: ${config.retentionMs}ms)`)
+
+  // Clean up temp folder
+  await cleanupTempFolder()
 
   // Run initial check
   checkAndCreateBackup()
@@ -28,12 +36,28 @@ export function startBackupService(): void {
 }
 
 /**
+ * Cleans up the temp folder to remove any leftover files from previous crashes
+ */
+async function cleanupTempFolder(): Promise<void> {
+  try {
+    logger.info(`Cleaning up backup tmp folder: ${TEMP_FOLDER}`)
+    await rm(TEMP_FOLDER, { recursive: true, force: true })
+    await mkdir(TEMP_FOLDER, { recursive: true })
+
+  } catch (error) {
+    // Log error and continue
+    logger.error(error, 'Error cleaning up temp folder')
+
+  }
+}
+
+/**
  * Checks if a backup is needed and creates one if necessary
  */
 async function checkAndCreateBackup(): Promise<void> {
   try {
     logger.info('Checking backup...')
-    
+
     const backupFiles = await listBackupFiles()
     const now = new Date()
 
@@ -70,11 +94,11 @@ async function createBackup(): Promise<void> {
     logger.info('Starting database backup...')
 
     // Ensure tmp folder exists
-    await mkdir(TMP_FOLDER, { recursive: true })
+    await mkdir(TEMP_FOLDER, { recursive: true })
 
     // Generate filename and paths
     const filename = generateBackupFilename()
-    const backupDir = path.join(TMP_FOLDER, path.basename(filename, path.extname(filename)))
+    const backupDir = path.join(TEMP_FOLDER, path.basename(filename, path.extname(filename)))
     const archivePath = path.join(backupDir, filename)
 
     // Create backup directory
@@ -292,4 +316,4 @@ interface Config {
   isSameDayFn: (date1: Date, date2: Date) => boolean
 }
 
-const TMP_FOLDER = path.join(__dirname, '../tmp/backups')
+const TEMP_FOLDER = path.join(__dirname, '../tmp/backups')
