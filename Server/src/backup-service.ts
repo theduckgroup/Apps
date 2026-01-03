@@ -1,5 +1,5 @@
 import { readFile, writeFile, rm, mkdir } from 'fs/promises'
-import * as tar from 'tar'
+import { create as createTar } from 'tar'
 import path from 'path'
 import { parseISO } from 'date-fns'
 import { formatInTimeZone } from 'date-fns-tz'
@@ -127,8 +127,9 @@ async function createBackup(): Promise<void> {
     }
 
     // Create tar.gz archive
+
     logger.info('Creating tar.gz archive...')
-    await tar.create(
+    await createTar(
       {
         gzip: true,
         file: archivePath,
@@ -341,14 +342,14 @@ const config: Config = (() => {
         retentionMs: 30 * 24 * 60 * 60 * 1000, // 30 days
         isSamePeriodFn: isSameDayUTC,
         supabaseBucket: 'apps',
-        supabaseBackupFolder: 'db-backup',        
+        supabaseBackupFolder: 'db-backup',
       }
 
     case 'development':
       return {
         checkIntervalMs: 5 * 60 * 1000,
         retentionMs: 12 * 60 * 1000,
-        isSamePeriodFn: isSameMinuteUTC,
+        isSamePeriodFn: isSameHourUTC,
         supabaseBucket: 'apps-dev',
         supabaseBackupFolder: 'db-backup',
       }
@@ -360,7 +361,7 @@ interface Config {
   retentionMs: number
   isSamePeriodFn: (date1: Date, date2: Date) => boolean
   supabaseBucket: string
-  supabaseBackupFolder: string  
+  supabaseBackupFolder: string
 }
 
 const TEMP_FOLDER = path.join(__dirname, '../tmp/backups')
