@@ -1,7 +1,9 @@
+# See compose.yaml for Docker docs
+
 FROM node:24-alpine
 
 # Install mongodb-database-tools
-RUN apk add mongodb-tools
+RUN apk add --no-cache mongodb-tools
 
 # Can't see the output of this
 # RUN mongodump --version
@@ -20,7 +22,7 @@ RUN npm ci --only=production
 COPY . .
 
 # Expose the port Express app listens on
-EXPOSE 8021
+EXPOSE 8080
 
 # 7. Define the command to start your app
 CMD ["npm", "start"]
