@@ -20,10 +20,10 @@ public struct WeeklySpendingAppView: View {
             bodyContent()
                 .navigationTitle("Weekly Spending")
                 .navigationDestination(item: $presentedReportMeta) { reportMeta in
-                    PastReportView(reportMeta: reportMeta)
+                    ReportView(reportMeta: reportMeta)
                 }
         }
-        .onFirstAppear {
+        .onAppear {
             fetchTemplate()
             fetchReports()
         }
@@ -49,7 +49,7 @@ public struct WeeklySpendingAppView: View {
             VStack(alignment: .leading, spacing: 36) {
                 NewReportButton(template: templateFetcher.value)
                 
-                PastReportListView(reports: reportsFetcher.value) { reportMeta in
+                ReportReportListView(reports: reportsFetcher.value) { reportMeta in
                     self.presentedReportMeta = reportMeta
                 }
             }

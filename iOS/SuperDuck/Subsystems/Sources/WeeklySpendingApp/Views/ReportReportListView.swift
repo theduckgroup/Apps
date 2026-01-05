@@ -5,7 +5,7 @@ import CommonUI
 import Backend
 import Auth
 
-struct PastReportListView: View {
+struct ReportReportListView: View {
     var reports: [WSReportMeta]?
     var fetchDate: Date?
     var onView: (WSReportMeta) -> Void
@@ -101,7 +101,7 @@ private struct Row: View {
 
 #Preview {
     ScrollView {
-        PastReportListView(
+        ReportReportListView(
             reports: [.mock1, .mock2, .mock3],
             onView: { _ in }
         )

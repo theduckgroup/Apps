@@ -4,7 +4,7 @@ import Common
 import CommonUI
 import Backend
 
-struct PastReportView: View {
+struct ReportView: View {
     var reportMeta: WSReportMeta
     @State var reportFetcher = ValueFetcher<WSReport>()
     @State var containerSize: CGSize?
@@ -174,7 +174,7 @@ extension View {
 
 #Preview {
     NavigationStack {
-        PastReportView(
+        ReportView(
             reportMeta: .init(
                 id: "693b8fb1941f7b76e094c7bd", // From Mongo DB
                 template: .mock,

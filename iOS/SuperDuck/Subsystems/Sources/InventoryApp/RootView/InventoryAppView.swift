@@ -38,7 +38,7 @@ public struct InventoryAppView: View {
                 }
         }
         .presentations(ps)
-        .onFirstAppear {
+        .onAppear {
             fetchStore()
             fetchChanges()
         }
