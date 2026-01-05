@@ -12,6 +12,7 @@ import { UpdateStoreCatalogBodySchema, UpdateStockBodySchema } from './schemas'
 import logger from 'src/logger'
 import '../db/Db+collections'
 import { jsonifyMongoId } from 'src/utils/mongodb-utils'
+import { getUserRoles, Roles } from 'src/utils/user-extensions'
 
 // Admin router
 
@@ -181,6 +182,84 @@ adminRouter.get('/store/:storeId/stock/changes', async (req, res) => {
 
 const userRouter = express.Router()
 userRouter.use(authorizeUser)
+
+// Gets store stock changes metadata by user.
+userRouter.get('/store/:storeId/stock/changes/meta/by-user/:userId', async (req, res) => {
+  const { storeId, userId } = req.params
+
+  if (!storeId) {
+    throw createHttpError(400, 'storeId is missing')
+  }
+
+  if (!userId) {
+    throw createHttpError(400, 'userId is missing')
+  }
+
+  // Verify that userId matches current user
+  if (req.user!.id !== userId) {
+    throw createHttpError(403, 'Not permitted to view other users\' changes')
+  }
+
+  const db = await getDb()
+
+  const changes = await db.collection_inv_storeStocksChanges
+    .find({ storeId, 'user.id': userId })
+    .sort({ timestamp: -1 })
+    .toArray()
+
+  const response = changes.map(change => {
+    const totalQuantityChange = change.itemQuantityChanges.reduce(
+      (sum, item) => sum + item.delta,
+      0
+    )
+
+    return {
+      id: change._id.toString(),
+      storeId: change.storeId,
+      timestamp: change.timestamp,
+      totalQuantityChange
+    }
+  })
+
+  res.send(response)
+})
+
+// Gets a specific stock change by ID.
+userRouter.get('/store/:storeId/stock/changes/:changeId', async (req, res) => {
+  const { storeId, changeId } = req.params
+
+  if (!storeId) {
+    throw createHttpError(400, 'storeId is missing')
+  }
+
+  if (!changeId) {
+    throw createHttpError(400, 'changeId is missing')
+  }
+
+  const db = await getDb()
+
+  const change = await db.collection_inv_storeStocksChanges.findOne({
+    _id: new ObjectId(changeId),
+    storeId
+  })
+
+  if (!change) {
+    throw createHttpError(404, 'Change not found')
+  }
+
+  // Authorization: user must own the change OR be admin/owner
+  const roles = getUserRoles(req.user!)
+  const isAdmin = roles.includes(Roles.owner) || roles.includes(Roles.admin)
+  const userMatched = change.user.id === req.user!.id
+
+  if (!userMatched && !isAdmin) {
+    throw createHttpError(403, 'Not permitted to view this change')
+  }
+
+  const response = jsonifyMongoId(change)
+
+  res.send(response)
+})
 
 // Gets store.
 userRouter.get('/store/:storeId', async (req, res) => {
