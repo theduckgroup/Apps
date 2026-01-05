@@ -15,22 +15,6 @@ import { jsonifyMongoId } from 'src/utils/mongodb-utils'
 import { getUserRoles, Roles } from 'src/utils/user-extensions'
 import env from 'src/env'
 
-// Helper functions
-
-function transformStoreStockChangeToMeta(change: DbInvStoreStockChange) {
-  const totalQuantityChange = change.itemQuantityChanges.reduce(
-    (sum, item) => sum + item.delta,
-    0
-  )
-
-  return {
-    id: change._id!.toString(),
-    storeId: change.storeId,
-    timestamp: change.timestamp,
-    totalQuantityChange
-  }
-}
-
 // Admin router
 
 const adminRouter = express.Router()
@@ -575,6 +559,22 @@ if (env.isLocal) {
 
     res.send(jsonifyMongoId(change))
   })
+}
+
+// Helper functions
+
+function transformStoreStockChangeToMeta(change: DbInvStoreStockChange) {
+  const totalQuantityChange = change.itemQuantityChanges.reduce(
+    (sum, item) => sum + item.delta,
+    0
+  )
+
+  return {
+    id: change._id!.toString(),
+    storeId: change.storeId,
+    timestamp: change.timestamp,
+    totalQuantityChange
+  }
 }
 
 // Exported router
