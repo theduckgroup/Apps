@@ -302,7 +302,7 @@ userRouter.get('/users/:userId/reports/meta', async (req, res) => {
 const publicRouter = express.Router()
 
 if (env.isLocal) {
-  publicRouter.get('/mock/template', async (req, res) => {
+  publicRouter.get('/mock/templates/_any', async (req, res) => {
     const db = await getDb()
 
     const doc = await db.collection_wsTemplates.findOne()
@@ -316,7 +316,7 @@ if (env.isLocal) {
     res.send(data)
   })
 
-  publicRouter.get('/mock/report', async (req, res) => {
+  publicRouter.get('/mock/reports/_any', async (req, res) => {
     const db = await getDb()
 
     const doc = await db.collection_wsReports.findOne({}, { sort: { 'date': -1 } })
@@ -330,7 +330,7 @@ if (env.isLocal) {
     res.send(data)
   })
 
-  publicRouter.get('/mock/report-email', async (req, res) => {
+  publicRouter.get('/mock/reports/_any/email', async (req, res) => {
     // To test: http://localhost:8021/api/ws-app/mock-report-email
 
     const db = await getDb()

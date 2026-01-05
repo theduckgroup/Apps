@@ -5,7 +5,7 @@ import Backend
 extension API {
     func template() async throws -> WSTemplate {
         if isRunningForPreviews {
-            return try await get(authenticated: false, path: "ws-app/mock/template")
+            return try await get(authenticated: false, path: "ws-app/mock/templates/_any")
         }
 
         return try await get(path: "ws-app/templates/6905482c7eb3588dc38a48c8")
@@ -13,7 +13,7 @@ extension API {
     
     func report(id: String) async throws -> WSReport {
         if isRunningForPreviews {
-            return try await get(authenticated: false, path: "ws-app/mock/report")
+            return try await get(authenticated: false, path: "ws-app/mock/reports/_any")
         }
         
         return try await get(path: "ws-app/reports/\(id)")
