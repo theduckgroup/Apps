@@ -11,7 +11,7 @@ extension API {
         return try await get(path: "inventory-app/store/\(Store.defaultStoreID)")
     }
     
-    func storeStock() async throws -> StoreStock {
+    func storeStock() async throws -> Stock {
         if isRunningForPreviews {
             return try await get(authenticated: false, path: "inventory-app/mock/store/stock")
         }
