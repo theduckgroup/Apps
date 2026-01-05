@@ -115,15 +115,8 @@ struct ScanView: View {
             Text("\(quantity) \("Item".pluralized(count: quantity)) selected")
                 .font(.title3.smallCaps().monospacedDigit())
                 .multilineTextAlignment(.center)
-//                .modified {
-//                    if #available(iOS 26, *) {
-//                        $0.glassEffect(.clear)
-//                    } else {
-//                        $0
-//                    }
-//                }
         } else {
-            Text("Align QR code within the frame")
+            Text("Scan QR Code")
                 .font(.title3)
         }
     }
