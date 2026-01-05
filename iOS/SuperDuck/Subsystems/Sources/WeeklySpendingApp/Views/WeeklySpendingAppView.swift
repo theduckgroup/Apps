@@ -74,13 +74,7 @@ public struct WeeklySpendingAppView: View {
     
     private func fetchReports() {
         reportsFetcher.fetch {
-            if isRunningForPreviews {
-                try await Task.sleep(for: .seconds(1))
-                // throw GenericError("Cupidatat est sit fugiat consectetur tempor fugiat culpa.")
-                return [.mock1, .mock2, .mock3]
-            }
-                
-            return try await api.userReports(userID: auth.user!.idString)
+            try await api.userReportMetas(userID: auth.user!.idString)
         }
     }
 }

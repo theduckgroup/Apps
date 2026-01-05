@@ -19,8 +19,12 @@ extension API {
         return try await get(path: "ws-app/reports/\(id)")
     }
     
-    func userReports(userID: String) async throws -> [WSReportMeta] {
-        try await get(path: "ws-app/users/\(userID)/reports/meta")
+    func userReportMetas(userID: String) async throws -> [WSReportMeta] {
+        if isRunningForPreviews {
+            return try await get(authenticated: false, path: "ws-app/mock/users/_any/reports/meta")
+        }
+     
+        return try await get(path: "ws-app/users/\(userID)/reports/meta")
     }
     
     func submitReport(_ report: WSReport) async throws {

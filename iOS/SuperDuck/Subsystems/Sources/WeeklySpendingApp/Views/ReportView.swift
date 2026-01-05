@@ -173,14 +173,36 @@ extension View {
 }
 
 #Preview {
-    NavigationStack {
-        ReportView(
-            reportMeta: .init(
-                id: "693b8fb1941f7b76e094c7bd", // From Mongo DB
-                template: .mock,
-                user: .mock,
-                date: Date()
-            )
-        )
+    PreviewView()
+        .previewEnvironment()
+}
+
+private struct PreviewView: View {
+    @State var reportMeta: WSReportMeta?
+    @Environment(API.self) var api
+    
+    var body: some View {
+        NavigationStack {
+            if let reportMeta {
+                ReportView(reportMeta: reportMeta)
+                
+            } else {
+                ProgressView()
+                    .progressViewStyle(.circular)
+                    .controlSize(.large)
+                    .tint(.secondary)
+            }
+        }
+        .onAppear {
+            Task {
+                do {
+                    let reportMetas = try await api.userReportMetas(userID: User.mock.idString)
+                    reportMeta = reportMetas[0]
+                    
+                } catch {
+                    logger.error("Unable to fetch data: \(error)")
+                }
+            }
+        }
     }
 }
