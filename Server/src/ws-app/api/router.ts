@@ -301,7 +301,7 @@ userRouter.get('/users/:userId/reports/meta', async (req, res) => {
 
 const publicRouter = express.Router()
 
-if (env.nodeEnv == 'development') {
+if (env.isLocal) {
   publicRouter.get('/mock/template', async (req, res) => {
     const db = await getDb()
 
