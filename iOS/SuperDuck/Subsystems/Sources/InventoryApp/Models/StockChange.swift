@@ -12,13 +12,11 @@ struct StockChange: Decodable, Identifiable {
         var email: String
     }
     
-    struct ItemQuantityChange: Decodable, Identifiable {
+    struct ItemQuantityChange: Decodable {
         var itemId: String
         var delta: Int
         var oldQuantity: Int
         var newQuantity: Int
-        
-        var id: String { itemId }
     }
 }
 

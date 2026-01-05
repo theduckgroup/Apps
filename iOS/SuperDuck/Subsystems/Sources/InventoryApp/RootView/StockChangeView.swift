@@ -29,7 +29,7 @@ struct StockChangeView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .readSize(assignTo: $containerSize)
-        .navigationTitle("Stock Change")
+        // .navigationTitle("Stock Change")
         .onFirstAppear {
             fetchChange()
         }
@@ -87,18 +87,18 @@ struct StockChangeView: View {
             
             Divider()
             
-            GridRow(alignment: .firstTextBaseline) {
-                Text("User")
-                    .bold()
-                
-                if let change = changeFetcher.value {
-                    Text(change.user.email)
-                } else {
-                    Text("—")
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .padding(.vertical, 12)
+//            GridRow(alignment: .firstTextBaseline) {
+//                Text("User")
+//                    .bold()
+//                
+//                if let change = changeFetcher.value {
+//                    Text(change.user.email)
+//                } else {
+//                    Text("—")
+//                        .foregroundStyle(.secondary)
+//                }
+//            }
+//            .padding(.vertical, 12)
             
             Divider()
         }
@@ -108,11 +108,12 @@ struct StockChangeView: View {
     private func tableView(_ change: StockChange) -> some View {
         Grid(alignment: .leading, horizontalSpacing: 20, verticalSpacing: 0) {
             // Header
+            
             GridRow(alignment: .firstTextBaseline) {
                 Text("Item")
                     .bold()
                 
-                Text("Delta")
+                Text("Quantity")
                     .bold()
                     .gridColumnAlignment(.trailing)
             }
@@ -122,17 +123,21 @@ struct StockChangeView: View {
             Divider()
             
             // Rows
-            ForEach(change.itemQuantityChanges) { itemChange in
+            
+            ForEach(Array(change.itemQuantityChanges.enumerated()), id: \.offset) { index, qtyChange in
                 GridRow(alignment: .firstTextBaseline) {
-                    let item = store.catalog.items.first { $0.id == itemChange.itemId }
+                    let item = store.catalog.items.first { $0.id == qtyChange.itemId }
                     
                     if let item {
                         Text(item.name)
                         
-                        let deltaText = itemChange.delta >= 0 ? "+\(itemChange.delta)" : "\(itemChange.delta)"
+                        let sign = qtyChange.delta >= 0 ? "+" : "-"
+                        let deltaText = "\(sign) \(abs(qtyChange.delta))"
+                        
                         Text(deltaText)
                             .gridColumnAlignment(.trailing)
-                            .foregroundStyle(itemChange.delta >= 0 ? .green : .red)
+                            .foregroundStyle(.secondary)
+                            // .foregroundStyle(itemChange.delta >= 0 ? .green : .red)
                         
                     } else {
                         Text("Item not found")
@@ -154,11 +159,41 @@ struct StockChangeView: View {
 }
 
 #Preview {
-    NavigationStack {
-        StockChangeView(
-            changeMeta: .mock1,
-            store: .mock
-        )
+    PreviewView()
+        .previewEnvironment()
+}
+
+
+struct PreviewView: View {
+    @State var store: Store?
+    @State var changeMeta: StockChangeMeta?
+    @Environment(API.self) var api
+    
+    var body: some View {
+        NavigationStack {
+            if let store, let changeMeta {
+                StockChangeView(
+                    changeMeta: changeMeta,
+                    store: store
+                )
+            } else {
+                ProgressView()
+                    .progressViewStyle(.circular)
+                    .controlSize(.large)
+                    .tint(.secondary)
+            }
+        }
+        .onAppear {
+            Task {
+                do {
+                    store = try await api.store()
+                    let changeMetas = try await api.stockChangesMeta(storeId: "mock", userId: User.mock.idString)
+                    changeMeta = changeMetas[0]
+                    
+                } catch {
+                    logger.error("Unable to get change metas")
+                }
+            }
+        }
     }
-    .previewEnvironment()
 }
