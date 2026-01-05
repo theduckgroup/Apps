@@ -7,9 +7,7 @@ import Backend
 struct StockChangeView: View {
     var changeMeta: StockChangeMeta
     var store: Store
-    @State var change: StockChange?
-    @State var error: Error?
-    @State var isFetching = false
+    @State var changeFetcher = ValueFetcher<StockChange>()
     @State var containerSize: CGSize?
     @Environment(API.self) var api
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
@@ -43,15 +41,15 @@ struct StockChangeView: View {
             headerView()
                 .padding(.bottom, 18)
             
-            if let change {
+            if let change = changeFetcher.value {
                 tableView(change)
                 
-            } else if let error {
+            } else if let error = changeFetcher.error {
                 Text(error.localizedDescription)
                     .foregroundStyle(.red)
                     .padding(.top, 18)
                 
-            } else if isFetching {
+            } else if changeFetcher.isFetching {
                 HStack {
                     ProgressView()
                         .progressViewStyle(.circular)
@@ -93,7 +91,7 @@ struct StockChangeView: View {
                 Text("User")
                     .bold()
                 
-                if let change {
+                if let change = changeFetcher.value {
                     Text(change.user.email)
                 } else {
                     Text("—")
@@ -149,21 +147,8 @@ struct StockChangeView: View {
     }
     
     private func fetchChange() {
-        Task {
-            do {
-                isFetching = true
-                
-                defer {
-                    isFetching = false
-                }
-                
-                let change = try await api.stockChange(storeId: changeMeta.storeId, changeId: changeMeta.id)
-                
-                self.change = change
-                
-            } catch {
-                self.error = error
-            }
+        changeFetcher.fetch {
+            try await api.stockChange(storeId: changeMeta.storeId, changeId: changeMeta.id)
         }
     }
 }

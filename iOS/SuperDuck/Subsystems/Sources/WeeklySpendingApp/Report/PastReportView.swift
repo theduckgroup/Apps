@@ -6,9 +6,7 @@ import Backend
 
 struct PastReportView: View {
     var reportMeta: WSReportMeta
-    @State var report: WSReport?
-    @State var error: Error?
-    @State var isFetching = false
+    @State var reportFetcher = ValueFetcher<WSReport>()
     @State var containerSize: CGSize?
     @Environment(API.self) var api
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
@@ -42,15 +40,15 @@ struct PastReportView: View {
             headerView()
                 .padding(.bottom, 18)
             
-            if let report {
+            if let report = reportFetcher.value {
                 tableView(report)
                 
-            } else if let error {
+            } else if let error = reportFetcher.error {
                 Text(error.localizedDescription)
                     .foregroundStyle(.red)
                     .padding(.top, 18) // Match table view header
                 
-            } else if isFetching {
+            } else if reportFetcher.isFetching {
                 HStack {
                     ProgressView()
                         .progressViewStyle(.circular)
@@ -149,21 +147,8 @@ struct PastReportView: View {
     }
     
     private func fetchReport() {
-        Task {
-            do {
-                isFetching = true
-                
-                defer {
-                    isFetching = false
-                }
-                
-                let report = try await api.report(id: reportMeta.id)
-                
-                self.report = report
-                
-            } catch {
-                self.error = error
-            }
+        reportFetcher.fetch {
+            try await api.report(id: reportMeta.id)
         }
     }
 }
