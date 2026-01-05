@@ -6,6 +6,7 @@ import eventHub from './event-hub'
 import { client, getDb } from 'src/db'
 import { DbInvStore } from '../db/DbInvStore'
 import { DbInvStoreStock } from '../db/DbInvStoreStock'
+import { DbInvStoreStockChange } from '../db/DbInvStoreStockChange'
 import { authorizeUser, authorizeAdmin } from 'src/auth/authorize'
 import { UpdateStoreCatalogBodySchema, UpdateStockBodySchema } from './schemas'
 import logger from 'src/logger'
@@ -29,29 +30,6 @@ adminRouter.get('/stores/meta', async (req, res) => {
   }))
 
   res.send(vendors)
-})
-
-// Gets store stock.
-adminRouter.get('/store/:storeId/stock', async (req, res) => {
-  const storeId = req.params.storeId
-
-  if (!storeId) {
-    throw createHttpError(400, `id is missing`)
-  }
-
-  const db = await getDb()
-
-  const dbStock = await db.collection_inv_storeStocks.findOne({ storeId })
-
-  if (!dbStock) {
-    throw createHttpError(500, 'Store stock not found')
-  }
-
-  const stock = jsonifyMongoId(dbStock)
-
-  // console.info(`! response = ${JSON.stringify(responseVendor)}`)
-
-  res.send(stock)
 })
 
 // Updates a store's catalog.
@@ -154,6 +132,49 @@ adminRouter.put('/store/:storeId/catalog', async (req, res) => {
   eventHub.emitStoreChanged(storeId)
 
   res.send()
+})
+
+// Gets store stock.
+adminRouter.get('/store/:storeId/stock', async (req, res) => {
+  const storeId = req.params.storeId
+
+  if (!storeId) {
+    throw createHttpError(400, `id is missing`)
+  }
+
+  const db = await getDb()
+
+  const dbStock = await db.collection_inv_storeStocks.findOne({ storeId })
+
+  if (!dbStock) {
+    throw createHttpError(500, 'Store stock not found')
+  }
+
+  const stock = jsonifyMongoId(dbStock)
+
+  // console.info(`! response = ${JSON.stringify(responseVendor)}`)
+
+  res.send(stock)
+})
+
+// Gets store stock change history.
+adminRouter.get('/store/:storeId/stock/changes', async (req, res) => {
+  const storeId = req.params.storeId
+
+  if (!storeId) {
+    throw createHttpError(400, 'storeId is missing')
+  }
+
+  const db = await getDb()
+
+  const history = await db.collection_inv_storeStocksChanges
+    .find({ storeId })
+    .sort({ timestamp: -1 })
+    .toArray()
+
+  const response = history.map(record => jsonifyMongoId(record))
+
+  res.send(response)
 })
 
 // User router
@@ -292,6 +313,27 @@ userRouter.post('/store/:storeId/stock', async (req, res) => {
       if (insufficientStockErrors.length > 0) {
         throw createHttpError(400, `Insufficient stock for the following items:\n${insufficientStockErrors.join('\n')}`)
       }
+
+      // Create history record
+      const changeRecord: DbInvStoreStockChange = {
+        storeId,
+        timestamp: new Date(),
+        user: {
+          id: req.user!.id,
+          email: req.user!.email || ''
+        },
+        itemQuantityChanges: itemQuantityChanges.map(change => {
+          const itemAttr = itemAttrsMap.get(change.itemId)!
+          return {
+            itemId: change.itemId,
+            delta: change.delta,
+            oldQuantity: itemAttr.quantity - change.delta,
+            newQuantity: itemAttr.quantity
+          }
+        })
+      }
+
+      await db.collection_inv_storeStocksChanges.insertOne(changeRecord, { session })
 
       await db.collection_inv_storeStocks.updateOne(
         { storeId },
