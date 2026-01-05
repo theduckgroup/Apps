@@ -493,7 +493,7 @@ userRouter.post('/store/:storeId/stock', async (req, res) => {
 const publicRouter = express.Router()
 
 if (env.isLocal) {
-  publicRouter.get('/mock/store', async (req, res) => {
+  publicRouter.get('/mock/stores/_any', async (req, res) => {
     const db = await getDb()
 
     const doc = await db.collection_inv_stores.findOne()
@@ -506,7 +506,7 @@ if (env.isLocal) {
 
   })
 
-  publicRouter.get('/mock/store/stock', async (req, res) => {
+  publicRouter.get('/mock/stores/_any/stock', async (req, res) => {
     const db = await getDb()
 
     const doc = await db.collection_inv_storeStocks.findOne()
@@ -518,7 +518,7 @@ if (env.isLocal) {
     res.send(jsonifyMongoId(doc))
   })
 
-  publicRouter.get('/mock/store/stock/changes/meta', async (req, res) => {
+  publicRouter.get('/mock/stores/_any/stock/changes/meta', async (req, res) => {
     const db = await getDb()
 
     const store = await db.collection_inv_stores.findOne()
@@ -540,17 +540,18 @@ if (env.isLocal) {
     res.send(response)
   })
 
-  publicRouter.get('/mock/store/stock/changes/:changeId', async (req, res) => {
-    const changeId = req.params.changeId
+  publicRouter.get('/mock/stores/:storeId/stock/changes/_any', async (req, res) => {
+    const storeId = req.params.storeId
+    
+    const db = await getDb()
+    const store = await db.collection_inv_stores.findOne({ _id: new ObjectId(storeId) })
 
-    if (!changeId) {
-      throw createHttpError(400, 'changeId is missing')
+    if (!store) {
+      throw createHttpError(404, 'No store found')
     }
 
-    const db = await getDb()
-
     const change = await db.collection_inv_storeStocksChanges.findOne({
-      _id: new ObjectId(changeId)
+      storeId
     })
 
     if (!change) {

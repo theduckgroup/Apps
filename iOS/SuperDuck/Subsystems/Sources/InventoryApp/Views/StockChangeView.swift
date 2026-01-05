@@ -187,7 +187,7 @@ struct PreviewView: View {
             Task {
                 do {
                     store = try await api.store()
-                    let changeMetas = try await api.stockChangesMeta(storeId: "mock", userId: User.mock.idString)
+                    let changeMetas = try await api.stockChangesMeta(storeId: store!.id, userId: User.mock.idString)
                     changeMeta = changeMetas[0]
                     
                 } catch {
