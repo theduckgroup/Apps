@@ -87,7 +87,7 @@ public struct InventoryAppView: View {
                     .disabled(storeFetcher.value == nil)
                 }
                 
-                PastStockChangeListView(
+                RecentStockChangeListView(
                     changes: changesFetcher.value,
                     onView: { changeMeta in
                         selectedChangeMeta = changeMeta

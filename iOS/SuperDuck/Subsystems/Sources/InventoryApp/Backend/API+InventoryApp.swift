@@ -21,7 +21,7 @@ extension API {
     
     func stockChangesMeta(storeId: String, userId: String) async throws -> [StockChangeMeta] {
         if isRunningForPreviews {
-            return [.mock1, .mock2, .mock3]
+            return try await get(authenticated: false, path: "inventory-app/mock/store/stock/changes/meta")
         }
         
         return try await get(path: "inventory-app/store/\(storeId)/stock/changes/meta/by-user/\(userId)")
@@ -29,7 +29,7 @@ extension API {
     
     func stockChange(storeId: String, changeId: String) async throws -> StockChange {
         if isRunningForPreviews {
-            return .mock
+            return try await get(authenticated: false, path: "inventory-app/mock/store/stock/changes/\(changeId)")
         }
         
         return try await get(path: "inventory-app/store/\(storeId)/stock/changes/\(changeId)")

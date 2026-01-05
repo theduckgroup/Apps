@@ -145,7 +145,7 @@ struct StockView: View {
     private func fetchData() {
         dataFetcher.fetch {
             async let store = api.store()
-            async let stock = api.storeStock()
+            async let stock = api.stock()
             return try await (store, stock)
         }
     }

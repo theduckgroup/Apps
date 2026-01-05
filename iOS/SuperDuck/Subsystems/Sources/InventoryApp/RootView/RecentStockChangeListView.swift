@@ -5,7 +5,7 @@ import CommonUI
 import Backend
 import Auth
 
-struct PastStockChangeListView: View {
+struct RecentStockChangeListView: View {
     var changes: [StockChangeMeta]?
     var onView: (StockChangeMeta) -> Void
     @Environment(API.self) var api
@@ -25,7 +25,7 @@ struct PastStockChangeListView: View {
     @ViewBuilder
     private func bodyImpl() -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Recent Changes")
+            Text("Recent")
                 .font(.system(size: 27, weight: .regular))
                 .frame(maxWidth: .infinity, alignment: .leading)
             
@@ -89,12 +89,30 @@ private struct Row: View {
 }
 
 #Preview {
+    @Previewable @State var changes: [StockChangeMeta]?
+    
     ScrollView {
-        PastStockChangeListView(
-            changes: [.mock1, .mock2, .mock3],
-            onView: { _ in }
-        )
-        .padding()
+        if let changes {
+            RecentStockChangeListView(
+                changes: changes,
+                onView: { _ in }
+            )
+            .padding()
+            
+        } else {
+            ProgressView()
+                .progressViewStyle(.circular)
+        }
+    }
+    .onAppear {
+        Task {
+            do {
+                changes = try await API.localWithMockAuth.stockChangesMeta(storeId: Store.defaultStoreID, userId: User.mock.idString)
+                
+            } catch {
+                logger.error("Unable to get mock data: \(error)")
+            }
+        }
     }
     .previewEnvironment()
 }
