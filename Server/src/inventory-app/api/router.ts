@@ -15,6 +15,22 @@ import { jsonifyMongoId } from 'src/utils/mongodb-utils'
 import { getUserRoles, Roles } from 'src/utils/user-extensions'
 import env from 'src/env'
 
+// Helper functions
+
+function transformStoreStockChangeToMeta(change: DbInvStoreStockChange) {
+  const totalQuantityChange = change.itemQuantityChanges.reduce(
+    (sum, item) => sum + item.delta,
+    0
+  )
+
+  return {
+    id: change._id!.toString(),
+    storeId: change.storeId,
+    timestamp: change.timestamp,
+    totalQuantityChange
+  }
+}
+
 // Admin router
 
 const adminRouter = express.Router()
@@ -208,19 +224,7 @@ userRouter.get('/store/:storeId/stock/changes/meta/by-user/:userId', async (req,
     .sort({ timestamp: -1 })
     .toArray()
 
-  const response = changes.map(change => {
-    const totalQuantityChange = change.itemQuantityChanges.reduce(
-      (sum, item) => sum + item.delta,
-      0
-    )
-
-    return {
-      id: change._id.toString(),
-      storeId: change.storeId,
-      timestamp: change.timestamp,
-      totalQuantityChange
-    }
-  })
+  const response = changes.map(transformStoreStockChangeToMeta)
 
   res.send(response)
 })
@@ -547,19 +551,7 @@ if (env.isLocal) {
       .limit(10)
       .toArray()
 
-    const response = changes.map(change => {
-      const totalQuantityChange = change.itemQuantityChanges.reduce(
-        (sum, item) => sum + item.delta,
-        0
-      )
-
-      return {
-        id: change._id!.toString(),
-        storeId: change.storeId,
-        timestamp: change.timestamp,
-        totalQuantityChange
-      }
-    })
+    const response = changes.map(transformStoreStockChangeToMeta)
 
     res.send(response)
   })
