@@ -13,6 +13,7 @@ import logger from 'src/logger'
 import '../db/Db+collections'
 import { jsonifyMongoId } from 'src/utils/mongodb-utils'
 import { getUserRoles, Roles } from 'src/utils/user-extensions'
+import env from 'src/env'
 
 // Admin router
 
@@ -503,30 +504,86 @@ userRouter.post('/store/:storeId/stock', async (req, res) => {
 
 const publicRouter = express.Router()
 
-publicRouter.get('/mock/store', async (req, res) => {
-  const db = await getDb()
+if (env.isLocal) {
+  publicRouter.get('/mock/store', async (req, res) => {
+    const db = await getDb()
 
-  const doc = await db.collection_inv_stores.findOne()
+    const doc = await db.collection_inv_stores.findOne()
 
-  if (!doc) {
-    throw createHttpError(404)
-  }
+    if (!doc) {
+      throw createHttpError(404)
+    }
 
-  res.send(jsonifyMongoId(doc))
+    res.send(jsonifyMongoId(doc))
 
-})
+  })
 
-publicRouter.get('/mock/store/stock', async (req, res) => {
-  const db = await getDb()
+  publicRouter.get('/mock/store/stock', async (req, res) => {
+    const db = await getDb()
 
-  const doc = await db.collection_inv_storeStocks.findOne()
+    const doc = await db.collection_inv_storeStocks.findOne()
 
-  if (!doc) {
-    throw createHttpError(404)
-  }
+    if (!doc) {
+      throw createHttpError(404)
+    }
 
-  res.send(jsonifyMongoId(doc))
-})
+    res.send(jsonifyMongoId(doc))
+  })
+
+  publicRouter.get('/mock/store/stock/changes/meta', async (req, res) => {
+    const db = await getDb()
+
+    const store = await db.collection_inv_stores.findOne()
+
+    if (!store) {
+      throw createHttpError(404, 'No store found')
+    }
+
+    const storeId = store._id.toString()
+
+    const changes = await db.collection_inv_storeStocksChanges
+      .find({ storeId })
+      .sort({ timestamp: -1 })
+      .limit(10)
+      .toArray()
+
+    const response = changes.map(change => {
+      const totalQuantityChange = change.itemQuantityChanges.reduce(
+        (sum, item) => sum + item.delta,
+        0
+      )
+
+      return {
+        id: change._id!.toString(),
+        storeId: change.storeId,
+        timestamp: change.timestamp,
+        totalQuantityChange
+      }
+    })
+
+    res.send(response)
+  })
+
+  publicRouter.get('/mock/store/stock/changes/:changeId', async (req, res) => {
+    const changeId = req.params.changeId
+
+    if (!changeId) {
+      throw createHttpError(400, 'changeId is missing')
+    }
+
+    const db = await getDb()
+
+    const change = await db.collection_inv_storeStocksChanges.findOne({
+      _id: new ObjectId(changeId)
+    })
+
+    if (!change) {
+      throw createHttpError(404, 'Change not found')
+    }
+
+    res.send(jsonifyMongoId(change))
+  })
+}
 
 // Exported router
 // Order is important -- if adminRouter is first, it will attempt to authorize
