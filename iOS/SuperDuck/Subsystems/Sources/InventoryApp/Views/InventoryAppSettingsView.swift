@@ -10,14 +10,12 @@ public struct InventoryAppSettingsView: View {
     public init() {}
     
     public var body: some View {
-        NavigationStack {
-            Form {
-                Section("QR Code Scanner") {
-                    bodyContent()
-                }
+        Form {
+            Section("QR Code Scanner") {
+                bodyContent()
             }
-            .navigationTitle("Inventory App")
         }
+        .navigationTitle("Inventory App")
     }
     
     @ViewBuilder
@@ -133,11 +131,7 @@ public struct InventoryAppSettingsView: View {
 
 #Preview {
     NavigationStack {
-        Form {
-            Section("QR Code Scanner") {
-                InventoryAppSettingsView()
-                    .previewEnvironment()
-            }
-        }
+        InventoryAppSettingsView()
+            .previewEnvironment()
     }
 }
