@@ -6,7 +6,7 @@ import { DbInvStockAdjustment } from './DbInvStockAdjustment'
 declare module 'mongodb' {
   interface Db {
     collection_inv_stores: Collection<DbInvStore>
-    collection_inv_stocks: Collection<DbInvStock>
+    collection_inv_stock: Collection<DbInvStock>
     collection_inv_stockAdjustments: Collection<DbInvStockAdjustment>
   }
 }
@@ -19,9 +19,9 @@ Object.defineProperty(Db.prototype, 'collection_inv_stores', {
   configurable: true, // Allow redefining if needed
 })
 
-Object.defineProperty(Db.prototype, 'collection_inv_stocks', {
+Object.defineProperty(Db.prototype, 'collection_inv_stock', {
   get(this: Db) {    
-    return this.collection<DbInvStock>('inv_stocks')
+    return this.collection<DbInvStock>('inv_stock')
   },
   enumerable: true,
   configurable: true,

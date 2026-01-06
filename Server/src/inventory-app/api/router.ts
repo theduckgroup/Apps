@@ -78,7 +78,7 @@ adminRouter.put('/stores/:storeId/catalog', async (req, res) => {
         throw createHttpError(404, `Store ${storeId} not found`)
       }
 
-      const dbStock = await db.collection_inv_stocks.findOne(
+      const dbStock = await db.collection_inv_stock.findOne(
         { storeId },
         { session }
       )
@@ -107,7 +107,7 @@ adminRouter.put('/stores/:storeId/catalog', async (req, res) => {
         quantity: existingAttrsMap.get(item.id)?.quantity ?? 0
       }))
 
-      await db.collection_inv_stocks.updateOne(
+      await db.collection_inv_stock.updateOne(
         { storeId },
         {
           $set: {
@@ -146,7 +146,7 @@ adminRouter.get('/stores/:storeId/stock', async (req, res) => {
 
   const db = await getDb()
 
-  const dbStock = await db.collection_inv_stocks.findOne({ storeId })
+  const dbStock = await db.collection_inv_stock.findOne({ storeId })
 
   if (!dbStock) {
     throw createHttpError(500, 'Store stock not found')
@@ -261,7 +261,7 @@ userRouter.get('/stores/:storeId', async (req, res) => {
   // let itemAttrsMap: Map<string, DbInvStock.ItemAttributes> | undefined
 
   // if (withQuantity) {
-  //   const stock = await db.collection_inv_stocks.findOne({ storeId: new ObjectId(storeId) })
+  //   const stock = await db.collection_inv_stock.findOne({ storeId: new ObjectId(storeId) })
 
   //   if (!stock) {
   //     throw createHttpError(500, 'Store stock not found')
@@ -320,7 +320,7 @@ userRouter.post('/stores/:storeId/stock', async (req, res) => {
         { _id: new ObjectId(storeId) },
         { session }
       )
-      const dbStock = await db.collection_inv_stocks.findOne(
+      const dbStock = await db.collection_inv_stock.findOne(
         { storeId },
         { session }
       )
@@ -427,7 +427,7 @@ userRouter.post('/stores/:storeId/stock', async (req, res) => {
 
       await db.collection_inv_stockAdjustments.insertOne(adjustmentRecord, { session })
 
-      await db.collection_inv_stocks.updateOne(
+      await db.collection_inv_stock.updateOne(
         { storeId },
         {
           $set: {
@@ -533,7 +533,7 @@ if (env.isLocal) {
   publicRouter.get('/mock/stores/_any/stock', async (req, res) => {
     const db = await getDb()
 
-    const doc = await db.collection_inv_stocks.findOne()
+    const doc = await db.collection_inv_stock.findOne()
 
     if (!doc) {
       throw createHttpError(404)
