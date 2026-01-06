@@ -11,6 +11,7 @@ public struct InventoryAppView: View {
     @State var presentingStockView = false
     @State var selectedChangeMeta: StockChangeMeta?
     @State var ps = PresentationState()
+    @State var presentingScanView = false
     @Environment(Auth.self) var auth
     @Environment(API.self) var api
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
@@ -36,8 +37,11 @@ public struct InventoryAppView: View {
                         StockChangeView(changeMeta: changeMeta, store: store)
                     }
                 }
+//                .fullScreenCover(isPresented: $presentingScanView) {
+//                    ScanView(store: storeFetcher.value!, scanMode: .add)
+//                }
+                .presentations(ps)
         }
-        .presentations(ps)
         .onAppear {
             fetchStore()
             fetchChanges()
@@ -72,6 +76,7 @@ public struct InventoryAppView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(alignment: .firstTextBaseline) {
                         Button("Add Items", systemImage: "plus.circle") {
+                            // presentingScanView = true
                             ps.presentFullScreenCover {
                                 ScanView(store: storeFetcher.value!, scanMode: .add)
                             }

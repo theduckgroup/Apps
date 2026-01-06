@@ -38,6 +38,9 @@ struct ScanView: View {
                 .toolbar { toolbarContent() }
                 .navigationTitle(scanMode == .add ? "Add Items" : "Remove Items")
                 .navigationBarTitleDisplayMode(.inline)
+                .sheet(isPresented: $presentingReviewView) {
+                    ReviewView(store: store, scanMode: scanMode, scanRecords: scanRecords, onSubmitted: { dismiss() })
+                }
                 .presentations(ps)
                 .ignoresSafeArea()
         }
@@ -54,16 +57,23 @@ struct ScanView: View {
         
         ToolbarItem(placement: .topBarTrailing) {
             Button("Review") {
-                ps.presentSheet {
-                    ReviewView(
-                        store: store,
-                        scanMode: scanMode,
-                        scanRecords: scanRecords,
-                        onSubmitted: {
-                            dismiss()
-                        }
-                    )
-                }
+                // There is a bug here:
+                // - Comment out the code below to use ps
+                // - Change submit route to trigger an error
+                // - In Review screen, submit
+                // - The error alert flashes and auto-dismisses
+                
+//                ps.presentSheet {
+//                    ReviewView(
+//                        store: store,
+//                        scanMode: scanMode,
+//                        scanRecords: scanRecords,
+//                        onSubmitted: {
+//                            dismiss()
+//                        }
+//                    )
+//                }
+                presentingReviewView = true
             }
             .modified {
                 if #available(iOS 26, *) {

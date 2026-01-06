@@ -35,7 +35,7 @@ adminRouter.get('/stores/meta', async (req, res) => {
 })
 
 // Updates a store's catalog.
-adminRouter.put('/store/:storeId/catalog', async (req, res) => {
+adminRouter.put('/stores/:storeId/catalog', async (req, res) => {
   const storeId = req.params.storeId
 
   // Body
@@ -137,7 +137,7 @@ adminRouter.put('/store/:storeId/catalog', async (req, res) => {
 })
 
 // Gets store stock.
-adminRouter.get('/store/:storeId/stock', async (req, res) => {
+adminRouter.get('/stores/:storeId/stock', async (req, res) => {
   const storeId = req.params.storeId
 
   if (!storeId) {
@@ -160,7 +160,7 @@ adminRouter.get('/store/:storeId/stock', async (req, res) => {
 })
 
 // Gets store stock change history.
-adminRouter.get('/store/:storeId/stock/changes', async (req, res) => {
+adminRouter.get('/stores/:storeId/stock/changes', async (req, res) => {
   const storeId = req.params.storeId
 
   if (!storeId) {
@@ -185,7 +185,7 @@ const userRouter = express.Router()
 userRouter.use(authorizeUser)
 
 // Gets store stock changes metadata by user.
-userRouter.get('/store/:storeId/stock/changes/meta/by-user/:userId', async (req, res) => {
+userRouter.get('/stores/:storeId/stock/changes/meta/by-user/:userId', async (req, res) => {
   const { storeId, userId } = req.params
 
   if (!storeId) {
@@ -214,7 +214,7 @@ userRouter.get('/store/:storeId/stock/changes/meta/by-user/:userId', async (req,
 })
 
 // Gets a specific stock change by ID.
-userRouter.get('/store/:storeId/stock/changes/:changeId', async (req, res) => {
+userRouter.get('/stores/:storeId/stock/changes/:changeId', async (req, res) => {
   const { storeId, changeId } = req.params
 
   if (!storeId) {
@@ -251,7 +251,7 @@ userRouter.get('/store/:storeId/stock/changes/:changeId', async (req, res) => {
 })
 
 // Gets store.
-userRouter.get('/store/:storeId', async (req, res) => {
+userRouter.get('/stores/:storeId', async (req, res) => {
   const storeId = req.params.storeId
 
   if (!storeId) {
@@ -304,7 +304,7 @@ userRouter.get('/store/:storeId', async (req, res) => {
 })
 
 // Updates store stock.
-userRouter.post('/store/:storeId/stock', async (req, res) => {
+userRouter.post('/stores/:storeId/stock', async (req, res) => {
   const storeId = req.params.storeId
 
   const { data, error: bodyError } = await UpdateStockBodySchema.safeParseAsync(req.body)

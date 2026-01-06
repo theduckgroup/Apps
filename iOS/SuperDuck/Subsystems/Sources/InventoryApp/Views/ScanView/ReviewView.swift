@@ -146,9 +146,7 @@ private extension API {
             }
         )
 
-        let path = "inventory-app/store/\(store.id)/stock"
-        
-        try await post(method: "POST", path: path, body: body)
+        try await post(method: "POST", path: "/inventory-app/stores/\(store.id)/stock", body: body)
     }
 }
 
