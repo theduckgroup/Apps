@@ -7,6 +7,7 @@ import Auth
 
 struct RecentStockAdjustmentListView: View {
     var adjustments: [StockAdjustmentMeta]?
+    var since: Date?
     var onView: (StockAdjustmentMeta) -> Void
     @Environment(API.self) var api
     @Environment(Auth.self) var auth
@@ -25,9 +26,16 @@ struct RecentStockAdjustmentListView: View {
                                 onView(adjustment)
                             }
                         }
+
+                        if let since {
+                            let components = Calendar.current.dateComponents([.month], from: since, to: Date())
+                            Text("Data for the past \(components.month!) months is shown.")
+                                .foregroundStyle(.secondary)
+                                .padding(.top)
+                        }
                     }
                     .padding(.top, 24)
-                
+
                 } else {
                     Text("No Data")
                         .foregroundStyle(.secondary)
@@ -74,15 +82,17 @@ private struct Row: View {
 
 #Preview {
     @Previewable @State var adjustments: [StockAdjustmentMeta]?
-    
+    @Previewable @State var since: Date?
+
     ScrollView {
         if let adjustments {
             RecentStockAdjustmentListView(
                 adjustments: adjustments,
+                since: since,
                 onView: { _ in }
             )
             .padding()
-            
+
         } else {
             ProgressView()
                 .progressViewStyle(.circular)
@@ -93,7 +103,8 @@ private struct Row: View {
             do {
                 let response = try await API.localWithMockAuth.stockAdjustmentsMeta(storeId: Store.defaultStoreID, userId: User.mock.idString)
                 adjustments = response.data
-                
+                since = response.since
+
             } catch {
                 logger.error("Unable to get mock data: \(error)")
             }

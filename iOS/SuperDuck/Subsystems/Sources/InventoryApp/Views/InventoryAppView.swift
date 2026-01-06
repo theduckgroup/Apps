@@ -7,7 +7,7 @@ import CommonUI
 
 public struct InventoryAppView: View {
     @State var storeFetcher = ValueFetcher<Store>()
-    @State var adjustmentsFetcher = ValueFetcher<[StockAdjustmentMeta]>()
+    @State var adjustmentsFetcher = ValueFetcher<(data: [StockAdjustmentMeta], since: Date)>()
     @State var presentingStockView = false
     @State var selectedAdjustmentMeta: StockAdjustmentMeta?
     @State var ps = PresentationState()
@@ -15,7 +15,7 @@ public struct InventoryAppView: View {
     @Environment(Auth.self) var auth
     @Environment(API.self) var api
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
-    
+
     public init() {}
 
     public var body: some View {
@@ -81,7 +81,7 @@ public struct InventoryAppView: View {
                                 ScanView(store: storeFetcher.value!, scanMode: .add)
                             }
                         }
-                        
+
                         Button("Remove Items", systemImage: "minus.circle") {
                             ps.presentFullScreenCover {
                                 ScanView(store: storeFetcher.value!, scanMode: .remove)
@@ -91,9 +91,10 @@ public struct InventoryAppView: View {
                     .buttonStyle(.primaryAction)
                     .disabled(storeFetcher.value == nil)
                 }
-                
+
                 RecentStockAdjustmentListView(
-                    adjustments: adjustmentsFetcher.value,
+                    adjustments: adjustmentsFetcher.value?.data,
+                    since: adjustmentsFetcher.value?.since,
                     onView: { adjustmentMeta in
                         selectedAdjustmentMeta = adjustmentMeta
                     }
@@ -115,9 +116,9 @@ public struct InventoryAppView: View {
             guard let userId = auth.user?.idString else {
                 throw GenericError("User not logged in")
             }
-            
+
             let response = try await api.stockAdjustmentsMeta(storeId: Store.defaultStoreID, userId: userId)
-            return response.data
+            return (response.data, response.since)
         }
     }
 }
