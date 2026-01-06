@@ -14,16 +14,16 @@ struct StockAdjustment: Decodable, Identifiable {
     
     struct Change: Decodable {
         var itemId: String
-        var offset: OffsetChange?
-        var set: SetChange?
+        var offset: Offset?
+        var set: Set?
         
-        struct OffsetChange: Decodable {
+        struct Offset: Decodable {
             var delta: Int
             var oldValue: Int
             var newValue: Int
         }
         
-        struct SetChange: Decodable {
+        struct Set: Decodable {
             var oldValue: Int
             var newValue: Int
         }
@@ -37,26 +37,5 @@ struct StockAdjustment: Decodable, Identifiable {
             }
             return 0
         }
-        
-        var oldQuantity: Int {
-            offset?.oldValue ?? set?.oldValue ?? 0
-        }
-        
-        var newQuantity: Int {
-            offset?.newValue ?? set?.newValue ?? 0
-        }
     }
-}
-
-extension StockAdjustment {
-    static let mock = StockAdjustment(
-        id: "mock-adjustment-1",
-        storeId: Store.defaultStoreID,
-        timestamp: Date(),
-        user: .init(id: "user-1", email: "user@example.com"),
-        changes: [
-            .init(itemId: "item-1", offset: .init(delta: 5, oldValue: 10, newValue: 15), set: nil),
-            .init(itemId: "item-2", offset: .init(delta: -3, oldValue: 20, newValue: 17), set: nil)
-        ]
-    )
 }

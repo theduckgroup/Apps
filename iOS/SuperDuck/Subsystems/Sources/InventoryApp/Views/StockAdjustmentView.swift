@@ -116,17 +116,27 @@ struct StockAdjustmentView: View {
             ForEach(Array(adjustment.changes.enumerated()), id: \.offset) { index, qtyChange in
                 GridRow(alignment: .firstTextBaseline) {
                     let item = store.catalog.items.first { $0.id == qtyChange.itemId }
-                    
+
                     if let item {
                         Text(item.name)
-                        
-                        let sign = qtyChange.delta >= 0 ? "+" : "-"
-                        let deltaText = "\(sign) \(abs(qtyChange.delta))"
-                        
-                        Text(deltaText)
-                            .gridColumnAlignment(.trailing)
-                            .foregroundStyle(.secondary)
-                            // .foregroundStyle(itemChange.delta >= 0 ? .green : .red)
+
+                        Group {
+                            if let set = qtyChange.set {
+                                Text("Set to \(set.newValue)")
+                                    .foregroundStyle(.secondary)
+
+                            } else if let offset = qtyChange.offset {
+                                let sign = offset.delta >= 0 ? "+" : "-"
+                                let deltaText = "\(sign) \(abs(offset.delta))"
+                                Text(deltaText)
+                                    .foregroundStyle(.secondary)
+
+                            } else {
+                                Text("Missing operation")
+                                    .foregroundStyle(.red)
+                            }
+                        }
+                        .gridColumnAlignment(.trailing)
                         
                     } else {
                         Text("Item not found")
@@ -134,7 +144,7 @@ struct StockAdjustmentView: View {
                     }
                 }
                 .padding(.vertical, 12)
-                
+
                 Divider()
             }
         }
