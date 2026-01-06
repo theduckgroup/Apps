@@ -22,6 +22,9 @@ struct SettingsView: View {
                 .navigationTitle("Settings")
                 .presentations(ps)
                 .toolbar { toolbarContent() }
+                .navigationDestination(isPresented: $presentingInventoryAppSettings) {
+                    InventoryAppSettingsView()
+                }
         }
     }
     
@@ -57,9 +60,6 @@ struct SettingsView: View {
             Section("Advanced") {
                 Button("Inventory App") {
                     presentingInventoryAppSettings = true
-                }
-                .navigationDestination(isPresented: $presentingInventoryAppSettings) {
-                    InventoryAppSettingsView()
                 }
             }
             
