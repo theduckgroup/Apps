@@ -14,21 +14,10 @@ struct StockChangeView: View {
     @Environment(\.verticalSizeClass) var verticalSizeClass
     
     var body: some View {
-        ScrollView(.vertical) {
-            let containerSize = containerSize ?? .zero
-            
-            let needsReadablePadding = (
-                horizontalSizeClass == .regular && verticalSizeClass == .regular &&
-                containerSize.width > containerSize.height * 1.25
-            )
-            
+        ScrollView {
             contentView()
                 .padding()
-                .frame(maxWidth: needsReadablePadding ? containerSize.width * 0.66 : nil, alignment: .center)
-                .frame(maxWidth: .infinity, alignment: .center)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .readSize(assignTo: $containerSize)
         // .navigationTitle("Stock Change")
         .onFirstAppear {
             fetchChange()
@@ -162,7 +151,6 @@ struct StockChangeView: View {
     PreviewView()
         .previewEnvironment()
 }
-
 
 struct PreviewView: View {
     @State var store: Store?

@@ -14,20 +14,9 @@ struct ReportView: View {
     
     var body: some View {
         ScrollView(.vertical) {
-            let containerSize = containerSize ?? .zero
-            
-            let needsReadablePadding = (
-                horizontalSizeClass == .regular && verticalSizeClass == .regular &&
-                containerSize.width > containerSize.height * 1.25
-            )
-            
             contentView()
                 .padding()
-                .frame(maxWidth: needsReadablePadding ? containerSize.width * 0.66 : nil, alignment: .center)
-                .frame(maxWidth: .infinity, alignment: .center) // Scroll indicator is messed up without this
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity) // Infinite layout loop without this
-        .readSize(assignTo: $containerSize)
         .navigationTitle("Spending")
         .onFirstAppear {
             fetchReport()

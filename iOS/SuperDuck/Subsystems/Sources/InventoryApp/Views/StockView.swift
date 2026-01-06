@@ -3,6 +3,7 @@ import SwiftUI
 import AppModule
 import Backend
 import Common
+import CommonUI
 
 struct StockView: View {
     @State var dataFetcher = ValueFetcher<(Store, Stock)>()
