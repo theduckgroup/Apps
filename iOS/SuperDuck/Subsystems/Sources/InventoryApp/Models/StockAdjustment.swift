@@ -1,6 +1,6 @@
 import Foundation
 
-struct StockChange: Decodable, Identifiable {
+struct StockAdjustment: Decodable, Identifiable {
     var id: String
     var storeId: String
     var timestamp: Date
@@ -48,9 +48,9 @@ struct StockChange: Decodable, Identifiable {
     }
 }
 
-extension StockChange {
-    static let mock = StockChange(
-        id: "mock-change-1",
+extension StockAdjustment {
+    static let mock = StockAdjustment(
+        id: "mock-adjustment-1",
         storeId: Store.defaultStoreID,
         timestamp: Date(),
         user: .init(id: "user-1", email: "user@example.com"),

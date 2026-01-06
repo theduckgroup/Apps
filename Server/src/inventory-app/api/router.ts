@@ -6,7 +6,7 @@ import eventHub from './event-hub'
 import { client, getDb } from 'src/db'
 import { DbInvStore } from '../db/DbInvStore'
 import { DbInvStock } from '../db/DbInvStock'
-import { DbInvStockChange } from '../db/DbInvStockChange'
+import { DbInvStockAdjustment } from '../db/DbInvStockAdjustment'
 import { authorizeUser, authorizeAdmin } from 'src/auth/authorize'
 import { UpdateStoreCatalogBodySchema, UpdateStockBodySchema } from './schemas'
 import logger from 'src/logger'
@@ -159,8 +159,8 @@ adminRouter.get('/stores/:storeId/stock', async (req, res) => {
   res.send(stock)
 })
 
-// Gets stock change history.
-adminRouter.get('/stores/:storeId/stock/changes', async (req, res) => {
+// Gets stock adjustment history.
+adminRouter.get('/stores/:storeId/stock/adjustments', async (req, res) => {
   const storeId = req.params.storeId
 
   if (!storeId) {
@@ -169,7 +169,7 @@ adminRouter.get('/stores/:storeId/stock/changes', async (req, res) => {
 
   const db = await getDb()
 
-  const history = await db.collection_inv_stockChanges
+  const history = await db.collection_inv_stockAdjustments
     .find({ storeId })
     .sort({ timestamp: -1 })
     .toArray()
@@ -184,60 +184,60 @@ adminRouter.get('/stores/:storeId/stock/changes', async (req, res) => {
 const userRouter = express.Router()
 userRouter.use(authorizeUser)
 
-// Gets stock changes metadata by user.
-userRouter.get('/stores/:storeId/stock/changes/meta/by-user/:userId', async (req, res) => {
+// Gets stock adjustments metadata by user.
+userRouter.get('/stores/:storeId/stock/adjustments/meta/by-user/:userId', async (req, res) => {
   const { storeId, userId } = req.params
 
   // Verify that userId matches current user
   if (req.user!.id !== userId) {
-    throw createHttpError(403, 'Not permitted to view other users\' changes')
+    throw createHttpError(403, 'Not permitted to view other users\' adjustments')
   }
 
   const db = await getDb()
 
-  const changes = await db.collection_inv_stockChanges
+  const adjustments = await db.collection_inv_stockAdjustments
     .find({ storeId, 'user.id': userId })
     .sort({ timestamp: -1 })
     .toArray()
 
-  const response = changes.map(stockChangeToMeta)
+  const response = adjustments.map(stockAdjustmentToMeta)
 
   res.send(response)
 })
 
 // Gets a specific stock change by ID.
-userRouter.get('/stores/:storeId/stock/changes/:changeId', async (req, res) => {
-  const { storeId, changeId } = req.params
+userRouter.get('/stores/:storeId/stock/adjustments/:adjustmentId', async (req, res) => {
+  const { storeId, adjustmentId } = req.params
 
   if (!storeId) {
     throw createHttpError(400, 'storeId is missing')
   }
 
-  if (!changeId) {
-    throw createHttpError(400, 'changeId is missing')
+  if (!adjustmentId) {
+    throw createHttpError(400, 'adjustmentId is missing')
   }
 
   const db = await getDb()
 
-  const change = await db.collection_inv_stockChanges.findOne({
-    _id: new ObjectId(changeId),
+  const adjustment = await db.collection_inv_stockAdjustments.findOne({
+    _id: new ObjectId(adjustmentId),
     storeId
   })
 
-  if (!change) {
-    throw createHttpError(404, 'Change not found')
+  if (!adjustment) {
+    throw createHttpError(404, 'Adjustment not found')
   }
 
-  // Authorization: user must own the change OR be admin/owner
+  // Authorization: user must own the adjustment OR be admin/owner
   const roles = getUserRoles(req.user!)
   const isAdmin = roles.includes(Roles.owner) || roles.includes(Roles.admin)
-  const userMatched = change.user.id === req.user!.id
+  const userMatched = adjustment.user.id === req.user!.id
 
   if (!userMatched && !isAdmin) {
-    throw createHttpError(403, 'Not permitted to view this change')
+    throw createHttpError(403, 'Not permitted to view this adjustment')
   }
 
-  const response = jsonifyMongoId(change)
+  const response = jsonifyMongoId(adjustment)
 
   res.send(response)
 })
@@ -346,7 +346,7 @@ userRouter.post('/stores/:storeId/stock', async (req, res) => {
       const storeItemsMap = new Map(dbStore.catalog.items.map(x => [x.id, x]))
 
       const insufficientStockErrors: string[] = []
-      const historyChanges: DbInvStockChange.Change[] = []
+      const historyChanges: DbInvStockAdjustment.Change[] = []
 
       for (const change of changes) {
         let itemAttr = itemAttrsMap.get(change.itemId)
@@ -359,7 +359,7 @@ userRouter.post('/stores/:storeId/stock', async (req, res) => {
 
         const oldQuantity = itemAttr.quantity
         let newQuantity: number
-        let historyChange: DbInvStockChange.Change
+        let historyChange: DbInvStockAdjustment.Change
 
         if ('offset' in change.quantity) {
           // Offset operation (preserve existing logic)
@@ -415,7 +415,7 @@ userRouter.post('/stores/:storeId/stock', async (req, res) => {
       }
 
       // Create history record
-      const changeRecord: DbInvStockChange = {
+      const adjustmentRecord: DbInvStockAdjustment = {
         storeId,
         timestamp: new Date(),
         user: {
@@ -425,7 +425,7 @@ userRouter.post('/stores/:storeId/stock', async (req, res) => {
         changes: historyChanges
       }
 
-      await db.collection_inv_stockChanges.insertOne(changeRecord, { session })
+      await db.collection_inv_stockAdjustments.insertOne(adjustmentRecord, { session })
 
       await db.collection_inv_stocks.updateOne(
         { storeId },
@@ -542,7 +542,7 @@ if (env.isLocal) {
     res.send(jsonifyMongoId(doc))
   })
 
-  publicRouter.get('/mock/stores/_any/stock/changes/meta', async (req, res) => {
+  publicRouter.get('/mock/stores/_any/stock/adjustments/meta', async (req, res) => {
     const db = await getDb()
 
     const store = await db.collection_inv_stores.findOne()
@@ -553,18 +553,18 @@ if (env.isLocal) {
 
     const storeId = store._id.toString()
 
-    const changes = await db.collection_inv_stockChanges
+    const adjustments = await db.collection_inv_stockAdjustments
       .find({ storeId })
       .sort({ timestamp: -1 })
       .limit(10)
       .toArray()
 
-    const response = changes.map(stockChangeToMeta)
+    const response = adjustments.map(stockAdjustmentToMeta)
 
     res.send(response)
   })
 
-  publicRouter.get('/mock/stores/:storeId/stock/changes/_any', async (req, res) => {
+  publicRouter.get('/mock/stores/:storeId/stock/adjustments/_any', async (req, res) => {
     const storeId = req.params.storeId
     
     const db = await getDb()
@@ -574,22 +574,22 @@ if (env.isLocal) {
       throw createHttpError(404, 'No store found')
     }
 
-    const change = await db.collection_inv_stockChanges.findOne({
+    const adjustment = await db.collection_inv_stockAdjustments.findOne({
       storeId
     })
 
-    if (!change) {
-      throw createHttpError(404, 'Change not found')
+    if (!adjustment) {
+      throw createHttpError(404, 'Adjustment not found')
     }
 
-    res.send(jsonifyMongoId(change))
+    res.send(jsonifyMongoId(adjustment))
   })
 }
 
 // Helper functions
 
-function stockChangeToMeta(change: DbInvStockChange) {
-  const totalQuantityChange = change.changes.reduce(
+function stockAdjustmentToMeta(adjustment: DbInvStockAdjustment) {
+  const totalQuantityChange = adjustment.changes.reduce(
     (sum, item) => {
       if (item.offset) {
         return sum + item.offset.delta
@@ -602,9 +602,9 @@ function stockChangeToMeta(change: DbInvStockChange) {
   )
 
   return {
-    id: change._id!.toString(),
-    storeId: change.storeId,
-    timestamp: change.timestamp,
+    id: adjustment._id!.toString(),
+    storeId: adjustment.storeId,
+    timestamp: adjustment.timestamp,
     totalQuantityChange
   }
 }

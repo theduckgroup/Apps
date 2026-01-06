@@ -5,20 +5,20 @@ import CommonUI
 import Backend
 import Auth
 
-struct RecentStockChangeListView: View {
-    var changes: [StockChangeMeta]?
-    var onView: (StockChangeMeta) -> Void
+struct RecentStockAdjustmentListView: View {
+    var adjustments: [StockAdjustmentMeta]?
+    var onView: (StockAdjustmentMeta) -> Void
     @Environment(API.self) var api
     @Environment(Auth.self) var auth
     
     var body: some View {
         bodyImpl()
             .onSceneBecomeActive {
-                fetchChanges()
+                fetchAdjustments()
             }
             .onReceive(api.eventHub.connectEvents) {
-                print("PastStockChangeListView: connect event")
-                fetchChanges()
+                print("RecentStockAdjustmentListView: connect event")
+                fetchAdjustments()
             }
     }
     
@@ -29,12 +29,12 @@ struct RecentStockChangeListView: View {
                 .font(.system(size: 27, weight: .regular))
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            if let changes {
-                if changes.count > 0 {
+            if let adjustments {
+                if adjustments.count > 0 {
                     LazyVStack(alignment: .leading, spacing: 0) {
-                        ForEach(changes) { change in
-                            Row(change: change, isFirst: change.id == changes.first?.id) {
-                                onView(change)
+                        ForEach(adjustments) { adjustment in
+                            Row(adjustment: adjustment, isFirst: adjustment.id == adjustments.first?.id) {
+                                onView(adjustment)
                             }
                         }
                     }
@@ -49,13 +49,13 @@ struct RecentStockChangeListView: View {
         }
     }
     
-    private func fetchChanges() {
+    private func fetchAdjustments() {
         
     }
 }
 
 private struct Row: View {
-    var change: StockChangeMeta
+    var adjustment: StockAdjustmentMeta
     var isFirst: Bool
     var onView: () -> Void
     
@@ -64,7 +64,7 @@ private struct Row: View {
             Image(systemName: "arrow.up.arrow.down")
                 .foregroundStyle(.secondary)
             
-            let formattedDate = change.timestamp.formatted(.dateTime.weekday(.abbreviated).day().month().hour().minute())
+            let formattedDate = adjustment.timestamp.formatted(.dateTime.weekday(.abbreviated).day().month().hour().minute())
             Text(formattedDate)
             
             Spacer()
@@ -89,12 +89,12 @@ private struct Row: View {
 }
 
 #Preview {
-    @Previewable @State var changes: [StockChangeMeta]?
+    @Previewable @State var adjustments: [StockAdjustmentMeta]?
     
     ScrollView {
-        if let changes {
-            RecentStockChangeListView(
-                changes: changes,
+        if let adjustments {
+            RecentStockAdjustmentListView(
+                adjustments: adjustments,
                 onView: { _ in }
             )
             .padding()
@@ -107,7 +107,7 @@ private struct Row: View {
     .onAppear {
         Task {
             do {
-                changes = try await API.localWithMockAuth.stockChangesMeta(storeId: Store.defaultStoreID, userId: User.mock.idString)
+                adjustments = try await API.localWithMockAuth.stockAdjustmentsMeta(storeId: Store.defaultStoreID, userId: User.mock.idString)
                 
             } catch {
                 logger.error("Unable to get mock data: \(error)")
