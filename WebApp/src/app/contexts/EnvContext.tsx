@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react'
 
 export interface Info {
-  env: string | 'production'
+  env: 'development' | 'production'
   lastUpdated?: string
 }
 
