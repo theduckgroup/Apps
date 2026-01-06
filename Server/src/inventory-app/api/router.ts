@@ -1,6 +1,7 @@
 import express from 'express'
 import { AnyBulkWriteOperation, BulkWriteResult, ObjectId } from 'mongodb'
 import createHttpError from 'http-errors'
+import { subMonths } from 'date-fns'
 
 import eventHub from './event-hub'
 import { client, getDb } from 'src/db'
@@ -196,7 +197,13 @@ userRouter.get('/stores/:storeId/stock/adjustments/meta/by-user/:userId', async 
   const db = await getDb()
 
   const adjustments = await db.collection_inv_stockAdjustments
-    .find({ storeId, 'user.id': userId })
+    .find({
+      storeId,
+      'user.id': userId,
+      timestamp: {
+        $gte: subMonths(new Date(), 6)
+      }
+    })
     .sort({ timestamp: -1 })
     .toArray()
 
@@ -205,7 +212,7 @@ userRouter.get('/stores/:storeId/stock/adjustments/meta/by-user/:userId', async 
   res.send(response)
 })
 
-// Gets a specific stock change by ID.
+// Gets a specific stock adjustment by ID.
 userRouter.get('/stores/:storeId/stock/adjustments/:adjustmentId', async (req, res) => {
   const { storeId, adjustmentId } = req.params
 
@@ -566,7 +573,7 @@ if (env.isLocal) {
 
   publicRouter.get('/mock/stores/:storeId/stock/adjustments/_any', async (req, res) => {
     const storeId = req.params.storeId
-    
+
     const db = await getDb()
     const store = await db.collection_inv_stores.findOne({ _id: new ObjectId(storeId) })
 
