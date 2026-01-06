@@ -28,7 +28,7 @@ export default function StoreEditorPage() {
 
   const { mutate: loadStore, error: loadError, isPending: isLoading } = useMutation({
     mutationFn: async () => {
-      return (await axios.get<InvStore>(`store/${storeId}`)).data
+      return (await axios.get<InvStore>(`stores/${storeId}`)).data
     },
     onSuccess: store => {
       setStore(store)
@@ -46,7 +46,7 @@ export default function StoreEditorPage() {
       // await sleep(1000)
       // throw new Error('Excepteur dolor culpa aute ea magna proident ad adipisicing fugiat ad. Excepteur dolor culpa aute ea magna proident ad adipisicing fugiat ad.')
       const body = store.catalog
-      await axios.put(`store/${storeId}/catalog`, body)
+      await axios.put(`stores/${storeId}/catalog`, body)
     },
     onSuccess: () => {
       setHasUnsavedChanges(false)
