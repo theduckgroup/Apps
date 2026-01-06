@@ -12,18 +12,6 @@ struct RecentStockAdjustmentListView: View {
     @Environment(Auth.self) var auth
     
     var body: some View {
-        bodyImpl()
-            .onSceneBecomeActive {
-                fetchAdjustments()
-            }
-            .onReceive(api.eventHub.connectEvents) {
-                print("RecentStockAdjustmentListView: connect event")
-                fetchAdjustments()
-            }
-    }
-    
-    @ViewBuilder
-    private func bodyImpl() -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("Recent")
                 .font(.system(size: 27, weight: .regular))
@@ -47,10 +35,6 @@ struct RecentStockAdjustmentListView: View {
                 }
             }
         }
-    }
-    
-    private func fetchAdjustments() {
-        
     }
 }
 

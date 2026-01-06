@@ -12,19 +12,6 @@ struct RecentReportListView: View {
     @Environment(API.self) var api
     
     var body: some View {
-        bodyImpl()
-            .onSceneBecomeActive {
-                fetchReports()
-            }
-            .onReceive(api.eventHub.connectEvents) {
-                print("UserReportsView: connect event")
-                fetchReports()
-            }
-            
-    }
-    
-    @ViewBuilder
-    private func bodyImpl() -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("Recent")
                 .font(.system(size: 27, weight: .regular))
@@ -58,10 +45,6 @@ struct RecentReportListView: View {
 //                    .padding(.top, 12)
 //            }
         }
-    }
-    
-    private func fetchReports() {
-        
     }
 }
 
