@@ -128,8 +128,9 @@ private struct PreviewView: View {
         .onAppear {
             Task {
                 do {
-                    reportMetas = try await api.userReportMetas(userID: User.mock.idString)
-                    
+                    let response = try await api.userReportMetas(userID: User.mock.idString)
+                    reportMetas = response.data
+
                 } catch {
                     logger.error("Unable to fetch data: \(error)")
                 }

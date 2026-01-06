@@ -74,7 +74,8 @@ public struct WeeklySpendingAppView: View {
     
     private func fetchReports() {
         reportsFetcher.fetch {
-            try await api.userReportMetas(userID: auth.user!.idString)
+            let response = try await api.userReportMetas(userID: auth.user!.idString)
+            return response.data
         }
     }
 }
