@@ -26,12 +26,9 @@ extension API {
     
     func stockAdjustmentsMeta(storeId: String, userId: String) async throws -> StockAdjustmentsMetaResponse {
         if isRunningForPreviews {
-            let adjustments: [StockAdjustmentMeta] = try await get(authenticated: false, path: "/inventory-app/mock/stores/_any/stock/adjustments/meta")
-            let calendar = Calendar.current
-            let sixMonthsAgo = calendar.date(byAdding: .month, value: -6, to: Date()) ?? Date()
-            return StockAdjustmentsMetaResponse(data: adjustments, since: sixMonthsAgo)
+            return try await get(authenticated: false, path: "/inventory-app/mock/stores/_any/stock/adjustments/meta")
         }
-        
+
         return try await get(path: "/inventory-app/stores/\(storeId)/stock/adjustments/meta/by-user/\(userId)")
     }
     

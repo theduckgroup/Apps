@@ -570,7 +570,12 @@ if (env.isLocal) {
       .limit(10)
       .toArray()
 
-    const response = adjustments.map(stockAdjustmentToMeta)
+    const sixMonthsAgo = subMonths(new Date(), 6)
+
+    const response = {
+      data: adjustments.map(stockAdjustmentToMeta),
+      since: sixMonthsAgo.toISOString()
+    }
 
     res.send(response)
   })
