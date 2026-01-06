@@ -5,7 +5,7 @@ import CommonUI
 import Backend
 import Auth
 
-struct ReportReportListView: View {
+struct RecentReportListView: View {
     var reports: [WSReportMeta]?
     var fetchDate: Date?
     var onView: (WSReportMeta) -> Void
@@ -112,7 +112,7 @@ private struct PreviewView: View {
         NavigationStack {
             if let reportMetas {
                 ScrollView {
-                    ReportReportListView(
+                    RecentReportListView(
                         reports: reportMetas,
                         onView: { _ in }
                     )

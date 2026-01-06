@@ -49,7 +49,7 @@ public struct WeeklySpendingAppView: View {
             VStack(alignment: .leading, spacing: 36) {
                 NewReportButton(template: templateFetcher.value)
                 
-                ReportReportListView(reports: reportsFetcher.value) { reportMeta in
+                RecentReportListView(reports: reportsFetcher.value) { reportMeta in
                     self.presentedReportMeta = reportMeta
                 }
             }
