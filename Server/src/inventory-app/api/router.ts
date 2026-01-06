@@ -196,18 +196,22 @@ userRouter.get('/stores/:storeId/stock/adjustments/meta/by-user/:userId', async 
 
   const db = await getDb()
 
+  // Calculate since date (6 months ago)
+  const since = subMonths(new Date(), 6)
+
   const adjustments = await db.collection_inv_stockAdjustments
     .find({
       storeId,
       'user.id': userId,
-      timestamp: {
-        $gte: subMonths(new Date(), 6)
-      }
+      timestamp: { $gte: since }
     })
     .sort({ timestamp: -1 })
     .toArray()
 
-  const response = adjustments.map(stockAdjustmentToMeta)
+  const response = {
+    adjustments: adjustments.map(stockAdjustmentToMeta),
+    since: since.toISOString()
+  }
 
   res.send(response)
 })

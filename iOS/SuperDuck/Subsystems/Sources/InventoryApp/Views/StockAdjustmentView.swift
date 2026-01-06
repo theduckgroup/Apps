@@ -175,8 +175,8 @@ struct PreviewView: View {
             Task {
                 do {
                     store = try await api.store()
-                    let adjustmentMetas = try await api.stockAdjustmentsMeta(storeId: store!.id, userId: User.mock.idString)
-                    adjustmentMeta = adjustmentMetas[0]
+                    let response = try await api.stockAdjustmentsMeta(storeId: store!.id, userId: User.mock.idString)
+                    adjustmentMeta = response.adjustments[0]
                     
                 } catch {
                     logger.error("Unable to get adjustment metas")
