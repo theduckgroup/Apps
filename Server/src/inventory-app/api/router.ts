@@ -314,7 +314,7 @@ userRouter.post('/stores/:storeId/stock', async (req, res) => {
     throw createHttpError(400)
   }
 
-  const { itemQuantityChanges } = data
+  const { changes } = data
 
   const session = client.startSession()
 
@@ -339,7 +339,7 @@ userRouter.post('/stores/:storeId/stock', async (req, res) => {
 
       // Verify that item IDs are valid
 
-      const itemIDs = new Set(itemQuantityChanges.map(x => x.itemId))
+      const itemIDs = new Set(changes.map(x => x.itemId))
       const storeItemIDs = new Set(dbStore.catalog.items.map(x => x.id))
       const invalidItemIDs = itemIDs.difference(storeItemIDs)
 
@@ -354,8 +354,9 @@ userRouter.post('/stores/:storeId/stock', async (req, res) => {
       const storeItemsMap = new Map(dbStore.catalog.items.map(x => [x.id, x]))
 
       const insufficientStockErrors: string[] = []
+      const historyChanges: DbInvStoreStockChange.Change[] = []
 
-      for (const change of itemQuantityChanges) {
+      for (const change of changes) {
         let itemAttr = itemAttrsMap.get(change.itemId)
 
         if (!itemAttr) {
@@ -364,17 +365,56 @@ userRouter.post('/stores/:storeId/stock', async (req, res) => {
           itemAttrsMap.set(change.itemId, itemAttr)
         }
 
-        const newQuantity = itemAttr.quantity + change.delta
+        const oldQuantity = itemAttr.quantity
+        let newQuantity: number
+        let historyChange: DbInvStoreStockChange.Change
 
-        if (newQuantity < 0) {
-          const storeItem = storeItemsMap.get(change.itemId)!
-          const currentQty = itemAttr.quantity
-          const removeQty = Math.abs(change.delta)
-          insufficientStockErrors.push(
-            `- ${storeItem.name} (${storeItem.code}): ${currentQty} in stock, attempting to remove ${removeQty}`
-          )
+        if ('offset' in change.quantity) {
+          // Offset operation (preserve existing logic)
+          const delta = change.quantity.offset.delta
+          newQuantity = oldQuantity + delta
+
+          historyChange = {
+            itemId: change.itemId,
+            offset: {
+              delta: delta,
+              oldValue: oldQuantity,
+              newValue: newQuantity
+            }
+          }
+
+          if (newQuantity < 0) {
+            const storeItem = storeItemsMap.get(change.itemId)!
+            const currentQty = oldQuantity
+            const removeQty = Math.abs(delta)
+            insufficientStockErrors.push(
+              `- ${storeItem.name} (${storeItem.code}): ${currentQty} in stock, attempting to remove ${removeQty}`
+            )
+          }
         } else {
+          // Set operation (new functionality)
+          const setValue = change.quantity.set.value
+          newQuantity = setValue
+
+          historyChange = {
+            itemId: change.itemId,
+            set: {
+              oldValue: oldQuantity,
+              newValue: newQuantity
+            }
+          }
+
+          if (newQuantity < 0) {
+            const storeItem = storeItemsMap.get(change.itemId)!
+            insufficientStockErrors.push(
+              `- ${storeItem.name} (${storeItem.code}): cannot set negative quantity ${newQuantity}`
+            )
+          }
+        }
+
+        if (newQuantity >= 0) {
           itemAttr.quantity = newQuantity
+          historyChanges.push(historyChange)
         }
       }
 
@@ -390,15 +430,7 @@ userRouter.post('/stores/:storeId/stock', async (req, res) => {
           id: req.user!.id,
           email: req.user!.email || ''
         },
-        itemQuantityChanges: itemQuantityChanges.map(change => {
-          const itemAttr = itemAttrsMap.get(change.itemId)!
-          return {
-            itemId: change.itemId,
-            delta: change.delta,
-            oldQuantity: itemAttr.quantity - change.delta,
-            newQuantity: itemAttr.quantity
-          }
-        })
+        changes: historyChanges
       }
 
       await db.collection_inv_storeStocksChanges.insertOne(changeRecord, { session })
@@ -565,8 +597,15 @@ if (env.isLocal) {
 // Helper functions
 
 function transformStoreStockChangeToMeta(change: DbInvStoreStockChange) {
-  const totalQuantityChange = change.itemQuantityChanges.reduce(
-    (sum, item) => sum + item.delta,
+  const totalQuantityChange = change.changes.reduce(
+    (sum, item) => {
+      if (item.offset) {
+        return sum + item.offset.delta
+      } else if (item.set) {
+        return sum + (item.set.newValue - item.set.oldValue)
+      }
+      return sum
+    },
     0
   )
 

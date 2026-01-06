@@ -5,7 +5,7 @@ export interface DbInvStoreStockChange {
   storeId: string
   timestamp: Date
   user: DbInvStoreStockChange.User
-  itemQuantityChanges: DbInvStoreStockChange.ItemQuantityChange[]
+  changes: DbInvStoreStockChange.Change[]
 }
 
 export namespace DbInvStoreStockChange {
@@ -14,10 +14,20 @@ export namespace DbInvStoreStockChange {
     email: string
   }
 
-  export interface ItemQuantityChange {
+  export interface Change {
     itemId: string
+    offset?: OffsetChange
+    set?: SetChange
+  }
+
+  export interface OffsetChange {
     delta: number
-    oldQuantity: number
-    newQuantity: number
+    oldValue: number
+    newValue: number
+  }
+
+  export interface SetChange {
+    oldValue: number
+    newValue: number
   }
 }
