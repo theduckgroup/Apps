@@ -113,7 +113,7 @@ struct StockChangeView: View {
             
             // Rows
             
-            ForEach(Array(change.itemQuantityChanges.enumerated()), id: \.offset) { index, qtyChange in
+            ForEach(Array(change.changes.enumerated()), id: \.offset) { index, qtyChange in
                 GridRow(alignment: .firstTextBaseline) {
                     let item = store.catalog.items.first { $0.id == qtyChange.itemId }
                     

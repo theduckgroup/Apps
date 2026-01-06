@@ -1,12 +1,12 @@
 import { ObjectId } from 'bson'
 
-export interface InvStoreStock {
+export interface InvStock {
   id: string
   storeId: string
-  itemAttributes: InvStoreStock.ItemAttributes[]
+  itemAttributes: InvStock.ItemAttributes[]
 }
 
-export namespace InvStoreStock {
+export namespace InvStock {
   export interface ItemAttributes {
     itemId: string
     quantity: number

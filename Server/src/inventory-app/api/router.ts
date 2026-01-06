@@ -5,8 +5,8 @@ import createHttpError from 'http-errors'
 import eventHub from './event-hub'
 import { client, getDb } from 'src/db'
 import { DbInvStore } from '../db/DbInvStore'
-import { DbInvStoreStock } from '../db/DbInvStoreStock'
-import { DbInvStoreStockChange } from '../db/DbInvStoreStockChange'
+import { DbInvStock } from '../db/DbInvStock'
+import { DbInvStockChange } from '../db/DbInvStockChange'
 import { authorizeUser, authorizeAdmin } from 'src/auth/authorize'
 import { UpdateStoreCatalogBodySchema, UpdateStockBodySchema } from './schemas'
 import logger from 'src/logger'
@@ -78,7 +78,7 @@ adminRouter.put('/stores/:storeId/catalog', async (req, res) => {
         throw createHttpError(404, `Store ${storeId} not found`)
       }
 
-      const dbStock = await db.collection_inv_storeStocks.findOne(
+      const dbStock = await db.collection_inv_stocks.findOne(
         { storeId },
         { session }
       )
@@ -107,7 +107,7 @@ adminRouter.put('/stores/:storeId/catalog', async (req, res) => {
         quantity: existingAttrsMap.get(item.id)?.quantity ?? 0
       }))
 
-      await db.collection_inv_storeStocks.updateOne(
+      await db.collection_inv_stocks.updateOne(
         { storeId },
         {
           $set: {
@@ -136,7 +136,7 @@ adminRouter.put('/stores/:storeId/catalog', async (req, res) => {
   res.send()
 })
 
-// Gets store stock.
+// Gets stock.
 adminRouter.get('/stores/:storeId/stock', async (req, res) => {
   const storeId = req.params.storeId
 
@@ -146,7 +146,7 @@ adminRouter.get('/stores/:storeId/stock', async (req, res) => {
 
   const db = await getDb()
 
-  const dbStock = await db.collection_inv_storeStocks.findOne({ storeId })
+  const dbStock = await db.collection_inv_stocks.findOne({ storeId })
 
   if (!dbStock) {
     throw createHttpError(500, 'Store stock not found')
@@ -159,7 +159,7 @@ adminRouter.get('/stores/:storeId/stock', async (req, res) => {
   res.send(stock)
 })
 
-// Gets store stock change history.
+// Gets stock change history.
 adminRouter.get('/stores/:storeId/stock/changes', async (req, res) => {
   const storeId = req.params.storeId
 
@@ -169,7 +169,7 @@ adminRouter.get('/stores/:storeId/stock/changes', async (req, res) => {
 
   const db = await getDb()
 
-  const history = await db.collection_inv_storeStocksChanges
+  const history = await db.collection_inv_stockChanges
     .find({ storeId })
     .sort({ timestamp: -1 })
     .toArray()
@@ -184,17 +184,9 @@ adminRouter.get('/stores/:storeId/stock/changes', async (req, res) => {
 const userRouter = express.Router()
 userRouter.use(authorizeUser)
 
-// Gets store stock changes metadata by user.
+// Gets stock changes metadata by user.
 userRouter.get('/stores/:storeId/stock/changes/meta/by-user/:userId', async (req, res) => {
   const { storeId, userId } = req.params
-
-  if (!storeId) {
-    throw createHttpError(400, 'storeId is missing')
-  }
-
-  if (!userId) {
-    throw createHttpError(400, 'userId is missing')
-  }
 
   // Verify that userId matches current user
   if (req.user!.id !== userId) {
@@ -203,12 +195,12 @@ userRouter.get('/stores/:storeId/stock/changes/meta/by-user/:userId', async (req
 
   const db = await getDb()
 
-  const changes = await db.collection_inv_storeStocksChanges
+  const changes = await db.collection_inv_stockChanges
     .find({ storeId, 'user.id': userId })
     .sort({ timestamp: -1 })
     .toArray()
 
-  const response = changes.map(transformStoreStockChangeToMeta)
+  const response = changes.map(stockChangeToMeta)
 
   res.send(response)
 })
@@ -227,7 +219,7 @@ userRouter.get('/stores/:storeId/stock/changes/:changeId', async (req, res) => {
 
   const db = await getDb()
 
-  const change = await db.collection_inv_storeStocksChanges.findOne({
+  const change = await db.collection_inv_stockChanges.findOne({
     _id: new ObjectId(changeId),
     storeId
   })
@@ -266,10 +258,10 @@ userRouter.get('/stores/:storeId', async (req, res) => {
     throw createHttpError(404, `Store ${storeId} not found`)
   }
 
-  // let itemAttrsMap: Map<string, DbInvStoreStock.ItemAttributes> | undefined
+  // let itemAttrsMap: Map<string, DbInvStock.ItemAttributes> | undefined
 
   // if (withQuantity) {
-  //   const stock = await db.collection_inv_storeStocks.findOne({ storeId: new ObjectId(storeId) })
+  //   const stock = await db.collection_inv_stocks.findOne({ storeId: new ObjectId(storeId) })
 
   //   if (!stock) {
   //     throw createHttpError(500, 'Store stock not found')
@@ -303,7 +295,7 @@ userRouter.get('/stores/:storeId', async (req, res) => {
   res.send(store)
 })
 
-// Updates store stock.
+// Updates stock.
 userRouter.post('/stores/:storeId/stock', async (req, res) => {
   const storeId = req.params.storeId
 
@@ -328,7 +320,7 @@ userRouter.post('/stores/:storeId/stock', async (req, res) => {
         { _id: new ObjectId(storeId) },
         { session }
       )
-      const dbStock = await db.collection_inv_storeStocks.findOne(
+      const dbStock = await db.collection_inv_stocks.findOne(
         { storeId },
         { session }
       )
@@ -354,7 +346,7 @@ userRouter.post('/stores/:storeId/stock', async (req, res) => {
       const storeItemsMap = new Map(dbStore.catalog.items.map(x => [x.id, x]))
 
       const insufficientStockErrors: string[] = []
-      const historyChanges: DbInvStoreStockChange.Change[] = []
+      const historyChanges: DbInvStockChange.Change[] = []
 
       for (const change of changes) {
         let itemAttr = itemAttrsMap.get(change.itemId)
@@ -367,7 +359,7 @@ userRouter.post('/stores/:storeId/stock', async (req, res) => {
 
         const oldQuantity = itemAttr.quantity
         let newQuantity: number
-        let historyChange: DbInvStoreStockChange.Change
+        let historyChange: DbInvStockChange.Change
 
         if ('offset' in change.quantity) {
           // Offset operation (preserve existing logic)
@@ -423,7 +415,7 @@ userRouter.post('/stores/:storeId/stock', async (req, res) => {
       }
 
       // Create history record
-      const changeRecord: DbInvStoreStockChange = {
+      const changeRecord: DbInvStockChange = {
         storeId,
         timestamp: new Date(),
         user: {
@@ -433,9 +425,9 @@ userRouter.post('/stores/:storeId/stock', async (req, res) => {
         changes: historyChanges
       }
 
-      await db.collection_inv_storeStocksChanges.insertOne(changeRecord, { session })
+      await db.collection_inv_stockChanges.insertOne(changeRecord, { session })
 
-      await db.collection_inv_storeStocks.updateOne(
+      await db.collection_inv_stocks.updateOne(
         { storeId },
         {
           $set: {
@@ -541,7 +533,7 @@ if (env.isLocal) {
   publicRouter.get('/mock/stores/_any/stock', async (req, res) => {
     const db = await getDb()
 
-    const doc = await db.collection_inv_storeStocks.findOne()
+    const doc = await db.collection_inv_stocks.findOne()
 
     if (!doc) {
       throw createHttpError(404)
@@ -561,13 +553,13 @@ if (env.isLocal) {
 
     const storeId = store._id.toString()
 
-    const changes = await db.collection_inv_storeStocksChanges
+    const changes = await db.collection_inv_stockChanges
       .find({ storeId })
       .sort({ timestamp: -1 })
       .limit(10)
       .toArray()
 
-    const response = changes.map(transformStoreStockChangeToMeta)
+    const response = changes.map(stockChangeToMeta)
 
     res.send(response)
   })
@@ -582,7 +574,7 @@ if (env.isLocal) {
       throw createHttpError(404, 'No store found')
     }
 
-    const change = await db.collection_inv_storeStocksChanges.findOne({
+    const change = await db.collection_inv_stockChanges.findOne({
       storeId
     })
 
@@ -596,7 +588,7 @@ if (env.isLocal) {
 
 // Helper functions
 
-function transformStoreStockChangeToMeta(change: DbInvStoreStockChange) {
+function stockChangeToMeta(change: DbInvStockChange) {
   const totalQuantityChange = change.changes.reduce(
     (sum, item) => {
       if (item.offset) {

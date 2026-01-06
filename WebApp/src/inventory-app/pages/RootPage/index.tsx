@@ -5,7 +5,7 @@ import { Text } from '@mantine/core'
 import { IconEdit } from '@tabler/icons-react'
 
 import { InvStore } from 'src/inventory-app/models/InvStore'
-import { InvStoreStock } from 'src/inventory-app/models/InvStoreStock'
+import { InvStock } from 'src/inventory-app/models/InvStock'
 import QrModal from './QRCodeModal'
 import eventHub from 'src/inventory-app/event-hub'
 import formatError from 'src/common/format-error'
@@ -27,7 +27,7 @@ export default function RootPage() {
     queryFn: async () => {
       const [store, stock] = await Promise.all([
         (await axios.get<InvStore>(`stores/${storeId}`)).data,
-        (await axios.get<InvStoreStock>(`stores/${storeId}/stock`)).data
+        (await axios.get<InvStock>(`stores/${storeId}/stock`)).data
       ])
 
       return { store, stock }
@@ -90,7 +90,7 @@ export default function RootPage() {
 
 function ItemList({ store, stock, onViewCode }: {
   store: InvStore,
-  stock: InvStoreStock,
+  stock: InvStock,
   onViewCode: (item: InvStore.Item) => void
 }) {
   return (

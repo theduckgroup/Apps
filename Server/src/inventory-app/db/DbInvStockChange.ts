@@ -1,14 +1,14 @@
 import { ObjectId } from 'mongodb'
 
-export interface DbInvStoreStockChange {
+export interface DbInvStockChange {
   _id?: ObjectId
   storeId: string
   timestamp: Date
-  user: DbInvStoreStockChange.User
-  changes: DbInvStoreStockChange.Change[]
+  user: DbInvStockChange.User
+  changes: DbInvStockChange.Change[]
 }
 
-export namespace DbInvStoreStockChange {
+export namespace DbInvStockChange {
   export interface User {
     id: string
     email: string
