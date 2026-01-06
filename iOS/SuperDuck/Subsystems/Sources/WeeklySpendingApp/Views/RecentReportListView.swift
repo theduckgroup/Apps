@@ -7,7 +7,7 @@ import Auth
 
 struct RecentReportListView: View {
     var reports: [WSReportMeta]?
-    var fetchDate: Date?
+    var since: Date?
     var onView: (WSReportMeta) -> Void
     @Environment(API.self) var api
     
@@ -25,13 +25,16 @@ struct RecentReportListView: View {
                                 onView(report)
                             }
                         }
-
-//                        Text("Data for the past 6 months is shown.")
-//                            .foregroundStyle(.secondary)
-//                            .padding(.top)
+                        
+                        if let since {
+                            let components = Calendar.current.dateComponents([.month], from: since, to: Date())
+                            Text("Data for the past \(components.month!) months is shown.")
+                                .foregroundStyle(.secondary)
+                                .padding(.top)
+                        }
                     }
                     .padding(.top, 24)
-                
+
                 } else {
                     Text("No Data")
                         .foregroundStyle(.secondary)
@@ -89,14 +92,16 @@ private struct Row: View {
 
 private struct PreviewView: View {
     @State var reportMetas: [WSReportMeta]?
+    @State var since: Date?
     @Environment(API.self) var api
-    
+
     var body: some View {
         NavigationStack {
             if let reportMetas {
                 ScrollView {
                     RecentReportListView(
                         reports: reportMetas,
+                        since: since,
                         onView: { _ in }
                     )
                     .padding()
@@ -113,6 +118,7 @@ private struct PreviewView: View {
                 do {
                     let response = try await api.userReportMetas(userID: User.mock.idString)
                     reportMetas = response.data
+                    since = response.since
 
                 } catch {
                     logger.error("Unable to fetch data: \(error)")

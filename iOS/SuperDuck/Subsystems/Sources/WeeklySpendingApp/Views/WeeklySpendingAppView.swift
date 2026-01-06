@@ -7,12 +7,12 @@ import CommonUI
 
 public struct WeeklySpendingAppView: View {
     @State var templateFetcher = ValueFetcher<WSTemplate>()
-    @State var reportsFetcher = ValueFetcher<[WSReportMeta]>()
+    @State var reportsFetcher = ValueFetcher<(data: [WSReportMeta], since: Date)>()
     @State var presentedReportMeta: WSReportMeta?
     @Environment(Auth.self) var auth
     @Environment(API.self) var api
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
-    
+
     public init() {}
 
     public var body: some View {
@@ -48,10 +48,14 @@ public struct WeeklySpendingAppView: View {
         ScrollView(.vertical) {
             VStack(alignment: .leading, spacing: 36) {
                 NewReportButton(template: templateFetcher.value)
-                
-                RecentReportListView(reports: reportsFetcher.value) { reportMeta in
-                    self.presentedReportMeta = reportMeta
-                }
+
+                RecentReportListView(
+                    reports: reportsFetcher.value?.data,
+                    since: reportsFetcher.value?.since,
+                    onView: { reportMeta in
+                        self.presentedReportMeta = reportMeta
+                    }
+                )
             }
             .padding()
         }
@@ -75,7 +79,7 @@ public struct WeeklySpendingAppView: View {
     private func fetchReports() {
         reportsFetcher.fetch {
             let response = try await api.userReportMetas(userID: auth.user!.idString)
-            return response.data
+            return (response.data, response.since)
         }
     }
 }
