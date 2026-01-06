@@ -108,7 +108,7 @@ private struct Row: View {
         Task {
             do {
                 let response = try await API.localWithMockAuth.stockAdjustmentsMeta(storeId: Store.defaultStoreID, userId: User.mock.idString)
-                adjustments = response.adjustments
+                adjustments = response.data
                 
             } catch {
                 logger.error("Unable to get mock data: \(error)")

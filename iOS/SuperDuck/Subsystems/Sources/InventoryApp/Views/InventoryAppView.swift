@@ -117,7 +117,7 @@ public struct InventoryAppView: View {
             }
             
             let response = try await api.stockAdjustmentsMeta(storeId: Store.defaultStoreID, userId: userId)
-            return response.adjustments
+            return response.data
         }
     }
 }

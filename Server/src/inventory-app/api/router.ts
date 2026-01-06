@@ -209,7 +209,7 @@ userRouter.get('/stores/:storeId/stock/adjustments/meta/by-user/:userId', async 
     .toArray()
 
   const response = {
-    adjustments: adjustments.map(stockAdjustmentToMeta),
+    data: adjustments.map(stockAdjustmentToMeta),
     since: since.toISOString()
   }
 

@@ -3,7 +3,7 @@ import Backend
 import Common
 
 struct StockAdjustmentsMetaResponse: Decodable {
-    var adjustments: [StockAdjustmentMeta]
+    var data: [StockAdjustmentMeta]
     var since: Date
 }
 
@@ -29,7 +29,7 @@ extension API {
             let adjustments: [StockAdjustmentMeta] = try await get(authenticated: false, path: "/inventory-app/mock/stores/_any/stock/adjustments/meta")
             let calendar = Calendar.current
             let sixMonthsAgo = calendar.date(byAdding: .month, value: -6, to: Date()) ?? Date()
-            return StockAdjustmentsMetaResponse(adjustments: adjustments, since: sixMonthsAgo)
+            return StockAdjustmentsMetaResponse(data: adjustments, since: sixMonthsAgo)
         }
         
         return try await get(path: "/inventory-app/stores/\(storeId)/stock/adjustments/meta/by-user/\(userId)")
