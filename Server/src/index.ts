@@ -24,6 +24,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use(compression())
 app.use(requestLogger({ logger }))
 app.use(rateLimiter())
+app.set('trust proxy', 1) // Require for rate limiter; this is because the app runs in Docker
 
 // Event hub
 

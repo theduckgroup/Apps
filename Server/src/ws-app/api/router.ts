@@ -301,8 +301,8 @@ userRouter.get('/users/:userId/reports/meta', async (req, res) => {
 
 const publicRouter = express.Router()
 
-if (env.nodeEnv == 'development') {
-  publicRouter.get('/mock/template', async (req, res) => {
+if (env.isLocal) {
+  publicRouter.get('/mock/templates/_any', async (req, res) => {
     const db = await getDb()
 
     const doc = await db.collection_wsTemplates.findOne()
@@ -316,7 +316,7 @@ if (env.nodeEnv == 'development') {
     res.send(data)
   })
 
-  publicRouter.get('/mock/report', async (req, res) => {
+  publicRouter.get('/mock/reports/_any', async (req, res) => {
     const db = await getDb()
 
     const doc = await db.collection_wsReports.findOne({}, { sort: { 'date': -1 } })
@@ -330,7 +330,7 @@ if (env.nodeEnv == 'development') {
     res.send(data)
   })
 
-  publicRouter.get('/mock/report-email', async (req, res) => {
+  publicRouter.get('/mock/reports/_any/email', async (req, res) => {
     // To test: http://localhost:8021/api/ws-app/mock-report-email
 
     const db = await getDb()
@@ -343,6 +343,39 @@ if (env.nodeEnv == 'development') {
     const emailHtml = await generateReportEmail(doc)
 
     res.send(emailHtml)
+  })
+
+  publicRouter.get('/mock/users/_any/reports/meta', async (req, res) => {
+    const db = await getDb()
+
+    // Get any report to find a user
+    const anyReport = await db.collection_wsReports.findOne()
+
+    if (!anyReport) {
+      throw createHttpError(404, 'No reports found')
+    }
+
+    const userId = anyReport.user.id
+
+    // Get reports for that user (same logic as the authenticated endpoint)
+    const docs = await db.collection_wsReports
+      .find({
+        'user.id': userId
+      })
+      .project<DbWsReport>({
+        _id: 1,
+        'template.id': 1,
+        'template.name': 1,
+        'template.code': 1,
+        user: 1,
+        date: 1,
+      })
+      .limit(10)
+      .toArray()
+
+    const response = docs.map(doc => jsonifyMongoId(doc))
+
+    res.send(response)
   })
 }
 

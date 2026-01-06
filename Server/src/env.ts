@@ -5,6 +5,7 @@ type NodeEnv = 'development' | 'production'
 export default {
   // serverUrl: load('SERVER_URL'),
   nodeEnv: loadNodeEnv(),
+  isLocal: loadOptional('IS_LOCAL') == 'true',
   webappUrl: load('WEBAPP_URL'),
   simulateHelpSubdomain: loadOptional('SIMULATE_HELP_SUBDOMAIN') == 'true',
   mongodb: {

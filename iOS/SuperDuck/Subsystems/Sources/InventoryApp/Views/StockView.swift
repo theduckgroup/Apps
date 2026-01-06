@@ -3,9 +3,10 @@ import SwiftUI
 import AppModule
 import Backend
 import Common
+import CommonUI
 
 struct StockView: View {
-    @State var dataFetcher = ValueFetcher<(Store, StoreStock)>()
+    @State var dataFetcher = ValueFetcher<(Store, Stock)>()
     @State var searchText = ""
     @State var isSearchPresented = false
     @Environment(Auth.self) var auth
@@ -46,7 +47,7 @@ struct StockView: View {
     }
     
     @ViewBuilder
-    private func listView(_ store: Store, _ stock: StoreStock) -> some View {
+    private func listView(_ store: Store, _ stock: Stock) -> some View {
         let listViewData = calculateListViewData(store, stock, searchText: searchText)
         
         ForEach(listViewData.sections) { section in
@@ -145,12 +146,12 @@ struct StockView: View {
     private func fetchData() {
         dataFetcher.fetch {
             async let store = api.store()
-            async let stock = api.storeStock()
+            async let stock = api.stock()
             return try await (store, stock)
         }
     }
     
-    private func calculateListViewData(_ store: Store, _ stock: StoreStock, searchText: String) -> ListViewData {
+    private func calculateListViewData(_ store: Store, _ stock: Stock, searchText: String) -> ListViewData {
         let searchText = searchText.trimmingCharacters(in: .whitespaces)
         
         let sections: [ListViewData.Section] = store.catalog.sections

@@ -1,11 +1,11 @@
 import Foundation
 
-struct StoreStock: Decodable {
+struct Stock: Decodable {
     var storeId: String
     var itemAttributes: [ItemAttributes]
 }
 
-extension StoreStock {
+extension Stock {
     struct ItemAttributes: Decodable {
         var itemId: String
         var quantity: Int

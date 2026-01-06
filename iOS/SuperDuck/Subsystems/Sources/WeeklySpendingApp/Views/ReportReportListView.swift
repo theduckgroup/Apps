@@ -5,7 +5,7 @@ import CommonUI
 import Backend
 import Auth
 
-struct PastReportListView: View {
+struct ReportReportListView: View {
     var reports: [WSReportMeta]?
     var fetchDate: Date?
     var onView: (WSReportMeta) -> Void
@@ -100,11 +100,40 @@ private struct Row: View {
 }
 
 #Preview {
-    ScrollView {
-        PastReportListView(
-            reports: [.mock1, .mock2, .mock3],
-            onView: { _ in }
-        )
-        .padding()
+    PreviewView()
+        .previewEnvironment()
+}
+
+private struct PreviewView: View {
+    @State var reportMetas: [WSReportMeta]?
+    @Environment(API.self) var api
+    
+    var body: some View {
+        NavigationStack {
+            if let reportMetas {
+                ScrollView {
+                    ReportReportListView(
+                        reports: reportMetas,
+                        onView: { _ in }
+                    )
+                    .padding()
+                }
+            } else {
+                ProgressView()
+                    .progressViewStyle(.circular)
+                    .controlSize(.large)
+                    .tint(.secondary)
+            }
+        }
+        .onAppear {
+            Task {
+                do {
+                    reportMetas = try await api.userReportMetas(userID: User.mock.idString)
+                    
+                } catch {
+                    logger.error("Unable to fetch data: \(error)")
+                }
+            }
+        }
     }
 }

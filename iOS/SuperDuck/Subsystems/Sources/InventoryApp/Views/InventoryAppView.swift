@@ -7,8 +7,11 @@ import CommonUI
 
 public struct InventoryAppView: View {
     @State var storeFetcher = ValueFetcher<Store>()
+    @State var changesFetcher = ValueFetcher<[StockChangeMeta]>()
     @State var presentingStockView = false
+    @State var selectedChangeMeta: StockChangeMeta?
     @State var ps = PresentationState()
+    @State var presentingScanView = false
     @Environment(Auth.self) var auth
     @Environment(API.self) var api
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
@@ -19,8 +22,8 @@ public struct InventoryAppView: View {
         NavigationStack {
             bodyContent()
                 .fetchOverlay(
-                    isFetching: storeFetcher.isFetching,
-                    fetchError: storeFetcher.error,
+                    isFetching: storeFetcher.isFetching || changesFetcher.isFetching,
+                    fetchError: storeFetcher.error ?? changesFetcher.error,
                     retry: { fetchStore(delay: true) }
                 )
                 .nonProdEnvWarningOverlay()
@@ -29,19 +32,31 @@ public struct InventoryAppView: View {
                 .navigationDestination(isPresented: $presentingStockView) {
                     StockView()
                 }
+                .navigationDestination(item: $selectedChangeMeta) { changeMeta in
+                    if let store = storeFetcher.value {
+                        StockChangeView(changeMeta: changeMeta, store: store)
+                    }
+                }
+//                .fullScreenCover(isPresented: $presentingScanView) {
+//                    ScanView(store: storeFetcher.value!, scanMode: .add)
+//                }
+                .presentations(ps)
         }
-        .presentations(ps)
-        .onFirstAppear {
+        .onAppear {
             fetchStore()
+            fetchChanges()
         }
         .onSceneBecomeActive {
             fetchStore()
+            fetchChanges()
         }
         .onReceive(api.eventHub.connectEvents) {
             fetchStore()
+            fetchChanges()
         }
         .onReceive(api.eventHub.storeChangeEvents) {
             fetchStore()
+            fetchChanges()
         }
     }
     
@@ -57,10 +72,11 @@ public struct InventoryAppView: View {
     @ViewBuilder
     private func bodyContent() -> some View {
         ScrollView(.vertical) {
-            VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 36) {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(alignment: .firstTextBaseline) {
                         Button("Add Items", systemImage: "plus.circle") {
+                            // presentingScanView = true
                             ps.presentFullScreenCover {
                                 ScanView(store: storeFetcher.value!, scanMode: .add)
                             }
@@ -75,6 +91,13 @@ public struct InventoryAppView: View {
                     .buttonStyle(.primaryAction)
                     .disabled(storeFetcher.value == nil)
                 }
+                
+                RecentStockChangeListView(
+                    changes: changesFetcher.value,
+                    onView: { changeMeta in
+                        selectedChangeMeta = changeMeta
+                    }
+                )
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
@@ -84,6 +107,16 @@ public struct InventoryAppView: View {
     private func fetchStore(delay: Bool = false) {
         storeFetcher.fetch(delay: delay) {
             try await api.store()
+        }
+    }
+    
+    private func fetchChanges(delay: Bool = false) {
+        changesFetcher.fetch(delay: delay) {
+            guard let userId = auth.user?.idString else {
+                throw GenericError("User not logged in")
+            }
+            
+            return try await api.stockChangesMeta(storeId: Store.defaultStoreID, userId: userId)
         }
     }
 }

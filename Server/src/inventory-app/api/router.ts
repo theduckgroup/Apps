@@ -6,11 +6,14 @@ import eventHub from './event-hub'
 import { client, getDb } from 'src/db'
 import { DbInvStore } from '../db/DbInvStore'
 import { DbInvStoreStock } from '../db/DbInvStoreStock'
+import { DbInvStoreStockChange } from '../db/DbInvStoreStockChange'
 import { authorizeUser, authorizeAdmin } from 'src/auth/authorize'
 import { UpdateStoreCatalogBodySchema, UpdateStockBodySchema } from './schemas'
 import logger from 'src/logger'
 import '../db/Db+collections'
 import { jsonifyMongoId } from 'src/utils/mongodb-utils'
+import { getUserRoles, Roles } from 'src/utils/user-extensions'
+import env from 'src/env'
 
 // Admin router
 
@@ -31,31 +34,8 @@ adminRouter.get('/stores/meta', async (req, res) => {
   res.send(vendors)
 })
 
-// Gets store stock.
-adminRouter.get('/store/:storeId/stock', async (req, res) => {
-  const storeId = req.params.storeId
-
-  if (!storeId) {
-    throw createHttpError(400, `id is missing`)
-  }
-
-  const db = await getDb()
-
-  const dbStock = await db.collection_inv_storeStocks.findOne({ storeId })
-
-  if (!dbStock) {
-    throw createHttpError(500, 'Store stock not found')
-  }
-
-  const stock = jsonifyMongoId(dbStock)
-
-  // console.info(`! response = ${JSON.stringify(responseVendor)}`)
-
-  res.send(stock)
-})
-
 // Updates a store's catalog.
-adminRouter.put('/store/:storeId/catalog', async (req, res) => {
+adminRouter.put('/stores/:storeId/catalog', async (req, res) => {
   const storeId = req.params.storeId
 
   // Body
@@ -156,13 +136,122 @@ adminRouter.put('/store/:storeId/catalog', async (req, res) => {
   res.send()
 })
 
+// Gets store stock.
+adminRouter.get('/stores/:storeId/stock', async (req, res) => {
+  const storeId = req.params.storeId
+
+  if (!storeId) {
+    throw createHttpError(400, `id is missing`)
+  }
+
+  const db = await getDb()
+
+  const dbStock = await db.collection_inv_storeStocks.findOne({ storeId })
+
+  if (!dbStock) {
+    throw createHttpError(500, 'Store stock not found')
+  }
+
+  const stock = jsonifyMongoId(dbStock)
+
+  // console.info(`! response = ${JSON.stringify(responseVendor)}`)
+
+  res.send(stock)
+})
+
+// Gets store stock change history.
+adminRouter.get('/stores/:storeId/stock/changes', async (req, res) => {
+  const storeId = req.params.storeId
+
+  if (!storeId) {
+    throw createHttpError(400, 'storeId is missing')
+  }
+
+  const db = await getDb()
+
+  const history = await db.collection_inv_storeStocksChanges
+    .find({ storeId })
+    .sort({ timestamp: -1 })
+    .toArray()
+
+  const response = history.map(record => jsonifyMongoId(record))
+
+  res.send(response)
+})
+
 // User router
 
 const userRouter = express.Router()
 userRouter.use(authorizeUser)
 
+// Gets store stock changes metadata by user.
+userRouter.get('/stores/:storeId/stock/changes/meta/by-user/:userId', async (req, res) => {
+  const { storeId, userId } = req.params
+
+  if (!storeId) {
+    throw createHttpError(400, 'storeId is missing')
+  }
+
+  if (!userId) {
+    throw createHttpError(400, 'userId is missing')
+  }
+
+  // Verify that userId matches current user
+  if (req.user!.id !== userId) {
+    throw createHttpError(403, 'Not permitted to view other users\' changes')
+  }
+
+  const db = await getDb()
+
+  const changes = await db.collection_inv_storeStocksChanges
+    .find({ storeId, 'user.id': userId })
+    .sort({ timestamp: -1 })
+    .toArray()
+
+  const response = changes.map(transformStoreStockChangeToMeta)
+
+  res.send(response)
+})
+
+// Gets a specific stock change by ID.
+userRouter.get('/stores/:storeId/stock/changes/:changeId', async (req, res) => {
+  const { storeId, changeId } = req.params
+
+  if (!storeId) {
+    throw createHttpError(400, 'storeId is missing')
+  }
+
+  if (!changeId) {
+    throw createHttpError(400, 'changeId is missing')
+  }
+
+  const db = await getDb()
+
+  const change = await db.collection_inv_storeStocksChanges.findOne({
+    _id: new ObjectId(changeId),
+    storeId
+  })
+
+  if (!change) {
+    throw createHttpError(404, 'Change not found')
+  }
+
+  // Authorization: user must own the change OR be admin/owner
+  const roles = getUserRoles(req.user!)
+  const isAdmin = roles.includes(Roles.owner) || roles.includes(Roles.admin)
+  const userMatched = change.user.id === req.user!.id
+
+  if (!userMatched && !isAdmin) {
+    throw createHttpError(403, 'Not permitted to view this change')
+  }
+
+  const response = jsonifyMongoId(change)
+
+  res.send(response)
+})
+
 // Gets store.
-userRouter.get('/store/:storeId', async (req, res) => {
+userRouter.get('/stores/:storeId', async (req, res) => {
   const storeId = req.params.storeId
 
   if (!storeId) {
@@ -215,7 +304,7 @@ userRouter.get('/store/:storeId', async (req, res) => {
 })
 
 // Updates store stock.
-userRouter.post('/store/:storeId/stock', async (req, res) => {
+userRouter.post('/stores/:storeId/stock', async (req, res) => {
   const storeId = req.params.storeId
 
   const { data, error: bodyError } = await UpdateStockBodySchema.safeParseAsync(req.body)
@@ -292,6 +381,27 @@ userRouter.post('/store/:storeId/stock', async (req, res) => {
       if (insufficientStockErrors.length > 0) {
         throw createHttpError(400, `Insufficient stock for the following items:\n${insufficientStockErrors.join('\n')}`)
       }
+
+      // Create history record
+      const changeRecord: DbInvStoreStockChange = {
+        storeId,
+        timestamp: new Date(),
+        user: {
+          id: req.user!.id,
+          email: req.user!.email || ''
+        },
+        itemQuantityChanges: itemQuantityChanges.map(change => {
+          const itemAttr = itemAttrsMap.get(change.itemId)!
+          return {
+            itemId: change.itemId,
+            delta: change.delta,
+            oldQuantity: itemAttr.quantity - change.delta,
+            newQuantity: itemAttr.quantity
+          }
+        })
+      }
+
+      await db.collection_inv_storeStocksChanges.insertOne(changeRecord, { session })
 
       await db.collection_inv_storeStocks.updateOne(
         { storeId },
@@ -382,30 +492,91 @@ userRouter.post('/store/:storeId/stock', async (req, res) => {
 
 const publicRouter = express.Router()
 
-publicRouter.get('/mock/store', async (req, res) => {
-  const db = await getDb()
+if (env.isLocal) {
+  publicRouter.get('/mock/stores/_any', async (req, res) => {
+    const db = await getDb()
 
-  const doc = await db.collection_inv_stores.findOne()
+    const doc = await db.collection_inv_stores.findOne()
 
-  if (!doc) {
-    throw createHttpError(404)
+    if (!doc) {
+      throw createHttpError(404)
+    }
+
+    res.send(jsonifyMongoId(doc))
+
+  })
+
+  publicRouter.get('/mock/stores/_any/stock', async (req, res) => {
+    const db = await getDb()
+
+    const doc = await db.collection_inv_storeStocks.findOne()
+
+    if (!doc) {
+      throw createHttpError(404)
+    }
+
+    res.send(jsonifyMongoId(doc))
+  })
+
+  publicRouter.get('/mock/stores/_any/stock/changes/meta', async (req, res) => {
+    const db = await getDb()
+
+    const store = await db.collection_inv_stores.findOne()
+
+    if (!store) {
+      throw createHttpError(404, 'No store found')
+    }
+
+    const storeId = store._id.toString()
+
+    const changes = await db.collection_inv_storeStocksChanges
+      .find({ storeId })
+      .sort({ timestamp: -1 })
+      .limit(10)
+      .toArray()
+
+    const response = changes.map(transformStoreStockChangeToMeta)
+
+    res.send(response)
+  })
+
+  publicRouter.get('/mock/stores/:storeId/stock/changes/_any', async (req, res) => {
+    const storeId = req.params.storeId
+    
+    const db = await getDb()
+    const store = await db.collection_inv_stores.findOne({ _id: new ObjectId(storeId) })
+
+    if (!store) {
+      throw createHttpError(404, 'No store found')
+    }
+
+    const change = await db.collection_inv_storeStocksChanges.findOne({
+      storeId
+    })
+
+    if (!change) {
+      throw createHttpError(404, 'Change not found')
+    }
+
+    res.send(jsonifyMongoId(change))
+  })
+}
+
+// Helper functions
+
+function transformStoreStockChangeToMeta(change: DbInvStoreStockChange) {
+  const totalQuantityChange = change.itemQuantityChanges.reduce(
+    (sum, item) => sum + item.delta,
+    0
+  )
+
+  return {
+    id: change._id!.toString(),
+    storeId: change.storeId,
+    timestamp: change.timestamp,
+    totalQuantityChange
   }
-
-  res.send(jsonifyMongoId(doc))
-
-})
-
-publicRouter.get('/mock/store/stock', async (req, res) => {
-  const db = await getDb()
-
-  const doc = await db.collection_inv_storeStocks.findOne()
-
-  if (!doc) {
-    throw createHttpError(404)
-  }
-
-  res.send(jsonifyMongoId(doc))
-})
+}
 
 // Exported router
 // Order is important -- if adminRouter is first, it will attempt to authorize

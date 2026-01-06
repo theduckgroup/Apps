@@ -26,8 +26,8 @@ export default function RootPage() {
     queryKey: ['store-with-stock'],
     queryFn: async () => {
       const [store, stock] = await Promise.all([
-        (await axios.get<InvStore>(`store/${storeId}`)).data,
-        (await axios.get<InvStoreStock>(`store/${storeId}/stock`)).data
+        (await axios.get<InvStore>(`stores/${storeId}`)).data,
+        (await axios.get<InvStoreStock>(`stores/${storeId}/stock`)).data
       ])
 
       return { store, stock }
