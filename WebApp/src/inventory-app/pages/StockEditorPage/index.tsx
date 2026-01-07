@@ -82,13 +82,13 @@ function ItemList({ store, stock, quantityMap, setQuantityMap }: {
               section.id == store.catalog.sections[0].id &&
               <Table.Thead>
                 <Table.Tr visibleFrom='sm'>
-                  <Table.Th styles={{ th: { width: '40%' } }}>Name</Table.Th>
-                  <Table.Th styles={{ th: { width: '25%' } }}>Code</Table.Th>
-                  <Table.Th styles={{ th: { width: '25%' } }}>Quantity</Table.Th>
+                  <Table.Th styles={{ th: { width: '50%' } }}>Name</Table.Th>
+                  <Table.Th styles={{ th: { width: '30%' } }}>Code</Table.Th>
+                  <Table.Th styles={{ th: { width: '20%' } }}>Quantity</Table.Th>
                 </Table.Tr>
                 <Table.Tr hiddenFrom='sm'>
-                  <Table.Th styles={{ th: { width: '65%' } }}>Name / Code</Table.Th>
-                  <Table.Th styles={{ th: { width: '35%' } }}>Quantity</Table.Th>
+                  <Table.Th styles={{ th: { width: '70%' } }}>Name / Code</Table.Th>
+                  <Table.Th styles={{ th: { width: '30%' } }}>Quantity</Table.Th>
                 </Table.Tr>
               </Table.Thead>
             }
@@ -127,9 +127,9 @@ function TableRow({ item, qty, quantityMap, setQuantityMap }: {
 }) {
   return (
     <Table.Tr key={item.id}>
-      <Table.Td styles={{ td: { width: '40%' } }} visibleFrom='sm'>{item.name}</Table.Td>
-      <Table.Td styles={{ td: { width: '25%' } }} visibleFrom='sm'>{item.code}</Table.Td>
-      <Table.Td styles={{ td: { width: '25%' } }} visibleFrom='sm'>
+      <Table.Td styles={{ td: { width: '50%' } }} visibleFrom='sm'>{item.name}</Table.Td>
+      <Table.Td styles={{ td: { width: '30%' } }} visibleFrom='sm'>{item.code}</Table.Td>
+      <Table.Td styles={{ td: { width: '20%' } }} visibleFrom='sm'>
         <QuantityCell
           itemId={item.id}
           originalQty={qty}
@@ -137,13 +137,13 @@ function TableRow({ item, qty, quantityMap, setQuantityMap }: {
           setQuantityMap={setQuantityMap}
         />
       </Table.Td>
-      <Table.Td styles={{ td: { width: '65%' } }} hiddenFrom='sm'>
+      <Table.Td styles={{ td: { width: '70%' } }} hiddenFrom='sm'>
         <Stack gap={0}>
           <Text>{item.name}</Text>
           <Text c='dimmed' size='sm'>{item.code}</Text>
         </Stack>
       </Table.Td>
-      <Table.Td styles={{ td: { width: '35%' } }} hiddenFrom='sm'>
+      <Table.Td styles={{ td: { width: '30%' } }} hiddenFrom='sm'>
         <QuantityCell
           itemId={item.id}
           originalQty={qty}
@@ -155,48 +155,49 @@ function TableRow({ item, qty, quantityMap, setQuantityMap }: {
   )
 }
 
-interface QuantityCellProps {
+function QuantityCell({ itemId, originalQty, quantityMap, setQuantityMap }: {
   itemId: string
   originalQty: number
   quantityMap: Record<string, string>
   setQuantityMap: React.Dispatch<React.SetStateAction<Record<string, string>>>
-}
-
-function QuantityCell({ itemId, originalQty, quantityMap, setQuantityMap }: QuantityCellProps) {
+}) {
   const newValue = quantityMap[itemId]
   const displayQty = originalQty
 
-  if (newValue !== undefined) {
-    return (
-      <Group>
-        <NumberInput
-          min={0}
-          w='5rem'
-          size='xs'
-          value={newValue}
-          onChange={(val) => setQuantityMap(prev => ({ ...prev, [itemId]: String(val) }))}
-        />
-        <Anchor size='sm' onClick={() => {
-          setQuantityMap(prev => {
-            const copy = { ...prev }
-            delete copy[itemId]
-            return copy
-          })
-        }}>
-          Reset
-        </Anchor>
-      </Group>
-    )
-  }
-
   return (
-    <Group>
-      <Text>{displayQty}</Text>
-      <Anchor size='sm' onClick={() => {
-        setQuantityMap(prev => ({ ...prev, [itemId]: String(displayQty) }))
-      }}>
-        Change
-      </Anchor>
-    </Group>
+    <div className='min-h-8 flex flex-row items-center'>
+      {(newValue !== undefined) ?
+        <Group>
+          <NumberInput
+            min={0}
+            w='70px'
+            size='xs'
+            inputSize='xl'
+            fw='bold'
+            allowDecimal={false}
+            allowNegative={false}
+            value={newValue}
+            onChange={(val) => setQuantityMap(prev => ({ ...prev, [itemId]: String(val) }))}
+          />
+          <Anchor size='sm' onClick={() => {
+            setQuantityMap(prev => {
+              const copy = { ...prev }
+              delete copy[itemId]
+              return copy
+            })
+          }}>
+            Reset
+          </Anchor>
+        </Group> :
+        <Group>
+          <Text w='25px'>{displayQty}</Text>
+          <Anchor size='sm' onClick={() => {
+            setQuantityMap(prev => ({ ...prev, [itemId]: String(displayQty) }))
+          }}>
+            Change
+          </Anchor>
+        </Group>
+      }
+    </div>
   )
 }
