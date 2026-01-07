@@ -37,7 +37,8 @@ export default function QrModal({ opened, onClose, options }: {
 
   return (
     <Modal
-      title={<Text>{item?.name ?? ''}</Text>}
+      // title={<Text>{item?.name ?? ''}</Text>}
+      title={<Text fw='bold'>QR Code</Text>}
       returnFocus={false}
       opened={opened}
       onClose={onClose}
@@ -105,7 +106,7 @@ function Controls({
   return (
     <Stack gap='1rem' style={{ flex: '0 0 auto' }} w={{ base: '100%', sm: 300 }} className='order-1 sm:order-0'>
       <Stack gap={0} mb='1.25rem'>
-        <Text size='sm' fw={500} mb='xs'>QR Code Size (px)</Text>
+        <Text size='sm' fw={500} mb='xs'>SVG Size (px)</Text>
         <Slider
           value={qrcodeSize}
           onChange={setQRCodeSize}
@@ -202,16 +203,18 @@ function QRCodeImage({ svgData, width }: {
   width: number
 }) {
   const padding = 16
-  const displayWidth = Math.min(width, QRCODE_VIEWER_SIZE - padding * 2)
-  
+  // const displayWidth = Math.min(width, QRCODE_VIEWER_SIZE - padding * 2)
+  const displayWidth = 240
+
   return (
     <div
       className={`flex items-center justify-center bg-white rounded-md`}
-      style={{width: QRCODE_VIEWER_SIZE, height: QRCODE_VIEWER_SIZE, padding: padding}}
+      style={{ width: QRCODE_VIEWER_SIZE, height: QRCODE_VIEWER_SIZE, padding: padding }}
     >
       <img
         src={`data:image/svg+xml;utf8,${encodeURIComponent(svgData)}`}
-        style={{ maxWidth: displayWidth, maxHeight: displayWidth, width: 'auto', height: 'auto' }}
+        // style={{ maxWidth: displayWidth, maxHeight: displayWidth, width: 'auto', height: 'auto' }}
+        style={{ width: displayWidth, height: displayWidth }}
       />
     </div>
   )
