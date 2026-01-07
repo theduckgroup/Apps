@@ -1,5 +1,3 @@
-import { ObjectId } from 'bson'
-
 export interface InvStock {
   id: string
   storeId: string
