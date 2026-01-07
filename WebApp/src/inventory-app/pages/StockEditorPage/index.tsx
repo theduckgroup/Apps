@@ -16,6 +16,7 @@ export default function StockEditorPage() {
   const { storeId } = useParams()
   const { navigate } = usePath()
   const { axios } = useApi()
+  const [didChange, setDidChange] = useState(false)
   const [quantityMap, setQuantityMap] = useState<Record<string, string>>({})
   const [storeWithStock, setStoreWithStock] = useState<{ store: InvStore, stock: InvStock } | null>(null)
   const mainRef = useRef<HTMLDivElement>(null)
@@ -88,6 +89,7 @@ export default function StockEditorPage() {
 
   function handleQuantityChange(itemId: string, value: string) {
     setQuantityMap(prev => ({ ...prev, [itemId]: value }))
+    setDidChange(true)
   }
 
   if (isLoading) {
@@ -123,7 +125,7 @@ export default function StockEditorPage() {
         />
       </div>
 
-      {hasUnsavedChanges &&
+      {didChange &&
         <EditorFooter
           editorRef={mainRef}
           hasUnsavedChanges={hasUnsavedChanges}
@@ -245,21 +247,16 @@ function QuantityCell({ itemId, originalQty, quantityMap, setQuantityMap, onQuan
   const displayQty = originalQty
   const inputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
-    if (newValue !== undefined && inputRef.current) {
-      inputRef.current.focus()
-      inputRef.current.select()
-      
-      if (newValue === '0' || parseInt(newValue || '0', 10) === 0) {
-        setQuantityMap(prev => ({ ...prev, [itemId]: '' }))
+  function handleChangeClick() {
+    setQuantityMap(prev => ({ ...prev, [itemId]: String(displayQty) }))
+    onQuantityChange(itemId, String(displayQty))
+    
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus()
+        inputRef.current.select()
       }
-    }
-  }, [setQuantityMap, itemId, newValue])
-
-  function handleFocus(event: React.FocusEvent<HTMLInputElement>) {
-    if (newValue === '0' || parseInt(newValue || '0', 10) === 0) {
-      setQuantityMap(prev => ({ ...prev, [itemId]: '' }))
-    }
+    }, 0)
   }
 
   return (
@@ -275,7 +272,6 @@ function QuantityCell({ itemId, originalQty, quantityMap, setQuantityMap, onQuan
             allowNegative={false}
             value={newValue}
             onChange={(val) => onQuantityChange(itemId, String(val))}
-            onFocus={handleFocus}
             ref={inputRef}
             styles={{
               input: {
@@ -296,10 +292,7 @@ function QuantityCell({ itemId, originalQty, quantityMap, setQuantityMap, onQuan
         </Group> :
         <Group>
           <Text miw='36px'>{displayQty}</Text>
-          <Anchor size='sm' onClick={() => {
-            setQuantityMap(prev => ({ ...prev, [itemId]: String(displayQty) }))
-            onQuantityChange(itemId, String(displayQty))
-          }}>
+          <Anchor size='sm' onClick={handleChangeClick}>
             Change
           </Anchor>
         </Group>
