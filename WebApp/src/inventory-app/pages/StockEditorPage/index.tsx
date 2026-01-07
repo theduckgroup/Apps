@@ -246,6 +246,13 @@ function QuantityCell({ itemId, originalQty, quantityMap, setQuantityMap, onQuan
 }) {
   const newValue = quantityMap[itemId]
   const displayQty = originalQty
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (newValue !== undefined && inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [newValue])
 
   return (
     <div className='min-h-8 flex flex-row items-center'>
@@ -260,6 +267,7 @@ function QuantityCell({ itemId, originalQty, quantityMap, setQuantityMap, onQuan
             allowNegative={false}
             value={newValue}
             onChange={(val) => onQuantityChange(itemId, String(val))}
+            ref={inputRef}
             styles={{
               input: {
                 fontSize: '0.9rem',
