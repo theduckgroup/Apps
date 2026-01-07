@@ -255,12 +255,17 @@ function QuantityCell({ itemId, originalQty, quantityMap, setQuantityMap, onQuan
             min={0}
             w='70px'
             size='xs'
-            inputSize='xl'
-            fw='bold'
+            fw={600}
             allowDecimal={false}
             allowNegative={false}
             value={newValue}
             onChange={(val) => onQuantityChange(itemId, String(val))}
+            styles={{
+              input: {
+                fontSize: '0.9rem',
+                padding: '0.25rem 0.5rem'
+              }
+            }}
           />
           <Anchor size='sm' onClick={() => {
             setQuantityMap(prev => {
