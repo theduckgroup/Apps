@@ -17,9 +17,7 @@ export default function StockEditorPage() {
   const { navigate } = usePath()
   const { axios } = useApi()
   const [quantityMap, setQuantityMap] = useState<Record<string, string>>({})
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [storeWithStock, setStoreWithStock] = useState<{ store: InvStore, stock: InvStock } | null>(null)
-  const blocker = useBlocker(useMemo(() => hasUnsavedChanges, [hasUnsavedChanges]))
   const mainRef = useRef<HTMLDivElement>(null)
 
   const { mutate: loadStoreWithStock, isPending: isLoading, error } = useMutation({
@@ -41,7 +39,7 @@ export default function StockEditorPage() {
     loadStoreWithStock()
   }, [loadStoreWithStock])
 
-  const didChange = useMemo(() => {
+  const hasUnsavedChanges = useMemo(() => {
     if (!storeWithStock) return false
 
     return Object.entries(quantityMap).some(([itemId, newQty]) => {
@@ -78,10 +76,10 @@ export default function StockEditorPage() {
       }
 
       setQuantityMap({})
-      setHasUnsavedChanges(false)
     }
   })
 
+  const blocker = useBlocker(useMemo(() => hasUnsavedChanges, [hasUnsavedChanges]))
   useBeforeUnload(hasUnsavedChanges)
 
   function handleBack() {
@@ -90,7 +88,6 @@ export default function StockEditorPage() {
 
   function handleQuantityChange(itemId: string, value: string) {
     setQuantityMap(prev => ({ ...prev, [itemId]: value }))
-    setHasUnsavedChanges(true)
   }
 
   if (isLoading) {
@@ -126,12 +123,12 @@ export default function StockEditorPage() {
         />
       </div>
 
-      {didChange &&
+      {hasUnsavedChanges &&
         <EditorFooter
           editorRef={mainRef}
           hasUnsavedChanges={hasUnsavedChanges}
           save={() => saveStockAsync()}
-          saveButtonLabel='Save Stock'
+          saveButtonLabel='Save Changes'
         />
       }
 
@@ -254,19 +251,26 @@ function QuantityCell({ itemId, originalQty, quantityMap, setQuantityMap, onQuan
     }
   }, [newValue])
 
+  function handleFocus() {
+    if (newValue === '0') {
+      setQuantityMap(prev => ({ ...prev, [itemId]: '' }))
+    }
+  }
+
   return (
     <div className='min-h-8 flex flex-row items-center'>
       {(newValue !== undefined) ?
-        <Group>
+        <Group wrap='nowrap'>
           <NumberInput
             min={0}
-            w='70px'
+            w='60px'
             size='xs'
             fw={600}
             allowDecimal={false}
             allowNegative={false}
             value={newValue}
             onChange={(val) => onQuantityChange(itemId, String(val))}
+            onFocus={handleFocus}
             ref={inputRef}
             styles={{
               input: {
@@ -286,7 +290,7 @@ function QuantityCell({ itemId, originalQty, quantityMap, setQuantityMap, onQuan
           </Anchor>
         </Group> :
         <Group>
-          <Text w='25px'>{displayQty}</Text>
+          <Text miw='36px'>{displayQty}</Text>
           <Anchor size='sm' onClick={() => {
             setQuantityMap(prev => ({ ...prev, [itemId]: String(displayQty) }))
             onQuantityChange(itemId, String(displayQty))
