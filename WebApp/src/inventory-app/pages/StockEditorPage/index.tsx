@@ -21,7 +21,7 @@ export default function StockEditorPage() {
   const blocker = useBlocker(useMemo(() => hasUnsavedChanges, [hasUnsavedChanges]))
   const mainRef = useRef<HTMLDivElement>(null)
 
-  const { data: storeWithStock, isLoading, error } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['store-with-stock', storeId],
     queryFn: async () => {
       const [store, stock] = await Promise.all([
@@ -69,7 +69,7 @@ export default function StockEditorPage() {
     return <Text c='red'>{formatError(error)}</Text>
   }
 
-  if (!storeWithStock) {
+  if (!data) {
     return <Text>???</Text>
   }
 
@@ -86,8 +86,8 @@ export default function StockEditorPage() {
         <Title order={1} c='gray.1'>Edit Stock</Title>
 
         <ItemList
-          store={storeWithStock.store}
-          stock={storeWithStock.stock}
+          store={data.store}
+          stock={data.stock}
           quantityMap={quantityMap}
           setQuantityMap={setQuantityMap}
           onQuantityChange={handleQuantityChange}
