@@ -248,11 +248,16 @@ function QuantityCell({ itemId, originalQty, quantityMap, setQuantityMap, onQuan
   useEffect(() => {
     if (newValue !== undefined && inputRef.current) {
       inputRef.current.focus()
+      inputRef.current.select()
+      
+      if (newValue === '0' || parseInt(newValue || '0', 10) === 0) {
+        setQuantityMap(prev => ({ ...prev, [itemId]: '' }))
+      }
     }
-  }, [newValue])
+  }, [setQuantityMap, itemId, newValue])
 
-  function handleFocus() {
-    if (newValue === '0') {
+  function handleFocus(event: React.FocusEvent<HTMLInputElement>) {
+    if (newValue === '0' || parseInt(newValue || '0', 10) === 0) {
       setQuantityMap(prev => ({ ...prev, [itemId]: '' }))
     }
   }
