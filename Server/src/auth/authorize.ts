@@ -43,13 +43,31 @@ async function authorizeImpl(req: Request) {
     throw createHttpError(401, 'Invalid authorization')
   }
 
-  const { data, error } = (await supabase.auth.getUser(jwt))
-  
+  const { data, error } = await supabase.auth.getClaims(jwt)
+
   if (error) {
     throw createHttpError(401, `Invalid JWT: ${error.message}`)
   }
-  
-  req.user = data.user
+
+  if (!data || !data.claims) {
+    // Handle the case where no session/claims were found (the null/null scenario)
+    throw createHttpError(401, `No active session found`)
+  }
+
+  const claims = data.claims
+
+  req.user = {
+    id: claims.sub,
+    email: claims.email,
+    app_metadata: claims.app_metadata!,
+    user_metadata: claims.user_metadata!,
+    aud: 'authenticated', // Fake data to conform to User
+    created_at: "2000-01-01T00:00:00.000000Z", // Fake data to conform to User
+  } 
+
+  // For testing
+  // const { data: supabaseUser } = await supabase.auth.getUser(jwt)
+  // console.info(`Supabase user = ${JSON.stringify(supabaseUser.user)}`)
 }
 
 declare global {
@@ -60,6 +78,54 @@ declare global {
   }
 }
 
+// Example supabase user:
+/*
+{
+  "id": "2ae3754b-c4ff-4548-923b-0181943937cc",
+  "aud": "authenticated",
+  "role": "authenticated",
+  "email": "theduckgroupapp@gmail.com",
+  "email_confirmed_at": "2025-10-05T02:10:27.799678Z",
+  "phone": "",
+  "confirmed_at": "2025-10-05T02:10:27.799678Z",
+  "last_sign_in_at": "2026-01-06T06:00:35.78163Z",
+  "app_metadata": {
+    "provider": "email",
+    "providers": [
+      "email"
+    ],
+    "roles": [
+      "org:owner"
+    ]
+  },
+  "user_metadata": {
+    "email_verified": true,
+    "first_name": "The Duck Group App",
+    "last_name": ""
+  },
+  "identities": [
+    {
+      "identity_id": "b55318cd-fbc2-44dc-9b7e-4b8034bceef4",
+      "id": "2ae3754b-c4ff-4548-923b-0181943937cc",
+      "user_id": "2ae3754b-c4ff-4548-923b-0181943937cc",
+      "identity_data": {
+        "email": "theduckgroupapp@gmail.com",
+        "email_verified": false,
+        "phone_verified": false,
+        "sub": "2ae3754b-c4ff-4548-923b-0181943937cc"
+      },
+      "provider": "email",
+      "last_sign_in_at": "2025-10-05T02:10:27.786297Z",
+      "created_at": "2025-10-05T02:10:27.787263Z",
+      "updated_at": "2025-10-05T02:10:27.787263Z",
+      "email": "theduckgroupapp@gmail.com"
+    }
+  ],
+  "created_at": "2025-10-05T02:10:27.768363Z",
+  "updated_at": "2026-01-07T11:59:57.402089Z",
+  "is_anonymous": false
+}
+*/
 /*
 Can also do:
 
