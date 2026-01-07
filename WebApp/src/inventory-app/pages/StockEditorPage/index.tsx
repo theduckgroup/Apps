@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useBlocker, useParams } from 'react-router'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Anchor, Group, NumberInput, Stack, Table, Text, Title } from '@mantine/core'
@@ -18,20 +18,38 @@ export default function StockEditorPage() {
   const { axios } = useApi()
   const [quantityMap, setQuantityMap] = useState<Record<string, string>>({})
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [storeWithStock, setStoreWithStock] = useState<{ store: InvStore, stock: InvStock } | null>(null)
   const blocker = useBlocker(useMemo(() => hasUnsavedChanges, [hasUnsavedChanges]))
   const mainRef = useRef<HTMLDivElement>(null)
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['store-with-stock', storeId],
-    queryFn: async () => {
+  const { mutate: loadStoreWithStock, isPending: isLoading, error } = useMutation({
+    mutationKey: ['store-with-stock', storeId],
+    mutationFn: async () => {
       const [store, stock] = await Promise.all([
         (await axios.get<InvStore>(`stores/${storeId}`)).data,
         (await axios.get<InvStock>(`stores/${storeId}/stock`)).data
       ])
 
       return { store, stock }
+    },
+    onSuccess: (result) => {
+      setStoreWithStock(result)
     }
   })
+
+  useEffect(() => {
+    loadStoreWithStock()
+  }, [loadStoreWithStock])
+
+  const didChange = useMemo(() => {
+    if (!storeWithStock) return false
+
+    return Object.entries(quantityMap).some(([itemId, newQty]) => {
+      const attrs = storeWithStock.stock.itemAttributes.find(x => x.itemId === itemId)
+      const originalQty = attrs?.quantity ?? 0
+      return parseInt(newQty, 10) !== originalQty
+    })
+  }, [quantityMap, storeWithStock])
 
   const { mutateAsync: saveStockAsync } = useMutation({
     mutationFn: async () => {
@@ -45,6 +63,20 @@ export default function StockEditorPage() {
       await axios.post(`stores/${storeId}/stock`, { changes })
     },
     onSuccess: () => {
+      if (storeWithStock) {
+        const updatedItemAttributes = storeWithStock.stock.itemAttributes.map(attr => {
+          const newQty = quantityMap[attr.itemId]
+          if (newQty !== undefined) {
+            return { ...attr, quantity: parseInt(newQty, 10) }
+          }
+          return attr
+        })
+        setStoreWithStock({
+          ...storeWithStock,
+          stock: { ...storeWithStock.stock, itemAttributes: updatedItemAttributes }
+        })
+      }
+
       setQuantityMap({})
       setHasUnsavedChanges(false)
     }
@@ -69,7 +101,7 @@ export default function StockEditorPage() {
     return <Text c='red'>{formatError(error)}</Text>
   }
 
-  if (!data) {
+  if (!storeWithStock) {
     return <Text>???</Text>
   }
 
@@ -86,15 +118,15 @@ export default function StockEditorPage() {
         <Title order={1} c='gray.1'>Edit Stock</Title>
 
         <ItemList
-          store={data.store}
-          stock={data.stock}
+          store={storeWithStock.store}
+          stock={storeWithStock.stock}
           quantityMap={quantityMap}
           setQuantityMap={setQuantityMap}
           onQuantityChange={handleQuantityChange}
         />
       </div>
 
-      {Object.keys(quantityMap).length > 0 &&
+      {didChange &&
         <EditorFooter
           editorRef={mainRef}
           hasUnsavedChanges={hasUnsavedChanges}

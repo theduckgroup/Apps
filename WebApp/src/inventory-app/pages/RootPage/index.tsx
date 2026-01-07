@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { Button, Group, Space, Stack, Table, Title } from '@mantine/core'
 import { useQuery } from '@tanstack/react-query'
 import { Text } from '@mantine/core'
-import { IconEdit, IconList, IconStack2Filled } from '@tabler/icons-react'
+import { IconEdit, IconList, IconListDetails, IconListNumbers, IconStack2Filled } from '@tabler/icons-react'
 
 import { InvStore } from 'src/inventory-app/models/InvStore'
 import { InvStock } from 'src/inventory-app/models/InvStock'
@@ -86,7 +86,7 @@ export default function RootPage() {
           <Button
             variant='filled'
             size='sm'
-            leftSection={<IconList size={17} />}
+            leftSection={<IconListDetails size={17} />}
             onClick={() => handleEditItems()}
           >
             Edit Items

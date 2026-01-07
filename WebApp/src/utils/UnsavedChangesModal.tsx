@@ -66,7 +66,7 @@ export function UnsavedChangesModal({ blocker, save }: {
             loading={saving}
             disabled={saving}
           >
-            Keep Changes
+            Save Changes
           </Button>
         </Group>
       </Stack>
