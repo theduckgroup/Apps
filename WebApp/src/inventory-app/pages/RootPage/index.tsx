@@ -47,6 +47,10 @@ export default function RootPage() {
     })
   }
 
+  function handleEditStock() {
+    navigate(`/store/${storeId}/stock/editor`)
+  }
+
   function handleViewCode(item: InvStore.Item) {
     qrModal.open({ item })
   }
@@ -71,6 +75,14 @@ export default function RootPage() {
           {/* data.store.name */}
           <Title order={1} c='gray.0'>Inventory</Title>
           <Space flex={1} />
+          <Button
+            variant='filled'
+            size='sm'
+            leftSection={<IconEdit size={15} />}
+            onClick={() => handleEditStock()}
+          >
+            Edit Stock
+          </Button>
           <Button
             variant='filled'
             size='sm'
