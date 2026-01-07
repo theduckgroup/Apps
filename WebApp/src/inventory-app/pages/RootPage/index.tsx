@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { Button, Group, Space, Stack, Table, Title } from '@mantine/core'
 import { useQuery } from '@tanstack/react-query'
 import { Text } from '@mantine/core'
-import { IconEdit, IconList, IconListDetails, IconListNumbers, IconStack2Filled } from '@tabler/icons-react'
+import { IconListDetails, IconStack2Filled } from '@tabler/icons-react'
 
 import { InvStore } from 'src/inventory-app/models/InvStore'
 import { InvStock } from 'src/inventory-app/models/InvStock'
@@ -14,7 +14,6 @@ import { NonProdEnvWarning } from 'src/app/NonProdEnvWarning'
 import useModal from 'src/utils/use-modal'
 
 export default function RootPage() {
-  // const { user } = useAuth()
   const { axios } = useApi()
   const { navigate } = usePath()
   const storeId = '69509ae69da8c740e58d83c1'
@@ -22,8 +21,7 @@ export default function RootPage() {
   const qrModal = useModal(QrModal)
 
   const { data, isLoading, error, refetch: fetch } = useQuery({
-    // queryKey: ['store-with-stock', 'code=ND_CENTRAL_KITCHEN'],
-    queryKey: ['store-with-stock'],
+    queryKey: ['store-with-stock', storeId],
     queryFn: async () => {
       const [store, stock] = await Promise.all([
         (await axios.get<InvStore>(`stores/${storeId}`)).data,
@@ -32,7 +30,6 @@ export default function RootPage() {
 
       return { store, stock }
     },
-    // select: data => data
   })
 
   useEffect(() => {
