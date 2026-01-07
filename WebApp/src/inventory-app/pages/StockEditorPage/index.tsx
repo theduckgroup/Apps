@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useBlocker, useParams } from 'react-router'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { Anchor, Group, NumberInput, Stack, Table, Text, Title } from '@mantine/core'
 import { IconChevronLeft } from '@tabler/icons-react'
 
@@ -92,18 +92,6 @@ export default function StockEditorPage() {
     setDidChange(true)
   }
 
-  if (isLoading) {
-    return <Text>Loading...</Text>
-  }
-
-  if (error) {
-    return <Text c='red'>{formatError(error)}</Text>
-  }
-
-  if (!storeWithStock) {
-    return <Text>???</Text>
-  }
-
   return (
     <>
       <div ref={mainRef} className='flex flex-col gap-6 items-start'>
@@ -114,15 +102,35 @@ export default function StockEditorPage() {
           </Group>
         </Anchor>
 
-        <Title order={1} c='gray.1'>Edit Stock</Title>
 
-        <ItemList
-          store={storeWithStock.store}
-          stock={storeWithStock.stock}
-          quantityMap={quantityMap}
-          setQuantityMap={setQuantityMap}
-          onQuantityChange={handleQuantityChange}
-        />
+        {(() => {
+          if (isLoading) {
+            return <Text>Loading...</Text>
+          }
+
+          if (error) {
+            return <Text c='red'>{formatError(error)}</Text>
+          }
+
+          if (!storeWithStock) {
+            return <Text>???</Text>
+          }
+
+          return (
+            <div className='w-full flex flex-col gap-6'>
+              <Title order={1} c='gray.1'>Edit Stock</Title>
+
+              <ItemList
+                store={storeWithStock.store}
+                stock={storeWithStock.stock}
+                quantityMap={quantityMap}
+                setQuantityMap={setQuantityMap}
+                onQuantityChange={handleQuantityChange}
+              />
+            </div>
+          )
+        })()}
+
       </div>
 
       {didChange &&
@@ -250,7 +258,7 @@ function QuantityCell({ itemId, originalQty, quantityMap, setQuantityMap, onQuan
   function handleChangeClick() {
     setQuantityMap(prev => ({ ...prev, [itemId]: String(displayQty) }))
     onQuantityChange(itemId, String(displayQty))
-    
+
     setTimeout(() => {
       if (inputRef.current) {
         inputRef.current.focus()
