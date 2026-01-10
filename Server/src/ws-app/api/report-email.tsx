@@ -105,33 +105,33 @@ const styles: Record<string, React.CSSProperties> = {
   headerLabel: {
     fontWeight: 'bold',
     color: '#555555',
-    padding: '12px 0',
+    padding: '8px 0',
     borderBottom: '1px solid #eeeeee',
   },
   headerValue: {
     fontWeight: 'regular',
     textAlign: 'left' as const,
-    padding: '12px 0',
+    padding: '8px 0',
     borderBottom: '1px solid #eeeeee',
   },
   // Section header
   sectionTitle: {
     fontWeight: 'bold',
     color: '#333333',
-    padding: '8px 0',
+    padding: '8px 0 4px 0',
     borderBottom: `2px solid ${darkBorderColor}`,
   },
   sectionTitleNotFirst: {
     fontWeight: 'bold',
     color: '#333333',
-    padding: '18px 0 8px 0',
+    padding: '8px 0 4px 0',
     borderBottom: `2px solid ${darkBorderColor}`,
   },
   columnHeader: {
     fontWeight: 'bold',
     color: '#555555',
     textAlign: 'right' as const,
-    padding: '8px 0',
+    padding: '8px 0 4px 0',
     borderBottom: `2px solid ${darkBorderColor}`,
   },
   // Item
@@ -144,11 +144,11 @@ const styles: Record<string, React.CSSProperties> = {
     textAlign: 'right' as const,
   },
   firstItemCell: {
-    padding: '12px 0 6px 0',
+    padding: '8px 0 6px 0',
     color: '#555555',
   },
   firstItemValue: {
-    padding: '12px 0 6px 0',
+    padding: '8px 0 6px 0',
     textAlign: 'right' as const,
   },
   // Bottom footer border
@@ -157,18 +157,23 @@ const styles: Record<string, React.CSSProperties> = {
     borderBottom: '1px solid #eeeeee',
   },
   // Total row
-  totalRow: {
-    borderTop: `2px solid ${darkBorderColor}`,
-    // borderBottom: `2px solid ${darkBorderColor}`,
-  },
-  totalLabel: {
-    // padding: '12px 0',
+  totalHeader: {
     fontWeight: 'bold',
     fontSize: '15px',
     color: '#333333',
+    padding: '18px 0 4px 0',
+    borderBottom: `2px solid ${darkBorderColor}`,
+  },
+  totalHeaderRight: {
+    fontWeight: 'bold',
+    fontSize: '15px',
+    color: '#333333',
+    padding: '18px 0 4px 0',
+    textAlign: 'right' as const,
+    borderBottom: `2px solid ${darkBorderColor}`,
   },
   totalValue: {
-    padding: '12px 0',
+    padding: '6px 0 6px 0',
     textAlign: 'right' as const,
     fontWeight: 'regular',
     fontSize: '15px',
@@ -306,30 +311,27 @@ const EmailTemplate: React.FC<{
                     return (
                       <>
                         <tr>
-                          <td colSpan={4} style={{ height: '10px' }}>&nbsp;</td>
-                        </tr>
-                        <tr style={styles.totalRow}>
-                          <td style={styles.totalLabel}> 
-                            TOTAL
+                          <td width="40%" style={styles.totalHeader}>
+                            Total
                           </td>
-                          <td style={{ ...styles.columnHeader, borderBottom: 'none', padding: '8px 0 2px 0' }}>
+                          <td width="20%" style={styles.totalHeaderRight}>
                           </td>
-                          <td style={{ ...styles.columnHeader, borderBottom: 'none', padding: '8px 0 2px 0' }}>
+                          <td width="20%" style={styles.totalHeaderRight}>
                             Amount
                           </td>
-                          <td style={{ ...styles.columnHeader, borderBottom: 'none', padding: '8px 0 2px 0' }}>
+                          <td width="20%" style={styles.totalHeaderRight}>
                             Credit
                           </td>
                         </tr>
-                        <tr style={{ borderBottom: `2px solid ${darkBorderColor}` }}>
-                          <td style={styles.totalLabel}>
+                        <tr>
+                          <td style={styles.totalValue}>
                           </td>
-                          <td style={{ ...styles.totalValue, padding: '2px 0 4px 0' }}>
+                          <td style={styles.totalValue}>
                           </td>
-                          <td style={{ ...styles.totalValue, padding: '2px 0 4px 0' }}>
+                          <td style={styles.totalValue}>
                             {currencyFormat.format(totalAmount)}
                           </td>
-                          <td style={{ ...styles.totalValue, padding: '2px 0 4px 0' }}>
+                          <td style={styles.totalValue}>
                             {currencyFormat.format(totalCredit)}
                           </td>
                         </tr>
