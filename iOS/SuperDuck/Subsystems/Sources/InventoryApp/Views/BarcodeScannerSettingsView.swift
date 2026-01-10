@@ -1,10 +1,10 @@
 import Foundation
 public import SwiftUI
 
-public struct InventoryAppSettingsView: View {
+public struct BarcodeScannerSettingsView: View {
     @Environment(InventoryAppDefaults.self) var defaults
-    @State var showsMinPresenceTimeInfo = false
-    @State var showsMinAbsenceTimeInfo = false
+    @State var showsMinPresenceTimeInfo = true
+    @State var showsMinAbsenceTimeInfo = true
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     public init() {}
@@ -15,7 +15,6 @@ public struct InventoryAppSettingsView: View {
                 bodyContent()
             }
         }
-        .navigationTitle("Inventory App")
     }
     
     @ViewBuilder
@@ -29,24 +28,24 @@ public struct InventoryAppSettingsView: View {
             
             let sliderView = {
                 let binding = $defaults.scanner.minPresenceTime
-                let formattedValue = binding.wrappedValue.formatted(.number.precision(.fractionLength(2))) + " sec"
+                let formattedValue = (binding.wrappedValue * 1000).formatted(.number) + " ms"
                 
                 return HStack {
-                    Slider(value: binding, in: 0.1...1, step: 0.050)
+                    Slider(value: binding, in: 0.025...1, step: 0.025)
                     Text(formattedValue).monospacedDigit()
                 }
             }()
             
             HStack(alignment: .center) {
-                Text("Minimum Presence Time")
+                Text("Min Presence Time")
                 
-                Button {
-                    showsMinPresenceTimeInfo.toggle()
-                    
-                } label: {
-                    Image(systemName: "info.circle")
-                }
-                .buttonStyle(.borderless)
+//                Button {
+//                    showsMinPresenceTimeInfo.toggle()
+//                    
+//                } label: {
+//                    Image(systemName: "info.circle")
+//                }
+//                .buttonStyle(.borderless)
                 
                 if !compact {
                     Spacer()
@@ -75,24 +74,24 @@ public struct InventoryAppSettingsView: View {
         VStack(alignment: .leading) {
             let sliderView = {
                 let binding = $defaults.scanner.minAbsenceTime
-                let formattedValue = binding.wrappedValue.formatted(.number.precision(.fractionLength(2))) + " sec"
+                let formattedValue = (binding.wrappedValue * 1000).formatted(.number) + " ms"
                 
                 return HStack {
-                    Slider(value: binding, in: 0.1...1, step: 0.050)
+                    Slider(value: binding, in: 0.1...1, step: 0.025)
                     Text(formattedValue).monospacedDigit()
                 }
             }()
             
             HStack {
-                Text("Minimum Duplicate Absence Time")
+                Text("Min Duplicate Absence Time")
                 
-                Button {
-                    showsMinAbsenceTimeInfo.toggle()
-                    
-                } label: {
-                    Image(systemName: "info.circle")
-                }
-                .buttonStyle(.borderless)
+//                Button {
+//                    showsMinAbsenceTimeInfo.toggle()
+//                    
+//                } label: {
+//                    Image(systemName: "info.circle")
+//                }
+//                .buttonStyle(.borderless)
                 
                 if !compact {
                     Spacer()
@@ -131,7 +130,7 @@ public struct InventoryAppSettingsView: View {
 
 #Preview {
     NavigationStack {
-        InventoryAppSettingsView()
+        BarcodeScannerSettingsView()
             .previewEnvironment()
     }
 }
