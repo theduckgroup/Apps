@@ -56,7 +56,7 @@ private struct Row: View {
             Image(systemName: "arrow.up.arrow.down")
                 .foregroundStyle(.secondary)
             
-            let formattedDate = adjustment.timestamp.formatted(.dateTime.weekday(.abbreviated).day().month().hour().minute())
+            let formattedDate = adjustment.timestamp.naturalFormat()
             Text(formattedDate)
             
             Spacer()

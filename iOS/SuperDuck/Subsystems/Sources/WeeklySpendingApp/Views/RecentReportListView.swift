@@ -61,7 +61,7 @@ private struct Row: View {
             Image(systemName: "text.document")
                 .foregroundStyle(.secondary)
             
-            let formattedDate = report.date.formatted(.dateTime.weekday(.abbreviated).day().month().hour().minute())
+            let formattedDate = report.date.naturalFormat()
             Text(formattedDate)
             
             Spacer()
