@@ -159,7 +159,7 @@ const styles: Record<string, React.CSSProperties> = {
   totalValue: {
     padding: '12px 0',
     textAlign: 'right' as const,
-    fontWeight: 'bold',
+    fontWeight: 'regular',
     fontSize: '15px',
     color: '#333333',
   }
@@ -302,9 +302,9 @@ const EmailTemplate: React.FC<{
                             TOTAL
                           </td>
                           <td style={{ ...styles.columnHeader, borderBottom: 'none', padding: '8px 0 2px 0' }}>
-                            Amount
                           </td>
                           <td style={{ ...styles.columnHeader, borderBottom: 'none', padding: '8px 0 2px 0' }}>
+                            Amount
                           </td>
                           <td style={{ ...styles.columnHeader, borderBottom: 'none', padding: '8px 0 2px 0' }}>
                             Credit
@@ -314,9 +314,9 @@ const EmailTemplate: React.FC<{
                           <td style={styles.totalLabel}>
                           </td>
                           <td style={{ ...styles.totalValue, padding: '2px 0 4px 0' }}>
-                            {currencyFormat.format(totalAmount)}
                           </td>
                           <td style={{ ...styles.totalValue, padding: '2px 0 4px 0' }}>
+                            {currencyFormat.format(totalAmount)}
                           </td>
                           <td style={{ ...styles.totalValue, padding: '2px 0 4px 0' }}>
                             {currencyFormat.format(totalCredit)}
