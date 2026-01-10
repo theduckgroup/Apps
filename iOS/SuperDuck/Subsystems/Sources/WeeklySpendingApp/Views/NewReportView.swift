@@ -225,7 +225,12 @@ struct NewReportView: View {
                 )
             },
             customSuppliersData: customSuppliersData.map {
-                WSReport.CustomSupplierData(name: $0.name, amount: $0.amount, gst: $0.gst, credit: $0.credit)
+                WSReport.CustomSupplierData(
+                    name: $0.name,
+                    amount: $0.amount,
+                    gst: $0.gst,
+                    credit: -$0.credit
+                )
             }
         )
     }
