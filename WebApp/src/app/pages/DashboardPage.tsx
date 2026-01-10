@@ -162,10 +162,7 @@ function NavbarContent({ onClose }: {
     <>
       <NavbarLink label='FOH Test' path='/quiz-app' onClose={onClose} />
       <NavbarLink label='Weekly Spending' path='/ws-app' onClose={onClose} />
-      {
-        (info && info.env !== 'production') &&
-        <NavbarLink label='Inventory' path='/inventory-app' onClose={onClose} />
-      }
+      <NavbarLink label='Inventory' path='/inventory-app' onClose={onClose} />
       <NavbarLink label='Admin' path='/admin' onClose={onClose} />
     </>
   )
