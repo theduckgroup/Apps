@@ -18,7 +18,7 @@
 			}
 		},
 		{
-			"label": "Server [Cmd]",
+			"label": "Server",
 			"type": "shell",
 			"command": "/bin/zsh",
 			"runOptions": {
@@ -63,7 +63,7 @@
 			}
 		},
 		{
-			"label": "WebApp [Cmd]",
+			"label": "WebApp",
 			"type": "shell",
 			"command": "/bin/zsh",
 			"runOptions": {
