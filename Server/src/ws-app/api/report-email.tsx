@@ -121,6 +121,12 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '8px 0',
     borderBottom: `2px solid ${darkBorderColor}`,
   },
+  sectionTitleNotFirst: {
+    fontWeight: 'bold',
+    color: '#333333',
+    padding: '18px 0 8px 0',
+    borderBottom: `2px solid ${darkBorderColor}`,
+  },
   columnHeader: {
     fontWeight: 'bold',
     color: '#555555',
@@ -345,26 +351,34 @@ const SectionComponent: React.FC<SectionComponentProps> = ({ name, isFirst, item
   return (
     <>
       {/* Section Header */}
-      <tr>
-        <td width="40%" style={styles.sectionTitle}>
-          {name}
-        </td>
-        <td width="20%" style={styles.columnHeader}>
-          {isFirst && 'Amount'}
-        </td>
-        <td width="20%" style={styles.columnHeader}>
-          {isFirst && 'GST'}
-        </td>
-        <td width="20%" style={styles.columnHeader}>
-          {isFirst && 'Credit'}
-        </td>
-      </tr>
+      {isFirst ? (
+        <tr>
+          <td width="40%" style={styles.sectionTitle}>
+            {name}
+          </td>
+          <td width="20%" style={styles.columnHeader}>
+            Amount
+          </td>
+          <td width="20%" style={styles.columnHeader}>
+            GST
+          </td>
+          <td width="20%" style={styles.columnHeader}>
+            Credit
+          </td>
+        </tr>
+      ) : (
+        <tr>
+          <td colSpan={4} style={styles.sectionTitleNotFirst}>
+            {name}
+          </td>
+        </tr>
+      )}
 
       {/* Section Items */}
       {items.map((item, itemIndex) => {
-        const isFirst = itemIndex === 0
-        const cellStyle = isFirst ? styles.firstItemCell : styles.itemCell
-        const valueStyle = isFirst ? styles.firstItemValue : styles.itemValue
+        const isFirstItem = itemIndex === 0
+        const cellStyle = isFirstItem ? styles.firstItemCell : styles.itemCell
+        const valueStyle = isFirstItem ? styles.firstItemValue : styles.itemValue
 
         return (
           <tr key={itemIndex}>
