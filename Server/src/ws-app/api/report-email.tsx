@@ -298,19 +298,20 @@ const EmailTemplate: React.FC<{
                           <td colSpan={4} style={{ height: '10px' }}>&nbsp;</td>
                         </tr>
                         <tr style={styles.totalRow}>
-                          <td style={styles.totalLabel}> </td>
-                          <td style={{ ...styles.columnHeader, borderTop: `2px solid ${darkBorderColor}`, borderBottom: 'none', padding: '8px 0 2px 0' }}>
+                          <td style={styles.totalLabel}> 
+                            TOTAL
+                          </td>
+                          <td style={{ ...styles.columnHeader, borderBottom: 'none', padding: '8px 0 2px 0' }}>
                             Amount
                           </td>
-                          <td style={{ ...styles.columnHeader, borderTop: `2px solid ${darkBorderColor}`, borderBottom: 'none', padding: '8px 0 2px 0' }}>
+                          <td style={{ ...styles.columnHeader, borderBottom: 'none', padding: '8px 0 2px 0' }}>
                           </td>
-                          <td style={{ ...styles.columnHeader, borderTop: `2px solid ${darkBorderColor}`, borderBottom: 'none', padding: '8px 0 2px 0' }}>
+                          <td style={{ ...styles.columnHeader, borderBottom: 'none', padding: '8px 0 2px 0' }}>
                             Credit
                           </td>
                         </tr>
                         <tr style={{ borderBottom: `2px solid ${darkBorderColor}` }}>
                           <td style={styles.totalLabel}>
-                            Total
                           </td>
                           <td style={{ ...styles.totalValue, padding: '2px 0 4px 0' }}>
                             {currencyFormat.format(totalAmount)}
