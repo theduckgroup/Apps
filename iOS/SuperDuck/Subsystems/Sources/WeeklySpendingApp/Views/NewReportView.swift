@@ -221,7 +221,7 @@ struct NewReportView: View {
                     supplierId: $0.id,
                     amount: data.amount,
                     gst: data.gst,
-                    credit: -data.credit
+                    credit: data.credit
                 )
             },
             customSuppliersData: customSuppliersData.map {
@@ -229,7 +229,7 @@ struct NewReportView: View {
                     name: $0.name,
                     amount: $0.amount,
                     gst: $0.gst,
-                    credit: -$0.credit
+                    credit: $0.credit
                 )
             }
         )
@@ -435,7 +435,7 @@ private struct CreditField: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
             Text("Credit")
-            CurrencyField(value: $value)
+            CurrencyField(value: $value, isCredit: true)
         }
         .focused($focused)
         .contentShape(Rectangle())
@@ -448,16 +448,17 @@ private struct CreditField: View {
 /// Wrapper of `CommonUI.CurrencyField` with styling and disabled flag.
 private struct CurrencyField: View {
     @Binding var value: Decimal
+    var isCredit: Bool = false
     var disabled: Bool = false
     
     var body: some View {
         Group {
             if !disabled {
-                CommonUI.CurrencyField("", value: $value)
+                CommonUI.CurrencyField("", value: $value, isCredit: isCredit)
                     .foregroundStyle(.tint)
                 
             } else {
-                CommonUI.CurrencyField("", value: $value)
+                CommonUI.CurrencyField("", value: $value, isCredit: isCredit)
                     .disabled(true)
                     .opacity(0.5)
             }
