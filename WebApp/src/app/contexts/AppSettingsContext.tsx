@@ -1,6 +1,19 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react'
 
-export type ThemeColor = 'teal' | 'nd' | 'temp' | 'ocean-blue' | 'bright-pink'
+export type ThemeColor = 
+  | 'teal' 
+  | 'gray' 
+  | 'red' 
+  | 'pink' 
+  | 'grape' 
+  | 'violet' 
+  | 'indigo' 
+  | 'blue' 
+  | 'cyan' 
+  | 'green' 
+  | 'lime' 
+  | 'yellow' 
+  | 'orange'
 
 interface AppSettingsContextType {
   themeColor: ThemeColor
@@ -14,13 +27,21 @@ const AppSettingsContext = createContext<AppSettingsContextType | undefined>(und
 const SETTINGS_KEY_PREFIX = 'app-settings-'
 const THEME_COLOR_KEY = `${SETTINGS_KEY_PREFIX}theme-color`
 
-// Available theme colors with labels and sample swatches
+// Available theme colors with labels and sample swatches (Open Color palette)
 const availableColors: { value: ThemeColor; label: string; swatch: string }[] = [
   { value: 'teal', label: 'Teal (Default)', swatch: '#12b886' },
-  { value: 'nd', label: 'Naked Duck Blue', swatch: '#4f92c4' },
-  { value: 'temp', label: 'Temp Blue', swatch: '#43a4e0' },
-  { value: 'ocean-blue', label: 'Ocean Blue', swatch: '#2AC9DE' },
-  { value: 'bright-pink', label: 'Bright Pink', swatch: '#F13EAF' }
+  { value: 'gray', label: 'Gray', swatch: '#868e96' },
+  { value: 'red', label: 'Red', swatch: '#fa5252' },
+  { value: 'pink', label: 'Pink', swatch: '#e64980' },
+  { value: 'grape', label: 'Grape', swatch: '#be4bdb' },
+  { value: 'violet', label: 'Violet', swatch: '#7950f2' },
+  { value: 'indigo', label: 'Indigo', swatch: '#4c6ef5' },
+  { value: 'blue', label: 'Blue', swatch: '#228be6' },
+  { value: 'cyan', label: 'Cyan', swatch: '#15aabf' },
+  { value: 'green', label: 'Green', swatch: '#40c057' },
+  { value: 'lime', label: 'Lime', swatch: '#82c91e' },
+  { value: 'yellow', label: 'Yellow', swatch: '#fab005' },
+  { value: 'orange', label: 'Orange', swatch: '#fd7e14' }
 ]
 
 export function AppSettingsProvider({ children }: { children: ReactNode }) {
