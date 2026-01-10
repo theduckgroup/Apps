@@ -28,22 +28,31 @@ public class AppDefaults {
 }
 
 public extension AppDefaults {
-    struct Data: Codable {
+    struct Data {
         public var colorSchemeOverride: ColorSchemeOverride?
-        private var accentColorData: ColorData = ColorData(Color.theme)
-        
-        public var accentColor: Color {
-            get {
-                accentColorData.color
-            }
-            set {
-                accentColorData = ColorData(newValue)
-            }
-        }
-                
-        enum CodingKeys: String, CodingKey {
-            case colorSchemeOverride
-            case accentColorData = "accentColor"
-        }
+        public var accentColor: Color = Color.theme
+        public var hiddenTabViewItems: [TabViewItem] = []
+    }
+}
+
+extension AppDefaults.Data: Codable {
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.colorSchemeOverride = try container.decodeIfPresent(ColorSchemeOverride.self, forKey: .colorSchemeOverride)
+        self.accentColor = try container.decode(ColorData.self, forKey: .accentColor).color
+        self.hiddenTabViewItems = try container.decodeIfPresent([TabViewItem].self, forKey: .hiddenTabViewItems) ?? []
+    }
+    
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(colorSchemeOverride, forKey: .colorSchemeOverride)
+        try container.encode(ColorData(accentColor), forKey: .accentColor)
+        try container.encode(hiddenTabViewItems, forKey: .hiddenTabViewItems)
+    }
+            
+    enum CodingKeys: String, CodingKey {
+        case colorSchemeOverride
+        case accentColor
+        case hiddenTabViewItems
     }
 }

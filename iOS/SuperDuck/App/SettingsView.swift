@@ -57,6 +57,10 @@ struct SettingsView: View {
                 themeView()
             }
             
+            Section("App Visibility") {
+                tabViewItemsView()
+            }
+            
             Section("Advanced") {
                 Button("QR Code Scanner") {
                     presentingBarcodeScannerSettings = true
@@ -90,7 +94,7 @@ struct SettingsView: View {
             // }
         }
     }
-
+    
     @ViewBuilder
     private func versionView() -> some View {
         Text(AppInfo.marketingVersion)
@@ -106,6 +110,32 @@ struct SettingsView: View {
             
             AccentColorView(accentColor: $appDefaults.accentColor)
                 .padding(.top, 3)
+        }
+    }
+    
+    @ViewBuilder
+    private func tabViewItemsView() -> some View {
+        VStack(alignment: .leading) {
+            let tabViewItems = TabViewItem.allCases.filter { $0 != .settings }
+            
+            ForEach(tabViewItems, id: \.self) { item in
+                let binding = Binding<Bool> {
+                    !appDefaults.hiddenTabViewItems.contains(item)
+                    
+                } set: { newValue in
+                    let set = Set(appDefaults.hiddenTabViewItems)
+                    
+                    if newValue {
+                        appDefaults.hiddenTabViewItems = Array(set.subtracting([item]))
+                    } else {
+                        appDefaults.hiddenTabViewItems = Array(set.union([item]))
+                    }
+                }
+                
+                HStack(alignment: .firstTextBaseline) {
+                    Toggle(isOn: binding, label: { Text(item.name) })
+                }
+            }
         }
     }
 }

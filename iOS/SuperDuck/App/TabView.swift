@@ -8,28 +8,37 @@ import WeeklySpendingApp
 import CommonUI
 
 struct TabView: View {
-    @AppStorage("tabViewSelection") private var tabViewSelection = TabViewSelection.quiz
+    @AppStorage("tabViewSelection") private var tabViewSelection = TabViewItem.quiz
+    @Environment(AppDefaults.self) private var appDefaults
     
     var body: some View {
         SwiftUI.TabView(selection: $tabViewSelection) {
-            // pencil.and.list.clipboard
-            // list.clipboard.fill
-            // append.page.fill
-            // quiz-app
-            Tab("FOH Test", systemImage: "questionmark.text.page.fill", value: .quiz) {
-                QuizAppView()
-            }
-
-            Tab("Weekly Spending", systemImage: "wallet.bifold", value: .weeklySpending) {
-                WeeklySpendingAppView()
+            let hiddenItems = appDefaults.hiddenTabViewItems
+            
+            if !hiddenItems.contains(.quiz) {
+                // pencil.and.list.clipboard
+                // list.clipboard.fill
+                // append.page.fill
+                // quiz-app
+                Tab("FOH Test", systemImage: "questionmark.text.page.fill", value: .quiz) {
+                    QuizAppView()
+                }
             }
             
-            // list.triangle
-            // list.bullet.clipboard.fill
-            Tab("Inventory", image: "inventory-app", value: .inventory) {
-                InventoryAppView()
+            if !hiddenItems.contains(.weeklySpending) {
+                Tab("Weekly Spending", systemImage: "wallet.bifold", value: .weeklySpending) {
+                    WeeklySpendingAppView()
+                }
             }
-
+            
+            if !hiddenItems.contains(.inventory) {
+                // list.triangle
+                // list.bullet.clipboard.fill
+                Tab("Inventory", image: "inventory-app", value: .inventory) {
+                    InventoryAppView()
+                }
+            }
+            
             Tab("Settings", systemImage: "gearshape", value: .settings) {
                 SettingsView()
             }
@@ -56,15 +65,6 @@ struct TabView: View {
                 .tag(TabViewSelection.settings)
         }
         */
-    }
-}
-
-extension TabView {
-    enum TabViewSelection: String, Hashable {
-        case quiz
-        case weeklySpending
-        case inventory
-        case settings
     }
 }
 
