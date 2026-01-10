@@ -166,12 +166,12 @@ function ItemList({ store, stock, quantityMap, setQuantityMap, onQuantityChange 
             {
               section.id == store.catalog.sections[0].id &&
               <Table.Thead>
-                <Table.Tr visibleFrom='sm'>
+                <Table.Tr visibleFrom='xs'>
                   <Table.Th styles={{ th: { width: '50%' } }}>Name</Table.Th>
                   <Table.Th styles={{ th: { width: '30%' } }}>Code</Table.Th>
                   <Table.Th styles={{ th: { width: '20%' } }}>Quantity</Table.Th>
                 </Table.Tr>
-                <Table.Tr hiddenFrom='sm'>
+                <Table.Tr hiddenFrom='xs'>
                   <Table.Th styles={{ th: { width: '70%' } }}>Name / Code</Table.Th>
                   <Table.Th styles={{ th: { width: '30%' } }}>Quantity</Table.Th>
                 </Table.Tr>
@@ -214,9 +214,9 @@ function TableRow({ item, qty, quantityMap, setQuantityMap, onQuantityChange }: 
 }) {
   return (
     <Table.Tr key={item.id}>
-      <Table.Td styles={{ td: { width: '50%' } }} visibleFrom='sm'>{item.name}</Table.Td>
-      <Table.Td styles={{ td: { width: '30%' } }} visibleFrom='sm'>{item.code}</Table.Td>
-      <Table.Td styles={{ td: { width: '20%' } }} visibleFrom='sm'>
+      <Table.Td styles={{ td: { width: '50%' } }} visibleFrom='xs'>{item.name}</Table.Td>
+      <Table.Td styles={{ td: { width: '30%' } }} visibleFrom='xs'>{item.code}</Table.Td>
+      <Table.Td styles={{ td: { width: '20%' } }} visibleFrom='xs'>
         <QuantityCell
           itemId={item.id}
           originalQty={qty}
@@ -225,13 +225,13 @@ function TableRow({ item, qty, quantityMap, setQuantityMap, onQuantityChange }: 
           onQuantityChange={onQuantityChange}
         />
       </Table.Td>
-      <Table.Td styles={{ td: { width: '70%' } }} hiddenFrom='sm'>
+      <Table.Td styles={{ td: { width: '70%' } }} hiddenFrom='xs'>
         <Stack gap={0}>
           <Text>{item.name}</Text>
           <Text c='dimmed' size='sm'>{item.code}</Text>
         </Stack>
       </Table.Td>
-      <Table.Td styles={{ td: { width: '30%' } }} hiddenFrom='sm'>
+      <Table.Td styles={{ td: { width: '30%' } }} hiddenFrom='xs'>
         <QuantityCell
           itemId={item.id}
           originalQty={qty}
