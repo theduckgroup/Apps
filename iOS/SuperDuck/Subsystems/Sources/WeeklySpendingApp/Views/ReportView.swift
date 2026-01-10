@@ -137,9 +137,48 @@ struct ReportView: View {
                     }
                     .padding(.vertical, 12)
                     
-                    Divider()
+//                    Divider()
                 }
             }
+            
+            // Total section
+            
+            GridRow(alignment: .firstTextBaseline) {
+                Text("Total")
+                    
+                Text("")
+                    .gridColumnAlignment(.trailing)
+                
+                Text("Amount")
+                    .gridColumnAlignment(.trailing)
+                
+                Text("Credit")
+                    .gridColumnAlignment(.trailing)
+            }
+            .bold()
+            .padding(.top, 18)
+            .padding(.bottom, 9)
+            
+            Divider()
+            
+            GridRow(alignment: .firstTextBaseline) {
+                Text("")
+                
+                Text("")
+                    .gridColumnAlignment(.trailing)
+                
+                let totalAmount = report.suppliersData.map(\.amount).sum() + report.customSuppliersData.map(\.amount).sum()
+                let totalCredit = report.suppliersData.map(\.credit).sum() + report.customSuppliersData.map(\.credit).sum()
+                
+                Text(formatAmount(totalAmount))
+                    .gridColumnAlignment(.trailing)
+                    .foregroundStyle(.secondary)
+                
+                Text(formatAmount(totalCredit))
+                    .gridColumnAlignment(.trailing)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.vertical, 12)
         }
     }
     
