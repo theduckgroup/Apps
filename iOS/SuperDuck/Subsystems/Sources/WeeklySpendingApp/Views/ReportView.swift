@@ -86,7 +86,7 @@ struct ReportView: View {
                 GridRow(alignment: .firstTextBaseline) {
                     Text(section.name)
                         .bold()
-                        .gridCellColumns(index == 0 ? 1 : 3)
+                        .gridCellColumns(index == 0 ? 1 : 4)
                     
                     if index == 0 {
                         Text("Amount")
@@ -94,6 +94,10 @@ struct ReportView: View {
                             .gridColumnAlignment(.trailing)
                         
                         Text("GST")
+                            .bold()
+                            .gridColumnAlignment(.trailing)
+                        
+                        Text("Credit")
                             .bold()
                             .gridColumnAlignment(.trailing)
                     }
@@ -114,11 +118,15 @@ struct ReportView: View {
                         if let supplier, let supplierData {
                             Text(supplier.name)
                                 
-                            Text(supplierData.amount, format: .currency(code: "AUD"))
+                            Text(formatAmount(supplierData.amount))
                                 .gridColumnAlignment(.trailing)
                                 .foregroundStyle(.secondary)
                             
-                            Text(supplierData.gst, format: .currency(code: "AUD"))
+                            Text(formatAmount(supplierData.gst))
+                                .gridColumnAlignment(.trailing)
+                                .foregroundStyle(.secondary)
+                            
+                            Text(formatAmount(supplierData.credit))
                                 .gridColumnAlignment(.trailing)
                                 .foregroundStyle(.secondary)
                             
@@ -132,6 +140,14 @@ struct ReportView: View {
                     Divider()
                 }
             }
+        }
+    }
+    
+    private func formatAmount(_ amount: Decimal) -> String {
+        if amount == 0 {
+            amount.formatted(.currency(code: "AUD").precision(.fractionLength(0)))
+        } else {
+            amount.formatted(.currency(code: "AUD"))
         }
     }
     
