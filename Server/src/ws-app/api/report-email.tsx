@@ -20,12 +20,12 @@ export async function sendReportEmail(report: DbWsReport) {
 
   const formattedDate = formatInTimeZone(new Date(), 'Australia/Sydney', 'yyyy-MM-dd HH:mm:ss') // Date to avoid email grouping
   const subject = `[Weekly Spending] ${report.user.name} | ${formattedDate}`
-  const contentHtml = await generateReportEmail(report)
+  const contentHtml = generateReportEmail(report)
 
   await mailer.sendMail({ recipients, subject, contentHtml })
 }
 
-export async function generateReportEmail(report: DbWsReport) {
+export function generateReportEmail(report: DbWsReport) {
   const bodyHtml = ReactDOMServer.renderToStaticMarkup(<EmailTemplate report={report} />)
 
   return `
@@ -220,13 +220,14 @@ const EmailTemplate: React.FC<{
                     const supplierData = report.suppliersData.find(x => x.supplierId == row.supplierId)
 
                     if (!supplier || !supplierData) {
-                      return { name: 'ERROR', amount: 0, gst: 0 }
+                      return { name: 'ERROR', amount: 0, gst: 0, credit: 0 }
                     }
 
                     return {
                       name: supplier.name,
                       amount: supplierData.amount,
-                      gst: supplierData.gst
+                      gst: supplierData.gst,
+                      credit: supplierData.credit
                     }
                   })
 
@@ -246,7 +247,8 @@ const EmailTemplate: React.FC<{
                       return {
                         name: supplierData.name,
                         amount: supplierData.amount,
-                        gst: supplierData.gst
+                        gst: supplierData.gst,
+                        credit: supplierData.credit
                       }
                     })
 
@@ -278,14 +280,17 @@ const SectionComponent: React.FC<SectionComponentProps> = ({ name, isFirst, item
     <>
       {/* Section Header */}
       <tr>
-        <td width="50%" style={styles.sectionTitle}>
+        <td width="40%" style={styles.sectionTitle}>
           {name}
         </td>
-        <td width="25%" style={styles.columnHeader}>
+        <td width="20%" style={styles.columnHeader}>
           {isFirst && 'Amount'}
         </td>
-        <td width="25%" style={styles.columnHeader}>
+        <td width="20%" style={styles.columnHeader}>
           {isFirst && 'GST'}
+        </td>
+        <td width="20%" style={styles.columnHeader}>
+          {isFirst && 'Credit'}
         </td>
       </tr>
 
@@ -312,6 +317,9 @@ const SectionComponent: React.FC<SectionComponentProps> = ({ name, isFirst, item
             <td style={{ ...rowStyle, ...styles.itemValue }}>
               {currencyFormat.format(item.gst)}
             </td>
+            <td style={{ ...rowStyle, ...styles.itemValue }}>
+              {item.credit > 0 ? `-${currencyFormat.format(item.credit)}` : currencyFormat.format(0)}
+            </td>
           </tr>
         )
       })}
@@ -329,6 +337,7 @@ type ItemComponentProps = {
   name: string
   amount: number
   gst: number
+  credit: number
 }
 
 const currencyFormat = new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' });
