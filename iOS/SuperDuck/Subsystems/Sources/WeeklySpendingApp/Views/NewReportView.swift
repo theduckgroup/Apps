@@ -216,10 +216,16 @@ struct NewReportView: View {
             date: Date(),
             suppliersData: template.suppliers.map {
                 let data = suppliersDataMap[$0.id]!
-                return WSReport.SupplierData(supplierId: $0.id, amount: data.amount, gst: data.gst)
+               
+                return WSReport.SupplierData(
+                    supplierId: $0.id,
+                    amount: data.amount,
+                    gst: data.gst,
+                    credit: -data.credit
+                )
             },
             customSuppliersData: customSuppliersData.map {
-                WSReport.CustomSupplierData(name: $0.name, amount: $0.amount, gst: $0.gst)
+                WSReport.CustomSupplierData(name: $0.name, amount: $0.amount, gst: $0.gst, credit: $0.credit)
             }
         )
     }
@@ -250,6 +256,7 @@ private struct SupplierView: View {
             HStack(alignment: .firstTextBaseline) {
                 AmountField(value: $data.amount)
                 GSTField(gstMethod: supplier.gstMethod, value: $data.gst)
+                CreditField(value: $data.credit)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -265,6 +272,7 @@ private struct SupplierView: View {
             HStack(alignment: .firstTextBaseline) {
                 AmountField(value: $data.amount)
                 GSTField(gstMethod: supplier.gstMethod, value: $data.gst)
+                CreditField(value: $data.credit)
             }
         }
         .padding()
@@ -311,6 +319,7 @@ private struct CustomSupplierView: View {
             HStack(alignment: .firstTextBaseline) {
                 AmountField(value: $data.amount)
                 GSTField(gstMethod: .input, value: $data.gst)
+                CreditField(value: $data.credit)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .overlay(alignment: .topTrailing) {
@@ -328,6 +337,7 @@ private struct CustomSupplierView: View {
             HStack(alignment: .firstTextBaseline) {
                 AmountField(value: $data.amount)
                 GSTField(gstMethod: .input, value: $data.gst)
+                CreditField(value: $data.credit)
             }
         }
         .overlay(alignment: .topTrailing) {
@@ -350,7 +360,7 @@ private struct CustomSupplierView: View {
     @ViewBuilder
     private func deleteButton() -> some View {
         Button {
-            if data.name == "" && data.amount == 0 && data.gst == 0 {
+            if data.name == "" && data.amount == 0 && data.gst == 0 && data.credit == 0 {
                 onDelete()
             } else {
                 presentsDeleteConfirmation = true
@@ -365,7 +375,7 @@ private struct CustomSupplierView: View {
     }
 }
 
-// Amount & GST Fields
+// Amount, GST & Credit Fields
 
 private struct AmountField: View {
     @Binding var value: Decimal
@@ -401,9 +411,26 @@ private struct GSTField: View {
                 CurrencyField(value: $value, disabled: true)
                     
             case .input:
-                Text("GST")
+                Text("GST (if have)")
                 CurrencyField(value: $value)
             }
+        }
+        .focused($focused)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            focused = true
+        }
+    }
+}
+
+private struct CreditField: View {
+    @Binding var value: Decimal
+    @FocusState var focused
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text("Credit")
+            CurrencyField(value: $value)
         }
         .focused($focused)
         .contentShape(Rectangle())
@@ -453,6 +480,7 @@ private class SupplierData {
     }
     
     var gst: Decimal = 0
+    var credit: Decimal = 0
 }
 
 @Observable
@@ -461,6 +489,7 @@ private class CustomSupplierData {
     var name: String = ""
     var amount: Decimal = 0
     var gst: Decimal = 0
+    var credit: Decimal = 0
 }
 
 // Utils
@@ -508,4 +537,5 @@ private struct SectionBackgroundModififer: ViewModifier {
             }
         }
         .tint(Color.theme)
+        .previewEnvironment()
 }
