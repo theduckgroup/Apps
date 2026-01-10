@@ -18,10 +18,11 @@ public struct WeeklySpendingAppView: View {
     public var body: some View {
         NavigationStack {
             bodyContent()
-                .navigationTitle("Weekly Spending")
                 .navigationDestination(item: $presentedReportMeta) { reportMeta in
                     ReportView(reportMeta: reportMeta)
                 }
+                .navigationTitle("Weekly Spending")
+
         }
         .onAppear {
             fetchTemplate()
