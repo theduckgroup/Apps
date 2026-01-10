@@ -86,17 +86,17 @@ function Content({ users }: { users: User[] }) {
           <Table.Thead>
             <Table.Tr>
               {/* Mobile */}
-              <Table.Th hiddenFrom='sm' styles={{ th: { width: '70%' } }}>
-                User
+              <Table.Th hiddenFrom='xs' styles={{ th: { width: '70%' } }}>
+                User / Email
               </Table.Th>
               {/* Desktop */}
-              <Table.Th visibleFrom='sm' styles={{ th: { width: '30%' } }}>
+              <Table.Th visibleFrom='xs' styles={{ th: { width: '30%' } }}>
                 Name
               </Table.Th>
-              <Table.Th visibleFrom='sm' styles={{ th: { width: '40%' } }}>
+              <Table.Th visibleFrom='xs' styles={{ th: { width: '40%' } }}>
                 Email
               </Table.Th>
-              <Table.Th visibleFrom='sm' styles={{ th: { width: '15%' } }}>
+              <Table.Th visibleFrom='xs' styles={{ th: { width: '15%' } }}>
                 Role
               </Table.Th>
               <Table.Th styles={{ th: { width: '15%' } }}>
@@ -172,7 +172,7 @@ function UserRow({ user, onDelete }: {
   return (
     <Table.Tr key={user.id}>
       {/* Mobile */}
-      <Table.Td hiddenFrom='sm'>
+      <Table.Td hiddenFrom='xs'>
         <Stack gap='0.125rem'>
           <Text>{user.name} {user.id == currentUser?.id ? ' *' : null} </Text>
           <Text>{user.email}</Text>
@@ -180,9 +180,9 @@ function UserRow({ user, onDelete }: {
         </Stack>
       </Table.Td>
       {/* Desktop */}
-      <Table.Td visibleFrom='sm'>{user.name} {user.id == currentUser?.id ? ' *' : null}</Table.Td>
-      <Table.Td visibleFrom='sm'>{user.email}</Table.Td>
-      <Table.Td visibleFrom='sm'>{user.roleName}</Table.Td>
+      <Table.Td visibleFrom='xs'>{user.name} {user.id == currentUser?.id ? ' *' : null}</Table.Td>
+      <Table.Td visibleFrom='xs'>{user.email}</Table.Td>
+      <Table.Td visibleFrom='xs'>{user.roleName}</Table.Td>
       <Table.Td>
         {
           (checkRoles('update') || checkRoles('delete')) &&
