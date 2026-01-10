@@ -11,7 +11,7 @@ import InventoryApp
 /// Use `TabView` to preview.
 struct SettingsView: View {
     @State private var ps = PresentationState()
-    @State private var presentingInventoryAppSettings = false
+    @State private var presentingBarcodeScannerSettings = false
     @Environment(Auth.self) var auth
     @Environment(AppDefaults.self) var appDefaults
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -22,8 +22,8 @@ struct SettingsView: View {
                 .navigationTitle("Settings")
                 .presentations(ps)
                 .toolbar { toolbarContent() }
-                .navigationDestination(isPresented: $presentingInventoryAppSettings) {
-                    InventoryAppSettingsView()
+                .navigationDestination(isPresented: $presentingBarcodeScannerSettings) {
+                    BarcodeScannerSettingsView()
                 }
         }
     }
@@ -57,9 +57,13 @@ struct SettingsView: View {
                 themeView()
             }
             
-            Section("Advanced") {
-                Button("Inventory App") {
-                    presentingInventoryAppSettings = true
+            Section("App Visibility") {
+                tabViewItemsView()
+            }
+            
+            Section("Advanced Settings") {
+                Button("QR Code Scanner") {
+                    presentingBarcodeScannerSettings = true
                 }
             }
             
@@ -90,10 +94,16 @@ struct SettingsView: View {
             // }
         }
     }
-
+    
     @ViewBuilder
     private func versionView() -> some View {
-        Text(AppInfo.marketingVersion)
+        let appName = switch AppInfo.buildTarget {
+        case .prod: "Super Duck"
+        case .prodAdhoc: "Super Duck (Adhoc)"
+        case .local: "Super Duck (Local)"
+        }
+        
+        Text("\(appName) \(AppInfo.marketingVersion)")
     }
     
     @ViewBuilder
@@ -106,6 +116,32 @@ struct SettingsView: View {
             
             AccentColorView(accentColor: $appDefaults.accentColor)
                 .padding(.top, 3)
+        }
+    }
+    
+    @ViewBuilder
+    private func tabViewItemsView() -> some View {
+        VStack(alignment: .leading) {
+            let tabViewItems = TabViewItem.allCases.filter { $0 != .settings }
+            
+            ForEach(tabViewItems, id: \.self) { item in
+                let binding = Binding<Bool> {
+                    !appDefaults.hiddenTabViewItems.contains(item)
+                    
+                } set: { newValue in
+                    let set = Set(appDefaults.hiddenTabViewItems)
+                    
+                    if newValue {
+                        appDefaults.hiddenTabViewItems = Array(set.subtracting([item]))
+                    } else {
+                        appDefaults.hiddenTabViewItems = Array(set.union([item]))
+                    }
+                }
+                
+                HStack(alignment: .firstTextBaseline) {
+                    Toggle(isOn: binding, label: { Text(item.name) })
+                }
+            }
         }
     }
 }

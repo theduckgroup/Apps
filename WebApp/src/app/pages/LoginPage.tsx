@@ -47,7 +47,7 @@ const LoginPage = () => {
   // }
 
   return (
-    <div className='w-screen h-screen flex'>
+    <div className='w-screen h-vh-safe flex'>
       <title>Login | The Duck Group</title>
 
       <Stack align='center' m='auto'>

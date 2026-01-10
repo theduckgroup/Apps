@@ -1,13 +1,13 @@
 import { Db } from 'mongodb'
 import { DbInvStore } from './DbInvStore'
-import { DbInvStoreStock } from './DbInvStoreStock'
-import { DbInvStoreStockChange } from './DbInvStoreStockChange'
+import { DbInvStock } from './DbInvStock'
+import { DbInvStockAdjustment } from './DbInvStockAdjustment'
 
 declare module 'mongodb' {
   interface Db {
     collection_inv_stores: Collection<DbInvStore>
-    collection_inv_storeStocks: Collection<DbInvStoreStock>
-    collection_inv_storeStocksChanges: Collection<DbInvStoreStockChange>
+    collection_inv_stock: Collection<DbInvStock>
+    collection_inv_stockAdjustments: Collection<DbInvStockAdjustment>
   }
 }
 
@@ -19,17 +19,17 @@ Object.defineProperty(Db.prototype, 'collection_inv_stores', {
   configurable: true, // Allow redefining if needed
 })
 
-Object.defineProperty(Db.prototype, 'collection_inv_storeStocks', {
+Object.defineProperty(Db.prototype, 'collection_inv_stock', {
   get(this: Db) {    
-    return this.collection<DbInvStoreStock>('inv_store_stocks')
+    return this.collection<DbInvStock>('inv_stock')
   },
   enumerable: true,
   configurable: true,
 })
 
-Object.defineProperty(Db.prototype, 'collection_inv_storeStocksChanges', {
+Object.defineProperty(Db.prototype, 'collection_inv_stockAdjustments', {
   get(this: Db) {
-    return this.collection<DbInvStoreStockChange>('inv_store_stocks_changes')
+    return this.collection<DbInvStockAdjustment>('inv_stock_adjustments')
   },
   enumerable: true,
   configurable: true,

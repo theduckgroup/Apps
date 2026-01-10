@@ -273,6 +273,45 @@ userRouter.get('/users/:userId/reports/meta', async (req, res) => {
 
   const db = await getDb()
 
+  const since = subMonths(new Date(), 6)
+
+  const docs = await db.collection_wsReports
+    .find({
+      'user.id': userId,
+      'date': {
+        $gte: since
+      }
+    })
+    .project<DbWsReport>({
+      _id: 1,
+      'template.id': 1,
+      'template.name': 1,
+      'template.code': 1,
+      user: 1,
+      date: 1,
+    })
+    .sort({ date: -1 })
+    .toArray()
+
+  const response = {
+    data: docs.map(doc => jsonifyMongoId(doc)),
+    since: since.toISOString()
+  }
+
+  res.send(response)
+})
+
+/*
+// Original endpoint - preserved for reference
+userRouter.get('/users/:userId/reports/meta', async (req, res) => {
+  const userId = req.params.userId
+
+  if (userId != req.user!.id) {
+    throw createHttpError(403)
+  }
+
+  const db = await getDb()
+
   const docs = await db.collection_wsReports
     .find({
       'user.id': userId,
@@ -296,6 +335,7 @@ userRouter.get('/users/:userId/reports/meta', async (req, res) => {
 
   res.send(response)
 })
+*/
 
 // Public router
 
@@ -340,7 +380,7 @@ if (env.isLocal) {
       throw createHttpError(404)
     }
 
-    const emailHtml = await generateReportEmail(doc)
+    const emailHtml = generateReportEmail(doc)
 
     res.send(emailHtml)
   })
@@ -356,11 +396,15 @@ if (env.isLocal) {
     }
 
     const userId = anyReport.user.id
+    const since = subMonths(new Date(), 6)
 
     // Get reports for that user (same logic as the authenticated endpoint)
     const docs = await db.collection_wsReports
       .find({
-        'user.id': userId
+        'user.id': userId,
+        'date': {
+          $gte: since
+        }
       })
       .project<DbWsReport>({
         _id: 1,
@@ -370,10 +414,14 @@ if (env.isLocal) {
         user: 1,
         date: 1,
       })
+      .sort({ date: -1 })
       .limit(10)
       .toArray()
 
-    const response = docs.map(doc => jsonifyMongoId(doc))
+    const response = {
+      data: docs.map(doc => jsonifyMongoId(doc)),
+      since: since.toISOString()
+    }
 
     res.send(response)
   })

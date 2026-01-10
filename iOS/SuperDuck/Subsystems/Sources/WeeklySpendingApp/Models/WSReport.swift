@@ -21,12 +21,14 @@ extension WSReport {
         var supplierId: String
         var amount: Decimal
         var gst: Decimal
+        var credit: Decimal
     }
     
     struct CustomSupplierData: Codable, Sendable {
         var name: String
         var amount: Decimal
         var gst: Decimal
+        var credit: Decimal
     }
 }
 

@@ -7,21 +7,22 @@ import CommonUI
 
 public struct WeeklySpendingAppView: View {
     @State var templateFetcher = ValueFetcher<WSTemplate>()
-    @State var reportsFetcher = ValueFetcher<[WSReportMeta]>()
+    @State var reportsFetcher = ValueFetcher<(data: [WSReportMeta], since: Date)>()
     @State var presentedReportMeta: WSReportMeta?
     @Environment(Auth.self) var auth
     @Environment(API.self) var api
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
-    
+
     public init() {}
 
     public var body: some View {
         NavigationStack {
             bodyContent()
-                .navigationTitle("Weekly Spending")
                 .navigationDestination(item: $presentedReportMeta) { reportMeta in
                     ReportView(reportMeta: reportMeta)
                 }
+                .navigationTitle("Weekly Spending")
+
         }
         .onAppear {
             fetchTemplate()
@@ -48,10 +49,14 @@ public struct WeeklySpendingAppView: View {
         ScrollView(.vertical) {
             VStack(alignment: .leading, spacing: 36) {
                 NewReportButton(template: templateFetcher.value)
-                
-                ReportReportListView(reports: reportsFetcher.value) { reportMeta in
-                    self.presentedReportMeta = reportMeta
-                }
+
+                RecentReportListView(
+                    reports: reportsFetcher.value?.data,
+                    since: reportsFetcher.value?.since,
+                    onView: { reportMeta in
+                        self.presentedReportMeta = reportMeta
+                    }
+                )
             }
             .padding()
         }
@@ -74,7 +79,8 @@ public struct WeeklySpendingAppView: View {
     
     private func fetchReports() {
         reportsFetcher.fetch {
-            try await api.userReportMetas(userID: auth.user!.idString)
+            let response = try await api.userReportMetas(userID: auth.user!.idString)
+            return (response.data, response.since)
         }
     }
 }

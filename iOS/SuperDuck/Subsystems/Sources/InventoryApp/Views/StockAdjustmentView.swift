@@ -4,10 +4,10 @@ import Common
 import CommonUI
 import Backend
 
-struct StockChangeView: View {
-    var changeMeta: StockChangeMeta
+struct StockAdjustmentView: View {
+    var adjustmentMeta: StockAdjustmentMeta
     var store: Store
-    @State var changeFetcher = ValueFetcher<StockChange>()
+    @State var adjustmentFetcher = ValueFetcher<StockAdjustment>()
     @State var containerSize: CGSize?
     @Environment(API.self) var api
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
@@ -18,9 +18,9 @@ struct StockChangeView: View {
             contentView()
                 .padding()
         }
-        // .navigationTitle("Stock Change")
+        // .navigationTitle("Stock Adjustment")
         .onFirstAppear {
-            fetchChange()
+            fetchAdjustment()
         }
     }
     
@@ -30,15 +30,15 @@ struct StockChangeView: View {
             headerView()
                 .padding(.bottom, 18)
             
-            if let change = changeFetcher.value {
-                tableView(change)
+            if let adjustment = adjustmentFetcher.value {
+                tableView(adjustment)
                 
-            } else if let error = changeFetcher.error {
+            } else if let error = adjustmentFetcher.error {
                 Text(error.localizedDescription)
                     .foregroundStyle(.red)
                     .padding(.top, 18)
                 
-            } else if changeFetcher.isFetching {
+            } else if adjustmentFetcher.isFetching {
                 HStack {
                     ProgressView()
                         .progressViewStyle(.circular)
@@ -70,7 +70,7 @@ struct StockChangeView: View {
                 Text("Date")
                     .bold()
                 
-                Text(changeMeta.timestamp.formatted(.dateTime.weekday(.wide).day().month().year().hour().minute()))
+                Text(adjustmentMeta.timestamp.formatted(.dateTime.weekday(.wide).day().month().year().hour().minute()))
             }
             .padding(.vertical, 12)
             
@@ -80,8 +80,8 @@ struct StockChangeView: View {
 //                Text("User")
 //                    .bold()
 //                
-//                if let change = changeFetcher.value {
-//                    Text(change.user.email)
+//                if let adjustment = adjustmentFetcher.value {
+//                    Text(adjustment.user.email)
 //                } else {
 //                    Text("—")
 //                        .foregroundStyle(.secondary)
@@ -94,7 +94,7 @@ struct StockChangeView: View {
     }
     
     @ViewBuilder
-    private func tableView(_ change: StockChange) -> some View {
+    private func tableView(_ adjustment: StockAdjustment) -> some View {
         Grid(alignment: .leading, horizontalSpacing: 20, verticalSpacing: 0) {
             // Header
             
@@ -113,20 +113,30 @@ struct StockChangeView: View {
             
             // Rows
             
-            ForEach(Array(change.itemQuantityChanges.enumerated()), id: \.offset) { index, qtyChange in
+            ForEach(Array(adjustment.changes.enumerated()), id: \.offset) { index, qtyChange in
                 GridRow(alignment: .firstTextBaseline) {
                     let item = store.catalog.items.first { $0.id == qtyChange.itemId }
-                    
+
                     if let item {
                         Text(item.name)
-                        
-                        let sign = qtyChange.delta >= 0 ? "+" : "-"
-                        let deltaText = "\(sign) \(abs(qtyChange.delta))"
-                        
-                        Text(deltaText)
-                            .gridColumnAlignment(.trailing)
-                            .foregroundStyle(.secondary)
-                            // .foregroundStyle(itemChange.delta >= 0 ? .green : .red)
+
+                        Group {
+                            if let set = qtyChange.set {
+                                Text("Set to \(set.newValue)")
+                                    .foregroundStyle(.secondary)
+
+                            } else if let offset = qtyChange.offset {
+                                let sign = offset.delta >= 0 ? "+" : "-"
+                                let deltaText = "\(sign) \(abs(offset.delta))"
+                                Text(deltaText)
+                                    .foregroundStyle(.secondary)
+
+                            } else {
+                                Text("Missing operation")
+                                    .foregroundStyle(.red)
+                            }
+                        }
+                        .gridColumnAlignment(.trailing)
                         
                     } else {
                         Text("Item not found")
@@ -134,15 +144,15 @@ struct StockChangeView: View {
                     }
                 }
                 .padding(.vertical, 12)
-                
+
                 Divider()
             }
         }
     }
     
-    private func fetchChange() {
-        changeFetcher.fetch {
-            try await api.stockChange(storeId: changeMeta.storeId, changeId: changeMeta.id)
+    private func fetchAdjustment() {
+        adjustmentFetcher.fetch {
+            try await api.stockAdjustment(storeId: adjustmentMeta.storeId, adjustmentId: adjustmentMeta.id)
         }
     }
 }
@@ -154,14 +164,14 @@ struct StockChangeView: View {
 
 struct PreviewView: View {
     @State var store: Store?
-    @State var changeMeta: StockChangeMeta?
+    @State var adjustmentMeta: StockAdjustmentMeta?
     @Environment(API.self) var api
     
     var body: some View {
         NavigationStack {
-            if let store, let changeMeta {
-                StockChangeView(
-                    changeMeta: changeMeta,
+            if let store, let adjustmentMeta {
+                StockAdjustmentView(
+                    adjustmentMeta: adjustmentMeta,
                     store: store
                 )
             } else {
@@ -175,11 +185,11 @@ struct PreviewView: View {
             Task {
                 do {
                     store = try await api.store()
-                    let changeMetas = try await api.stockChangesMeta(storeId: store!.id, userId: User.mock.idString)
-                    changeMeta = changeMetas[0]
+                    let response = try await api.stockAdjustmentsMeta(storeId: store!.id, userId: User.mock.idString)
+                    adjustmentMeta = response.data[0]
                     
                 } catch {
-                    logger.error("Unable to get change metas")
+                    logger.error("Unable to get adjustment metas")
                 }
             }
         }

@@ -26,12 +26,15 @@ export type UpdateStoreCatalogBody = z.infer<typeof UpdateStoreCatalogBodySchema
 // Update stock body
 
 export const UpdateStockBodySchema = z.object({
-  itemQuantityChanges: z.array(
+  changes: z.array(
     z.object({
       itemId: z.string(),
-      delta: z.number().int()
+      quantity: z.xor([
+        z.object({ offset: z.object({ delta: z.number().int() }) }),
+        z.object({ set: z.object({ value: z.number().int() }) })
+      ])
     })
-  ),
+  )
 })
 
 export type UpdateStockBody = z.infer<typeof UpdateStockBodySchema>

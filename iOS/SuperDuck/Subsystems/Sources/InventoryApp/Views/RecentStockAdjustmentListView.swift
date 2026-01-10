@@ -5,41 +5,37 @@ import CommonUI
 import Backend
 import Auth
 
-struct RecentStockChangeListView: View {
-    var changes: [StockChangeMeta]?
-    var onView: (StockChangeMeta) -> Void
+struct RecentStockAdjustmentListView: View {
+    var adjustments: [StockAdjustmentMeta]?
+    var since: Date?
+    var onView: (StockAdjustmentMeta) -> Void
     @Environment(API.self) var api
     @Environment(Auth.self) var auth
     
     var body: some View {
-        bodyImpl()
-            .onSceneBecomeActive {
-                fetchChanges()
-            }
-            .onReceive(api.eventHub.connectEvents) {
-                print("PastStockChangeListView: connect event")
-                fetchChanges()
-            }
-    }
-    
-    @ViewBuilder
-    private func bodyImpl() -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("Recent")
                 .font(.system(size: 27, weight: .regular))
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            if let changes {
-                if changes.count > 0 {
+            if let adjustments {
+                if adjustments.count > 0 {
                     LazyVStack(alignment: .leading, spacing: 0) {
-                        ForEach(changes) { change in
-                            Row(change: change, isFirst: change.id == changes.first?.id) {
-                                onView(change)
+                        ForEach(adjustments) { adjustment in
+                            Row(adjustment: adjustment, isFirst: adjustment.id == adjustments.first?.id) {
+                                onView(adjustment)
                             }
+                        }
+
+                        if let since {
+                            let components = Calendar.current.dateComponents([.month], from: since, to: Date())
+                            Text("Data for the past \(components.month!) months is shown.")
+                                .foregroundStyle(.secondary)
+                                .padding(.top)
                         }
                     }
                     .padding(.top, 24)
-                
+
                 } else {
                     Text("No Data")
                         .foregroundStyle(.secondary)
@@ -48,14 +44,10 @@ struct RecentStockChangeListView: View {
             }
         }
     }
-    
-    private func fetchChanges() {
-        
-    }
 }
 
 private struct Row: View {
-    var change: StockChangeMeta
+    var adjustment: StockAdjustmentMeta
     var isFirst: Bool
     var onView: () -> Void
     
@@ -64,7 +56,7 @@ private struct Row: View {
             Image(systemName: "arrow.up.arrow.down")
                 .foregroundStyle(.secondary)
             
-            let formattedDate = change.timestamp.formatted(.dateTime.weekday(.abbreviated).day().month().hour().minute())
+            let formattedDate = adjustment.timestamp.naturalFormat()
             Text(formattedDate)
             
             Spacer()
@@ -89,16 +81,18 @@ private struct Row: View {
 }
 
 #Preview {
-    @Previewable @State var changes: [StockChangeMeta]?
-    
+    @Previewable @State var adjustments: [StockAdjustmentMeta]?
+    @Previewable @State var since: Date?
+
     ScrollView {
-        if let changes {
-            RecentStockChangeListView(
-                changes: changes,
+        if let adjustments {
+            RecentStockAdjustmentListView(
+                adjustments: adjustments,
+                since: since,
                 onView: { _ in }
             )
             .padding()
-            
+
         } else {
             ProgressView()
                 .progressViewStyle(.circular)
@@ -107,8 +101,10 @@ private struct Row: View {
     .onAppear {
         Task {
             do {
-                changes = try await API.localWithMockAuth.stockChangesMeta(storeId: Store.defaultStoreID, userId: User.mock.idString)
-                
+                let response = try await API.localWithMockAuth.stockAdjustmentsMeta(storeId: Store.defaultStoreID, userId: User.mock.idString)
+                adjustments = response.data
+                since = response.since
+
             } catch {
                 logger.error("Unable to get mock data: \(error)")
             }

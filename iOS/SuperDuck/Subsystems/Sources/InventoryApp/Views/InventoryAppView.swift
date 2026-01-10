@@ -7,23 +7,23 @@ import CommonUI
 
 public struct InventoryAppView: View {
     @State var storeFetcher = ValueFetcher<Store>()
-    @State var changesFetcher = ValueFetcher<[StockChangeMeta]>()
+    @State var adjustmentsFetcher = ValueFetcher<(data: [StockAdjustmentMeta], since: Date)>()
     @State var presentingStockView = false
-    @State var selectedChangeMeta: StockChangeMeta?
+    @State var selectedAdjustmentMeta: StockAdjustmentMeta?
     @State var ps = PresentationState()
     @State var presentingScanView = false
     @Environment(Auth.self) var auth
     @Environment(API.self) var api
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
-    
+
     public init() {}
 
     public var body: some View {
         NavigationStack {
             bodyContent()
                 .fetchOverlay(
-                    isFetching: storeFetcher.isFetching || changesFetcher.isFetching,
-                    fetchError: storeFetcher.error ?? changesFetcher.error,
+                    isFetching: storeFetcher.isFetching || adjustmentsFetcher.isFetching,
+                    fetchError: storeFetcher.error ?? adjustmentsFetcher.error,
                     retry: { fetchStore(delay: true) }
                 )
                 .nonProdEnvWarningOverlay()
@@ -32,9 +32,9 @@ public struct InventoryAppView: View {
                 .navigationDestination(isPresented: $presentingStockView) {
                     StockView()
                 }
-                .navigationDestination(item: $selectedChangeMeta) { changeMeta in
+                .navigationDestination(item: $selectedAdjustmentMeta) { adjustmentMeta in
                     if let store = storeFetcher.value {
-                        StockChangeView(changeMeta: changeMeta, store: store)
+                        StockAdjustmentView(adjustmentMeta: adjustmentMeta, store: store)
                     }
                 }
 //                .fullScreenCover(isPresented: $presentingScanView) {
@@ -44,19 +44,19 @@ public struct InventoryAppView: View {
         }
         .onAppear {
             fetchStore()
-            fetchChanges()
+            fetchAdjustments()
         }
         .onSceneBecomeActive {
             fetchStore()
-            fetchChanges()
+            fetchAdjustments()
         }
         .onReceive(api.eventHub.connectEvents) {
             fetchStore()
-            fetchChanges()
+            fetchAdjustments()
         }
         .onReceive(api.eventHub.storeChangeEvents) {
             fetchStore()
-            fetchChanges()
+            fetchAdjustments()
         }
     }
     
@@ -81,7 +81,7 @@ public struct InventoryAppView: View {
                                 ScanView(store: storeFetcher.value!, scanMode: .add)
                             }
                         }
-                        
+
                         Button("Remove Items", systemImage: "minus.circle") {
                             ps.presentFullScreenCover {
                                 ScanView(store: storeFetcher.value!, scanMode: .remove)
@@ -91,11 +91,12 @@ public struct InventoryAppView: View {
                     .buttonStyle(.primaryAction)
                     .disabled(storeFetcher.value == nil)
                 }
-                
-                RecentStockChangeListView(
-                    changes: changesFetcher.value,
-                    onView: { changeMeta in
-                        selectedChangeMeta = changeMeta
+
+                RecentStockAdjustmentListView(
+                    adjustments: adjustmentsFetcher.value?.data,
+                    since: adjustmentsFetcher.value?.since,
+                    onView: { adjustmentMeta in
+                        selectedAdjustmentMeta = adjustmentMeta
                     }
                 )
             }
@@ -110,13 +111,14 @@ public struct InventoryAppView: View {
         }
     }
     
-    private func fetchChanges(delay: Bool = false) {
-        changesFetcher.fetch(delay: delay) {
+    private func fetchAdjustments(delay: Bool = false) {
+        adjustmentsFetcher.fetch(delay: delay) {
             guard let userId = auth.user?.idString else {
                 throw GenericError("User not logged in")
             }
-            
-            return try await api.stockChangesMeta(storeId: Store.defaultStoreID, userId: userId)
+
+            let response = try await api.stockAdjustmentsMeta(storeId: Store.defaultStoreID, userId: userId)
+            return (response.data, response.since)
         }
     }
 }

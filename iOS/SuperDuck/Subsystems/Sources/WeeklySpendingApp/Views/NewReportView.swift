@@ -14,7 +14,7 @@ struct NewReportView: View {
     @State var ps = PresentationState()
     @Environment(API.self) var api
     @Environment(\.dismiss) var dismiss
-    
+
     init(template: WSTemplate, user: WSReport.User) {
         self.template = template
         self.user = user
@@ -38,6 +38,7 @@ struct NewReportView: View {
             .toolbar { toolbarContent() }
             .presentations(ps)
         }
+        .interactiveDismissDisabled()
     }
     
     @ToolbarContentBuilder
@@ -65,6 +66,12 @@ struct NewReportView: View {
             }
             
             customSuppliersSectionView()
+
+            let totalAmount = suppliersDataMap.values.map(\.amount).sum() + customSuppliersData.map(\.amount).sum()
+            let totalCredit = suppliersDataMap.values.map(\.credit).sum() + customSuppliersData.map(\.credit).sum()
+            
+            TotalView(totalAmount: totalAmount, totalCredit: totalCredit)
+                .padding(.top, 12)
         }
         .padding()
     }
@@ -216,10 +223,21 @@ struct NewReportView: View {
             date: Date(),
             suppliersData: template.suppliers.map {
                 let data = suppliersDataMap[$0.id]!
-                return WSReport.SupplierData(supplierId: $0.id, amount: data.amount, gst: data.gst)
+               
+                return WSReport.SupplierData(
+                    supplierId: $0.id,
+                    amount: data.amount,
+                    gst: data.gst,
+                    credit: data.credit
+                )
             },
             customSuppliersData: customSuppliersData.map {
-                WSReport.CustomSupplierData(name: $0.name, amount: $0.amount, gst: $0.gst)
+                WSReport.CustomSupplierData(
+                    name: $0.name,
+                    amount: $0.amount,
+                    gst: $0.gst,
+                    credit: $0.credit
+                )
             }
         )
     }
@@ -250,6 +268,7 @@ private struct SupplierView: View {
             HStack(alignment: .firstTextBaseline) {
                 AmountField(value: $data.amount)
                 GSTField(gstMethod: supplier.gstMethod, value: $data.gst)
+                CreditField(value: $data.credit)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -265,6 +284,7 @@ private struct SupplierView: View {
             HStack(alignment: .firstTextBaseline) {
                 AmountField(value: $data.amount)
                 GSTField(gstMethod: supplier.gstMethod, value: $data.gst)
+                CreditField(value: $data.credit)
             }
         }
         .padding()
@@ -311,6 +331,7 @@ private struct CustomSupplierView: View {
             HStack(alignment: .firstTextBaseline) {
                 AmountField(value: $data.amount)
                 GSTField(gstMethod: .input, value: $data.gst)
+                CreditField(value: $data.credit)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .overlay(alignment: .topTrailing) {
@@ -328,6 +349,7 @@ private struct CustomSupplierView: View {
             HStack(alignment: .firstTextBaseline) {
                 AmountField(value: $data.amount)
                 GSTField(gstMethod: .input, value: $data.gst)
+                CreditField(value: $data.credit)
             }
         }
         .overlay(alignment: .topTrailing) {
@@ -350,7 +372,7 @@ private struct CustomSupplierView: View {
     @ViewBuilder
     private func deleteButton() -> some View {
         Button {
-            if data.name == "" && data.amount == 0 && data.gst == 0 {
+            if data.name == "" && data.amount == 0 && data.gst == 0 && data.credit == 0 {
                 onDelete()
             } else {
                 presentsDeleteConfirmation = true
@@ -365,7 +387,82 @@ private struct CustomSupplierView: View {
     }
 }
 
-// Amount & GST Fields
+private struct TotalView: View {
+    var totalAmount: Decimal
+    var totalCredit: Decimal
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    
+    var body: some View {
+        Group {
+            if horizontalSizeClass == .regular {
+                HStack(alignment: .firstTextBaseline) {
+                    totalText()
+
+                    HStack(alignment: .firstTextBaseline) {
+                        Text("")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                        totalAmountField()
+                        totalCreditField()
+                    }
+                }
+            } else {
+                HStack(alignment: .firstTextBaseline) {
+                    totalText()
+                    totalAmountField()
+                    totalCreditField()
+                }
+            }
+        }
+        .padding()
+        .foregroundStyle(.white)
+        .background {
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.theme)
+        }
+    }
+    
+    @ViewBuilder
+    private func totalText() -> some View {
+        Text("Total")
+            .fontWeight(.heavy)
+            .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    @ViewBuilder
+    private func totalAmountField() -> some View {
+        VStack(alignment: .leading) {
+            Text("Amount")
+                .fontWeight(.heavy)
+            
+            Text(formatAmount(totalAmount))
+                .font(.system(size: 22))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    @ViewBuilder
+    private func totalCreditField() -> some View {
+        VStack(alignment: .leading) {
+            Text("Credit")
+                .fontWeight(.heavy)
+            
+            Text(formatAmount(totalCredit))
+                .font(.system(size: 22))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    private func formatAmount(_ amount: Decimal) -> String {
+        if amount == 0 {
+            amount.formatted(.currency(code: "AUD").precision(.fractionLength(0)))
+        } else {
+            amount.formatted(.currency(code: "AUD"))
+        }
+    }
+}
+
+// Amount, GST & Credit Fields
 
 private struct AmountField: View {
     @Binding var value: Decimal
@@ -401,9 +498,26 @@ private struct GSTField: View {
                 CurrencyField(value: $value, disabled: true)
                     
             case .input:
-                Text("GST")
+                Text("GST (if have)")
                 CurrencyField(value: $value)
             }
+        }
+        .focused($focused)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            focused = true
+        }
+    }
+}
+
+private struct CreditField: View {
+    @Binding var value: Decimal
+    @FocusState var focused
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text("Credit")
+            CurrencyField(value: $value, isCredit: true)
         }
         .focused($focused)
         .contentShape(Rectangle())
@@ -416,16 +530,17 @@ private struct GSTField: View {
 /// Wrapper of `CommonUI.CurrencyField` with styling and disabled flag.
 private struct CurrencyField: View {
     @Binding var value: Decimal
+    var isCredit: Bool = false
     var disabled: Bool = false
     
     var body: some View {
         Group {
             if !disabled {
-                CommonUI.CurrencyField("", value: $value)
+                CommonUI.CurrencyField("", value: $value, isCredit: isCredit)
                     .foregroundStyle(.tint)
                 
             } else {
-                CommonUI.CurrencyField("", value: $value)
+                CommonUI.CurrencyField("", value: $value, isCredit: isCredit)
                     .disabled(true)
                     .opacity(0.5)
             }
@@ -453,6 +568,7 @@ private class SupplierData {
     }
     
     var gst: Decimal = 0
+    var credit: Decimal = 0
 }
 
 @Observable
@@ -461,6 +577,7 @@ private class CustomSupplierData {
     var name: String = ""
     var amount: Decimal = 0
     var gst: Decimal = 0
+    var credit: Decimal = 0
 }
 
 // Utils
@@ -508,4 +625,5 @@ private struct SectionBackgroundModififer: ViewModifier {
             }
         }
         .tint(Color.theme)
+        .previewEnvironment()
 }

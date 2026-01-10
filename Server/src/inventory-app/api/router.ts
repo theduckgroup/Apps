@@ -1,12 +1,13 @@
 import express from 'express'
 import { AnyBulkWriteOperation, BulkWriteResult, ObjectId } from 'mongodb'
 import createHttpError from 'http-errors'
+import { subMonths } from 'date-fns'
 
 import eventHub from './event-hub'
 import { client, getDb } from 'src/db'
 import { DbInvStore } from '../db/DbInvStore'
-import { DbInvStoreStock } from '../db/DbInvStoreStock'
-import { DbInvStoreStockChange } from '../db/DbInvStoreStockChange'
+import { DbInvStock } from '../db/DbInvStock'
+import { DbInvStockAdjustment } from '../db/DbInvStockAdjustment'
 import { authorizeUser, authorizeAdmin } from 'src/auth/authorize'
 import { UpdateStoreCatalogBodySchema, UpdateStockBodySchema } from './schemas'
 import logger from 'src/logger'
@@ -78,7 +79,7 @@ adminRouter.put('/stores/:storeId/catalog', async (req, res) => {
         throw createHttpError(404, `Store ${storeId} not found`)
       }
 
-      const dbStock = await db.collection_inv_storeStocks.findOne(
+      const dbStock = await db.collection_inv_stock.findOne(
         { storeId },
         { session }
       )
@@ -107,7 +108,7 @@ adminRouter.put('/stores/:storeId/catalog', async (req, res) => {
         quantity: existingAttrsMap.get(item.id)?.quantity ?? 0
       }))
 
-      await db.collection_inv_storeStocks.updateOne(
+      await db.collection_inv_stock.updateOne(
         { storeId },
         {
           $set: {
@@ -136,7 +137,7 @@ adminRouter.put('/stores/:storeId/catalog', async (req, res) => {
   res.send()
 })
 
-// Gets store stock.
+// Gets stock.
 adminRouter.get('/stores/:storeId/stock', async (req, res) => {
   const storeId = req.params.storeId
 
@@ -146,7 +147,7 @@ adminRouter.get('/stores/:storeId/stock', async (req, res) => {
 
   const db = await getDb()
 
-  const dbStock = await db.collection_inv_storeStocks.findOne({ storeId })
+  const dbStock = await db.collection_inv_stock.findOne({ storeId })
 
   if (!dbStock) {
     throw createHttpError(500, 'Store stock not found')
@@ -159,8 +160,8 @@ adminRouter.get('/stores/:storeId/stock', async (req, res) => {
   res.send(stock)
 })
 
-// Gets store stock change history.
-adminRouter.get('/stores/:storeId/stock/changes', async (req, res) => {
+// Gets stock adjustment history.
+adminRouter.get('/stores/:storeId/stock/adjustments', async (req, res) => {
   const storeId = req.params.storeId
 
   if (!storeId) {
@@ -169,7 +170,7 @@ adminRouter.get('/stores/:storeId/stock/changes', async (req, res) => {
 
   const db = await getDb()
 
-  const history = await db.collection_inv_storeStocksChanges
+  const history = await db.collection_inv_stockAdjustments
     .find({ storeId })
     .sort({ timestamp: -1 })
     .toArray()
@@ -184,68 +185,70 @@ adminRouter.get('/stores/:storeId/stock/changes', async (req, res) => {
 const userRouter = express.Router()
 userRouter.use(authorizeUser)
 
-// Gets store stock changes metadata by user.
-userRouter.get('/stores/:storeId/stock/changes/meta/by-user/:userId', async (req, res) => {
+// Gets stock adjustments metadata by user.
+userRouter.get('/stores/:storeId/stock/adjustments/meta/by-user/:userId', async (req, res) => {
   const { storeId, userId } = req.params
-
-  if (!storeId) {
-    throw createHttpError(400, 'storeId is missing')
-  }
-
-  if (!userId) {
-    throw createHttpError(400, 'userId is missing')
-  }
 
   // Verify that userId matches current user
   if (req.user!.id !== userId) {
-    throw createHttpError(403, 'Not permitted to view other users\' changes')
+    throw createHttpError(403, 'Not permitted to view other users\' adjustments')
   }
 
   const db = await getDb()
 
-  const changes = await db.collection_inv_storeStocksChanges
-    .find({ storeId, 'user.id': userId })
+  // Calculate since date (6 months ago)
+  const since = subMonths(new Date(), 6)
+
+  const adjustments = await db.collection_inv_stockAdjustments
+    .find({
+      storeId,
+      'user.id': userId,
+      timestamp: { $gte: since }
+    })
     .sort({ timestamp: -1 })
     .toArray()
 
-  const response = changes.map(transformStoreStockChangeToMeta)
+  const response = {
+    data: adjustments.map(stockAdjustmentToMeta),
+    since: since.toISOString()
+  }
 
   res.send(response)
 })
 
-// Gets a specific stock change by ID.
-userRouter.get('/stores/:storeId/stock/changes/:changeId', async (req, res) => {
-  const { storeId, changeId } = req.params
+// Gets a specific stock adjustment by ID.
+userRouter.get('/stores/:storeId/stock/adjustments/:adjustmentId', async (req, res) => {
+  const { storeId, adjustmentId } = req.params
 
   if (!storeId) {
     throw createHttpError(400, 'storeId is missing')
   }
 
-  if (!changeId) {
-    throw createHttpError(400, 'changeId is missing')
+  if (!adjustmentId) {
+    throw createHttpError(400, 'adjustmentId is missing')
   }
 
   const db = await getDb()
 
-  const change = await db.collection_inv_storeStocksChanges.findOne({
-    _id: new ObjectId(changeId),
+  const adjustment = await db.collection_inv_stockAdjustments.findOne({
+    _id: new ObjectId(adjustmentId),
     storeId
   })
 
-  if (!change) {
-    throw createHttpError(404, 'Change not found')
+  if (!adjustment) {
+    throw createHttpError(404, 'Adjustment not found')
   }
 
-  // Authorization: user must own the change OR be admin/owner
+  // Authorization: user must own the adjustment OR be admin/owner
   const roles = getUserRoles(req.user!)
   const isAdmin = roles.includes(Roles.owner) || roles.includes(Roles.admin)
-  const userMatched = change.user.id === req.user!.id
+  const userMatched = adjustment.user.id === req.user!.id
 
   if (!userMatched && !isAdmin) {
-    throw createHttpError(403, 'Not permitted to view this change')
+    throw createHttpError(403, 'Not permitted to view this adjustment')
   }
 
-  const response = jsonifyMongoId(change)
+  const response = jsonifyMongoId(adjustment)
 
   res.send(response)
 })
@@ -266,10 +269,10 @@ userRouter.get('/stores/:storeId', async (req, res) => {
     throw createHttpError(404, `Store ${storeId} not found`)
   }
 
-  // let itemAttrsMap: Map<string, DbInvStoreStock.ItemAttributes> | undefined
+  // let itemAttrsMap: Map<string, DbInvStock.ItemAttributes> | undefined
 
   // if (withQuantity) {
-  //   const stock = await db.collection_inv_storeStocks.findOne({ storeId: new ObjectId(storeId) })
+  //   const stock = await db.collection_inv_stock.findOne({ storeId: new ObjectId(storeId) })
 
   //   if (!stock) {
   //     throw createHttpError(500, 'Store stock not found')
@@ -303,7 +306,7 @@ userRouter.get('/stores/:storeId', async (req, res) => {
   res.send(store)
 })
 
-// Updates store stock.
+// Updates stock.
 userRouter.post('/stores/:storeId/stock', async (req, res) => {
   const storeId = req.params.storeId
 
@@ -314,7 +317,7 @@ userRouter.post('/stores/:storeId/stock', async (req, res) => {
     throw createHttpError(400)
   }
 
-  const { itemQuantityChanges } = data
+  const { changes } = data
 
   const session = client.startSession()
 
@@ -328,7 +331,7 @@ userRouter.post('/stores/:storeId/stock', async (req, res) => {
         { _id: new ObjectId(storeId) },
         { session }
       )
-      const dbStock = await db.collection_inv_storeStocks.findOne(
+      const dbStock = await db.collection_inv_stock.findOne(
         { storeId },
         { session }
       )
@@ -339,7 +342,7 @@ userRouter.post('/stores/:storeId/stock', async (req, res) => {
 
       // Verify that item IDs are valid
 
-      const itemIDs = new Set(itemQuantityChanges.map(x => x.itemId))
+      const itemIDs = new Set(changes.map(x => x.itemId))
       const storeItemIDs = new Set(dbStore.catalog.items.map(x => x.id))
       const invalidItemIDs = itemIDs.difference(storeItemIDs)
 
@@ -354,8 +357,9 @@ userRouter.post('/stores/:storeId/stock', async (req, res) => {
       const storeItemsMap = new Map(dbStore.catalog.items.map(x => [x.id, x]))
 
       const insufficientStockErrors: string[] = []
+      const historyChanges: DbInvStockAdjustment.Change[] = []
 
-      for (const change of itemQuantityChanges) {
+      for (const change of changes) {
         let itemAttr = itemAttrsMap.get(change.itemId)
 
         if (!itemAttr) {
@@ -364,17 +368,56 @@ userRouter.post('/stores/:storeId/stock', async (req, res) => {
           itemAttrsMap.set(change.itemId, itemAttr)
         }
 
-        const newQuantity = itemAttr.quantity + change.delta
+        const oldQuantity = itemAttr.quantity
+        let newQuantity: number
+        let historyChange: DbInvStockAdjustment.Change
 
-        if (newQuantity < 0) {
-          const storeItem = storeItemsMap.get(change.itemId)!
-          const currentQty = itemAttr.quantity
-          const removeQty = Math.abs(change.delta)
-          insufficientStockErrors.push(
-            `- ${storeItem.name} (${storeItem.code}): ${currentQty} in stock, attempting to remove ${removeQty}`
-          )
+        if ('offset' in change.quantity) {
+          // Offset operation (preserve existing logic)
+          const delta = change.quantity.offset.delta
+          newQuantity = oldQuantity + delta
+
+          historyChange = {
+            itemId: change.itemId,
+            offset: {
+              delta: delta,
+              oldValue: oldQuantity,
+              newValue: newQuantity
+            }
+          }
+
+          if (newQuantity < 0) {
+            const storeItem = storeItemsMap.get(change.itemId)!
+            const currentQty = oldQuantity
+            const removeQty = Math.abs(delta)
+            insufficientStockErrors.push(
+              `- ${storeItem.name} (${storeItem.code}): ${currentQty} in stock, attempting to remove ${removeQty}`
+            )
+          }
         } else {
+          // Set operation (new functionality)
+          const setValue = change.quantity.set.value
+          newQuantity = setValue
+
+          historyChange = {
+            itemId: change.itemId,
+            set: {
+              oldValue: oldQuantity,
+              newValue: newQuantity
+            }
+          }
+
+          if (newQuantity < 0) {
+            const storeItem = storeItemsMap.get(change.itemId)!
+            insufficientStockErrors.push(
+              `- ${storeItem.name} (${storeItem.code}): cannot set negative quantity ${newQuantity}`
+            )
+          }
+        }
+
+        if (newQuantity >= 0) {
           itemAttr.quantity = newQuantity
+          historyChanges.push(historyChange)
         }
       }
 
@@ -383,27 +426,19 @@ userRouter.post('/stores/:storeId/stock', async (req, res) => {
       }
 
       // Create history record
-      const changeRecord: DbInvStoreStockChange = {
+      const adjustmentRecord: DbInvStockAdjustment = {
         storeId,
         timestamp: new Date(),
         user: {
           id: req.user!.id,
           email: req.user!.email || ''
         },
-        itemQuantityChanges: itemQuantityChanges.map(change => {
-          const itemAttr = itemAttrsMap.get(change.itemId)!
-          return {
-            itemId: change.itemId,
-            delta: change.delta,
-            oldQuantity: itemAttr.quantity - change.delta,
-            newQuantity: itemAttr.quantity
-          }
-        })
+        changes: historyChanges
       }
 
-      await db.collection_inv_storeStocksChanges.insertOne(changeRecord, { session })
+      await db.collection_inv_stockAdjustments.insertOne(adjustmentRecord, { session })
 
-      await db.collection_inv_storeStocks.updateOne(
+      await db.collection_inv_stock.updateOne(
         { storeId },
         {
           $set: {
@@ -509,7 +544,7 @@ if (env.isLocal) {
   publicRouter.get('/mock/stores/_any/stock', async (req, res) => {
     const db = await getDb()
 
-    const doc = await db.collection_inv_storeStocks.findOne()
+    const doc = await db.collection_inv_stock.findOne()
 
     if (!doc) {
       throw createHttpError(404)
@@ -518,7 +553,7 @@ if (env.isLocal) {
     res.send(jsonifyMongoId(doc))
   })
 
-  publicRouter.get('/mock/stores/_any/stock/changes/meta', async (req, res) => {
+  publicRouter.get('/mock/stores/_any/stock/adjustments/meta', async (req, res) => {
     const db = await getDb()
 
     const store = await db.collection_inv_stores.findOne()
@@ -529,20 +564,25 @@ if (env.isLocal) {
 
     const storeId = store._id.toString()
 
-    const changes = await db.collection_inv_storeStocksChanges
+    const adjustments = await db.collection_inv_stockAdjustments
       .find({ storeId })
       .sort({ timestamp: -1 })
       .limit(10)
       .toArray()
 
-    const response = changes.map(transformStoreStockChangeToMeta)
+    const sixMonthsAgo = subMonths(new Date(), 6)
+
+    const response = {
+      data: adjustments.map(stockAdjustmentToMeta),
+      since: sixMonthsAgo.toISOString()
+    }
 
     res.send(response)
   })
 
-  publicRouter.get('/mock/stores/:storeId/stock/changes/_any', async (req, res) => {
+  publicRouter.get('/mock/stores/:storeId/stock/adjustments/_any', async (req, res) => {
     const storeId = req.params.storeId
-    
+
     const db = await getDb()
     const store = await db.collection_inv_stores.findOne({ _id: new ObjectId(storeId) })
 
@@ -550,30 +590,37 @@ if (env.isLocal) {
       throw createHttpError(404, 'No store found')
     }
 
-    const change = await db.collection_inv_storeStocksChanges.findOne({
+    const adjustment = await db.collection_inv_stockAdjustments.findOne({
       storeId
     })
 
-    if (!change) {
-      throw createHttpError(404, 'Change not found')
+    if (!adjustment) {
+      throw createHttpError(404, 'Adjustment not found')
     }
 
-    res.send(jsonifyMongoId(change))
+    res.send(jsonifyMongoId(adjustment))
   })
 }
 
 // Helper functions
 
-function transformStoreStockChangeToMeta(change: DbInvStoreStockChange) {
-  const totalQuantityChange = change.itemQuantityChanges.reduce(
-    (sum, item) => sum + item.delta,
+function stockAdjustmentToMeta(adjustment: DbInvStockAdjustment) {
+  const totalQuantityChange = adjustment.changes.reduce(
+    (sum, item) => {
+      if (item.offset) {
+        return sum + item.offset.delta
+      } else if (item.set) {
+        return sum + (item.set.newValue - item.set.oldValue)
+      }
+      return sum
+    },
     0
   )
 
   return {
-    id: change._id!.toString(),
-    storeId: change.storeId,
-    timestamp: change.timestamp,
+    id: adjustment._id!.toString(),
+    storeId: adjustment.storeId,
+    timestamp: adjustment.timestamp,
     totalQuantityChange
   }
 }

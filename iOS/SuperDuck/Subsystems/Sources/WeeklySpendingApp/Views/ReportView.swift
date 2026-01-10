@@ -86,7 +86,7 @@ struct ReportView: View {
                 GridRow(alignment: .firstTextBaseline) {
                     Text(section.name)
                         .bold()
-                        .gridCellColumns(index == 0 ? 1 : 3)
+                        .gridCellColumns(index == 0 ? 1 : 4)
                     
                     if index == 0 {
                         Text("Amount")
@@ -94,6 +94,10 @@ struct ReportView: View {
                             .gridColumnAlignment(.trailing)
                         
                         Text("GST")
+                            .bold()
+                            .gridColumnAlignment(.trailing)
+                        
+                        Text("Credit")
                             .bold()
                             .gridColumnAlignment(.trailing)
                     }
@@ -114,11 +118,15 @@ struct ReportView: View {
                         if let supplier, let supplierData {
                             Text(supplier.name)
                                 
-                            Text(supplierData.amount, format: .currency(code: "AUD"))
+                            Text(formatAmount(supplierData.amount))
                                 .gridColumnAlignment(.trailing)
                                 .foregroundStyle(.secondary)
                             
-                            Text(supplierData.gst, format: .currency(code: "AUD"))
+                            Text(formatAmount(supplierData.gst))
+                                .gridColumnAlignment(.trailing)
+                                .foregroundStyle(.secondary)
+                            
+                            Text(formatAmount(supplierData.credit))
                                 .gridColumnAlignment(.trailing)
                                 .foregroundStyle(.secondary)
                             
@@ -129,9 +137,56 @@ struct ReportView: View {
                     }
                     .padding(.vertical, 12)
                     
-                    Divider()
+//                    Divider()
                 }
             }
+            
+            // Total section
+            
+            GridRow(alignment: .firstTextBaseline) {
+                Text("Total")
+                    
+                Text("")
+                    .gridColumnAlignment(.trailing)
+                
+                Text("Amount")
+                    .gridColumnAlignment(.trailing)
+                
+                Text("Credit")
+                    .gridColumnAlignment(.trailing)
+            }
+            .bold()
+            .padding(.top, 18)
+            .padding(.bottom, 9)
+            
+            Divider()
+            
+            GridRow(alignment: .firstTextBaseline) {
+                Text("")
+                
+                Text("")
+                    .gridColumnAlignment(.trailing)
+                
+                let totalAmount = report.suppliersData.map(\.amount).sum() + report.customSuppliersData.map(\.amount).sum()
+                let totalCredit = report.suppliersData.map(\.credit).sum() + report.customSuppliersData.map(\.credit).sum()
+                
+                Text(formatAmount(totalAmount))
+                    .gridColumnAlignment(.trailing)
+                    .foregroundStyle(.secondary)
+                
+                Text(formatAmount(totalCredit))
+                    .gridColumnAlignment(.trailing)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.vertical, 12)
+        }
+    }
+    
+    private func formatAmount(_ amount: Decimal) -> String {
+        if amount == 0 {
+            amount.formatted(.currency(code: "AUD").precision(.fractionLength(0)))
+        } else {
+            amount.formatted(.currency(code: "AUD"))
         }
     }
     
@@ -185,9 +240,9 @@ private struct PreviewView: View {
         .onAppear {
             Task {
                 do {
-                    let reportMetas = try await api.userReportMetas(userID: User.mock.idString)
-                    reportMeta = reportMetas[0]
-                    
+                    let response = try await api.userReportMetas(userID: User.mock.idString)
+                    reportMeta = response.data[0]
+
                 } catch {
                     logger.error("Unable to fetch data: \(error)")
                 }

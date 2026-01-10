@@ -1,13 +1,13 @@
 import { ObjectId } from 'mongodb'
 
-export interface DbInvStoreStock {
+export interface DbInvStock {
   _id?: ObjectId
   storeId: string
   name: string
-  itemAttributes: DbInvStoreStock.ItemAttributes[]
+  itemAttributes: DbInvStock.ItemAttributes[]
 }
 
-export namespace DbInvStoreStock {
+export namespace DbInvStock {
   export interface ItemAttributes {
     itemId: string
     quantity: number

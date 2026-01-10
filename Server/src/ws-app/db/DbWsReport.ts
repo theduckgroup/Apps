@@ -19,11 +19,13 @@ export namespace DbWsReport {
     supplierId: string
     amount: number
     gst: number
+    credit: number
   }
 
   export interface CustomSupplierData {
     name: string
     amount: number
     gst: number
+    credit: number
   }
 }

@@ -25,7 +25,7 @@ private let auth = Auth()
 
 private let api = {
     switch AppInfo.buildTarget {
-    case .prod: API(env: .prod, auth: auth)
+    case .prod, .prodAdhoc: API(env: .prod, auth: auth)
     case .local: API(env: .local, auth: auth)
     }
 }()

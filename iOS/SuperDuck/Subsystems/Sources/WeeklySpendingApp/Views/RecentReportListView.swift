@@ -5,26 +5,13 @@ import CommonUI
 import Backend
 import Auth
 
-struct ReportReportListView: View {
+struct RecentReportListView: View {
     var reports: [WSReportMeta]?
-    var fetchDate: Date?
+    var since: Date?
     var onView: (WSReportMeta) -> Void
     @Environment(API.self) var api
     
     var body: some View {
-        bodyImpl()
-            .onSceneBecomeActive {
-                fetchReports()
-            }
-            .onReceive(api.eventHub.connectEvents) {
-                print("UserReportsView: connect event")
-                fetchReports()
-            }
-            
-    }
-    
-    @ViewBuilder
-    private func bodyImpl() -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("Recent")
                 .font(.system(size: 27, weight: .regular))
@@ -38,13 +25,16 @@ struct ReportReportListView: View {
                                 onView(report)
                             }
                         }
-
-//                        Text("Data for the past 6 months is shown.")
-//                            .foregroundStyle(.secondary)
-//                            .padding(.top)
+                        
+                        if let since {
+                            let components = Calendar.current.dateComponents([.month], from: since, to: Date())
+                            Text("Data for the past \(components.month!) months is shown.")
+                                .foregroundStyle(.secondary)
+                                .padding(.top)
+                        }
                     }
                     .padding(.top, 24)
-                
+
                 } else {
                     Text("No Data")
                         .foregroundStyle(.secondary)
@@ -59,10 +49,6 @@ struct ReportReportListView: View {
 //            }
         }
     }
-    
-    private func fetchReports() {
-        
-    }
 }
 
 private struct Row: View {
@@ -75,7 +61,7 @@ private struct Row: View {
             Image(systemName: "text.document")
                 .foregroundStyle(.secondary)
             
-            let formattedDate = report.date.formatted(.dateTime.weekday(.abbreviated).day().month().hour().minute())
+            let formattedDate = report.date.naturalFormat()
             Text(formattedDate)
             
             Spacer()
@@ -106,14 +92,16 @@ private struct Row: View {
 
 private struct PreviewView: View {
     @State var reportMetas: [WSReportMeta]?
+    @State var since: Date?
     @Environment(API.self) var api
-    
+
     var body: some View {
         NavigationStack {
             if let reportMetas {
                 ScrollView {
-                    ReportReportListView(
+                    RecentReportListView(
                         reports: reportMetas,
+                        since: since,
                         onView: { _ in }
                     )
                     .padding()
@@ -128,8 +116,10 @@ private struct PreviewView: View {
         .onAppear {
             Task {
                 do {
-                    reportMetas = try await api.userReportMetas(userID: User.mock.idString)
-                    
+                    let response = try await api.userReportMetas(userID: User.mock.idString)
+                    reportMetas = response.data
+                    since = response.since
+
                 } catch {
                     logger.error("Unable to fetch data: \(error)")
                 }

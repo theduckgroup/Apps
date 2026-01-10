@@ -12,7 +12,7 @@ export async function sendReportEmail(report: DbWsReport) {
   }))
 
   recipients = recipients.filter(x => x.email.toLowerCase() != report.user.email.toLowerCase())
-  
+
   recipients.push({
     name: report.user.name,
     email: report.user.email
@@ -20,12 +20,13 @@ export async function sendReportEmail(report: DbWsReport) {
 
   const formattedDate = formatInTimeZone(new Date(), 'Australia/Sydney', 'yyyy-MM-dd HH:mm:ss') // Date to avoid email grouping
   const subject = `[Weekly Spending] ${report.user.name} | ${formattedDate}`
-  const contentHtml = await generateReportEmail(report)
+  const contentHtml = generateReportEmail(report)
 
   await mailer.sendMail({ recipients, subject, contentHtml })
 }
 
-export async function generateReportEmail(report: DbWsReport) {
+export function generateReportEmail(report: DbWsReport) {
+  console.info(`report= ${JSON.stringify(report, null, 2)}`)
   const bodyHtml = ReactDOMServer.renderToStaticMarkup(<EmailTemplate report={report} />)
 
   return `
@@ -104,45 +105,79 @@ const styles: Record<string, React.CSSProperties> = {
   headerLabel: {
     fontWeight: 'bold',
     color: '#555555',
-    padding: '12px 0',
+    padding: '8px 0',
     borderBottom: '1px solid #eeeeee',
   },
   headerValue: {
     fontWeight: 'regular',
     textAlign: 'left' as const,
-    padding: '12px 0',
+    padding: '8px 0',
     borderBottom: '1px solid #eeeeee',
   },
   // Section header
   sectionTitle: {
     fontWeight: 'bold',
     color: '#333333',
-    padding: '8px 0',
+    padding: '8px 0 4px 0',
+    borderBottom: `2px solid ${darkBorderColor}`,
+  },
+  sectionTitleNotFirst: {
+    fontWeight: 'bold',
+    color: '#333333',
+    padding: '8px 0 4px 0',
     borderBottom: `2px solid ${darkBorderColor}`,
   },
   columnHeader: {
     fontWeight: 'bold',
     color: '#555555',
     textAlign: 'right' as const,
-    padding: '8px 0',
+    padding: '8px 0 4px 0',
     borderBottom: `2px solid ${darkBorderColor}`,
   },
   // Item
-  itemRow: {
-    borderBottom: '1px solid #eeeeee',
-  },
   itemCell: {
-    padding: '12px 0',
+    padding: '6px 0',
     color: '#555555',
   },
   itemValue: {
-    padding: '12px 0',
+    padding: '6px 0',
+    textAlign: 'right' as const,
+  },
+  firstItemCell: {
+    padding: '8px 0 6px 0',
+    color: '#555555',
+  },
+  firstItemValue: {
+    padding: '8px 0 6px 0',
     textAlign: 'right' as const,
   },
   // Bottom footer border
   footerBorder: {
     // borderBottom: '1px solid #333333',
     borderBottom: '1px solid #eeeeee',
+  },
+  // Total row
+  totalHeader: {
+    fontWeight: 'bold',
+    fontSize: '15px',
+    color: '#333333',
+    padding: '18px 0 4px 0',
+    borderBottom: `2px solid ${darkBorderColor}`,
+  },
+  totalHeaderRight: {
+    fontWeight: 'bold',
+    fontSize: '15px',
+    color: '#333333',
+    padding: '18px 0 4px 0',
+    textAlign: 'right' as const,
+    borderBottom: `2px solid ${darkBorderColor}`,
+  },
+  totalValue: {
+    padding: '6px 0 6px 0',
+    textAlign: 'right' as const,
+    fontWeight: 'regular',
+    fontSize: '15px',
+    color: '#333333',
   }
 }
 
@@ -220,13 +255,14 @@ const EmailTemplate: React.FC<{
                     const supplierData = report.suppliersData.find(x => x.supplierId == row.supplierId)
 
                     if (!supplier || !supplierData) {
-                      return { name: 'ERROR', amount: 0, gst: 0 }
+                      return { name: 'ERROR', amount: 0, gst: 0, credit: 0 }
                     }
 
                     return {
                       name: supplier.name,
                       amount: supplierData.amount,
-                      gst: supplierData.gst
+                      gst: supplierData.gst,
+                      credit: supplierData.credit
                     }
                   })
 
@@ -246,7 +282,8 @@ const EmailTemplate: React.FC<{
                       return {
                         name: supplierData.name,
                         amount: supplierData.amount,
-                        gst: supplierData.gst
+                        gst: supplierData.gst,
+                        credit: supplierData.credit
                       }
                     })
 
@@ -260,6 +297,45 @@ const EmailTemplate: React.FC<{
                         isFirst={report.template.sections.length == 0}
                         items={items}
                       />
+                    )
+                  })()
+                }
+                {/* Total Row */}
+                {
+                  (() => {
+                    const totalAmount = report.suppliersData.reduce((sum, s) => sum + s.amount, 0) +
+                      report.customSuppliersData.reduce((sum, s) => sum + s.amount, 0)
+                    const totalCredit = report.suppliersData.reduce((sum, s) => sum + s.credit, 0) +
+                      report.customSuppliersData.reduce((sum, s) => sum + s.credit, 0)
+
+                    return (
+                      <>
+                        <tr>
+                          <td width="40%" style={styles.totalHeader}>
+                            Total
+                          </td>
+                          <td width="20%" style={styles.totalHeaderRight}>
+                          </td>
+                          <td width="20%" style={styles.totalHeaderRight}>
+                            Amount
+                          </td>
+                          <td width="20%" style={styles.totalHeaderRight}>
+                            Credit
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style={styles.totalValue}>
+                          </td>
+                          <td style={styles.totalValue}>
+                          </td>
+                          <td style={styles.totalValue}>
+                            {currencyFormat.format(totalAmount)}
+                          </td>
+                          <td style={styles.totalValue}>
+                            {currencyFormat.format(totalCredit)}
+                          </td>
+                        </tr>
+                      </>
                     )
                   })()
                 }
@@ -277,40 +353,48 @@ const SectionComponent: React.FC<SectionComponentProps> = ({ name, isFirst, item
   return (
     <>
       {/* Section Header */}
-      <tr>
-        <td width="50%" style={styles.sectionTitle}>
-          {name}
-        </td>
-        <td width="25%" style={styles.columnHeader}>
-          {isFirst && 'Amount'}
-        </td>
-        <td width="25%" style={styles.columnHeader}>
-          {isFirst && 'GST'}
-        </td>
-      </tr>
+      {isFirst ? (
+        <tr>
+          <td width="40%" style={styles.sectionTitle}>
+            {name}
+          </td>
+          <td width="20%" style={styles.columnHeader}>
+            Amount
+          </td>
+          <td width="20%" style={styles.columnHeader}>
+            GST
+          </td>
+          <td width="20%" style={styles.columnHeader}>
+            Credit
+          </td>
+        </tr>
+      ) : (
+        <tr>
+          <td colSpan={4} style={styles.sectionTitleNotFirst}>
+            {name}
+          </td>
+        </tr>
+      )}
 
       {/* Section Items */}
       {items.map((item, itemIndex) => {
-        // const isLastSection = sectionIndex === sections.length - 1
-        // const isLastItem = rowIndex === section.rows.length - 1
-
-        // Apply thick border if it is the very last item of the report
-        // const rowStyle = (isLastSection && isLastItem)
-        //   ? { ...styles.itemRow, ...styles.footerBorder }
-        //   : styles.itemRow
-
-        const rowStyle = styles.itemRow
+        const isFirstItem = itemIndex === 0
+        const cellStyle = isFirstItem ? styles.firstItemCell : styles.itemCell
+        const valueStyle = isFirstItem ? styles.firstItemValue : styles.itemValue
 
         return (
           <tr key={itemIndex}>
-            <td style={{ ...rowStyle, ...styles.itemCell }}>
+            <td style={cellStyle}>
               {item.name}
             </td>
-            <td style={{ ...rowStyle, ...styles.itemValue }}>
+            <td style={valueStyle}>
               {currencyFormat.format(item.amount)}
             </td>
-            <td style={{ ...rowStyle, ...styles.itemValue }}>
+            <td style={valueStyle}>
               {currencyFormat.format(item.gst)}
+            </td>
+            <td style={valueStyle}>
+              {currencyFormat.format(item.credit)}
             </td>
           </tr>
         )
@@ -329,6 +413,7 @@ type ItemComponentProps = {
   name: string
   amount: number
   gst: number
+  credit: number
 }
 
 const currencyFormat = new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' });

@@ -6,10 +6,12 @@ import { ApiProvider } from './ApiProvider'
 import { ApiContext, useApi } from './ApiContext'
 import { EnvProvider } from './EnvProvider'
 import { EnvContext, useEnv } from './EnvContext'
+import { AppSettingsProvider, useAppSettings } from './AppSettingsContext'
 
 export {
   AuthProvider, useAuth, AuthContext,
   PathProvider, usePath, PathContext,
   ApiProvider, useApi, ApiContext,
   EnvProvider, useEnv, EnvContext,
+  AppSettingsProvider, useAppSettings
  }

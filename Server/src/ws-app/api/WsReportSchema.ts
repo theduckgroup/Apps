@@ -15,13 +15,15 @@ const WsReportSchema = z.object({
       supplierId: z.string(),
       amount: z.number(),
       gst: z.number(),
+      credit: z.number()
     })
   ),
   customSuppliersData: z.array(
     z.object({
       name: z.string(),
       amount: z.number(),
-      gst: z.number()
+      gst: z.number(),
+      credit: z.number()
     })
   )
 })

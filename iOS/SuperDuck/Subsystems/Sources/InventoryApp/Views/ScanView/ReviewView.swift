@@ -130,19 +130,30 @@ private extension API {
         }
 
         struct Body: Encodable {
-            var itemQuantityChanges: [Change]
+            var changes: [Change]
             
             struct Change: Encodable {
                 var itemId: String
-                var delta: Int
+                var quantity: Quantity
+                
+                struct Quantity: Encodable {
+                    var offset: Offset?
+                    
+                    struct Offset: Encodable {
+                        var delta: Int
+                    }
+                }
             }
         }
 
         let factor = scanMode == .add ? 1 : -1
 
         let body = Body(
-            itemQuantityChanges: scanRecords.map {
-                .init(itemId: $0.storeItem.id, delta: $0.quantity * factor)
+            changes: scanRecords.map {
+                .init(
+                    itemId: $0.storeItem.id,
+                    quantity: .init(offset: .init(delta: $0.quantity * factor))
+                )
             }
         )
 

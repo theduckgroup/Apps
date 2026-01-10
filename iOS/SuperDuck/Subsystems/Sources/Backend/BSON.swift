@@ -4,6 +4,6 @@ import Foundation
 // This does not work because `BSONObjectID.init()` seems to be defined outside the type
 // public typealias BSONObjectID = SwiftBSON.BSONObjectID
 
-public typealias ObjectID = BSONObjectID
-
-extension ObjectID: @retroactive @unchecked Sendable {}
+//public typealias ObjectID = BSONObjectID
+//
+//extension ObjectID: @retroactive @unchecked Sendable {}

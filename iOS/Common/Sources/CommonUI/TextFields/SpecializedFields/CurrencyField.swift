@@ -3,6 +3,7 @@ import SwiftUI
 public struct CurrencyField: View {
     var placeholder: String
     @Binding var value: Decimal
+    var isCredit: Bool
     var currencySymbol: String = "$"
     var fractionLength: Int = 2
     var onFocus: () -> Void
@@ -12,12 +13,14 @@ public struct CurrencyField: View {
     public init(
         _ placeholder: String,
         value: Binding<Decimal>,
+        isCredit: Bool = false,
         onFocus: @escaping () -> Void = { }
     ) {
         self.placeholder = placeholder
         self._value = value
-        self.text = Self.formatValue(value.wrappedValue, fractionLength: fractionLength, currencySymbol: currencySymbol)
+        self.isCredit = isCredit
         self.onFocus = onFocus
+        self.text = Self.formatForDisplay(value.wrappedValue)
     }
     
     public var body: some View {
@@ -46,10 +49,16 @@ public struct CurrencyField: View {
                 
             } else {
                 // This works for both "123456" and "$123,456"
-                value = try Decimal(text, format: .currency(code: "AUD").locale(Locale(identifier: "en_AU")))
+                value = abs(try Decimal(text, format: .currency(code: "AUD").locale(Locale(identifier: "en_AU"))))
+                
+                if isCredit {
+                    value = -value
+                }
             }
             
         } catch {
+            // Unable to parse text
+            // Just keep the old value; if user leaves the text field then it just reverts to old text
             print("Unable to parse '\(text)': \(error)")
             // assertionFailure()
         }
@@ -57,7 +66,7 @@ public struct CurrencyField: View {
     
     private func valueChanged() {
         if !focused {
-            text = Self.formatValue(value, fractionLength: fractionLength, currencySymbol: currencySymbol)
+            text = formatForDisplay(value)
         }
     }
     
@@ -67,29 +76,32 @@ public struct CurrencyField: View {
                 text = ""
                 
             } else {
-                text = Self.formatValue(value, fractionLength: fractionLength)
-                // print("1 Set text to \(text)")
+                text = formatForEditing(value)
             }
             
             onFocus()
             
         } else {
-            text = Self.formatValue(value, fractionLength: fractionLength, currencySymbol: currencySymbol)
-            // print("2 Set text to \(text), unit = \(unit ?? "nil")")
+            text = formatForDisplay(value)
         }
     }
     
-    /// Formats value with currency symbol.
-    private static func formatValue(_ value: Decimal, fractionLength: Int, currencySymbol: String) -> String {
-        currencySymbol + formatValue(value, fractionLength: fractionLength)
+    private func formatForDisplay(_ value: Decimal) -> String {
+        Self.formatForDisplay(value)
     }
     
-    /// Formats value without currency symbol.
-    private static func formatValue(_ value: Decimal, fractionLength: Int) -> String {
+    private static func formatForDisplay(_ value: Decimal) -> String {
+        if value == 0 {
+            value.formatted(.currency(code: "AUD").precision(.fractionLength(0)))
+        } else {
+            value.formatted(.currency(code: "AUD"))
+        }
+    }
+    
+    private func formatForEditing(_ value: Decimal) -> String {
         value.formatted(
             .number
-                .precision(.fractionLength(0...fractionLength))
-                .grouping(.automatic)
+                .grouping(.never)
         )
     }
 }
