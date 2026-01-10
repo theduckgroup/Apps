@@ -61,7 +61,7 @@ struct SettingsView: View {
                 tabViewItemsView()
             }
             
-            Section("Advanced") {
+            Section("Advanced Settings") {
                 Button("QR Code Scanner") {
                     presentingBarcodeScannerSettings = true
                 }
@@ -97,7 +97,13 @@ struct SettingsView: View {
     
     @ViewBuilder
     private func versionView() -> some View {
-        Text(AppInfo.marketingVersion)
+        let appName = switch AppInfo.buildTarget {
+        case .prod: "Super Duck"
+        case .prodAdhoc: "Super Duck (Adhoc)"
+        case .local: "Super Duck (Local)"
+        }
+        
+        Text("\(appName) \(AppInfo.marketingVersion)")
     }
     
     @ViewBuilder
