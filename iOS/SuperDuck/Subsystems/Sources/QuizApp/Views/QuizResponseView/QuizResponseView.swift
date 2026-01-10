@@ -55,6 +55,7 @@ struct QuizResponseView: View {
         .preferredColorScheme(defaults.colorSchemeOverride?.colorScheme)
         .presentations(ps)
         .environment(viewModel)
+        .interactiveDismissDisabled()
     }
     
     @ToolbarContentBuilder

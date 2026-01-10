@@ -14,7 +14,7 @@ struct NewReportView: View {
     @State var ps = PresentationState()
     @Environment(API.self) var api
     @Environment(\.dismiss) var dismiss
-    
+
     init(template: WSTemplate, user: WSReport.User) {
         self.template = template
         self.user = user
@@ -38,6 +38,7 @@ struct NewReportView: View {
             .toolbar { toolbarContent() }
             .presentations(ps)
         }
+        .interactiveDismissDisabled()
     }
     
     @ToolbarContentBuilder
@@ -65,6 +66,12 @@ struct NewReportView: View {
             }
             
             customSuppliersSectionView()
+
+            let totalAmount = suppliersDataMap.values.map(\.amount).sum() + customSuppliersData.map(\.amount).sum()
+            let totalCredit = suppliersDataMap.values.map(\.credit).sum() + customSuppliersData.map(\.credit).sum()
+            
+            TotalView(totalAmount: totalAmount, totalCredit: totalCredit)
+                .padding(.top, 12)
         }
         .padding()
     }
@@ -377,6 +384,81 @@ private struct CustomSupplierView: View {
         .imageScale(.large)
         .foregroundStyle(.red)
         .buttonStyle(.plain)
+    }
+}
+
+private struct TotalView: View {
+    var totalAmount: Decimal
+    var totalCredit: Decimal
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    
+    var body: some View {
+        Group {
+            if horizontalSizeClass == .regular {
+                HStack(alignment: .firstTextBaseline) {
+                    totalText()
+
+                    HStack(alignment: .firstTextBaseline) {
+                        Text("")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                        totalAmountField()
+                        totalCreditField()
+                    }
+                }
+            } else {
+                HStack(alignment: .firstTextBaseline) {
+                    totalText()
+                    totalAmountField()
+                    totalCreditField()
+                }
+            }
+        }
+        .padding()
+        .foregroundStyle(.white)
+        .background {
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.theme)
+        }
+    }
+    
+    @ViewBuilder
+    private func totalText() -> some View {
+        Text("Total")
+            .fontWeight(.heavy)
+            .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    @ViewBuilder
+    private func totalAmountField() -> some View {
+        VStack(alignment: .leading) {
+            Text("Amount")
+                .fontWeight(.heavy)
+            
+            Text(formatAmount(totalAmount))
+                .font(.system(size: 22))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    @ViewBuilder
+    private func totalCreditField() -> some View {
+        VStack(alignment: .leading) {
+            Text("Credit")
+                .fontWeight(.heavy)
+            
+            Text(formatAmount(totalCredit))
+                .font(.system(size: 22))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    private func formatAmount(_ amount: Decimal) -> String {
+        if amount == 0 {
+            amount.formatted(.currency(code: "AUD").precision(.fractionLength(0)))
+        } else {
+            amount.formatted(.currency(code: "AUD"))
+        }
     }
 }
 
