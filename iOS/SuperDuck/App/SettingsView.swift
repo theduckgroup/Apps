@@ -99,7 +99,7 @@ struct SettingsView: View {
     private func versionView() -> some View {
         let appName = switch AppInfo.buildTarget {
         case .prod: "Super Duck"
-        case .prodAdhoc: "Super Duck (Adhoc)"
+        case .prodAdhoc: "Super Duck (Internal)"
         case .local: "Super Duck (Local)"
         }
         
