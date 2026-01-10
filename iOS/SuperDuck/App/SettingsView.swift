@@ -11,7 +11,7 @@ import InventoryApp
 /// Use `TabView` to preview.
 struct SettingsView: View {
     @State private var ps = PresentationState()
-    @State private var presentingInventoryAppSettings = false
+    @State private var presentingBarcodeScannerSettings = false
     @Environment(Auth.self) var auth
     @Environment(AppDefaults.self) var appDefaults
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -22,8 +22,8 @@ struct SettingsView: View {
                 .navigationTitle("Settings")
                 .presentations(ps)
                 .toolbar { toolbarContent() }
-                .navigationDestination(isPresented: $presentingInventoryAppSettings) {
-                    InventoryAppSettingsView()
+                .navigationDestination(isPresented: $presentingBarcodeScannerSettings) {
+                    BarcodeScannerSettingsView()
                 }
         }
     }
@@ -58,8 +58,8 @@ struct SettingsView: View {
             }
             
             Section("Advanced") {
-                Button("Inventory App") {
-                    presentingInventoryAppSettings = true
+                Button("QR Code Scanner") {
+                    presentingBarcodeScannerSettings = true
                 }
             }
             
