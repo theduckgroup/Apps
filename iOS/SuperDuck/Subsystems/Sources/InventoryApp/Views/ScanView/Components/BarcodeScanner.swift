@@ -53,8 +53,8 @@ struct BarcodeScanner: View {
 }
 
 extension BarcodeScanner {
-    static let defaultMinPresenceTime: TimeInterval = 0.250
-    static let defaultMinAbsenceTime: TimeInterval = 0.500
+    static let defaultMinPresenceTime: TimeInterval = 0.100
+    static let defaultMinAbsenceTime: TimeInterval = 0.300
 }
 
 private struct BarcodeScannerViewControllerRepresentable: UIViewControllerRepresentable {
