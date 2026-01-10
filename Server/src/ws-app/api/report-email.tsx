@@ -129,15 +129,20 @@ const styles: Record<string, React.CSSProperties> = {
     borderBottom: `2px solid ${darkBorderColor}`,
   },
   // Item
-  itemRow: {
-    borderBottom: '1px solid #eeeeee',
-  },
   itemCell: {
-    padding: '12px 0',
+    padding: '6px 0',
     color: '#555555',
   },
   itemValue: {
-    padding: '12px 0',
+    padding: '6px 0',
+    textAlign: 'right' as const,
+  },
+  firstItemCell: {
+    padding: '12px 0 6px 0',
+    color: '#555555',
+  },
+  firstItemValue: {
+    padding: '12px 0 6px 0',
     textAlign: 'right' as const,
   },
   // Bottom footer border
@@ -357,29 +362,22 @@ const SectionComponent: React.FC<SectionComponentProps> = ({ name, isFirst, item
 
       {/* Section Items */}
       {items.map((item, itemIndex) => {
-        // const isLastSection = sectionIndex === sections.length - 1
-        // const isLastItem = rowIndex === section.rows.length - 1
-
-        // Apply thick border if it is the very last item of the report
-        // const rowStyle = (isLastSection && isLastItem)
-        //   ? { ...styles.itemRow, ...styles.footerBorder }
-        //   : styles.itemRow
-
-        const rowStyle = styles.itemRow
+        const isFirst = itemIndex === 0
+        const cellStyle = isFirst ? styles.firstItemCell : styles.itemCell
+        const valueStyle = isFirst ? styles.firstItemValue : styles.itemValue
 
         return (
           <tr key={itemIndex}>
-            <td style={{ ...rowStyle, ...styles.itemCell }}>
+            <td style={cellStyle}>
               {item.name}
             </td>
-            <td style={{ ...rowStyle, ...styles.itemValue }}>
+            <td style={valueStyle}>
               {currencyFormat.format(item.amount)}
             </td>
-            <td style={{ ...rowStyle, ...styles.itemValue }}>
+            <td style={valueStyle}>
               {currencyFormat.format(item.gst)}
             </td>
-            <td style={{ ...rowStyle, ...styles.itemValue }}>
-              {/* {item.credit < 0 ? `-${currencyFormat.format(Math.abs(item.credit))}` : currencyFormat.format(0)} */}
+            <td style={valueStyle}>
               {currencyFormat.format(item.credit)}
             </td>
           </tr>
