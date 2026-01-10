@@ -380,7 +380,7 @@ if (env.isLocal) {
       throw createHttpError(404)
     }
 
-    const emailHtml = await generateReportEmail(doc)
+    const emailHtml = generateReportEmail(doc)
 
     res.send(emailHtml)
   })

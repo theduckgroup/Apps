@@ -12,7 +12,7 @@ export async function sendReportEmail(report: DbWsReport) {
   }))
 
   recipients = recipients.filter(x => x.email.toLowerCase() != report.user.email.toLowerCase())
-  
+
   recipients.push({
     name: report.user.name,
     email: report.user.email
@@ -26,6 +26,7 @@ export async function sendReportEmail(report: DbWsReport) {
 }
 
 export function generateReportEmail(report: DbWsReport) {
+  console.info(`report= ${JSON.stringify(report, null, 2)}`)
   const bodyHtml = ReactDOMServer.renderToStaticMarkup(<EmailTemplate report={report} />)
 
   return `
@@ -143,6 +144,24 @@ const styles: Record<string, React.CSSProperties> = {
   footerBorder: {
     // borderBottom: '1px solid #333333',
     borderBottom: '1px solid #eeeeee',
+  },
+  // Total row
+  totalRow: {
+    borderTop: `2px solid ${darkBorderColor}`,
+    // borderBottom: `2px solid ${darkBorderColor}`,
+  },
+  totalLabel: {
+    // padding: '12px 0',
+    fontWeight: 'bold',
+    fontSize: '15px',
+    color: '#333333',
+  },
+  totalValue: {
+    padding: '12px 0',
+    textAlign: 'right' as const,
+    fontWeight: 'bold',
+    fontSize: '15px',
+    color: '#333333',
   }
 }
 
@@ -265,6 +284,47 @@ const EmailTemplate: React.FC<{
                     )
                   })()
                 }
+                {/* Total Row */}
+                {
+                  (() => {
+                    const totalAmount = report.suppliersData.reduce((sum, s) => sum + s.amount, 0) +
+                      report.customSuppliersData.reduce((sum, s) => sum + s.amount, 0)
+                    const totalCredit = report.suppliersData.reduce((sum, s) => sum + s.credit, 0) +
+                      report.customSuppliersData.reduce((sum, s) => sum + s.credit, 0)
+
+                    return (
+                      <>
+                        <tr>
+                          <td colSpan={4} style={{ height: '10px' }}>&nbsp;</td>
+                        </tr>
+                        <tr style={styles.totalRow}>
+                          <td style={styles.totalLabel}> </td>
+                          <td style={{ ...styles.columnHeader, borderTop: `2px solid ${darkBorderColor}`, borderBottom: 'none', padding: '8px 0 2px 0' }}>
+                            Amount
+                          </td>
+                          <td style={{ ...styles.columnHeader, borderTop: `2px solid ${darkBorderColor}`, borderBottom: 'none', padding: '8px 0 2px 0' }}>
+                          </td>
+                          <td style={{ ...styles.columnHeader, borderTop: `2px solid ${darkBorderColor}`, borderBottom: 'none', padding: '8px 0 2px 0' }}>
+                            Credit
+                          </td>
+                        </tr>
+                        <tr style={{ borderBottom: `2px solid ${darkBorderColor}` }}>
+                          <td style={styles.totalLabel}>
+                            Total
+                          </td>
+                          <td style={{ ...styles.totalValue, padding: '2px 0 4px 0' }}>
+                            {currencyFormat.format(totalAmount)}
+                          </td>
+                          <td style={{ ...styles.totalValue, padding: '2px 0 4px 0' }}>
+                          </td>
+                          <td style={{ ...styles.totalValue, padding: '2px 0 4px 0' }}>
+                            {currencyFormat.format(totalCredit)}
+                          </td>
+                        </tr>
+                      </>
+                    )
+                  })()
+                }
               </tbody>
             </table>
 
@@ -318,7 +378,8 @@ const SectionComponent: React.FC<SectionComponentProps> = ({ name, isFirst, item
               {currencyFormat.format(item.gst)}
             </td>
             <td style={{ ...rowStyle, ...styles.itemValue }}>
-              {item.credit > 0 ? `-${currencyFormat.format(item.credit)}` : currencyFormat.format(0)}
+              {/* {item.credit < 0 ? `-${currencyFormat.format(Math.abs(item.credit))}` : currencyFormat.format(0)} */}
+              {currencyFormat.format(item.credit)}
             </td>
           </tr>
         )
