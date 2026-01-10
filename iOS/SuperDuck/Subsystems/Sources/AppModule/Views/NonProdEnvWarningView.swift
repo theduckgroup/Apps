@@ -5,7 +5,7 @@ public struct NonProdEnvWarningView: View  {
     public init() {}
     
     public var body: some View {
-        if AppInfo.buildTarget != .prod {
+        if AppInfo.buildTarget != .prod && AppInfo.buildTarget != .prodAdhoc {
             Text("Test Build / \(AppInfo.marketingVersion)")
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(.black)
