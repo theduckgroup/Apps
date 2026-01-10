@@ -1,9 +1,9 @@
-import { ReactNode } from 'react'
+import { ReactNode, useMemo } from 'react'
 import { createBrowserRouter, Navigate, Outlet, RouteObject, RouterProvider } from 'react-router'
-import { MantineProvider, Loader, Text } from '@mantine/core'
+import { MantineProvider, Loader, Text, createTheme, mergeThemeOverrides } from '@mantine/core'
 
-import { AuthProvider, useAuth, PathProvider, ApiProvider, EnvProvider } from './contexts'
-import theme from './mantine-theme'
+import { AuthProvider, useAuth, PathProvider, ApiProvider, EnvProvider, AppSettingsProvider, useAppSettings } from './contexts'
+import baseTheme from './mantine-theme'
 import LoginPage from 'src/app/pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import ProfilePage from './pages/ProfilePage'
@@ -17,6 +17,23 @@ import inventoryApp from 'src/inventory-app/routes'
 import { withErrorBoundary } from 'src/utils/with-error-boundary'
 
 function App() {
+  return (
+    <AppSettingsProvider>
+      <MantineThemedApp />
+    </AppSettingsProvider>
+  )
+}
+
+function MantineThemedApp() {
+  const { themeColor } = useAppSettings()
+  
+  // Create dynamic theme with selected color
+  const theme = useMemo(() => {
+    return mergeThemeOverrides(baseTheme, createTheme({
+      primaryColor: themeColor
+    }))
+  }, [themeColor])
+
   return (
     <MantineProvider defaultColorScheme='dark' theme={theme}>
       <AuthProvider>
