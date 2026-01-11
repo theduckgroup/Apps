@@ -135,7 +135,34 @@ struct ReportView: View {
                 }
             }
             
+            // Custom suppliers section
             
+            if !report.customSuppliersData.isEmpty {
+                GridRow(alignment: .firstTextBaseline) {
+                    Text("Other Suppliers")
+                        .bold()
+                        .gridCellColumns(4)
+                }
+                .padding(.top, 18)
+                .padding(.bottom, 9)
+                
+                Divider()
+                
+                ForEach(Array(report.customSuppliersData.enumerated()), id: \.offset) { index, supplierData in
+                    GridRow(alignment: .firstTextBaseline) {
+                        Text(supplierData.name)
+                           
+                        Group {
+                            Text(formatAmount(supplierData.amount))
+                            Text(formatAmount(supplierData.gst))
+                            Text(formatAmount(supplierData.credit))
+                        }
+                        .gridColumnAlignment(.trailing)
+                        .foregroundStyle(.secondary)
+                    }
+                    .padding(.vertical, 12)
+                }
+            }
             
             // Total section
             
