@@ -68,8 +68,7 @@ struct SettingsView: View {
                 versionView()
             }
         }
-        // .safeAreaPadding(.bottom, 49)
-        // .nonProdEnvWarningOverlay()
+        .nonProdEnvWarningOverlay()
     }
     
     @ViewBuilder
