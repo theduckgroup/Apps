@@ -1,8 +1,4 @@
 import SwiftUI
-import Backend
-import AppModule
-import InventoryApp
-import QuizApp
 
 @main
 struct App: SwiftUI.App {

@@ -1,9 +1,5 @@
 import SwiftUI
-import AppModule
-import Backend
 import CommonUI
-import QuizApp
-import InventoryApp
 
 extension View {
     @ViewBuilder

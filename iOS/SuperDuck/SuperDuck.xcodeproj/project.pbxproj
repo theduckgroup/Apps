@@ -9,19 +9,21 @@
 /* Begin PBXBuildFile section */
 		7367EEF42EF6B98E0054FCA3 /* Common in Frameworks */ = {isa = PBXBuildFile; productRef = 7367EEF32EF6B98E0054FCA3 /* Common */; };
 		7367EEF62EF6B98E0054FCA3 /* CommonUI in Frameworks */ = {isa = PBXBuildFile; productRef = 7367EEF52EF6B98E0054FCA3 /* CommonUI */; };
-		7367F1DF2EF787A30054FCA3 /* Subsystems in Frameworks */ = {isa = PBXBuildFile; productRef = 7367F1DE2EF787A30054FCA3 /* Subsystems */; };
 		7367F1E32EF787B00054FCA3 /* Common in Frameworks */ = {isa = PBXBuildFile; productRef = 7367F1E22EF787B00054FCA3 /* Common */; };
 		7367F1E52EF787B00054FCA3 /* CommonUI in Frameworks */ = {isa = PBXBuildFile; productRef = 7367F1E42EF787B00054FCA3 /* CommonUI */; };
 		7385A9352F12452800DD999C /* Common in Frameworks */ = {isa = PBXBuildFile; productRef = 7385A92D2F12452800DD999C /* Common */; };
 		7385A9362F12452800DD999C /* CommonUI in Frameworks */ = {isa = PBXBuildFile; productRef = 7385A92E2F12452800DD999C /* CommonUI */; };
-		7385A9462F12475F00DD999C /* Subsystems in Frameworks */ = {isa = PBXBuildFile; productRef = 7385A9452F12475F00DD999C /* Subsystems */; };
 		7385A9482F12476600DD999C /* Subsystems in Frameworks */ = {isa = PBXBuildFile; productRef = 7385A9472F12476600DD999C /* Subsystems */; };
+		73E193632F13E5CC00E11CD1 /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 73E193622F13E5CC00E11CD1 /* SocketIO */; };
+		73E1936C2F13E6DC00E11CD1 /* SwiftBSON in Frameworks */ = {isa = PBXBuildFile; productRef = 73E1936B2F13E6DC00E11CD1 /* SwiftBSON */; };
+		73E1936E2F13E71300E11CD1 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 73E1936D2F13E71300E11CD1 /* Supabase */; };
+		73E193702F13E71300E11CD1 /* Flow in Frameworks */ = {isa = PBXBuildFile; productRef = 73E1936F2F13E71300E11CD1 /* Flow */; };
+		73E193722F13E73D00E11CD1 /* Equatable in Frameworks */ = {isa = PBXBuildFile; productRef = 73E193712F13E73D00E11CD1 /* Equatable */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		7367EED32EF6B81D0054FCA3 /* SuperDuck.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SuperDuck.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7367EF062EF6B99A0054FCA3 /* SuperDuck-Local.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SuperDuck-Local.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		7367EFE62EF76F360054FCA3 /* Subsystems */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Subsystems; sourceTree = "<group>"; };
 		7367F1422EF779540054FCA3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7367F1FC2EF7C0E10054FCA3 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		7367F2BD2EF7CDDB0054FCA3 /* GetLocalIP.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = GetLocalIP.sh; sourceTree = "<group>"; };
@@ -29,9 +31,34 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		7341EBB92F13E0390074FD38 /* AppModule */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = AppModule;
+			sourceTree = "<group>";
+		};
+		7341EBCF2F13E04D0074FD38 /* Backend */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Backend;
+			sourceTree = "<group>";
+		};
+		7341EBFB2F13E0600074FD38 /* QuizApp */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = QuizApp;
+			sourceTree = "<group>";
+		};
+		7341EC1B2F13E06A0074FD38 /* WeeklySpendingApp */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = WeeklySpendingApp;
+			sourceTree = "<group>";
+		};
 		7367F1312EF778960054FCA3 /* App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = App;
+			sourceTree = "<group>";
+		};
+		738E2F862F13DB4500700442 /* InventoryApp */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = InventoryApp;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -51,9 +78,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7367F1DF2EF787A30054FCA3 /* Subsystems in Frameworks */,
+				73E1936C2F13E6DC00E11CD1 /* SwiftBSON in Frameworks */,
 				7367F1E32EF787B00054FCA3 /* Common in Frameworks */,
+				73E1936E2F13E71300E11CD1 /* Supabase in Frameworks */,
 				7367F1E52EF787B00054FCA3 /* CommonUI in Frameworks */,
+				73E193702F13E71300E11CD1 /* Flow in Frameworks */,
+				73E193722F13E73D00E11CD1 /* Equatable in Frameworks */,
+				73E193632F13E5CC00E11CD1 /* SocketIO in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -61,7 +92,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7385A9462F12475F00DD999C /* Subsystems in Frameworks */,
 				7385A9352F12452800DD999C /* Common in Frameworks */,
 				7385A9362F12452800DD999C /* CommonUI in Frameworks */,
 			);
@@ -74,7 +104,11 @@
 			isa = PBXGroup;
 			children = (
 				7367F1312EF778960054FCA3 /* App */,
-				7367EFE62EF76F360054FCA3 /* Subsystems */,
+				7341EBB92F13E0390074FD38 /* AppModule */,
+				7341EBCF2F13E04D0074FD38 /* Backend */,
+				738E2F862F13DB4500700442 /* InventoryApp */,
+				7341EBFB2F13E0600074FD38 /* QuizApp */,
+				7341EC1B2F13E06A0074FD38 /* WeeklySpendingApp */,
 				7367F1FC2EF7C0E10054FCA3 /* .gitignore */,
 				7367F1422EF779540054FCA3 /* Info.plist */,
 				7367F2BD2EF7CDDB0054FCA3 /* GetLocalIP.sh */,
@@ -116,7 +150,12 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				7341EBB92F13E0390074FD38 /* AppModule */,
+				7341EBCF2F13E04D0074FD38 /* Backend */,
+				7341EBFB2F13E0600074FD38 /* QuizApp */,
+				7341EC1B2F13E06A0074FD38 /* WeeklySpendingApp */,
 				7367F1312EF778960054FCA3 /* App */,
+				738E2F862F13DB4500700442 /* InventoryApp */,
 			);
 			name = SuperDuck;
 			packageProductDependencies = (
@@ -141,13 +180,22 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				7341EBB92F13E0390074FD38 /* AppModule */,
+				7341EBCF2F13E04D0074FD38 /* Backend */,
+				7341EBFB2F13E0600074FD38 /* QuizApp */,
+				7341EC1B2F13E06A0074FD38 /* WeeklySpendingApp */,
 				7367F1312EF778960054FCA3 /* App */,
+				738E2F862F13DB4500700442 /* InventoryApp */,
 			);
 			name = "SuperDuck-Local";
 			packageProductDependencies = (
-				7367F1DE2EF787A30054FCA3 /* Subsystems */,
 				7367F1E22EF787B00054FCA3 /* Common */,
 				7367F1E42EF787B00054FCA3 /* CommonUI */,
+				73E193622F13E5CC00E11CD1 /* SocketIO */,
+				73E1936B2F13E6DC00E11CD1 /* SwiftBSON */,
+				73E1936D2F13E71300E11CD1 /* Supabase */,
+				73E1936F2F13E71300E11CD1 /* Flow */,
+				73E193712F13E73D00E11CD1 /* Equatable */,
 			);
 			productName = SuperDuck;
 			productReference = 7367EF062EF6B99A0054FCA3 /* SuperDuck-Local.app */;
@@ -166,13 +214,17 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				7341EBB92F13E0390074FD38 /* AppModule */,
+				7341EBCF2F13E04D0074FD38 /* Backend */,
+				7341EBFB2F13E0600074FD38 /* QuizApp */,
+				7341EC1B2F13E06A0074FD38 /* WeeklySpendingApp */,
 				7367F1312EF778960054FCA3 /* App */,
+				738E2F862F13DB4500700442 /* InventoryApp */,
 			);
 			name = "SuperDuck-Adhoc";
 			packageProductDependencies = (
 				7385A92D2F12452800DD999C /* Common */,
 				7385A92E2F12452800DD999C /* CommonUI */,
-				7385A9452F12475F00DD999C /* Subsystems */,
 			);
 			productName = SuperDuck;
 			productReference = 7385A93B2F12452800DD999C /* SuperDuck-Adhoc.app */;
@@ -203,6 +255,11 @@
 			mainGroup = 7367EECA2EF6B81D0054FCA3;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				73E193612F13E5CC00E11CD1 /* XCRemoteSwiftPackageReference "socket" */,
+				73E193642F13E5FB00E11CD1 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+				73E193682F13E63A00E11CD1 /* XCRemoteSwiftPackageReference "equatable" */,
+				73E193692F13E66600E11CD1 /* XCRemoteSwiftPackageReference "SwiftUI-Flow" */,
+				73E1936A2F13E6DC00E11CD1 /* XCRemoteSwiftPackageReference "swift-bson" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 7367EED42EF6B81D0054FCA3 /* Products */;
@@ -639,6 +696,49 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		73E193612F13E5CC00E11CD1 /* XCRemoteSwiftPackageReference "socket" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/socketio/socket.io-client-swift";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 16.1.1;
+			};
+		};
+		73E193642F13E5FB00E11CD1 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift.git";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 2.39.0;
+			};
+		};
+		73E193682F13E63A00E11CD1 /* XCRemoteSwiftPackageReference "equatable" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ordo-one/equatable.git";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 1.2.0;
+			};
+		};
+		73E193692F13E66600E11CD1 /* XCRemoteSwiftPackageReference "SwiftUI-Flow" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/tevelee/SwiftUI-Flow";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 3.1.1;
+			};
+		};
+		73E1936A2F13E6DC00E11CD1 /* XCRemoteSwiftPackageReference "swift-bson" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mongodb/swift-bson";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 3.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		7367EEF32EF6B98E0054FCA3 /* Common */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -647,10 +747,6 @@
 		7367EEF52EF6B98E0054FCA3 /* CommonUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = CommonUI;
-		};
-		7367F1DE2EF787A30054FCA3 /* Subsystems */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Subsystems;
 		};
 		7367F1E22EF787B00054FCA3 /* Common */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -668,13 +764,34 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = CommonUI;
 		};
-		7385A9452F12475F00DD999C /* Subsystems */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Subsystems;
-		};
 		7385A9472F12476600DD999C /* Subsystems */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Subsystems;
+		};
+		73E193622F13E5CC00E11CD1 /* SocketIO */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73E193612F13E5CC00E11CD1 /* XCRemoteSwiftPackageReference "socket" */;
+			productName = SocketIO;
+		};
+		73E1936B2F13E6DC00E11CD1 /* SwiftBSON */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73E1936A2F13E6DC00E11CD1 /* XCRemoteSwiftPackageReference "swift-bson" */;
+			productName = SwiftBSON;
+		};
+		73E1936D2F13E71300E11CD1 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73E193642F13E5FB00E11CD1 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+		73E1936F2F13E71300E11CD1 /* Flow */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73E193692F13E66600E11CD1 /* XCRemoteSwiftPackageReference "SwiftUI-Flow" */;
+			productName = Flow;
+		};
+		73E193712F13E73D00E11CD1 /* Equatable */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73E193682F13E63A00E11CD1 /* XCRemoteSwiftPackageReference "equatable" */;
+			productName = Equatable;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

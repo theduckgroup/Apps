@@ -1,10 +1,5 @@
 import Foundation
 import SwiftUI
-import AppModule
-import Backend
-import InventoryApp
-import QuizApp
-import WeeklySpendingApp
 import CommonUI
 
 struct TabView: View {

@@ -1,6 +1,4 @@
 import SwiftUI
-import AppModule
-import Backend
 import CommonUI
 
 struct AppView: View {

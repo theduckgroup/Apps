@@ -1,7 +1,5 @@
 import Foundation
 import SwiftUI
-import AppModule
-import Backend
 import Common
 import CommonUI
 

@@ -1,10 +1,7 @@
 import Foundation
 import SwiftUI
-import AppModule
-import Auth
-import Backend
 import CommonUI
-import InventoryApp
+import Auth
 
 /// Settings view.
 ///
@@ -19,12 +16,12 @@ struct SettingsView: View {
     public var body: some View {
         NavigationStack {
             bodyContent()
-                .navigationTitle("Settings")
                 .presentations(ps)
                 .toolbar { toolbarContent() }
                 .navigationDestination(isPresented: $presentingBarcodeScannerSettings) {
                     BarcodeScannerSettingsView()
                 }
+                .navigationTitle("Settings")
         }
     }
     
@@ -71,19 +68,13 @@ struct SettingsView: View {
                 versionView()
             }
         }
-        .nonProdEnvWarningOverlay()
+        // .safeAreaPadding(.bottom, 49)
+        // .nonProdEnvWarningOverlay()
     }
     
     @ViewBuilder
     private func userView() -> some View {
         if let user = auth.user {
-            
-            // HStack(alignment: .top, spacing: 15) {
-            //            Image(systemName: "person.crop.circle.fill")
-            //                .font(.system(size: 56, weight: .thin))
-            //                .foregroundStyle(Color(UIColor.systemGray2))
-            //                .offset(y: -6)
-            //
             VStack(alignment: .leading) {
                 Text(user.name)
                     .font(.title3)
@@ -91,7 +82,6 @@ struct SettingsView: View {
                 
                 Text(user.email ?? "")
             }
-            // }
         }
     }
     
