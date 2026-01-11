@@ -35,11 +35,11 @@ export function generateReportEmail(report: DbWsReport) {
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        
+
         <!-- FORCE LIGHT MODE: Supported by Apple Mail & recent Clients -->
         <meta name="color-scheme" content="light">
         <meta name="supported-color-schemes" content="light">
-        
+
         <title>${report.user.name} | Weekly Spending</title>
         <style type="text/css">
             body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
@@ -303,10 +303,9 @@ const EmailTemplate: React.FC<{
                 {/* Total Row */}
                 {
                   (() => {
-                    const totalAmount = report.suppliersData.reduce((sum, s) => sum + s.amount, 0) +
-                      report.customSuppliersData.reduce((sum, s) => sum + s.amount, 0)
-                    const totalCredit = report.suppliersData.reduce((sum, s) => sum + s.credit, 0) +
-                      report.customSuppliersData.reduce((sum, s) => sum + s.credit, 0)
+                    const totalAmount = report.suppliersData.reduce((sum, s) => sum + s.amount, 0) + report.customSuppliersData.reduce((sum, s) => sum + s.amount, 0)
+                    const totalGST = report.suppliersData.reduce((sum, s) => sum + s.gst, 0) + report.customSuppliersData.reduce((sum, s) => sum + s.gst, 0)
+                    const totalCredit = report.suppliersData.reduce((sum, s) => sum + s.credit, 0) + report.customSuppliersData.reduce((sum, s) => sum + s.credit, 0)
 
                     return (
                       <>
@@ -315,9 +314,10 @@ const EmailTemplate: React.FC<{
                             Total
                           </td>
                           <td width="20%" style={styles.totalHeaderRight}>
+                            Amount
                           </td>
                           <td width="20%" style={styles.totalHeaderRight}>
-                            Amount
+                            GST
                           </td>
                           <td width="20%" style={styles.totalHeaderRight}>
                             Credit
@@ -327,9 +327,10 @@ const EmailTemplate: React.FC<{
                           <td style={styles.totalValue}>
                           </td>
                           <td style={styles.totalValue}>
+                            {currencyFormat.format(totalAmount)}
                           </td>
                           <td style={styles.totalValue}>
-                            {currencyFormat.format(totalAmount)}
+                            {currencyFormat.format(totalGST)}
                           </td>
                           <td style={styles.totalValue}>
                             {currencyFormat.format(totalCredit)}
@@ -417,4 +418,3 @@ type ItemComponentProps = {
 }
 
 const currencyFormat = new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' });
-

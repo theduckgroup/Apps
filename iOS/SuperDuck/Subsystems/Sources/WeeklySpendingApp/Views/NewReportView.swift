@@ -68,9 +68,10 @@ struct NewReportView: View {
             customSuppliersSectionView()
 
             let totalAmount = suppliersDataMap.values.map(\.amount).sum() + customSuppliersData.map(\.amount).sum()
+            let totalGST = suppliersDataMap.values.map(\.gst).sum() + customSuppliersData.map(\.gst).sum()
             let totalCredit = suppliersDataMap.values.map(\.credit).sum() + customSuppliersData.map(\.credit).sum()
             
-            TotalView(totalAmount: totalAmount, totalCredit: totalCredit)
+            TotalView(totalAmount: totalAmount, totalGST: totalGST, totalCredit: totalCredit)
                 .padding(.top, 12)
         }
         .padding()
@@ -389,6 +390,7 @@ private struct CustomSupplierView: View {
 
 private struct TotalView: View {
     var totalAmount: Decimal
+    var totalGST: Decimal
     var totalCredit: Decimal
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
@@ -399,18 +401,20 @@ private struct TotalView: View {
                     totalText()
 
                     HStack(alignment: .firstTextBaseline) {
-                        Text("")
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        
                         totalAmountField()
+                        totalGSTField()
                         totalCreditField()
                     }
                 }
             } else {
-                HStack(alignment: .firstTextBaseline) {
+                VStack(alignment: .leading) {
                     totalText()
-                    totalAmountField()
-                    totalCreditField()
+                    
+                    HStack(alignment: .firstTextBaseline) {
+                        totalAmountField()
+                        totalGSTField()
+                        totalCreditField()
+                    }
                 }
             }
         }
@@ -425,17 +429,29 @@ private struct TotalView: View {
     @ViewBuilder
     private func totalText() -> some View {
         Text("Total")
-            .fontWeight(.heavy)
+            .fontWeight(.bold)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     @ViewBuilder
     private func totalAmountField() -> some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 3) {
             Text("Amount")
-                .fontWeight(.heavy)
+                .fontWeight(.bold)
             
             Text(formatAmount(totalAmount))
+                .font(.system(size: 22))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+   
+    @ViewBuilder
+    private func totalGSTField() -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text("GST")
+                .fontWeight(.bold)
+            
+            Text(formatAmount(totalGST))
                 .font(.system(size: 22))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -443,9 +459,9 @@ private struct TotalView: View {
     
     @ViewBuilder
     private func totalCreditField() -> some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 3) {
             Text("Credit")
-                .fontWeight(.heavy)
+                .fontWeight(.bold)
             
             Text(formatAmount(totalCredit))
                 .font(.system(size: 22))
@@ -498,7 +514,7 @@ private struct GSTField: View {
                 CurrencyField(value: $value, disabled: true)
                     
             case .input:
-                Text("GST (if have)")
+                Text("GST (if any)")
                 CurrencyField(value: $value)
             }
         }

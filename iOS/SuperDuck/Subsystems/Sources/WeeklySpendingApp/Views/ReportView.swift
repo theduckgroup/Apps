@@ -117,43 +117,37 @@ struct ReportView: View {
                         
                         if let supplier, let supplierData {
                             Text(supplier.name)
-                                
-                            Text(formatAmount(supplierData.amount))
-                                .gridColumnAlignment(.trailing)
-                                .foregroundStyle(.secondary)
-                            
-                            Text(formatAmount(supplierData.gst))
-                                .gridColumnAlignment(.trailing)
-                                .foregroundStyle(.secondary)
-                            
-                            Text(formatAmount(supplierData.credit))
-                                .gridColumnAlignment(.trailing)
-                                .foregroundStyle(.secondary)
-                            
+                               
+                            Group {
+                                Text(formatAmount(supplierData.amount))
+                                Text(formatAmount(supplierData.gst))
+                                Text(formatAmount(supplierData.credit))
+                            }
+                            .gridColumnAlignment(.trailing)
+                            .foregroundStyle(.secondary)
+
                         } else {
                             Text("Supplier not found")
                                 .foregroundStyle(.red)
                         }
                     }
                     .padding(.vertical, 12)
-                    
-//                    Divider()
                 }
             }
+            
+            
             
             // Total section
             
             GridRow(alignment: .firstTextBaseline) {
                 Text("Total")
-                    
-                Text("")
-                    .gridColumnAlignment(.trailing)
-                
-                Text("Amount")
-                    .gridColumnAlignment(.trailing)
-                
-                Text("Credit")
-                    .gridColumnAlignment(.trailing)
+                   
+                Group {
+                    Text("Amount")
+                    Text("GST")
+                    Text("Credit")
+                }
+                .gridColumnAlignment(.trailing)
             }
             .bold()
             .padding(.top, 18)
@@ -164,19 +158,17 @@ struct ReportView: View {
             GridRow(alignment: .firstTextBaseline) {
                 Text("")
                 
-                Text("")
-                    .gridColumnAlignment(.trailing)
-                
                 let totalAmount = report.suppliersData.map(\.amount).sum() + report.customSuppliersData.map(\.amount).sum()
+                let totalGST = report.suppliersData.map(\.gst).sum() + report.customSuppliersData.map(\.gst).sum()
                 let totalCredit = report.suppliersData.map(\.credit).sum() + report.customSuppliersData.map(\.credit).sum()
-                
-                Text(formatAmount(totalAmount))
-                    .gridColumnAlignment(.trailing)
-                    .foregroundStyle(.secondary)
-                
-                Text(formatAmount(totalCredit))
-                    .gridColumnAlignment(.trailing)
-                    .foregroundStyle(.secondary)
+               
+                Group {
+                    Text(formatAmount(totalAmount))
+                    Text(formatAmount(totalGST))
+                    Text(formatAmount(totalCredit))
+                }
+                .gridColumnAlignment(.trailing)
+                .foregroundStyle(.secondary)
             }
             .padding(.vertical, 12)
         }
