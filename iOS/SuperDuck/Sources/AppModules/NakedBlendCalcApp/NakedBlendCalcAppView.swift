@@ -40,6 +40,7 @@ struct NakedBlendCalcAppView: View {
                     .scrollTargetLayout()
             }
             .scrollPosition($scrollPosition)
+            .animation(.default, value: scrollPosition)
             .background(Color(UIColor.systemGroupedBackground))
             .navigationTitle(title)
             .toolbar { toolbarContent() }
@@ -47,11 +48,10 @@ struct NakedBlendCalcAppView: View {
             .floatingTabBarSafeAreaInset()
             .onFloatingTabFirstSelected {
                 Task {
-                    print("! NDBlend onFloatingTabFirstSelected")
-                    try await Task.sleep(for: .seconds(0.25))
-                    withAnimation {
-                        scrollPosition.scrollTo(id: resultViewID, anchor: .bottom)
-                    }
+                    // Scroll to ID animates by default but scroll to x/y does not!
+                    // Wrapping this in withAnimation will actually break the animation!
+                    try await Task.sleep(for: .seconds(0.10))
+                    scrollPosition.scrollTo(id: resultViewID, anchor: .bottom)
                 }
             }
         }
@@ -231,9 +231,7 @@ struct NakedBlendCalcAppView: View {
             
             let onFocus = {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                    withAnimation {
-                        scrollPosition.scrollTo(id: resultViewID, anchor: .bottom)
-                    }
+                    scrollPosition.scrollTo(id: resultViewID, anchor: .bottom)
                 }
             }
 
