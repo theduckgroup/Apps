@@ -54,12 +54,14 @@ struct FloatingTabBar<ID: Hashable>: View {
                     $0.glassEffect(.regular, in: .capsule)
                     // $0.glassEffect(.regular, in: .rect(cornerRadius: 32))
                 } else {
-                    $0
+                    $0.background(Color(UIColor.systemBackground), in: Capsule())
+                        .shadow(color: .black.opacity(0.05), radius: 6)
                 }
             }
             .padding(.horizontal, edgePadding)
             .frame(minWidth: scrollViewWidth, alignment: .center)
         }
+        .scrollClipDisabled()
         .scrollPosition($scrollPosition)
         .onGeometryChange(for: CGFloat.self, of: \.size.width) {
             self.scrollViewWidth = $0

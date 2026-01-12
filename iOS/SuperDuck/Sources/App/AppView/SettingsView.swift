@@ -31,7 +31,7 @@ struct SettingsView: View {
         ToolbarItem(placement: .topBarTrailing) {
             Button("Log out") {
                 ps.presentAlert(title: "Log out?", message: "") {
-                    Button("Log out") {
+                    Button("Log out", role: .destructive) {
                         Task {
                             try await auth.signOut()
                         }
@@ -40,7 +40,7 @@ struct SettingsView: View {
                     Button("Cancel", role: .cancel) {}
                 }
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(.automatic)
         }
     }
     
@@ -112,27 +112,23 @@ struct SettingsView: View {
     
     @ViewBuilder
     private func tabViewItemsView() -> some View {
-        VStack(alignment: .leading) {
-            let tabViewItems = TabViewItem.allCases.filter { $0 != .settings }
-            
-            ForEach(tabViewItems, id: \.self) { item in
-                let binding = Binding<Bool> {
-                    !appDefaults.hiddenTabViewItems.contains(item)
-                    
-                } set: { newValue in
-                    let set = Set(appDefaults.hiddenTabViewItems)
-                    
-                    if newValue {
-                        appDefaults.hiddenTabViewItems = Array(set.subtracting([item]))
-                    } else {
-                        appDefaults.hiddenTabViewItems = Array(set.union([item]))
-                    }
-                }
+        let tabViewItems = TabViewItem.allCases.filter { $0 != .settings }
+        
+        ForEach(tabViewItems, id: \.self) { item in
+            let binding = Binding<Bool> {
+                !appDefaults.hiddenTabViewItems.contains(item)
                 
-                HStack(alignment: .firstTextBaseline) {
-                    Toggle(isOn: binding, label: { Text(item.name) })
+            } set: { newValue in
+                let set = Set(appDefaults.hiddenTabViewItems)
+                
+                if newValue {
+                    appDefaults.hiddenTabViewItems = Array(set.subtracting([item]))
+                } else {
+                    appDefaults.hiddenTabViewItems = Array(set.union([item]))
                 }
             }
+            
+            Toggle(isOn: binding, label: { Text(item.name) })
         }
     }
 }
