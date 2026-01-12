@@ -69,6 +69,7 @@ struct SettingsView: View {
             }
         }
         .nonProdEnvWarningOverlay()
+        .floatingTabBarSafeAreaInset()
     }
     
     @ViewBuilder
