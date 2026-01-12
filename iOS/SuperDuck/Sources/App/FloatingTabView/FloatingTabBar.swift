@@ -72,7 +72,15 @@ struct FloatingTabBar<ID: Hashable>: View {
                 selectionIndicatorID = selection
             }
             
-           scrollToSelection()
+            withAnimation {
+                scrollToSelection()
+            }
+        }
+        .onFirstAppear {
+            Task {
+                // try await Task.sleep(for: .seconds(0.2))
+                scrollToSelection()
+            }
         }
     }
     
@@ -119,9 +127,7 @@ struct FloatingTabBar<ID: Hashable>: View {
     }
     
     private func scrollToSelection() {
-        withAnimation {
             scrollPosition.scrollTo(x: buttonFrames[selection]!.midX - scrollViewWidth / 2 + edgePadding)
-        }
     }
     
     private var barHeight: CGFloat {

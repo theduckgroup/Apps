@@ -29,30 +29,30 @@ struct NakedBlendCalcAppView: View {
     
     var body: some View {
         NavigationStack {
-            ScrollViewReader { scrollViewProxy  in
-                ScrollView {
-//                    if horizontalSizeClass == .compact {
-//                        content(scrollViewProxy)
-//                    } else {
-                        content(scrollViewProxy)
-                            .padding(.horizontal)
-                            .background {
-                                RoundedRectangle(cornerRadius: 18)
-                                    .fill(Color(UIColor.secondarySystemGroupedBackground))
-                            }
-                            .padding()
-//                    }
-                }
-                .scrollPosition($scrollPosition)
-                .readableContentGuide()
+            ScrollView {
+                content()
+                    .padding(.horizontal)
+                    .background {
+                        RoundedRectangle(cornerRadius: 18)
+                            .fill(Color(UIColor.secondarySystemGroupedBackground))
+                    }
+                    .padding()
+                    .scrollTargetLayout()
             }
+            .scrollPosition($scrollPosition)
             .background(Color(UIColor.systemGroupedBackground))
             .navigationTitle(title)
             .toolbar { toolbarContent() }
             .nonProdEnvWarningOverlay()
             .floatingTabBarSafeAreaInset()
-            .onAppear {
-                scrollPosition.scrollTo(id: resultViewID, anchor: .bottom)
+            .onFloatingTabFirstSelected {
+                Task {
+                    print("! NDBlend onFloatingTabFirstSelected")
+                    try await Task.sleep(for: .seconds(0.25))
+                    withAnimation {
+                        scrollPosition.scrollTo(id: resultViewID, anchor: .bottom)
+                    }
+                }
             }
         }
         .keyboardHeight($keyboardHeight)
@@ -131,7 +131,7 @@ struct NakedBlendCalcAppView: View {
         let contentWidth = min(windowSize.width - 2 * 20, regularContentWidth)
         
         VStack(spacing: 0) {
-            content(scrollViewProxy)
+            content()
         }
         .fixedSize(horizontal: false, vertical: true)
         .frame(width: max(contentWidth, 0)) // Avoid warning wrt initial negative width
@@ -142,11 +142,9 @@ struct NakedBlendCalcAppView: View {
     @ViewBuilder
     private func compactBody() -> some View {
         NavigationView {
-            ScrollViewReader { scrollViewProxy  in
-                ScrollView {
-                    content(scrollViewProxy)
-                        .toolbar { toolbarContent() }
-                }
+            ScrollView {
+                content()
+                    .toolbar { toolbarContent() }
             }
             .navigationTitle(title)
             .nonProdEnvWarningOverlay()
@@ -155,20 +153,23 @@ struct NakedBlendCalcAppView: View {
     }
     
     @ViewBuilder
-    private func content(_ scrollViewProxy: ScrollViewProxy) -> some View {
+    private func content() -> some View {
         VStack(alignment: .center, spacing: 0) {
             Text("Count and place coffee order on Monday afternoon")
                 .foregroundStyle(Color.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.vertical)
+                .id("top")
             
             Divider()
             
             coffeePerDaySection()
+                .id("coffeePerDaySection")
             
             Divider()
 
-            otherSection(scrollViewProxy)
+            otherSection()
+                .id("otherSection")
             
             Divider()
 
@@ -223,23 +224,15 @@ struct NakedBlendCalcAppView: View {
     }
     
     @ViewBuilder
-    private func otherSection(_ scrollViewProxy: ScrollViewProxy?) -> some View {
+    private func otherSection() -> some View {
         VStack(alignment: .leading) {
             let aging = NBNumberField("Aging Days", .constant(agingDays), restriction: .integer).disabled(true)
             let pub = NBNumberField("Public Holidays (if any)", $publicHolidays, restriction: .integer)
             
             let onFocus = {
-                guard let scrollViewProxy else {
-                    return
-                }
-                
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
                     withAnimation {
-                        // ScrollViewProxy is buggy on iOS 15
-                        
-                        if #available(iOS 16, *) {
-                            scrollViewProxy.scrollTo(resultViewID, anchor: .bottom)
-                        }
+                        scrollPosition.scrollTo(id: resultViewID, anchor: .bottom)
                     }
                 }
             }
