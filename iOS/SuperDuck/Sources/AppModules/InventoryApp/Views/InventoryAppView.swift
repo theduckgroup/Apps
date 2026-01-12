@@ -41,7 +41,7 @@ public struct InventoryAppView: View {
 //                }
                 .presentations(ps)
         }
-        .onAppear {
+        .onFloatingTabSelected {
             fetchStore()
             fetchAdjustments()
         }

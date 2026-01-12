@@ -21,7 +21,7 @@ public struct QuizAppView: View {
         .fullScreenCover(item: $presentedQuiz) { quiz in
             QuizResponseView(quiz: quiz, user: auth.user!)
         }
-        .onAppear {
+        .onFloatingTabSelected {
             fetchQuiz()
         }
         .onSceneBecomeActive {

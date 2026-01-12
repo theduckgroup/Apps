@@ -17,7 +17,6 @@ struct StockAdjustmentView: View {
             contentView()
                 .padding()
         }
-        // .navigationTitle("Stock Adjustment")
         .onFirstAppear {
             fetchAdjustment()
         }

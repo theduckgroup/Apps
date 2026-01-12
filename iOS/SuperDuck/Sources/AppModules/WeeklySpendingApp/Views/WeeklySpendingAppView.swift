@@ -22,7 +22,7 @@ public struct WeeklySpendingAppView: View {
                 }
                 .navigationTitle("Weekly Spending")
         }
-        .onAppear {
+        .onFloatingTabSelected {
             fetchTemplate()
             fetchReports()
         }
