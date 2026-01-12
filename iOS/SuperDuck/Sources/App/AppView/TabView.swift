@@ -17,16 +17,19 @@ struct TabView: View {
     
     private var tabs: [FloatingTabItem<TabViewItem>] {
         var tabs: [FloatingTabItem<TabViewItem>] = [
-            .init(id: TabViewItem.quiz, title: "FOH Test", systemImage: "questionmark.text.page.fill") {
+            .init(id: .quiz, title: "FOH Test", systemImage: "questionmark.text.page.fill") {
                 AnyView(QuizAppView())
             },
-            .init(id: TabViewItem.weeklySpending, title: "Weekly Spending", systemImage: "wallet.bifold.fill") {
+            .init(id: .weeklySpending, title: "Weekly Spending", systemImage: "wallet.bifold.fill") {
                 AnyView(WeeklySpendingAppView())
             },
-            .init(id: TabViewItem.inventory, title: "Inventory", systemImage: "square.stack.3d.up.fill") {
+            .init(id: .inventory, title: "Inventory", systemImage: "square.stack.3d.up.fill") {
                 AnyView(InventoryAppView())
             },
-            .init(id: TabViewItem.settings, title: "Settings", systemImage: "gearshape.fill") {
+            .init(id: .nakedBlendCalc, title: "Naked Blend", systemImage: "plusminus.circle.fill") {
+                AnyView(NakedBlendCalcAppView())
+            },
+            .init(id: .settings, title: "Settings", systemImage: "gearshape.fill") {
                 AnyView(SettingsView())
             },
         ]

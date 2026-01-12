@@ -21,7 +21,6 @@ public struct WeeklySpendingAppView: View {
                         .floatingTabBarSafeAreaInset()
                 }
                 .navigationTitle("Weekly Spending")
-
         }
         .onAppear {
             fetchTemplate()
@@ -46,7 +45,7 @@ public struct WeeklySpendingAppView: View {
     @ViewBuilder
     private func bodyContent() -> some View {
         ScrollView(.vertical) {
-            VStack(alignment: .leading, spacing: 36) {
+            VStack(alignment: .leading, spacing: 24) {
                 NewReportButton(template: templateFetcher.value)
 
                 RecentReportListView(
@@ -59,6 +58,7 @@ public struct WeeklySpendingAppView: View {
             }
             .padding()
         }
+        .background(Color(UIColor.systemGroupedBackground))
         .fetchOverlay(
             isFetching: templateFetcher.isFetching || reportsFetcher.isFetching,
             fetchError: templateFetcher.error ?? reportsFetcher.error,

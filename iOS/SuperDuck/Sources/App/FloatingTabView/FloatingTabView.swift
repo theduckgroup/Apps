@@ -38,6 +38,11 @@ struct FloatingTabView<ID: Hashable>: View {
                     tabItems: tabItems
                 )
                 .onGeometryChange(for: CGFloat.self, of: \.size.height) { newValue in
+                    // Note: geometryProxy.safeAreaInsets doesn't report keyboard insets
+                    // Not a big problem
+                    
+                    // print("! barHeight = \(newValue)")
+                    // print("! safeAreaInsets = \(geometryProxy.safeAreaInsets)")
                     barHeight = newValue - geometryProxy.safeAreaInsets.bottom
                 }
                 .frame(maxHeight: .infinity, alignment: .bottom)

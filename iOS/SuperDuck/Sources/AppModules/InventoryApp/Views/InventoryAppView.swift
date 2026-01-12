@@ -71,7 +71,7 @@ public struct InventoryAppView: View {
     @ViewBuilder
     private func bodyContent() -> some View {
         ScrollView(.vertical) {
-            VStack(alignment: .leading, spacing: 36) {
+            VStack(alignment: .leading, spacing: 24) {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(alignment: .firstTextBaseline) {
                         Button("Add Items", systemImage: "plus.circle") {
@@ -102,6 +102,7 @@ public struct InventoryAppView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
         }
+        .background(Color(UIColor.systemGroupedBackground))
         .nonProdEnvWarningOverlay()
         .floatingTabBarSafeAreaInset()
     }

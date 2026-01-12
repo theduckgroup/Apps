@@ -48,6 +48,7 @@ public struct QuizAppView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
         }
+        .background(Color(UIColor.systemGroupedBackground))
         .fetchOverlay(
             isFetching: quizFetcher.isFetching,
             fetchError: quizFetcher.error,

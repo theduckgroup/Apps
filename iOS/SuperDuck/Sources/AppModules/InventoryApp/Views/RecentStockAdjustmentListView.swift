@@ -12,34 +12,39 @@ struct RecentStockAdjustmentListView: View {
     @Environment(Auth.self) var auth
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: 12) {
             Text("Recent")
                 .font(.system(size: 27, weight: .regular))
                 .frame(maxWidth: .infinity, alignment: .leading)
-            
-            if let adjustments {
-                if adjustments.count > 0 {
-                    LazyVStack(alignment: .leading, spacing: 0) {
-                        ForEach(adjustments) { adjustment in
-                            Row(adjustment: adjustment, isFirst: adjustment.id == adjustments.first?.id) {
-                                onView(adjustment)
+           
+            Group {
+                if let adjustments {
+                    if adjustments.count > 0 {
+                        LazyVStack(alignment: .leading, spacing: 0) {
+                            ForEach(adjustments) { adjustment in
+                                Row(adjustment: adjustment, isFirst: adjustment.id == adjustments.first?.id) {
+                                    onView(adjustment)
+                                }
+                            }
+                            
+                            if let since {
+                                let components = Calendar.current.dateComponents([.month], from: since, to: Date())
+                                Text("Data for the past \(components.month!) months is shown.")
+                                    .foregroundStyle(.secondary)
+                                    .padding(.top)
                             }
                         }
-
-                        if let since {
-                            let components = Calendar.current.dateComponents([.month], from: since, to: Date())
-                            Text("Data for the past \(components.month!) months is shown.")
-                                .foregroundStyle(.secondary)
-                                .padding(.top)
-                        }
+                        
+                    } else {
+                        Text("No Data")
+                            .foregroundStyle(.secondary)
                     }
-                    .padding(.top, 24)
-
-                } else {
-                    Text("No Data")
-                        .foregroundStyle(.secondary)
-                        .padding(.top, 15)
                 }
+            }
+            .padding()
+            .background {
+                RoundedRectangle(cornerRadius: 18)
+                    .fill(Color(UIColor.secondarySystemGroupedBackground))
             }
         }
     }

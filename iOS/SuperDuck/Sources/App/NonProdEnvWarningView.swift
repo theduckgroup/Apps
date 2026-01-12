@@ -19,7 +19,7 @@ extension View {
     func nonProdEnvWarningOverlay() -> some View {
         safeAreaInset(edge: .bottom) {
             NonProdEnvWarningView()
-                .padding(.bottom, 9)
+                .padding(.bottom, 0)
         }
     }
 }

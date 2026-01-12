@@ -38,8 +38,8 @@ struct FloatingTabBar<ID: Hashable>: View {
                     if let frame = buttonFrames[selectionIndicatorID] {
                         let isFirst = selectionIndicatorID == tabItems.first?.id
                         let isLast = selectionIndicatorID == tabItems.last?.id
-                        let minX = frame.minX - (isFirst ? 0 : buttonExtraPadding)
-                        let maxX = frame.maxX + (isLast ? 0 : buttonExtraPadding)
+                        let minX = frame.minX - (isFirst ? 0 : buttonSelectionPadding)
+                        let maxX = frame.maxX + (isLast ? 0 : buttonSelectionPadding)
                         
                         Capsule()
                             .fill(Color(UIColor.systemGray5))
@@ -70,15 +70,7 @@ struct FloatingTabBar<ID: Hashable>: View {
                 selectionIndicatorID = selection
             }
             
-            withAnimation {
-                if selection == tabItems.first?.id {
-                    scrollPosition.scrollTo(edge: .leading)
-                } else if selection == tabItems.last?.id {
-                    scrollPosition.scrollTo(edge: .trailing)
-                } else {
-                    scrollPosition.scrollTo(id: selection)
-                }
-            }
+           scrollToSelection()
         }
     }
     
@@ -112,8 +104,8 @@ struct FloatingTabBar<ID: Hashable>: View {
                 // .padding(.vertical, 12)
                 .frame(height: barHeight)
                 .padding(.horizontal, buttonInnerPadding)
-                .padding(.leading, isFirst ? buttonExtraPadding : 0)
-                .padding(.trailing, isLast ? buttonExtraPadding : 0)
+                .padding(.leading, isFirst ? buttonSelectionPadding : 0)
+                .padding(.trailing, isLast ? buttonSelectionPadding : 0)
                 .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .named("buttonHStack"))}, action: { newValue in
                     buttonFrames[tab.id] = newValue
                 })
@@ -124,24 +116,34 @@ struct FloatingTabBar<ID: Hashable>: View {
         .buttonStyle(TabButtonStyle())
     }
     
+    private func scrollToSelection() {
+        withAnimation {
+            scrollPosition.scrollTo(x: buttonFrames[selection]!.midX - scrollViewWidth / 2 + edgePadding)
+        }
+    }
+    
     private var barHeight: CGFloat {
         // Rationale for bigger height on iPhone: to avoid the app switcher area while scrolling
         horizontalSizeClass == .regular ? 64 : 72
     }
     
+    /// Leading/trailing/bottom padding around the bar to add spacing to the device edges.
     private var edgePadding: CGFloat {
         horizontalSizeClass == .regular ? 24 : 18
     }
     
+    /// Horizontal spacing between buttons.
     private var buttonSpacing: CGFloat {
         horizontalSizeClass == .regular ? 6 : 3
     }
     
+    /// Button internal horizontal padding.
     private var buttonInnerPadding: CGFloat {
         horizontalSizeClass == .regular ? 12 : 12
     }
     
-    private var buttonExtraPadding: CGFloat {
+    /// Horizontal padding added to the button to calculate selection size.
+    private var buttonSelectionPadding: CGFloat {
         horizontalSizeClass == .regular ? 12 : 12
     }
 }
