@@ -4,7 +4,7 @@ import CommonUI
 /// Component used by `FloatingTabView`.
 struct FloatingTabBar<ID: Hashable>: View {
     @Binding var selection: ID
-    var tabItems: [FloatingTabItem<ID>]
+    var tabs: [FloatingTab<ID>]
     @State private var scrollViewWidth: CGFloat = 0
     @State private var scrollPosition = ScrollPosition(idType: ID.self)
     @State private var buttonFrames: [ID: CGRect] = [:]
@@ -13,18 +13,18 @@ struct FloatingTabBar<ID: Hashable>: View {
     
     init(
         selection: Binding<ID>,
-        tabItems: [FloatingTabItem<ID>],
+        tabs: [FloatingTab<ID>],
     ) {
         self._selection = selection
         self._selectionIndicatorID = .init(wrappedValue: selection.wrappedValue)
-        self.tabItems = tabItems
+        self.tabs = tabs
     }
     
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: buttonSpacing) {
-                ForEach(tabItems, id: \.id) { tab in
-                    tabButton(for: tab, isFirst: tab.id == tabItems[0].id, isLast: tab.id == tabItems.last!.id)
+                ForEach(tabs, id: \.id) { tab in
+                    tabButton(for: tab, isFirst: tab.id == tabs[0].id, isLast: tab.id == tabs.last!.id)
                         .id(tab.id)
                         .frame(maxWidth: .infinity)
                 }
@@ -36,8 +36,8 @@ struct FloatingTabBar<ID: Hashable>: View {
             .background(alignment: .topLeading) {
                 Group {
                     if let frame = buttonFrames[selectionIndicatorID] {
-                        let isFirst = selectionIndicatorID == tabItems.first?.id
-                        let isLast = selectionIndicatorID == tabItems.last?.id
+                        let isFirst = selectionIndicatorID == tabs.first?.id
+                        let isLast = selectionIndicatorID == tabs.last?.id
                         let minX = frame.minX - (isFirst ? 0 : buttonSelectionPadding)
                         let maxX = frame.maxX + (isLast ? 0 : buttonSelectionPadding)
                         
@@ -74,7 +74,7 @@ struct FloatingTabBar<ID: Hashable>: View {
         }
     }
     
-    private func tabButton(for tab: FloatingTabItem<ID>, isFirst: Bool, isLast: Bool) -> some View {
+    private func tabButton(for tab: FloatingTab<ID>, isFirst: Bool, isLast: Bool) -> some View {
         Button {
             withAnimation(.spring(duration: 0.1)) {
                 selection = tab.id

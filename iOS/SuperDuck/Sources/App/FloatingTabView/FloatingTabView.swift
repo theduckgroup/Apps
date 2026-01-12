@@ -3,15 +3,15 @@ import CommonUI
 
 struct FloatingTabView<ID: Hashable>: View {
     @Binding var selection: ID
-    var tabItems: [FloatingTabItem<ID>]
+    var tabs: [FloatingTab<ID>]
     @State private var barHeight: CGFloat = 0
     
     init(
         selection: Binding<ID>,
-        tabItems: [FloatingTabItem<ID>],
+        tabs: [FloatingTab<ID>],
     ) {
         self._selection = selection
-        self.tabItems = tabItems
+        self.tabs = tabs
     }
     
     var body: some View {
@@ -20,7 +20,7 @@ struct FloatingTabView<ID: Hashable>: View {
             // - tabViewStyle(.page(indexDisplayMode: .never)): Broken nav title
             // - UITabBar.appearance().isHidden = true: does not work on iPad where the tab bar is at the top
             
-            ForEach(tabItems, id: \.id) { tabItem in
+            ForEach(tabs, id: \.id) { tabItem in
                 let selected = selection == tabItem.id
                 
                 tabItem.content()
@@ -35,7 +35,7 @@ struct FloatingTabView<ID: Hashable>: View {
             GeometryReader { geometryProxy in
                 FloatingTabBar(
                     selection: $selection,
-                    tabItems: tabItems
+                    tabs: tabs
                 )
                 .onGeometryChange(for: CGFloat.self, of: \.size.height) { newValue in
                     // Note: geometryProxy.safeAreaInsets doesn't report keyboard insets
@@ -50,9 +50,9 @@ struct FloatingTabView<ID: Hashable>: View {
             }
             
 //            SwiftUI.TabView(selection: $selection) {
-//                ForEach(tabItems, id: \.id) { tabItem in
-//                    Tab(tabItem.title, systemImage: tabItem.systemImage, value: tabItem.id) {
-//                        tabItem.content()
+//                ForEach(tab, id: \.id) { tab in
+//                    Tab(tab.title, systemImage: tab.systemImage, value: tab.id) {
+//                        tab.content()
 //                    }
 //                }
 //            }
@@ -78,17 +78,6 @@ private struct TabButtonStyle: ButtonStyle {
     }
 }
 
-struct FloatingTab<Content: View>: View {
-    var id: String
-    var title: String
-    var systemImage: String
-    @ViewBuilder var content: () -> Content
-    
-    var body: some View {
-        content()
-    }
-}
-
 // MARK: - Preview
 
 #Preview {
@@ -102,17 +91,17 @@ private struct PreviewView: View {
     var body: some View {
         FloatingTabView(
             selection: $selectedTab,
-            tabItems: [
-                FloatingTabItem(id: 0, title: "Home", systemImage: "house") {
+            tabs: [
+                FloatingTab(id: 0, title: "Home", systemImage: "house") {
                     AnyView(ContentView(title: "Home"))
                 },
-                FloatingTabItem(id: 1, title: "Search", systemImage: "magnifyingglass") {
+                FloatingTab(id: 1, title: "Search", systemImage: "magnifyingglass") {
                     AnyView(ContentView(title: "Search"))
                 },
-                FloatingTabItem(id: 2, title: "Library", systemImage: "books.vertical") {
+                FloatingTab(id: 2, title: "Library", systemImage: "books.vertical") {
                     AnyView(ContentView(title: "Library"))
                 },
-                FloatingTabItem(id: 3, title: "Profile", systemImage: "person") {
+                FloatingTab(id: 3, title: "Profile", systemImage: "person") {
                     AnyView(ContentView(title: "Profile"))
                 }
             ]

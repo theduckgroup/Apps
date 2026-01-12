@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 
-struct FloatingTabItem<ID: Hashable> {
+struct FloatingTab<ID: Hashable> {
     let id: ID
     let title: String
     let systemImage: String

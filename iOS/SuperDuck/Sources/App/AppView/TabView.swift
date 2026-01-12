@@ -11,12 +11,12 @@ struct TabView: View {
     var body: some View {
         FloatingTabView(
             selection: $tabViewSelection,
-            tabItems: tabs
+            tabs: tabs
         )
     }
     
-    private var tabs: [FloatingTabItem<TabViewItem>] {
-        var tabs: [FloatingTabItem<TabViewItem>] = [
+    private var tabs: [FloatingTab<TabViewItem>] {
+        var tabs: [FloatingTab<TabViewItem>] = [
             .init(id: .quiz, title: "FOH Test", systemImage: "questionmark.text.page.fill") {
                 AnyView(QuizAppView())
             },
