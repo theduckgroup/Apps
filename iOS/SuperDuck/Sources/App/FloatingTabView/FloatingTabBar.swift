@@ -28,7 +28,7 @@ struct FloatingTabBar<ID: Hashable>: View {
                 }
             }
             .fixedSize(horizontal: true, vertical: true)
-            .padding(4)
+            .padding(3)
             .coordinateSpace(.named("buttonHStack"))
             .background(alignment: .topLeading) {
                 Group {
@@ -51,6 +51,7 @@ struct FloatingTabBar<ID: Hashable>: View {
                 if #available(iOS 26, *) {
                     // $0.glassEffect(.regular, in: ConcentricRectangle(corners: .concentric(minimum: .fixed(15)), isUniform: true))
                     $0.glassEffect(.regular, in: .capsule)
+                    // $0.glassEffect(.regular, in: .rect(cornerRadius: 32))
                 } else {
                     $0
                 }
@@ -81,14 +82,12 @@ struct FloatingTabBar<ID: Hashable>: View {
                 VStack(spacing: 3) {
                     Image(systemName: tab.systemImage)
                         .font(.system(size: 22, weight: .medium))
-//                        .symbolEffect(
-//                            .bounce.down.byLayer,
-//                            value: selected
-//                        )
                         .frame(height: 28)
-                    
+                        
                     Text(tab.title)
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.system(size: 13, weight: .medium).leading(.tight))
+                        // .frame(maxWidth: 28 * 2, alignment: .center)
+                        .multilineTextAlignment(.center)
                         .fixedSize()
                 }
                 .modified {
@@ -98,24 +97,14 @@ struct FloatingTabBar<ID: Hashable>: View {
                         $0.foregroundStyle(.primary)
                     }
                 }
-                .padding(.vertical, 6)
+                // .padding(.vertical, 12)
+                .frame(height: barHeight)
                 .padding(.horizontal, buttonInnerPadding)
                 .padding(.leading, isFirst ? buttonExtraPadding : 0)
                 .padding(.trailing, isLast ? buttonExtraPadding : 0)
-//                selectionExtraPadding
-//                    .padding(.leading, isFirst ? 24 : 12)
-//                .padding(.trailing, isLast ? 24 : 12)
                 .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .named("buttonHStack"))}, action: { newValue in
-                    print("Button frame = \(newValue)")
                     buttonFrames[tab.id] = newValue
                 })
-//                .background {
-//                    // if selected {
-//                        Capsule()
-//                            .fill(Color(UIColor.systemGray5))
-//                            // .matchedGeometryEffect(id: "selectedTab", in: tabNamespace)
-//                    // }
-//                }
             }
             .frame(maxWidth: .infinity)
             .contentShape(Rectangle())
@@ -123,8 +112,13 @@ struct FloatingTabBar<ID: Hashable>: View {
         .buttonStyle(TabButtonStyle())
     }
     
+    private var barHeight: CGFloat {
+        // Rationale for bigger height on iPhone: to avoid the app switcher area while scrolling
+        horizontalSizeClass == .regular ? 64 : 72
+    }
+    
     private var edgePadding: CGFloat {
-        horizontalSizeClass == .regular ? 24 : 20
+        horizontalSizeClass == .regular ? 24 : 18
     }
     
     private var buttonSpacing: CGFloat {
@@ -136,7 +130,7 @@ struct FloatingTabBar<ID: Hashable>: View {
     }
     
     private var buttonExtraPadding: CGFloat {
-        horizontalSizeClass == .regular ? 12 : 9
+        horizontalSizeClass == .regular ? 12 : 12
     }
 }
 
