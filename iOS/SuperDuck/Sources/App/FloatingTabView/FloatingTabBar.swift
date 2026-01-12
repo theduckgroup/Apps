@@ -127,7 +127,7 @@ struct FloatingTabBar<ID: Hashable>: View {
     }
     
     private func scrollToSelection() {
-            scrollPosition.scrollTo(x: buttonFrames[selection]!.midX - scrollViewWidth / 2 + edgePadding)
+        scrollPosition.scrollTo(x: buttonFrames[selection]!.midX - scrollViewWidth / 2 + edgePadding)
     }
     
     private var barHeight: CGFloat {
