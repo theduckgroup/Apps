@@ -6,6 +6,7 @@ struct FloatingTabBar<ID: Hashable>: View {
     @Binding var selection: ID
     var tabItems: [FloatingTabItem<ID>]
     @State private var scrollViewWidth: CGFloat = 0
+    @State private var scrollPosition = ScrollPosition(idType: ID.self)
     @State private var buttonFrames: [ID: CGRect] = [:]
     @State private var selectionIndicatorID: ID // ID for selection indicator (gray background capsule)
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -24,9 +25,11 @@ struct FloatingTabBar<ID: Hashable>: View {
             HStack(spacing: buttonSpacing) {
                 ForEach(tabItems, id: \.id) { tab in
                     tabButton(for: tab, isFirst: tab.id == tabItems[0].id, isLast: tab.id == tabItems.last!.id)
+                        .id(tab.id)
                         .frame(maxWidth: .infinity)
                 }
             }
+            .scrollTargetLayout()
             .fixedSize(horizontal: true, vertical: true)
             .padding(3)
             .coordinateSpace(.named("buttonHStack"))
@@ -57,6 +60,7 @@ struct FloatingTabBar<ID: Hashable>: View {
             .padding(.horizontal, edgePadding)
             .frame(minWidth: scrollViewWidth, alignment: .center)
         }
+        .scrollPosition($scrollPosition)
         .onGeometryChange(for: CGFloat.self, of: \.size.width) {
             self.scrollViewWidth = $0
         }
@@ -64,6 +68,16 @@ struct FloatingTabBar<ID: Hashable>: View {
         .onChange(of: selection) {
             withAnimation(.spring(duration: 0.15)) {
                 selectionIndicatorID = selection
+            }
+            
+            withAnimation {
+                if selection == tabItems.first?.id {
+                    scrollPosition.scrollTo(edge: .leading)
+                } else if selection == tabItems.last?.id {
+                    scrollPosition.scrollTo(edge: .trailing)
+                } else {
+                    scrollPosition.scrollTo(id: selection)
+                }
             }
         }
     }
