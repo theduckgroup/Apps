@@ -134,7 +134,7 @@ struct FloatingTabBar<ID: Hashable>: View {
     }
     
     private var buttonSpacing: CGFloat {
-        horizontalSizeClass == .regular ? 6 : 0
+        horizontalSizeClass == .regular ? 6 : 3
     }
     
     private var buttonInnerPadding: CGFloat {
