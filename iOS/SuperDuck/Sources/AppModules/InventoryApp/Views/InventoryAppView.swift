@@ -24,7 +24,6 @@ public struct InventoryAppView: View {
                     fetchError: storeFetcher.error ?? adjustmentsFetcher.error,
                     retry: { fetchStore(delay: true) }
                 )
-                .nonProdEnvWarningOverlay()
                 .navigationTitle("Inventory")
                 .toolbar { toolbarContent() }
                 .navigationDestination(isPresented: $presentingStockView) {
@@ -101,6 +100,8 @@ public struct InventoryAppView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
         }
+        .nonProdEnvWarningOverlay()
+        .floatingTabBarSafeAreaInset()
     }
     
     private func fetchStore(delay: Bool = false) {

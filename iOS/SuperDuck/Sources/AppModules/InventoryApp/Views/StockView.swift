@@ -21,7 +21,7 @@ struct StockView: View {
                 }
             )
             .navigationTitle("Stock")
-            .searchable(text: $searchText, isPresented: $isSearchPresented, placement: .toolbar, prompt: nil)
+            .searchable(text: $searchText, isPresented: $isSearchPresented, placement: .navigationBarDrawer(displayMode: .always), prompt: nil)
             .onFirstAppear {
                 fetchData()
             }
@@ -42,6 +42,7 @@ struct StockView: View {
                 }
             }
         }
+        .floatingTabBarSafeAreaInset()
     }
     
     @ViewBuilder

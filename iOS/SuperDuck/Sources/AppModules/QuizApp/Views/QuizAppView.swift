@@ -56,6 +56,7 @@ public struct QuizAppView: View {
             }
         )
         .nonProdEnvWarningOverlay()
+        .floatingTabBarSafeAreaInset()
     }
     
     private func fetchQuiz(delay: Bool = false) {

@@ -67,6 +67,7 @@ public struct WeeklySpendingAppView: View {
             }
         )
         .nonProdEnvWarningOverlay()
+        .floatingTabBarSafeAreaInset()
     }
     
     private func fetchTemplate() {

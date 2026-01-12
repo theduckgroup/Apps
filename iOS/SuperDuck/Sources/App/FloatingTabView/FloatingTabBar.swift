@@ -5,6 +5,10 @@ import CommonUI
 struct FloatingTabBar<ID: Hashable>: View {
     @Binding var selection: ID
     var tabItems: [FloatingTabItem<ID>]
+    @State private var scrollViewWidth: CGFloat = 0
+    @State private var buttonFrames: [ID: CGRect] = [:]
+    @State private var selectionIndicatorID: ID // ID for selection indicator (gray background capsule)
+    private let buttonExtraPadding: CGFloat = 12
     @Namespace private var tabNamespace
     
     init(
@@ -12,50 +16,72 @@ struct FloatingTabBar<ID: Hashable>: View {
         tabItems: [FloatingTabItem<ID>],
     ) {
         self._selection = selection
+        self._selectionIndicatorID = .init(wrappedValue: selection.wrappedValue)
         self.tabItems = tabItems
     }
     
     public var body: some View {
-        // ScrollView(.horizontal) {
-            HStack(spacing: 0) {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 6) {
                 ForEach(tabItems, id: \.id) { tab in
-                    tabButton(for: tab)
+                    tabButton(for: tab, isFirst: tab.id == tabItems[0].id, isLast: tab.id == tabItems.last!.id)
                         .frame(maxWidth: .infinity)
                 }
             }
             .fixedSize(horizontal: true, vertical: true)
             .padding(4)
-        // }
-        .modified {
-            if #available(iOS 26, *) {
-                // $0.glassEffect(.regular, in: ConcentricRectangle(corners: .concentric(minimum: .fixed(15)), isUniform: true))
-                $0.glassEffect(.regular, in: .capsule)
-            } else {
-                $0
+            .coordinateSpace(.named("buttonHStack"))
+            .background(alignment: .topLeading) {
+                Group {
+                    let frame = buttonFrames[selectionIndicatorID]
+                    
+                    if let frame {
+                        let isFirst = selectionIndicatorID == tabItems.first?.id
+                        let isLast = selectionIndicatorID == tabItems.last?.id
+                        let minX = frame.minX - (isFirst ? 0 : buttonExtraPadding)
+                        let maxX = frame.maxX + (isLast ? 0 : buttonExtraPadding)
+                        
+                        Capsule()
+                            .fill(Color(UIColor.systemGray5))
+                            .offset(x: minX, y: frame.minY)
+                            .frame(width: maxX - minX, height: frame.height)
+                    }
+                }
+            }
+            .modified {
+                if #available(iOS 26, *) {
+                    // $0.glassEffect(.regular, in: ConcentricRectangle(corners: .concentric(minimum: .fixed(15)), isUniform: true))
+                    $0.glassEffect(.regular, in: .capsule)
+                } else {
+                    $0
+                }
+            }
+            .padding(.horizontal, 24)
+            .frame(minWidth: scrollViewWidth, alignment: .center)
+        }
+        .onGeometryChange(for: CGFloat.self, of: \.size.width) {
+            self.scrollViewWidth = $0
+        }
+        .padding(.bottom, 24)
+        .onChange(of: selection) {
+            withAnimation(.spring(duration: 0.15)) {
+                selectionIndicatorID = selection
             }
         }
-        .padding(.horizontal, 24)
-        .padding(.bottom, 24)
     }
     
-    private func tabButton(for tab: FloatingTabItem<ID>) -> some View {
+    private func tabButton(for tab: FloatingTabItem<ID>, isFirst: Bool, isLast: Bool) -> some View {
         Button {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+            withAnimation(.spring(duration: 0.1)) {
                 selection = tab.id
             }
         } label: {
             ZStack {
                 let selected = selection == tab.id
-                
-                if selected {
-                    Capsule()
-                        .fill(Color(UIColor.systemGray5))
-                        .matchedGeometryEffect(id: "selectedTab", in: tabNamespace)
-                }
-                
+               
                 VStack(spacing: 3) {
                     Image(systemName: tab.systemImage)
-                        .font(.system(size: 24, weight: .medium))
+                        .font(.system(size: 22, weight: .medium))
 //                        .symbolEffect(
 //                            .bounce.down.byLayer,
 //                            value: selected
@@ -63,7 +89,7 @@ struct FloatingTabBar<ID: Hashable>: View {
                         .frame(height: 28)
                     
                     Text(tab.title)
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.system(size: 12, weight: .medium))
                         .fixedSize()
                 }
                 .modified {
@@ -74,7 +100,23 @@ struct FloatingTabBar<ID: Hashable>: View {
                     }
                 }
                 .padding(.vertical, 6)
-                .padding(.horizontal, 24)
+                .padding(.horizontal, 12)
+                .padding(.leading, isFirst ? buttonExtraPadding : 0)
+                .padding(.trailing, isLast ? buttonExtraPadding : 0)
+//                selectionExtraPadding
+//                    .padding(.leading, isFirst ? 24 : 12)
+//                .padding(.trailing, isLast ? 24 : 12)
+                .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .named("buttonHStack"))}, action: { newValue in
+                    print("Button frame = \(newValue)")
+                    buttonFrames[tab.id] = newValue
+                })
+//                .background {
+//                    // if selected {
+//                        Capsule()
+//                            .fill(Color(UIColor.systemGray5))
+//                            // .matchedGeometryEffect(id: "selectedTab", in: tabNamespace)
+//                    // }
+//                }
             }
             .frame(maxWidth: .infinity)
             .contentShape(Rectangle())
@@ -83,7 +125,6 @@ struct FloatingTabBar<ID: Hashable>: View {
     }
 }
 
-/// Custom button style for tab buttons with subtle press effect
 private struct TabButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
