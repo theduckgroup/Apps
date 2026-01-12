@@ -42,7 +42,6 @@ struct StockView: View {
                 }
             }
         }
-        .floatingTabBarSafeAreaInset()
     }
     
     @ViewBuilder

@@ -18,6 +18,7 @@ public struct WeeklySpendingAppView: View {
             bodyContent()
                 .navigationDestination(item: $presentedReportMeta) { reportMeta in
                     ReportView(reportMeta: reportMeta)
+                        .floatingTabBarSafeAreaInset()
                 }
                 .navigationTitle("Weekly Spending")
 

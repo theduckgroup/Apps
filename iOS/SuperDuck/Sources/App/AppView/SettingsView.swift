@@ -20,6 +20,7 @@ struct SettingsView: View {
                 .toolbar { toolbarContent() }
                 .navigationDestination(isPresented: $presentingBarcodeScannerSettings) {
                     BarcodeScannerSettingsView()
+                        .floatingTabBarSafeAreaInset()
                 }
                 .navigationTitle("Settings")
         }

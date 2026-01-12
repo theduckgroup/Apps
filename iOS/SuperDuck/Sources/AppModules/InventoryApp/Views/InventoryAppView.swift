@@ -28,10 +28,12 @@ public struct InventoryAppView: View {
                 .toolbar { toolbarContent() }
                 .navigationDestination(isPresented: $presentingStockView) {
                     StockView()
+                        .floatingTabBarSafeAreaInset()
                 }
                 .navigationDestination(item: $selectedAdjustmentMeta) { adjustmentMeta in
                     if let store = storeFetcher.value {
                         StockAdjustmentView(adjustmentMeta: adjustmentMeta, store: store)
+                            .floatingTabBarSafeAreaInset()
                     }
                 }
 //                .fullScreenCover(isPresented: $presentingScanView) {

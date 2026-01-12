@@ -22,10 +22,9 @@ public struct BarcodeScannerSettingsView: View {
         @Bindable var defaults = defaults
         let compact = horizontalSizeClass == .compact
         
+        Text("These settings control the QR code scanner sensitivity.")
+        
         VStack(alignment: .leading) {
-            Text("These settings control the QR code scanner sensitivity.")
-                .padding(.bottom, 9)
-            
             let sliderView = {
                 let binding = $defaults.scanner.minPresenceTime
                 let formattedValue = (binding.wrappedValue * 1000).formatted(.number) + " ms"

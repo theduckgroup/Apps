@@ -17,7 +17,7 @@ struct FloatingTabView<ID: Hashable>: View {
     var body: some View {
         ZStack {
             // Can also use SwiftUI TabView but couldn't make it work perfectly:
-            // - .tabViewStyle(.page(indexDisplayMode: .never)): Broken nav title
+            // - tabViewStyle(.page(indexDisplayMode: .never)): Broken nav title
             // - UITabBar.appearance().isHidden = true: does not work on iPad where the tab bar is at the top
             
             ForEach(tabItems, id: \.id) { tabItem in
@@ -37,9 +37,7 @@ struct FloatingTabView<ID: Hashable>: View {
                     selection: $selection,
                     tabItems: tabItems
                 )
-                // .frame(maxWidth: geometryProxy.size.width)
                 .onGeometryChange(for: CGFloat.self, of: \.size.height) { newValue in
-                    print("Geometry changed to \(newValue)")
                     barHeight = newValue - geometryProxy.safeAreaInsets.bottom
                 }
                 .frame(maxHeight: .infinity, alignment: .bottom)
