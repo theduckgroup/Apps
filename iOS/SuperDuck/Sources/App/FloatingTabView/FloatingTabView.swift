@@ -27,7 +27,7 @@ struct FloatingTabView<ID: Hashable>: View {
                     .opacity(selected ? 1 : 0)
                     .transaction { $0.animation = nil }
                     .environment(\._floatingTabBarBottomInset, barHeight)
-                    .environment(\.floatingTabSelected, selected)
+                    .environment(\.isFloatingTabSelected, selected)
             }
            
             // GeometryReader is used both for getting the safe area insets

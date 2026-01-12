@@ -1,8 +1,9 @@
 import Foundation
 import SwiftUI
+import CommonUI
 
 extension EnvironmentValues {
-    @Entry var floatingTabSelected = false
+    @Entry var isFloatingTabSelected = false
 }
 
 extension View {
@@ -23,25 +24,38 @@ extension View {
 }
 
 private struct FloatingTabSelectedModifier: ViewModifier {
-    @Environment(\.floatingTabSelected) var isFloatingTabSelected
+    @Environment(\.isFloatingTabSelected) var isFloatingTabSelected
     let action: () -> Void
     
     func body(content: Content) -> some View {
-        content.onChange(of: isFloatingTabSelected) { _, newValue in
-            if newValue {
-                action()
+        content
+            .onFirstAppear {
+                if isFloatingTabSelected {
+                    action()
+                }
             }
-        }
+            .onChange(of: isFloatingTabSelected) { _, newValue in
+                if newValue {
+                    action()
+                }
+            }
     }
 }
 
 private struct FloatingTabFirstSelectedModifier: ViewModifier {
-    @Environment(\.floatingTabSelected) var isFloatingTabSelected
+    @Environment(\.isFloatingTabSelected) var isFloatingTabSelected
     @State private var wasSelectedOnce = false
     let action: () -> Void
     
     func body(content: Content) -> some View {
-        content.onChange(of: isFloatingTabSelected) { _, newValue in
+        content
+            .onFirstAppear {
+                if isFloatingTabSelected && !wasSelectedOnce {
+                    wasSelectedOnce = true
+                    action()
+                }
+            }
+            .onChange(of: isFloatingTabSelected) { _, newValue in
             if newValue && !wasSelectedOnce {
                 wasSelectedOnce = true
                 action()
@@ -51,7 +65,7 @@ private struct FloatingTabFirstSelectedModifier: ViewModifier {
 }
 
 private struct FloatingTabDeselectedModifier: ViewModifier {
-    @Environment(\.floatingTabSelected) var isFloatingTabSelected
+    @Environment(\.isFloatingTabSelected) var isFloatingTabSelected
     let action: () -> Void
     
     func body(content: Content) -> some View {
