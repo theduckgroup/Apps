@@ -31,34 +31,9 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		7341EBB92F13E0390074FD38 /* AppModule */ = {
+		734EB0762F14936D002A98A6 /* Sources */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = AppModule;
-			sourceTree = "<group>";
-		};
-		7341EBCF2F13E04D0074FD38 /* Backend */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Backend;
-			sourceTree = "<group>";
-		};
-		7341EBFB2F13E0600074FD38 /* QuizApp */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = QuizApp;
-			sourceTree = "<group>";
-		};
-		7341EC1B2F13E06A0074FD38 /* WeeklySpendingApp */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = WeeklySpendingApp;
-			sourceTree = "<group>";
-		};
-		7367F1312EF778960054FCA3 /* App */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = App;
-			sourceTree = "<group>";
-		};
-		738E2F862F13DB4500700442 /* InventoryApp */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = InventoryApp;
+			path = Sources;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -103,12 +78,7 @@
 		7367EECA2EF6B81D0054FCA3 = {
 			isa = PBXGroup;
 			children = (
-				7367F1312EF778960054FCA3 /* App */,
-				7341EBB92F13E0390074FD38 /* AppModule */,
-				7341EBCF2F13E04D0074FD38 /* Backend */,
-				738E2F862F13DB4500700442 /* InventoryApp */,
-				7341EBFB2F13E0600074FD38 /* QuizApp */,
-				7341EC1B2F13E06A0074FD38 /* WeeklySpendingApp */,
+				734EB0762F14936D002A98A6 /* Sources */,
 				7367F1FC2EF7C0E10054FCA3 /* .gitignore */,
 				7367F1422EF779540054FCA3 /* Info.plist */,
 				7367F2BD2EF7CDDB0054FCA3 /* GetLocalIP.sh */,
@@ -150,12 +120,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				7341EBB92F13E0390074FD38 /* AppModule */,
-				7341EBCF2F13E04D0074FD38 /* Backend */,
-				7341EBFB2F13E0600074FD38 /* QuizApp */,
-				7341EC1B2F13E06A0074FD38 /* WeeklySpendingApp */,
-				7367F1312EF778960054FCA3 /* App */,
-				738E2F862F13DB4500700442 /* InventoryApp */,
+				734EB0762F14936D002A98A6 /* Sources */,
 			);
 			name = SuperDuck;
 			packageProductDependencies = (
@@ -180,12 +145,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				7341EBB92F13E0390074FD38 /* AppModule */,
-				7341EBCF2F13E04D0074FD38 /* Backend */,
-				7341EBFB2F13E0600074FD38 /* QuizApp */,
-				7341EC1B2F13E06A0074FD38 /* WeeklySpendingApp */,
-				7367F1312EF778960054FCA3 /* App */,
-				738E2F862F13DB4500700442 /* InventoryApp */,
+				734EB0762F14936D002A98A6 /* Sources */,
 			);
 			name = "SuperDuck-Local";
 			packageProductDependencies = (
@@ -214,12 +174,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				7341EBB92F13E0390074FD38 /* AppModule */,
-				7341EBCF2F13E04D0074FD38 /* Backend */,
-				7341EBFB2F13E0600074FD38 /* QuizApp */,
-				7341EC1B2F13E06A0074FD38 /* WeeklySpendingApp */,
-				7367F1312EF778960054FCA3 /* App */,
-				738E2F862F13DB4500700442 /* InventoryApp */,
+				734EB0762F14936D002A98A6 /* Sources */,
 			);
 			name = "SuperDuck-Adhoc";
 			packageProductDependencies = (
