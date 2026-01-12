@@ -8,8 +8,7 @@ struct FloatingTabBar<ID: Hashable>: View {
     @State private var scrollViewWidth: CGFloat = 0
     @State private var buttonFrames: [ID: CGRect] = [:]
     @State private var selectionIndicatorID: ID // ID for selection indicator (gray background capsule)
-    private let buttonExtraPadding: CGFloat = 12
-    @Namespace private var tabNamespace
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
     init(
         selection: Binding<ID>,
@@ -20,9 +19,9 @@ struct FloatingTabBar<ID: Hashable>: View {
         self.tabItems = tabItems
     }
     
-    public var body: some View {
+    var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 6) {
+            HStack(spacing: buttonSpacing) {
                 ForEach(tabItems, id: \.id) { tab in
                     tabButton(for: tab, isFirst: tab.id == tabItems[0].id, isLast: tab.id == tabItems.last!.id)
                         .frame(maxWidth: .infinity)
@@ -56,13 +55,13 @@ struct FloatingTabBar<ID: Hashable>: View {
                     $0
                 }
             }
-            .padding(.horizontal, 24)
+            .padding(.horizontal, edgePadding)
             .frame(minWidth: scrollViewWidth, alignment: .center)
         }
         .onGeometryChange(for: CGFloat.self, of: \.size.width) {
             self.scrollViewWidth = $0
         }
-        .padding(.bottom, 24)
+        .padding(.bottom, edgePadding)
         .onChange(of: selection) {
             withAnimation(.spring(duration: 0.15)) {
                 selectionIndicatorID = selection
@@ -100,7 +99,7 @@ struct FloatingTabBar<ID: Hashable>: View {
                     }
                 }
                 .padding(.vertical, 6)
-                .padding(.horizontal, 12)
+                .padding(.horizontal, buttonInnerPadding)
                 .padding(.leading, isFirst ? buttonExtraPadding : 0)
                 .padding(.trailing, isLast ? buttonExtraPadding : 0)
 //                selectionExtraPadding
@@ -122,6 +121,22 @@ struct FloatingTabBar<ID: Hashable>: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(TabButtonStyle())
+    }
+    
+    private var edgePadding: CGFloat {
+        horizontalSizeClass == .regular ? 24 : 20
+    }
+    
+    private var buttonSpacing: CGFloat {
+        horizontalSizeClass == .regular ? 6 : 0
+    }
+    
+    private var buttonInnerPadding: CGFloat {
+        horizontalSizeClass == .regular ? 12 : 12
+    }
+    
+    private var buttonExtraPadding: CGFloat {
+        horizontalSizeClass == .regular ? 12 : 9
     }
 }
 

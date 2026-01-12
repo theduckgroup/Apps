@@ -21,8 +21,10 @@ struct FloatingTabView<ID: Hashable>: View {
             // - UITabBar.appearance().isHidden = true: does not work on iPad where the tab bar is at the top
             
             ForEach(tabItems, id: \.id) { tabItem in
+                let selected = selection == tabItem.id
+                
                 tabItem.content()
-                    .opacity(selection == tabItem.id ? 1 : 0)
+                    .opacity(selected ? 1 : 0)
                     .transaction { $0.animation = nil }
                     .environment(\._floatingTabBarBottomInset, barHeight)
             }
@@ -70,6 +72,17 @@ private struct TabButtonStyle: ButtonStyle {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.85 : 1.0)
             .animation(.spring(response: 0.2, dampingFraction: 0.8), value: configuration.isPressed)
+    }
+}
+
+struct FloatingTab<Content: View>: View {
+    var id: String
+    var title: String
+    var systemImage: String
+    @ViewBuilder var content: () -> Content
+    
+    var body: some View {
+        content()
     }
 }
 

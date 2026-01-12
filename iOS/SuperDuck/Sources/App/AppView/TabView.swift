@@ -11,25 +11,35 @@ struct TabView: View {
     var body: some View {
         FloatingTabView(
             selection: $tabViewSelection,
-            tabItems: [
-                .init(id: TabViewItem.quiz, title: "FOH Test", systemImage: "questionmark.text.page.fill") {
-                    AnyView(QuizAppView())
-                },
-                .init(id: TabViewItem.weeklySpending, title: "Weekly Spending", systemImage: "wallet.bifold.fill") {
-                    AnyView(WeeklySpendingAppView())
-                },
-                .init(id: TabViewItem.inventory, title: "Inventory", systemImage: "square.stack.3d.up.fill") {
-                    AnyView(InventoryAppView())
-                },
-                .init(id: TabViewItem.settings, title: "Settings", systemImage: "gearshape.fill") {
-                    AnyView(SettingsView())
-                },
-            ]
+            tabItems: tabs
         )
+    }
+    
+    private var tabs: [FloatingTabItem<TabViewItem>] {
+        var tabs: [FloatingTabItem<TabViewItem>] = [
+            .init(id: TabViewItem.quiz, title: "FOH Test", systemImage: "questionmark.text.page.fill") {
+                AnyView(QuizAppView())
+            },
+            .init(id: TabViewItem.weeklySpending, title: "Weekly Spending", systemImage: "wallet.bifold.fill") {
+                AnyView(WeeklySpendingAppView())
+            },
+            .init(id: TabViewItem.inventory, title: "Inventory", systemImage: "square.stack.3d.up.fill") {
+                AnyView(InventoryAppView())
+            },
+            .init(id: TabViewItem.settings, title: "Settings", systemImage: "gearshape.fill") {
+                AnyView(SettingsView())
+            },
+        ]
+        
+        tabs = tabs.filter {
+            !appDefaults.hiddenTabViewItems.contains($0.id)
+        }
+        
+        return tabs
     }
 }
 
-#Preview {
+#Preview("TabView") {
     TabView()
         .applyAppDefaultsStyling()
         .previewEnvironment()
