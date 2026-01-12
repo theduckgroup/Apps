@@ -32,9 +32,7 @@ struct FloatingTabBar<ID: Hashable>: View {
             .coordinateSpace(.named("buttonHStack"))
             .background(alignment: .topLeading) {
                 Group {
-                    let frame = buttonFrames[selectionIndicatorID]
-                    
-                    if let frame {
+                    if let frame = buttonFrames[selectionIndicatorID] {
                         let isFirst = selectionIndicatorID == tabItems.first?.id
                         let isLast = selectionIndicatorID == tabItems.last?.id
                         let minX = frame.minX - (isFirst ? 0 : buttonExtraPadding)
