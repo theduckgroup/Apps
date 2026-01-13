@@ -98,7 +98,7 @@ struct NakedBlendCalcAppView: View {
     @ViewBuilder
     private func coffeePerDaySection() -> some View {
         VStack(alignment: .leading, spacing: 15) {
-            HStack {
+            HStack(alignment: .firstTextBaseline) {
                 Text("Average of Coffee Using per Day")
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -112,7 +112,7 @@ struct NakedBlendCalcAppView: View {
                     }
                 }
             }
-            .font(.body.weight(.bold))
+            .bold()
             
             let mon = NBNumberField("Mon", $mon, unit: "kg", restriction: .double).infiniteMaxWidth()
             let tue = NBNumberField("Tue", $tue, unit: "kg", restriction: .double).infiniteMaxWidth()
@@ -144,7 +144,10 @@ struct NakedBlendCalcAppView: View {
     @ViewBuilder
     private func otherSection() -> some View {
         VStack(alignment: .leading) {
-            let aging = NBNumberField("Aging Days", .constant(agingDays), restriction: .integer).disabled(true)
+            let aging = NBNumberField("Aging Days", .constant(agingDays), restriction: .integer)
+                .disabled(true)
+                .foregroundStyle(.secondary)
+            
             let pub = NBNumberField("Public Holidays (if any)", $publicHolidays, restriction: .integer)
             
             let onFocus = {
