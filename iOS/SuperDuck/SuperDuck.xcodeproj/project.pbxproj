@@ -7,13 +7,22 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		734EB1732F164CF2002A98A6 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 734EB1722F164CF2002A98A6 /* Supabase */; };
+		734EB1772F164D0A002A98A6 /* Equatable in Frameworks */ = {isa = PBXBuildFile; productRef = 734EB1762F164D0A002A98A6 /* Equatable */; };
+		734EB1792F164D0A002A98A6 /* Flow in Frameworks */ = {isa = PBXBuildFile; productRef = 734EB1782F164D0A002A98A6 /* Flow */; };
+		734EB17B2F164D0A002A98A6 /* SwiftBSON in Frameworks */ = {isa = PBXBuildFile; productRef = 734EB17A2F164D0A002A98A6 /* SwiftBSON */; };
+		734EB17D2F164D1D002A98A6 /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 734EB17C2F164D1D002A98A6 /* SocketIO */; };
+		734EB17F2F164D3B002A98A6 /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 734EB17E2F164D3B002A98A6 /* SocketIO */; };
+		734EB1812F164D3B002A98A6 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 734EB1802F164D3B002A98A6 /* Supabase */; };
+		734EB1832F164D3B002A98A6 /* Equatable in Frameworks */ = {isa = PBXBuildFile; productRef = 734EB1822F164D3B002A98A6 /* Equatable */; };
+		734EB1852F164D3B002A98A6 /* Flow in Frameworks */ = {isa = PBXBuildFile; productRef = 734EB1842F164D3B002A98A6 /* Flow */; };
+		734EB1872F164D3B002A98A6 /* SwiftBSON in Frameworks */ = {isa = PBXBuildFile; productRef = 734EB1862F164D3B002A98A6 /* SwiftBSON */; };
 		7367EEF42EF6B98E0054FCA3 /* Common in Frameworks */ = {isa = PBXBuildFile; productRef = 7367EEF32EF6B98E0054FCA3 /* Common */; };
 		7367EEF62EF6B98E0054FCA3 /* CommonUI in Frameworks */ = {isa = PBXBuildFile; productRef = 7367EEF52EF6B98E0054FCA3 /* CommonUI */; };
 		7367F1E32EF787B00054FCA3 /* Common in Frameworks */ = {isa = PBXBuildFile; productRef = 7367F1E22EF787B00054FCA3 /* Common */; };
 		7367F1E52EF787B00054FCA3 /* CommonUI in Frameworks */ = {isa = PBXBuildFile; productRef = 7367F1E42EF787B00054FCA3 /* CommonUI */; };
 		7385A9352F12452800DD999C /* Common in Frameworks */ = {isa = PBXBuildFile; productRef = 7385A92D2F12452800DD999C /* Common */; };
 		7385A9362F12452800DD999C /* CommonUI in Frameworks */ = {isa = PBXBuildFile; productRef = 7385A92E2F12452800DD999C /* CommonUI */; };
-		7385A9482F12476600DD999C /* Subsystems in Frameworks */ = {isa = PBXBuildFile; productRef = 7385A9472F12476600DD999C /* Subsystems */; };
 		73E193632F13E5CC00E11CD1 /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 73E193622F13E5CC00E11CD1 /* SocketIO */; };
 		73E1936C2F13E6DC00E11CD1 /* SwiftBSON in Frameworks */ = {isa = PBXBuildFile; productRef = 73E1936B2F13E6DC00E11CD1 /* SwiftBSON */; };
 		73E1936E2F13E71300E11CD1 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 73E1936D2F13E71300E11CD1 /* Supabase */; };
@@ -43,9 +52,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7385A9482F12476600DD999C /* Subsystems in Frameworks */,
+				734EB1812F164D3B002A98A6 /* Supabase in Frameworks */,
 				7367EEF42EF6B98E0054FCA3 /* Common in Frameworks */,
+				734EB1852F164D3B002A98A6 /* Flow in Frameworks */,
+				734EB1832F164D3B002A98A6 /* Equatable in Frameworks */,
 				7367EEF62EF6B98E0054FCA3 /* CommonUI in Frameworks */,
+				734EB1872F164D3B002A98A6 /* SwiftBSON in Frameworks */,
+				734EB17F2F164D3B002A98A6 /* SocketIO in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -69,6 +82,11 @@
 			files = (
 				7385A9352F12452800DD999C /* Common in Frameworks */,
 				7385A9362F12452800DD999C /* CommonUI in Frameworks */,
+				734EB17D2F164D1D002A98A6 /* SocketIO in Frameworks */,
+				734EB1792F164D0A002A98A6 /* Flow in Frameworks */,
+				734EB1772F164D0A002A98A6 /* Equatable in Frameworks */,
+				734EB17B2F164D0A002A98A6 /* SwiftBSON in Frameworks */,
+				734EB1732F164CF2002A98A6 /* Supabase in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -126,7 +144,11 @@
 			packageProductDependencies = (
 				7367EEF32EF6B98E0054FCA3 /* Common */,
 				7367EEF52EF6B98E0054FCA3 /* CommonUI */,
-				7385A9472F12476600DD999C /* Subsystems */,
+				734EB17E2F164D3B002A98A6 /* SocketIO */,
+				734EB1802F164D3B002A98A6 /* Supabase */,
+				734EB1822F164D3B002A98A6 /* Equatable */,
+				734EB1842F164D3B002A98A6 /* Flow */,
+				734EB1862F164D3B002A98A6 /* SwiftBSON */,
 			);
 			productName = SuperDuck;
 			productReference = 7367EED32EF6B81D0054FCA3 /* SuperDuck.app */;
@@ -180,6 +202,11 @@
 			packageProductDependencies = (
 				7385A92D2F12452800DD999C /* Common */,
 				7385A92E2F12452800DD999C /* CommonUI */,
+				734EB1722F164CF2002A98A6 /* Supabase */,
+				734EB1762F164D0A002A98A6 /* Equatable */,
+				734EB1782F164D0A002A98A6 /* Flow */,
+				734EB17A2F164D0A002A98A6 /* SwiftBSON */,
+				734EB17C2F164D1D002A98A6 /* SocketIO */,
 			);
 			productName = SuperDuck;
 			productReference = 7385A93B2F12452800DD999C /* SuperDuck-Adhoc.app */;
@@ -421,7 +448,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = "1.0-beta.1";
+				MARKETING_VERSION = "1.0.0-beta.2";
 				PRODUCT_BUNDLE_IDENTIFIER = au.com.theduckgroup.SuperDuck;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -455,7 +482,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = "1.0-beta.1";
+				MARKETING_VERSION = "1.0.0-beta.2";
 				PRODUCT_BUNDLE_IDENTIFIER = au.com.theduckgroup.SuperDuck;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -489,7 +516,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = "1.0-beta.1";
+				MARKETING_VERSION = "1.0.0-beta.2";
 				PRODUCT_BUNDLE_IDENTIFIER = "au.com.theduckgroup.SuperDuck-local";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -523,7 +550,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = "1.0-beta.1";
+				MARKETING_VERSION = "1.0.0-beta.2";
 				PRODUCT_BUNDLE_IDENTIFIER = "au.com.theduckgroup.SuperDuck-local";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -559,7 +586,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = "1.0.0-beta.1";
+				MARKETING_VERSION = "1.0.0-beta.2";
 				PRODUCT_BUNDLE_IDENTIFIER = "au.com.knguyen.SuperDuck-adhoc";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -596,7 +623,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = "1.0.0-beta.1";
+				MARKETING_VERSION = "1.0.0-beta.2";
 				PRODUCT_BUNDLE_IDENTIFIER = "au.com.knguyen.SuperDuck-adhoc";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -695,6 +722,56 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		734EB1722F164CF2002A98A6 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73E193642F13E5FB00E11CD1 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+		734EB1762F164D0A002A98A6 /* Equatable */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73E193682F13E63A00E11CD1 /* XCRemoteSwiftPackageReference "equatable" */;
+			productName = Equatable;
+		};
+		734EB1782F164D0A002A98A6 /* Flow */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73E193692F13E66600E11CD1 /* XCRemoteSwiftPackageReference "SwiftUI-Flow" */;
+			productName = Flow;
+		};
+		734EB17A2F164D0A002A98A6 /* SwiftBSON */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73E1936A2F13E6DC00E11CD1 /* XCRemoteSwiftPackageReference "swift-bson" */;
+			productName = SwiftBSON;
+		};
+		734EB17C2F164D1D002A98A6 /* SocketIO */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73E193612F13E5CC00E11CD1 /* XCRemoteSwiftPackageReference "socket" */;
+			productName = SocketIO;
+		};
+		734EB17E2F164D3B002A98A6 /* SocketIO */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73E193612F13E5CC00E11CD1 /* XCRemoteSwiftPackageReference "socket" */;
+			productName = SocketIO;
+		};
+		734EB1802F164D3B002A98A6 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73E193642F13E5FB00E11CD1 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+		734EB1822F164D3B002A98A6 /* Equatable */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73E193682F13E63A00E11CD1 /* XCRemoteSwiftPackageReference "equatable" */;
+			productName = Equatable;
+		};
+		734EB1842F164D3B002A98A6 /* Flow */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73E193692F13E66600E11CD1 /* XCRemoteSwiftPackageReference "SwiftUI-Flow" */;
+			productName = Flow;
+		};
+		734EB1862F164D3B002A98A6 /* SwiftBSON */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73E1936A2F13E6DC00E11CD1 /* XCRemoteSwiftPackageReference "swift-bson" */;
+			productName = SwiftBSON;
+		};
 		7367EEF32EF6B98E0054FCA3 /* Common */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Common;
@@ -718,10 +795,6 @@
 		7385A92E2F12452800DD999C /* CommonUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = CommonUI;
-		};
-		7385A9472F12476600DD999C /* Subsystems */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Subsystems;
 		};
 		73E193622F13E5CC00E11CD1 /* SocketIO */ = {
 			isa = XCSwiftPackageProductDependency;
