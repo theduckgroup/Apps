@@ -7,7 +7,8 @@ struct ReviewView: View {
     var store: Store
     var scanMode: ScanMode
     var scanRecords: [ScanRecord]
-    var onSubmitted: () -> Void = {}
+    var onCancelled: () -> Void
+    var onSubmitted: () -> Void
     @State var submitting = false
     @State var ps = PresentationState()
     @Environment(API.self) var api
@@ -28,6 +29,7 @@ struct ReviewView: View {
         ToolbarItem(placement: .topBarLeading) {
             Button("Cancel") {
                 dismiss()
+                onCancelled()
             }
             .fixedSize()
             .buttonStyle(.automatic)
@@ -187,7 +189,9 @@ private extension API {
                         ReviewView(
                             store: store,
                             scanMode: .add,
-                            scanRecords: scanRecords
+                            scanRecords: scanRecords,
+                            onCancelled: { },
+                            onSubmitted: { },
                         )
                     }
                 }

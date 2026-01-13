@@ -30,7 +30,8 @@ struct BarcodeScanner: View {
     /// for a minimum duration. This only triggers if there is exactly one barcode.
     var persistentBarcodeHandler: (String) -> Void
 
-    /// Called when the rect of interest changes (e.g., due to rotation or layout).
+    /// Called when the rect of interest changes (e.g., due to rotation or layout). Rect of interest
+    /// is the rectangle where camera output is displayed.
     var onRectOfInterestChange: ((CGRect) -> Void)?
     
     var body: some View {
@@ -85,7 +86,11 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
     var minAbsenceTime: TimeInterval = 0
     var detectionHandler: ([String]) -> Void = { _ in }
     var persistenceHandler: ([String]) -> Void = { _ in }
-    var detectionEnabled = true
+    var detectionEnabled = true {
+        didSet {
+            print("! detectionEnabled set to \(detectionEnabled)")
+        }
+    }
     var onRectOfInterestChange: ((CGRect) -> Void)?
     nonisolated(unsafe) private let captureSession = AVCaptureSession()
     private var previewLayer: AVCaptureVideoPreviewLayer!
@@ -255,6 +260,7 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
     }
     
     private func handleCapturedOutput(_ pixelBuffer: CVPixelBuffer) {
+        print("! handleCapturedOutput -- detectionEnabled = \(detectionEnabled)")
         guard detectionEnabled else {
             barcodeRects.removeAll()
             return
@@ -266,16 +272,15 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
         }
         
         detectTask = Task { @MainActor in
-            // print("Detecting barcode")
-            let vnObservations = await detectTaskImpl1(pixelBuffer)
-            detectTaskImpl2(vnObservations)
+            let vnObservations = await detectTask_vnRequest(pixelBuffer)
+            detectTask_processVNObservations(vnObservations)
             
             detectTask = nil
         }
     }
     
     /// Runs VN recognition.
-    @concurrent private func detectTaskImpl1(_ pixelBuffer: CVPixelBuffer) async -> [VNBarcodeObservation] {
+    @concurrent private func detectTask_vnRequest(_ pixelBuffer: CVPixelBuffer) async -> [VNBarcodeObservation] {
         let vnRequest = VNDetectBarcodesRequest()
         // vnRequest.symbologies = [.qr]
         // request.regionOfInterest = .init(x: 0, y: 0.4, width: 1, height: 0.3)
@@ -302,7 +307,7 @@ private class BarcodeScannerViewController: UIViewController, AVCaptureVideoData
     }
     
     /// Processes VN recognition result.
-    @MainActor private func detectTaskImpl2(_ vnObservations: [VNBarcodeObservation]) {
+    @MainActor private func detectTask_processVNObservations(_ vnObservations: [VNBarcodeObservation]) {
         // print("[\(Date().ISO8601Format())] Detected: \(vnResults.map { $0.payloadStringValue ?? "<unknown>"})")
         
         struct BarcodeWithRect {
