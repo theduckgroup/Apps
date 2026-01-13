@@ -3,7 +3,7 @@ import SwiftUI
 /// Number field used in NakedBlendCalc.
 ///
 /// - Note: This includes the label above the field and is only useful for NakedBlendCalc. If the
-/// number field with unit is needed in the future, refactor it out.
+/// number field with unit is needed in the future, refactor it out. NB = Naked Blend.
 struct NBNumberField: View {
     let name: String
     @Binding var value: Double
