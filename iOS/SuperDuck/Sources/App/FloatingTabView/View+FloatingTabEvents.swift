@@ -56,11 +56,11 @@ private struct FloatingTabFirstSelectedModifier: ViewModifier {
                 }
             }
             .onChange(of: isFloatingTabSelected) { _, newValue in
-            if newValue && !wasSelectedOnce {
-                wasSelectedOnce = true
-                action()
+                if newValue && !wasSelectedOnce {
+                    wasSelectedOnce = true
+                    action()
+                }
             }
-        }
     }
 }
 

@@ -27,15 +27,5 @@ struct StockAdjustment: Decodable, Identifiable {
             var oldValue: Int
             var newValue: Int
         }
-        
-        // Computed property for backward compatibility
-        var delta: Int {
-            if let offset = offset {
-                return offset.delta
-            } else if let set = set {
-                return set.newValue - set.oldValue
-            }
-            return 0
-        }
     }
 }
