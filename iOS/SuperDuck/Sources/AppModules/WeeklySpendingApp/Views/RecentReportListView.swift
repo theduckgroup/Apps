@@ -27,7 +27,9 @@ struct RecentReportListView: View {
                             }
                             
                             if let since {
-                                let components = Calendar.current.dateComponents([.month], from: since, to: Date())
+                                // dateComponents([.month]) rounds down; add 1 day to make it show correct number of months
+                                let nextDay = Calendar.current.date(byAdding: .day, value: 1, to: Date())!
+                                let components = Calendar.current.dateComponents([.month], from: since, to: nextDay)
                                 Text("Data for the past \(components.month!) months is shown.")
                                     .foregroundStyle(.secondary)
                                     .padding(.top)
