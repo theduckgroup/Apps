@@ -37,6 +37,7 @@ struct RecentStockAdjustmentListView: View {
                         
                     } else {
                         Text("No Data")
+                            .frame(maxWidth: .infinity, alignment: .leading)
                             .foregroundStyle(.secondary)
                     }
                 }
