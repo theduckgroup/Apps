@@ -5,6 +5,7 @@ struct FloatingTabView<ID: Hashable>: View {
     @Binding var selection: ID
     var tabs: [FloatingTab<ID>]
     @State private var barHeight: CGFloat = 0
+    @State private var safeAreaBottomInset: CGFloat = 0
     
     init(
         selection: Binding<ID>,
@@ -20,53 +21,42 @@ struct FloatingTabView<ID: Hashable>: View {
             // - tabViewStyle(.page(indexDisplayMode: .never)): Broken nav title
             // - UITabBar.appearance().isHidden = true: does not work on iPad where the tab bar is at the top
             
+            // Have to subtract safeAreaBottomInset because this value is meant for views
+            // that do not ignore system safe area insets
+            // The 0 case is likely for when keyboard is visible
+            let floatingBarBottomInset = max(barHeight - safeAreaBottomInset, 0)
+            
             ForEach(tabs, id: \.id) { tabItem in
                 let selected = selection == tabItem.id
                 
                 tabItem.content()
                     .opacity(selected ? 1 : 0)
                     .transaction { $0.animation = nil }
-                    .environment(\._floatingTabBarBottomInset, barHeight)
                     .environment(\.isFloatingTabSelected, selected)
             }
-           
-            // GeometryReader is used both for getting the safe area insets
-            // and making sure that the tab bar does not exceed the screen width
+            .environment(\._floatingTabBarBottomInset, floatingBarBottomInset)
             
-            GeometryReader { geometryProxy in
-                FloatingTabBar(
-                    selection: $selection,
-                    tabs: tabs
-                )
-                .onGeometryChange(for: CGFloat.self, of: \.size.height) { newValue in
-                    // Note: geometryProxy.safeAreaInsets doesn't report keyboard insets
-                    // Not a big problem
-                    
-                    // print("! barHeight = \(newValue)")
-                    // print("! safeAreaInsets = \(geometryProxy.safeAreaInsets)")
-                    barHeight = newValue - geometryProxy.safeAreaInsets.bottom
-                }
-                .frame(maxHeight: .infinity, alignment: .bottom)
-                .ignoresSafeArea(edges: .bottom)
+            FloatingTabBar(
+                selection: $selection,
+                tabs: tabs
+            )
+            .onGeometryChange(for: CGFloat.self, of: \.size.height) { newValue in
+                // print("! barHeight changed to \(newValue)")
+                barHeight = newValue
             }
-            
-//            SwiftUI.TabView(selection: $selection) {
-//                ForEach(tab, id: \.id) { tab in
-//                    Tab(tab.title, systemImage: tab.systemImage, value: tab.id) {
-//                        tab.content()
-//                    }
-//                }
-//            }
-//            .tabViewStyle(.page(indexDisplayMode: .never))
-//            .ignoresSafeArea(edges: [.top, .bottom])
-//            .onAppear {
-//                UITabBar.appearance().isHidden = true
-//            }
+            .frame(maxHeight: .infinity, alignment: .bottom)
+            .ignoresSafeArea(edges: .bottom)
+            .onGeometryChange(for: CGFloat.self, of: \.safeAreaInsets.bottom) { newValue in
+                // print("! safeAreaInsets.bottom changed to \(newValue)")
+                safeAreaBottomInset = newValue
+            }
         }
     }
 }
 
 extension EnvironmentValues {
+    /// Safe area bottom inset caused by floating tab bar.
+    /// Note that this is meant for views that does not ignore built-in safe area insets (via `ignoresSafeAreaInset()`).
     @Entry var _floatingTabBarBottomInset: CGFloat = 0
 }
 
@@ -103,6 +93,15 @@ private struct PreviewView: View {
                     AnyView(ContentView(title: "Library"))
                 },
                 FloatingTab(id: 3, title: "Profile", systemImage: "person") {
+                    AnyView(ContentView(title: "Profile"))
+                },
+                FloatingTab(id: 4, title: "Search", systemImage: "magnifyingglass") {
+                    AnyView(ContentView(title: "Search"))
+                },
+                FloatingTab(id: 5, title: "Library", systemImage: "books.vertical") {
+                    AnyView(ContentView(title: "Library"))
+                },
+                FloatingTab(id: 6, title: "Profile", systemImage: "person") {
                     AnyView(ContentView(title: "Profile"))
                 }
             ]
