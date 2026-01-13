@@ -119,10 +119,6 @@ public struct InventoryAppView: View {
                 throw GenericError("User not logged in")
             }
             
-            if debugging {
-                throw GenericError("Consequat sunt enim exercitation sit minim cupidatat non excepteur quis elit dolore cupidatat mollit id ut.")
-            }
-            
             let response = try await api.stockAdjustmentsMeta(storeId: Store.defaultStoreID, userId: userId)
             return (response.data, response.since)
         }
