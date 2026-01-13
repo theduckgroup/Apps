@@ -4,10 +4,11 @@ import Common
 
 /*
  Test cases:
- - Signing in/out
- - Signing out from other device should kick user out
- - Should not kick user out when unable to refresh tokens due to network errors
- - Same as above, but after launching the app
+ 1. Signing in/out
+ 2. Signing out from other device should not kick user out
+ 3. Changing password etc should kick user out
+ 4. Should not kick user out when unable to refresh tokens due to network errors
+ 5. Same as (4) but after launching the app
  */
 
 @MainActor @Observable
@@ -69,19 +70,26 @@ private final class AuthImpl: AuthImplProtocol {
     
     private(set) var isLoaded = false
     private var session: Session?
-    private let supabase = SupabaseClient(supabaseURL: URL(string: "https://ahvebevkycanekqtnthy.supabase.co")!, supabaseKey: "sb_publishable_RYskGh0Y71aGJoncWRLZDQ_rp9Z0U2u")
+    private let supabase = SupabaseClient(
+        supabaseURL: URL(string: "https://ahvebevkycanekqtnthy.supabase.co")!,
+        supabaseKey: "sb_publishable_RYskGh0Y71aGJoncWRLZDQ_rp9Z0U2u",
+        options: .init(auth: .init(emitLocalSessionAsInitialSession: true))
+    )
     
     init() {
         Task {
             // It's important that this is run on main thread since we're modifying properties observed by UI            
             MainActor.assertIsolated()
             
-            for await (event, session) in await supabase.auth.authStateChanges {
+            for await (event, session) in supabase.auth.authStateChanges {
                 logger.info("Received auth event \(event.rawValue), session = \(session != nil ? "not nil" : "nil")")
                 // logger.info("Received auth event \(event.rawValue), session = \(session, default: "nil")")
                 
                 self.isLoaded = true
-
+                self.session = session
+                
+                // Don't need this, kept for historical reason
+                /*
                 switch event {
                 case .initialSession:
                     // In this case (app launch), if the tokens have expired, Supabase will try to
@@ -97,6 +105,7 @@ private final class AuthImpl: AuthImplProtocol {
                 default:
                     self.session = session
                 }
+                */
             }
         }
     }
