@@ -3,7 +3,7 @@ import SwiftUI
 import CommonUI
 
 struct TabView: View {
-    @AppStorage("tabViewSelection") private var tabViewSelection = TabViewItem.inventory
+    @AppStorage("tabViewSelection") private var tabViewSelection = TabViewItem.quiz
     @Environment(AppDefaults.self) private var appDefaults
     @State private var barHeight: CGFloat = 0
     
