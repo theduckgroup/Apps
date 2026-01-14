@@ -3,7 +3,7 @@ import SwiftUI
 import Common
 import CommonUI
 
-public struct InventoryAppView: View {
+struct InventoryAppView: View {
     @State var storeFetcher = ValueFetcher<Store>()
     @State var adjustmentsFetcher = ValueFetcher<(data: [StockAdjustmentMeta], since: Date)>()
     @State var presentingStockView = false
@@ -14,9 +14,9 @@ public struct InventoryAppView: View {
     @Environment(API.self) var api
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
 
-    public init() {}
+    init() {}
 
-    public var body: some View {
+    var body: some View {
         NavigationStack {
             bodyContent()
                 .navigationTitle("Inventory")
