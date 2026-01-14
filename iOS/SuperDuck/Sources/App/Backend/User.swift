@@ -3,7 +3,7 @@ import Supabase
 
 typealias User = Supabase.User
 
-public extension User {
+extension User {
     var idString: String {
         id.uuidString.lowercased()
     }
