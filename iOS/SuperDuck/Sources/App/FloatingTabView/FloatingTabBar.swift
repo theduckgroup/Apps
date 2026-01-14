@@ -48,17 +48,8 @@ struct FloatingTabBar<ID: Hashable>: View {
                     }
                 }
             }
-            .modified {
-                if #available(iOS 26, *) {
-                    // $0.glassEffect(.regular, in: ConcentricRectangle(corners: .concentric(minimum: .fixed(15)), isUniform: true))
-                    $0.glassEffect(.regular, in: .capsule)
-                    // $0.glassEffect(.regular, in: .rect(cornerRadius: 32))
-                } else {
-                    $0.background(Color(UIColor.systemBackground), in: Capsule())
-                        .shadow(color: .black.opacity(0.05), radius: 6)
-                }
-            }
-            .padding(.horizontal, edgePadding)
+            .modifier(TabBarStyleModifier())
+            .padding(.horizontal, scrollViewContentPadding)
             .frame(minWidth: scrollViewWidth, alignment: .center)
         }
         .scrollClipDisabled()
@@ -66,7 +57,7 @@ struct FloatingTabBar<ID: Hashable>: View {
         .onGeometryChange(for: CGFloat.self, of: \.size.width) {
             self.scrollViewWidth = $0
         }
-        .padding(.bottom, edgePadding)
+        .padding(.bottom, scrollViewBottomMargin)
         .onChange(of: selection) {
             withAnimation(.spring(duration: 0.15)) {
                 selectionIndicatorID = selection
@@ -127,16 +118,23 @@ struct FloatingTabBar<ID: Hashable>: View {
     }
     
     private func scrollToSelection() {
-        scrollPosition.scrollTo(x: buttonFrames[selection]!.midX - scrollViewWidth / 2 + edgePadding)
+        scrollPosition.scrollTo(x: buttonFrames[selection]!.midX - scrollViewWidth / 2 + scrollViewContentPadding)
     }
     
     private var barHeight: CGFloat {
         // Rationale for bigger height on iPhone: to avoid the app switcher area while scrolling
-        horizontalSizeClass == .regular ? 64 : 72
+        horizontalSizeClass == .regular ? 64 : 68
+    }
+    
+    /// Space between scroll view and bottom edge.
+    ///
+    /// Larger for iPhone to account for app switcher bar and make the touch area slightly larger.
+    private var scrollViewBottomMargin: CGFloat {
+        horizontalSizeClass == .regular ? 24 : 21
     }
     
     /// Leading/trailing/bottom padding around the bar to add spacing to the device edges.
-    private var edgePadding: CGFloat {
+    private var scrollViewContentPadding: CGFloat {
         horizontalSizeClass == .regular ? 24 : 18
     }
     
@@ -161,5 +159,28 @@ private struct TabButtonStyle: ButtonStyle {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.85 : 1.0)
             .animation(.spring(response: 0.2, dampingFraction: 0.8), value: configuration.isPressed)
+    }
+}
+
+private struct TabBarStyleModifier: ViewModifier {
+    @Environment(\.colorScheme) private var colorScheme
+    
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(iOS 26, *) {
+            // $0.glassEffect(.regular, in: ConcentricRectangle(corners: .concentric(minimum: .fixed(15)), isUniform: true))
+            content.glassEffect(.regular, in: .capsule)
+            // $0.glassEffect(.regular, in: .rect(cornerRadius: 32))
+        } else {
+            let content = content.background(Color(UIColor.secondarySystemGroupedBackground), in: Capsule())
+            
+            if colorScheme == .dark {
+                content.overlay {
+                    Capsule().strokeBorder(Color(UIColor.separator), lineWidth: 0.5)
+                }
+            } else {
+                content.shadow(color: .black.opacity(0.05), radius: 6)
+            }
+        }
     }
 }
