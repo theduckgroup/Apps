@@ -73,21 +73,6 @@ struct StockAdjustmentView: View {
             .padding(.vertical, 12)
             
             Divider()
-            
-//            GridRow(alignment: .firstTextBaseline) {
-//                Text("User")
-//                    .bold()
-//                
-//                if let adjustment = adjustmentFetcher.value {
-//                    Text(adjustment.user.email)
-//                } else {
-//                    Text("—")
-//                        .foregroundStyle(.secondary)
-//                }
-//            }
-//            .padding(.vertical, 12)
-            
-            Divider()
         }
     }
     

@@ -1,9 +1,9 @@
 import Foundation
-public import SwiftUI
+import SwiftUI
 import Common
 import CommonUI
 
-public struct InventoryAppView: View {
+struct InventoryAppView: View {
     @State var storeFetcher = ValueFetcher<Store>()
     @State var adjustmentsFetcher = ValueFetcher<(data: [StockAdjustmentMeta], since: Date)>()
     @State var presentingStockView = false
@@ -14,16 +14,11 @@ public struct InventoryAppView: View {
     @Environment(API.self) var api
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
 
-    public init() {}
+    init() {}
 
-    public var body: some View {
+    var body: some View {
         NavigationStack {
             bodyContent()
-                .fetchOverlay(
-                    isFetching: storeFetcher.isFetching || adjustmentsFetcher.isFetching,
-                    fetchError: storeFetcher.error ?? adjustmentsFetcher.error,
-                    retry: { fetchStore(delay: true) }
-                )
                 .navigationTitle("Inventory")
                 .toolbar { toolbarContent() }
                 .navigationDestination(isPresented: $presentingStockView) {
@@ -103,6 +98,11 @@ public struct InventoryAppView: View {
             .padding()
         }
         .background(Color(UIColor.systemGroupedBackground))
+        .fetchOverlay(
+            isFetching: storeFetcher.isFetching || adjustmentsFetcher.isFetching,
+            fetchError: storeFetcher.error ?? adjustmentsFetcher.error,
+            retry: { fetchStore(delay: true) }
+        )
         .nonProdEnvWarningOverlay()
         .floatingTabBarSafeAreaInset()
     }
@@ -118,7 +118,7 @@ public struct InventoryAppView: View {
             guard let userId = auth.user?.idString else {
                 throw GenericError("User not logged in")
             }
-
+            
             let response = try await api.stockAdjustmentsMeta(storeId: Store.defaultStoreID, userId: userId)
             return (response.data, response.since)
         }

@@ -1,4 +1,4 @@
-public import Foundation
+import Foundation
 import Combine
 import Common
 @preconcurrency import SocketIO

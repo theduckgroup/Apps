@@ -3,7 +3,7 @@ import SwiftUI
 /// Number field used in NakedBlendCalc.
 ///
 /// - Note: This includes the label above the field and is only useful for NakedBlendCalc. If the
-/// number field with unit is needed in the future, refactor it out.
+/// number field with unit is needed in the future, refactor it out. NB = Naked Blend.
 struct NBNumberField: View {
     let name: String
     @Binding var value: Double
@@ -49,35 +49,30 @@ struct NBNumberField: View {
                 .keyboardType(integer ? .numberPad : .decimalPad)
         }
         .frame(minWidth: 60, alignment: .leading)
-        // .fixedSize()
         .onTapGesture {
             focused = true
         }
-        .onChange(of: text) { newValue in
+        .onChange(of: text) { _, newValue in
             let x = text.components(separatedBy: " ").first ?? "" // Strip unit
             value = Double(x) ?? 0
         }
-        .onChange(of: value) { newValue in
+        .onChange(of: value) { _, newValue in
             if !focused {
                 text = Self.formatValue(value, unit, restriction)
-                // print("4 Set text to \(text)")
             }
         }
-        .onChange(of: focused) { newValue in
+        .onChange(of: focused) { _, newValue in
             if focused {
                 if value == 0 {
                     text = ""
-                    
                 } else {
                     text = Self.formatValue(value, restriction)
-                    // print("1 Set text to \(text)")
                 }
                 
                 onFocus()
                 
             } else {
                 text = Self.formatValue(value, unit, restriction)
-                // print("2 Set text to \(text), unit = \(unit ?? "nil")")
             }
         }
     }

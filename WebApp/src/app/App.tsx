@@ -26,7 +26,7 @@ function App() {
 
 function MantineThemedApp() {
   const { themeColor } = useAppSettings()
-  
+
   // Create dynamic theme with selected color
   const theme = useMemo(() => {
     return mergeThemeOverrides(baseTheme, createTheme({

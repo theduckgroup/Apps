@@ -1,20 +1,22 @@
 import Foundation
 import Common
-public import SwiftUI
+import CommonUI
+import SwiftUI
 
-public struct FetchView: View {
+struct FetchView: View {
     var isFetching: Bool
     var fetchError: Error?
     var retry: () -> Void
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Environment(\.colorScheme) var colorScheme
     
-    public init(isFetching: Bool, fetchError: Error? = nil, retry: @escaping () -> Void) {
+    init(isFetching: Bool, fetchError: Error? = nil, retry: @escaping () -> Void) {
         self.isFetching = isFetching
         self.fetchError = fetchError
         self.retry = retry
     }
     
-    public var body: some View {
+    var body: some View {
         if isFetching {
             HStack {
                 ProgressView()
@@ -49,16 +51,23 @@ public struct FetchView: View {
             .frame(width: horizontalSizeClass == .regular ? 570 : nil)
             .frame(maxWidth: horizontalSizeClass == .compact ? .infinity : nil)
             .background {
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: 18)
                     .fill(.regularMaterial)
+                    .modified {
+                        if colorScheme == .light {
+                            $0.shadow(color: .black.opacity(0.05), radius: 12)
+                        } else {
+                            $0
+                        }
+                    }
             }
             .padding()
+            .padding(.horizontal, 12) // Avoid coinciding edges with list views and so on
         }
     }
 }
 
-
-public extension View {
+extension View {
     @ViewBuilder
     func fetchOverlay(isFetching: Bool, fetchError: Error?, retry: @escaping () -> Void) -> some View {
         safeAreaInset(edge: .bottom) {

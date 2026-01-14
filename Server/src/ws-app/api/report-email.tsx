@@ -114,23 +114,17 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '8px 0',
     borderBottom: '1px solid #eeeeee',
   },
-  // Section header
-  sectionTitle: {
-    fontWeight: 'bold',
-    color: '#333333',
-    padding: '8px 0 4px 0',
-    borderBottom: `2px solid ${darkBorderColor}`,
-  },
-  sectionTitleNotFirst: {
-    fontWeight: 'bold',
-    color: '#333333',
-    padding: '8px 0 4px 0',
-    borderBottom: `2px solid ${darkBorderColor}`,
-  },
+  // Amount/GST/Credit column header and sections
   columnHeader: {
     fontWeight: 'bold',
     color: '#555555',
     textAlign: 'right' as const,
+    padding: '8px 0 4px 0',
+    borderBottom: `2px solid ${darkBorderColor}`,
+  },
+  sectionTitle: {
+    fontWeight: 'bold',
+    color: '#333333',
     padding: '8px 0 4px 0',
     borderBottom: `2px solid ${darkBorderColor}`,
   },
@@ -248,6 +242,19 @@ const EmailTemplate: React.FC<{
             {/* Data Sections */}
             <table border={0} cellPadding={0} cellSpacing={0} width="600" style={styles.container}>
               <tbody>
+                {/* Column Headers */}
+                <tr>
+                  <td width="40%" style={styles.columnHeader}></td>
+                  <td width="20%" style={styles.columnHeader}>
+                    Amount
+                  </td>
+                  <td width="20%" style={styles.columnHeader}>
+                    GST
+                  </td>
+                  <td width="20%" style={styles.columnHeader}>
+                    Credit
+                  </td>
+                </tr>
                 {/* Suppliers */}
                 {report.template.sections.map((section, sectionIndex) => {
                   const items: ItemComponentProps[] = section.rows.map(row => {
@@ -359,24 +366,17 @@ const SectionComponent: React.FC<SectionComponentProps> = ({ name, isFirst, item
           <td width="40%" style={styles.sectionTitle}>
             {name}
           </td>
-          <td width="20%" style={styles.columnHeader}>
-            Amount
-          </td>
-          <td width="20%" style={styles.columnHeader}>
-            GST
-          </td>
-          <td width="20%" style={styles.columnHeader}>
-            Credit
-          </td>
+          <td width="20%" style={styles.sectionTitle}></td>
+          <td width="20%" style={styles.sectionTitle}></td>
+          <td width="20%" style={styles.sectionTitle}></td>
         </tr>
       ) : (
         <tr>
-          <td colSpan={4} style={styles.sectionTitleNotFirst}>
+          <td colSpan={4} style={styles.sectionTitle}>
             {name}
           </td>
         </tr>
       )}
-
       {/* Section Items */}
       {items.map((item, itemIndex) => {
         const isFirstItem = itemIndex === 0

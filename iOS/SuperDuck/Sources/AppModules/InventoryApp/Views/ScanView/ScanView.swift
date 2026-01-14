@@ -4,11 +4,12 @@ import AVFoundation
 import Common
 import CommonUI
 
-/// View that displays camera, barcode info and Finish button.
+/// View that displays camera, barcode info and Cancel/Review button.
 struct ScanView: View {
     var store: Store
     var scanMode: ScanMode
-    @State var detectedBarcodes: [String] = []
+    @State var detectionEnabled = true
+    @State var detectedBarcodes: [String] = [] // Not used
     @State var scanRecords: [ScanRecord] = []
     @State var presentingFinishedView = false
     @State var presentingReviewView = false
@@ -38,7 +39,14 @@ struct ScanView: View {
                 .navigationTitle(scanMode == .add ? "Add Items" : "Remove Items")
                 .navigationBarTitleDisplayMode(.inline)
                 .sheet(isPresented: $presentingReviewView) {
-                    ReviewView(store: store, scanMode: scanMode, scanRecords: scanRecords, onSubmitted: { dismiss() })
+                    ReviewView(
+                        store: store,
+                        scanMode: scanMode,
+                        scanRecords: scanRecords,
+                        onCancelled: {
+                            detectionEnabled = true
+                        },
+                        onSubmitted: { dismiss() })
                 }
                 .presentations(ps)
                 .ignoresSafeArea()
@@ -72,6 +80,7 @@ struct ScanView: View {
 //                        }
 //                    )
 //                }
+                detectionEnabled = false
                 presentingReviewView = true
             }
             .modified {
@@ -90,11 +99,9 @@ struct ScanView: View {
         BarcodeScanner(
             minPresenceTime: defaults.scanner.minPresenceTime,
             minAbsenceTime: defaults.scanner.minAbsenceTime,
-            detectionEnabled: !presentingFinishedView && !didSubmitResult,
+            detectionEnabled: detectionEnabled,
             detectedBarcodes: $detectedBarcodes,
-            persistentBarcodeHandler: { barcode in
-                handleBarcodeDetected(barcode)
-            },
+            persistentBarcodeHandler: handleBarcodeDetected,
             onRectOfInterestChange: { rect in
                 // Try DispatchQueue.main.async here if it doesn't work
                 // Did not work at some point without it
@@ -154,14 +161,18 @@ struct ScanView: View {
     }
     
     private func presentQuantityInputAlert(for item: Store.Item) {
+        detectionEnabled = false
+        
         ps.presentAlertStyleCover(offset: .init(x: 0, y: -42)) {
             QuantityInputAlert(
                 title: item.name,
                 subtitle: item.code,
                 onCancel: {
+                    detectionEnabled = true
                     ps.dismiss()
                 },
                 onDone: { quantity in
+                    detectionEnabled = true
                     ps.dismiss()
                     scanRecords.append(.init(storeItem: item, quantity: quantity))
                 }

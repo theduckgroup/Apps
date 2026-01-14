@@ -3,7 +3,6 @@ import UIKit
 import CommonUI
 
 struct NakedBlendCalcAppView: View {
-    let title = "Naked Blend Calculator"
     let resultViewID = "resultTextID"
     @State var mon: Double = 0
     @State var tue: Double = 0
@@ -17,12 +16,7 @@ struct NakedBlendCalcAppView: View {
     @State var coffeeOnHand: Double = 0
     @State var coffeeDelivery: Double = 0
     @State var scrollPosition = ScrollPosition(idType: String.self)
-    @State var keyboardHeight: CGFloat = 0
     @State var confirmResetAlert: Bool = false
-    @State var windowSize: CGSize = .zero
-    @State var windowSafeAreaInsets: EdgeInsets = .init()
-    @ScaledMetric var regularBodyTitleHeight: CGFloat = 48
-    @ScaledMetric var regularContentWidth: CGFloat = 640
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     init() {}
@@ -37,12 +31,13 @@ struct NakedBlendCalcAppView: View {
                             .fill(Color(UIColor.secondarySystemGroupedBackground))
                     }
                     .padding()
+                    .id("contentView")
                     .scrollTargetLayout()
             }
             .scrollPosition($scrollPosition)
             .animation(.default, value: scrollPosition)
             .background(Color(UIColor.systemGroupedBackground))
-            .navigationTitle(title)
+            .navigationTitle("Naked Blend Calculator")
             .toolbar { toolbarContent() }
             .nonProdEnvWarningOverlay()
             .floatingTabBarSafeAreaInset()
@@ -51,11 +46,10 @@ struct NakedBlendCalcAppView: View {
                     // Scroll to ID animates by default but scroll to x/y does not!
                     // Wrapping this in withAnimation will actually break the animation!
                     try await Task.sleep(for: .seconds(0.10))
-                    scrollPosition.scrollTo(id: resultViewID, anchor: .bottom)
+                    scrollPosition.scrollTo(id: "contentView", anchor: .bottom)
                 }
             }
         }
-        .keyboardHeight($keyboardHeight)
         .alert("Reset Calculator?", isPresented: $confirmResetAlert, actions: {
             Button("Reset", role: .destructive) {
                 UIApplication.shared.dismissKeyboard()
@@ -73,82 +67,6 @@ struct NakedBlendCalcAppView: View {
                 confirmResetAlert = true
                 UIApplication.shared.dismissKeyboard()
             }
-        }
-    }
-    
-    @ViewBuilder
-    private func regularBody() -> some View {
-        ScrollViewReader { scrollViewProxy in
-            ScrollView(.vertical) {
-                VStack {
-                    // Note: keyboard affects view size; to avoid problems, make sure the calculated
-                    // size does not include keyboard safe area inset
-                    
-                    let portrait = windowSize.height > 1.25 * windowSize.width
-                    
-                    let height = portrait ? windowSize.height - windowSafeAreaInsets.top - windowSafeAreaInsets.bottom : nil
-                    let offsetY: CGFloat = portrait ? (keyboardHeight > 10 ? -60 : 0) : 0
-                    let paddingTop: CGFloat? = !portrait ? windowSafeAreaInsets.top + 20 : nil
-                    let paddingBottom: CGFloat? = !portrait ? 20 : nil
-                    
-                    // Using if/else here will mess up portrait/landscape transition
-                    
-                    regularBodyContent(scrollViewProxy)
-                        // Portrait
-                        .frame(height: height)
-                        .animation(.spring(), value: keyboardHeight)
-                        .offset(y: offsetY)
-                        // Lansdcape
-                        .padding(.top, paddingTop)
-                        .padding(.bottom, paddingBottom)
-                }
-                .frame(maxWidth: .infinity)
-            }
-        }
-        .background(Color(uiColor: .systemGroupedBackground))
-        .background {
-            GeometryReader { geometryProxy in
-                Color.clear
-                    .preference(key: SizePrefKey.self, value: geometryProxy.size)
-                    .preference(key: SafeAreaInsetsPrefKey.self, value: geometryProxy.safeAreaInsets)
-            }
-            .ignoresSafeArea(.keyboard)
-        }
-        .onPreferenceChange(SizePrefKey.self) { value in
-            if let value {
-                self.windowSize = value
-            }
-        }
-        .onPreferenceChange(SafeAreaInsetsPrefKey.self) { value in
-            if let value {
-                self.windowSafeAreaInsets = value
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private func regularBodyContent(_ scrollViewProxy: ScrollViewProxy) -> some View {
-        let contentWidth = min(windowSize.width - 2 * 20, regularContentWidth)
-        
-        VStack(spacing: 0) {
-            content()
-        }
-        .fixedSize(horizontal: false, vertical: true)
-        .frame(width: max(contentWidth, 0)) // Avoid warning wrt initial negative width
-        .background(Color(uiColor: .quaternarySystemFill))
-        .clipShape(RoundedRectangle(cornerRadius: 6))
-    }
-    
-    @ViewBuilder
-    private func compactBody() -> some View {
-        NavigationView {
-            ScrollView {
-                content()
-                    .toolbar { toolbarContent() }
-            }
-            .navigationTitle(title)
-            .nonProdEnvWarningOverlay()
-            .floatingTabBarSafeAreaInset()
         }
     }
     
@@ -180,7 +98,7 @@ struct NakedBlendCalcAppView: View {
     @ViewBuilder
     private func coffeePerDaySection() -> some View {
         VStack(alignment: .leading, spacing: 15) {
-            HStack {
+            HStack(alignment: .firstTextBaseline) {
                 Text("Average of Coffee Using per Day")
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -194,7 +112,7 @@ struct NakedBlendCalcAppView: View {
                     }
                 }
             }
-            .font(.body.weight(.bold))
+            .bold()
             
             let mon = NBNumberField("Mon", $mon, unit: "kg", restriction: .double).infiniteMaxWidth()
             let tue = NBNumberField("Tue", $tue, unit: "kg", restriction: .double).infiniteMaxWidth()
@@ -226,12 +144,15 @@ struct NakedBlendCalcAppView: View {
     @ViewBuilder
     private func otherSection() -> some View {
         VStack(alignment: .leading) {
-            let aging = NBNumberField("Aging Days", .constant(agingDays), restriction: .integer).disabled(true)
+            let aging = NBNumberField("Aging Days", .constant(agingDays), restriction: .integer)
+                .disabled(true)
+                .foregroundStyle(.secondary)
+            
             let pub = NBNumberField("Public Holidays (if any)", $publicHolidays, restriction: .integer)
             
             let onFocus = {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                    scrollPosition.scrollTo(id: resultViewID, anchor: .bottom)
+                    scrollPosition.scrollTo(id: "contentView", anchor: .bottom)
                 }
             }
 
@@ -317,25 +238,25 @@ struct NakedBlendCalcAppView: View {
     }
 }
 
-private struct SizePrefKey: PreferenceKey {
-    static var defaultValue: CGSize?
-    
-    static func reduce(value: inout CGSize?, nextValue: () -> CGSize?) {
-        if let next = nextValue() {
-            value = next
-        }
-    }
-}
-
-private struct SafeAreaInsetsPrefKey: PreferenceKey {
-    static var defaultValue: EdgeInsets?
-    
-    static func reduce(value: inout EdgeInsets?, nextValue: () -> EdgeInsets?) {
-        if let next = nextValue() {
-            value = next
-        }
-    }
-}
+//private struct SizePrefKey: PreferenceKey {
+//    static var defaultValue: CGSize?
+//    
+//    static func reduce(value: inout CGSize?, nextValue: () -> CGSize?) {
+//        if let next = nextValue() {
+//            value = next
+//        }
+//    }
+//}
+//
+//private struct SafeAreaInsetsPrefKey: PreferenceKey {
+//    static var defaultValue: EdgeInsets?
+//    
+//    static func reduce(value: inout EdgeInsets?, nextValue: () -> EdgeInsets?) {
+//        if let next = nextValue() {
+//            value = next
+//        }
+//    }
+//}
 
 private extension Double {
     var isNonZero: Bool {

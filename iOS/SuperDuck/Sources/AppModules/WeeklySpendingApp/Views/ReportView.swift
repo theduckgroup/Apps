@@ -79,31 +79,31 @@ struct ReportView: View {
     @ViewBuilder
     private func tableView(_ report: WSReport) -> some View {
         Grid(alignment: .leading, horizontalSpacing: 20, verticalSpacing: 0) {
+            GridRow(alignment: .firstTextBaseline) {
+                Text("")
+               
+                Group {
+                    Text("Amount")
+                    Text("GST")
+                    Text("Credit")
+                }
+                .bold()
+                .gridColumnAlignment(.trailing)
+            }
+            .padding(.top, 18)
+            .padding(.bottom, 12)
+            
+            Divider()
+            
             ForEach(Array(report.template.sections.enumerated()), id: \.offset) { index, section in
                 // Header
             
                 GridRow(alignment: .firstTextBaseline) {
                     Text(section.name)
                         .bold()
-                        .gridCellColumns(index == 0 ? 1 : 4)
-                    
-                    if index == 0 {
-                        Text("Amount")
-                            .bold()
-                            .gridColumnAlignment(.trailing)
-                        
-                        Text("GST")
-                            .bold()
-                            .gridColumnAlignment(.trailing)
-                        
-                        Text("Credit")
-                            .bold()
-                            .gridColumnAlignment(.trailing)
-                    }
-
+                        .gridCellColumns(4)
                 }
-                .padding(.top, 18)
-                .padding(.bottom, 9)
+                .padding(.vertical, 12)
                 
                 Divider()
                 
