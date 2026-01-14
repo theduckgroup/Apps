@@ -1,5 +1,5 @@
 import Foundation
-public import SwiftUI
+import SwiftUI
 import Common
 import CommonUI
 
